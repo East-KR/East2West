@@ -5,7 +5,7 @@ golden/<app>/
   oracle.json            {"ignore": [정규식…], "equivalent_mutants": [{path, op, context, reason}…]}
                          비교 전 마스킹 규칙 (주문번호, 날짜 등), 결함 주입에서 관찰 가능한 차이가 없다고 사람이 판정한 결함
   name_map.<target>.json {"as-is 이름": "to-be 이름"}  의도된 라벨 변경
-  APPROVED.json          위 파일들의 sha256, 승인자, 시각. `jev-e2e approve`로만 만든다 (터미널 필요)
+  APPROVED.json          위 파일들의 sha256, 승인자, 시각. `parity approve`로만 만든다 (터미널 필요)
 
 에이전트는 기록(--record)까지 할 수 있지만, 기록하면 해시가 바뀌어 사람이 다시 승인해야 비교가 돈다.
 """
@@ -38,7 +38,7 @@ def status(d: Path) -> dict[str, Any]:
     """승인 상태. ok=False면 problems에 이유."""
     m = d / MANIFEST
     if not m.exists():
-        return {"ok": False, "problems": [f"{d} has never been approved (run `jev-e2e approve {d}` in a terminal)"]}
+        return {"ok": False, "problems": [f"{d} has never been approved (run `parity approve {d}` in a terminal)"]}
     man = json.loads(m.read_text(encoding="utf-8"))
     now, then = oracle_files(d), man["files"]
     problems = [f"changed since approval: {n}" for n in sorted(now) if n in then and now[n] != then[n]]
@@ -54,7 +54,7 @@ def _golden_files(d: Path) -> list[Path]:
 
 def mask_hits(d: Path) -> list[dict[str, Any]]:
     """ignore 규칙마다 골든에서 실제로 가린 문자열과 횟수. 넓은 규칙이 금액 같은 진짜 값을 가리는지 사람이 본다."""
-    from jev_e2e.observe import flatten
+    from parity.observe import flatten
     out = []
     for rule in load_config(d).get("ignore", []):
         rx = re.compile(rule)

@@ -1,7 +1,7 @@
-# 전환 검증: jev-e2e vs Playwright 스크립트 (2026-09-24)
+# 전환 검증: Jev 러너(자연어 YAML) vs Playwright 스크립트 (2026-09-24)
 
 같은 4개 시나리오(`examples/yaml-migration/scenarios/*.yaml` ↔ `e2e/legacy/test_orders.py`), 같은 as-is/to-be 앱(`demo-app/legacy_app.py`),
-같은 골든 비교 로직(`jev_e2e/observe.py`). 다른 것은 요소를 찾는 방법뿐이다: Jev(자연어 → 요소, 캐시) vs `getByRole` + 프레임 무관 helper(`jev_e2e/pwtest/ui.py`).
+같은 골든 비교 로직(`parity/observe.py`). 다른 것은 요소를 찾는 방법뿐이다: Jev(자연어 → 요소, 캐시) vs `getByRole` + 프레임 무관 helper(`parity/pwtest/ui.py`).
 
 ```bash
 uv run pytest e2e/legacy --base-url http://127.0.0.1:8801 --record golden/legacy     # as-is
@@ -9,7 +9,7 @@ uv run pytest e2e/legacy --base-url http://127.0.0.1:8803 --compare golden/legac
 uv run pytest e2e/legacy --base-url http://127.0.0.1:8804 --compare golden/legacy --name-map e2e/legacy/name_map_renamed.json
 ```
 
-| to-be | jev-e2e | Playwright |
+| to-be | Jev 러너 (`parity run`) | Playwright (`pytest`) |
 | :--- | :--- | :--- |
 | `tobe` 충실한 전환 (frameset→단일 페이지, URL 변경) | 4/4 PASS, 차이 0 | 4/4 PASS, 차이 0 |
 | `tobe-fixed` as-is 버그 2개를 고침 | 3/4 탐지 (부가세 120→124, alert 문구, 수량 0) | 3/4 탐지, 같은 diff |
@@ -25,4 +25,4 @@ uv run pytest e2e/legacy --base-url http://127.0.0.1:8804 --compare golden/legac
   전환 프로젝트의 라벨 변경은 목록으로 관리되는 경우가 많아 매핑 파일이 더 확실하다.
 - Jev가 더 나은 곳: 라벨이 자주, 예측 없이 바뀌는 UI, 비개발자가 읽는 자연어 시나리오, 셀렉터를 미리 알기 어려운 외부 사이트.
 
-이 비교에 따라 역할을 나눴다: 동등성 검증은 Playwright(`e2e/`, `e2e-tests` 스킬), 전체 화면 스모크는 jev-e2e matrix([SMOKE.md](SMOKE.md), `jev-smoke` 스킬).
+이 비교에 따라 역할을 나눴다: 동등성 검증은 Playwright(`e2e/`, `e2e-tests` 스킬), 전체 화면 스모크는 Jev 러너의 matrix([SMOKE.md](SMOKE.md), `smoke` 스킬).

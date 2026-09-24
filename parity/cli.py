@@ -24,7 +24,7 @@ def load_dotenv(path: Path = Path(".env")) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
-    ap = argparse.ArgumentParser(prog="jev-e2e", description="Natural-language E2E steps decided by Jev, executed by Playwright")
+    ap = argparse.ArgumentParser(prog="parity", description="as-is/to-be parity: Playwright equivalence tests with an approved oracle, plus a natural-language YAML runner (Jev) and a crawler")
     sub = ap.add_subparsers(dest="cmd", required=True)
     run = sub.add_parser("run", help="run one or more scenario YAML files")
     run.add_argument("scenarios", nargs="+", type=Path)
@@ -35,8 +35,8 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--settle-ms", type=int, default=1500)
     run.add_argument("--storage-state", type=Path, default=None, help="Playwright storage_state JSON (로그인 상태 재사용). 시나리오의 storage_state 키가 우선")
     run.add_argument("--replay-only", action="store_true", help="CI 모드: Jev를 절대 호출하지 않고 캐시만 재생. 캐시 미스는 실패")
-    run.add_argument("--base-url", default=os.environ.get("JEV_BASE_URL"), help="goto 상대 경로의 기준 URL (기본: JEV_BASE_URL)")
-    run.add_argument("--cache-dir", type=Path, default=Path(".jev-cache"), help="재생 캐시 디렉터리 (기본 .jev-cache)")
+    run.add_argument("--base-url", default=os.environ.get("PARITY_BASE_URL"), help="goto 상대 경로의 기준 URL (기본: PARITY_BASE_URL)")
+    run.add_argument("--cache-dir", type=Path, default=Path(".parity-cache"), help="재생 캐시 디렉터리 (기본 .parity-cache)")
     run.add_argument("--record", type=Path, default=None, metavar="DIR", help="스텝별 관찰값을 골든으로 저장 (as-is에서 실행)")
     run.add_argument("--compare", type=Path, default=None, metavar="DIR", help="골든과 스텝별 관찰값 비교 (to-be에서 실행). 차이가 있으면 DIFF")
     run.add_argument("--compare-ignore", action="append", default=[], metavar="REGEX", help="비교 전에 <masked>로 바꿀 정규식 (반복 가능)")
@@ -56,7 +56,7 @@ def main(argv: list[str] | None = None) -> int:
     ap_status.add_argument("oracle_dir", type=Path)
     mut = sub.add_parser("mutate", help="결함 주입으로 Playwright 테스트의 탐지력 측정")
     mut.add_argument("targets", nargs="+", help="pytest 대상 (e2e/<app>)")
-    mut.add_argument("--base-url", default=os.environ.get("JEV_BASE_URL"), required=not os.environ.get("JEV_BASE_URL"))
+    mut.add_argument("--base-url", default=os.environ.get("PARITY_BASE_URL"), required=not os.environ.get("PARITY_BASE_URL"))
     mut.add_argument("--compare", type=Path, default=None, help="오라클 디렉터리. 없으면 expect만으로 측정")
     mut.add_argument("--allow-unapproved", action="store_true")
     mut.add_argument("--workers", type=int, default=4)
@@ -65,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
     rep = sub.add_parser("report", help="산출물만으로 검증 보고서 생성")
     rep.add_argument("--oracle", type=Path, required=True)
     rep.add_argument("--junit", type=Path, action="append", default=[], help="pytest --junitxml 결과 (여러 개 가능)")
-    rep.add_argument("--mutation", type=Path, action="append", default=[], help="jev-e2e mutate 결과 JSON (여러 개 가능)")
+    rep.add_argument("--mutation", type=Path, action="append", default=[], help="parity mutate 결과 JSON (여러 개 가능)")
     rep.add_argument("--out", type=Path, required=True)
     cr = sub.add_parser("crawl", help="시작 화면에서 동작을 모두 눌러 보고 흐름 그래프와 시나리오를 만든다 (Jev 호출 없음)")
     cr.add_argument("start", help="시작 URL (상대 경로면 --base-url 기준, 시나리오 goto에 그대로 쓴다)")
@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     cr.add_argument("--max-actions", type=int, default=40, help="상태당 누를 동작 수 상한")
     cr.add_argument("--group-min", type=int, default=3, help="비슷한 요소가 이 개수 이상이면 대표 하나만 누른다")
     cr.add_argument("--settle-ms", type=int, default=400)
-    cr.add_argument("--base-url", default=os.environ.get("JEV_BASE_URL"))
+    cr.add_argument("--base-url", default=os.environ.get("PARITY_BASE_URL"))
     cr.add_argument("--storage-state", type=Path, default=None)
     cr.add_argument("--headed", action="store_true")
     cr.add_argument("--dry-run", action="store_true", help="아무것도 누르지 않고 시작 화면에서 누를 것·안 누를 것·채울 입력칸만 보여 준다")
@@ -106,7 +106,7 @@ def main(argv: list[str] | None = None) -> int:
         counts = {k: sum(1 for e in crawler.edges if e.kind == k) for k in ("transition", "local", "external", "error", "denied")}
         print(f"\n== states {len(crawler.nodes)}, actions {counts} | {args.out / 'graph.md'} | {len(written)} scenarios")
         if written:
-            print(f"   uv run jev-e2e run {args.out}/crawl_*.yaml --cache-dir {cache_dir} --replay-only"
+            print(f"   uv run parity run {args.out}/crawl_*.yaml --cache-dir {cache_dir} --replay-only"
                   + (f" --base-url {args.base_url}" if args.base_url else "") + (f" --storage-state {args.storage_state}" if args.storage_state else ""))
             print(f"   Playwright 테스트: {args.out / 'test_crawl.py'} (검토 후 e2e/<app>/로 옮기면 승인·결함 주입 흐름에 올라간다)")
         return 0
@@ -174,7 +174,7 @@ def write_junit(path: Path, results: list[tuple[Path, RunResult]]) -> None:
         cases.append(f'  <testcase classname="{escape(str(src.parent))}" name="{escape(r.scenario, {chr(34): "&quot;"})}" time="{r.elapsed_ms / 1000:.2f}">{body}</testcase>')
     failures = sum(1 for _, r in results if r.status != "pass")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<testsuite name="jev-e2e" tests="{len(results)}" failures="{failures}">\n'
+    path.write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<testsuite name="parity" tests="{len(results)}" failures="{failures}">\n'
                     + "\n".join(cases) + "\n</testsuite>\n", encoding="utf-8")
 
 

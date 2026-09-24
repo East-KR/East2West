@@ -1,5 +1,5 @@
 [project]
-name = "jev-e2e"
+name = "parity"
 version = "0.1.0"
 description = "Prototype: natural-language E2E steps decided by TypeSafe Jev, executed by Playwright"
 requires-python = ">=3.11"
@@ -10,17 +10,17 @@ dependencies = [
 ]
 
 [project.scripts]
-jev-e2e = "jev_e2e.cli:main"
+parity = "parity.cli:main"
 
 [project.entry-points.pytest11]
-jev_e2e = "jev_e2e.pwtest.plugin"
+parity = "parity.pwtest.plugin"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["jev_e2e"]
+packages = ["parity"]
 
 [tool.pytest.ini_options]
 testpaths = ["e2e"]

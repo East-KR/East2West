@@ -1,9 +1,9 @@
-"""Playwright 테스트용 helper (`ui` fixture). pytest 플러그인 `jev_e2e.pwtest.plugin`이 만든다.
+"""Playwright 테스트용 helper (`ui` fixture). pytest 플러그인 `parity.pwtest.plugin`이 만든다.
 
 - 요소는 화면에 보이는 역할과 이름으로 찾는다 (getByRole). 프레임과 무관하다: as-is frameset에서 쓴 테스트가 to-be 단일 페이지에서 그대로 돈다.
 - 테스트는 "무엇을"만 쓴다 (`ui.select("품목", "볼펜")`). 위젯마다 다른 "어떻게"는 이 파일이 맡는다 (네이티브 select / 커스텀 드롭다운).
 - alert/confirm/prompt는 기본 accept, `ui.dialog("dismiss")`로 다음 하나를 바꾼다.
-- 동작(goto/click/fill/select/check/press) 직후마다 관찰값을 골든으로 기록(--record)하거나 비교(--compare)한다. 정규화는 jev_e2e.observe.
+- 동작(goto/click/fill/select/check/press) 직후마다 관찰값을 골든으로 기록(--record)하거나 비교(--compare)한다. 정규화는 parity.observe.
 - 이름 매핑(--name-map): as-is 이름 → to-be 이름. 테스트 코드는 as-is 이름 그대로 둔다.
 - expect_* 호출은 (종류, 대상, 기대값)으로 기록된다. 골든에 함께 저장되고, 비교 때 테스트의 기대값이 기록 이후 바뀌었으면
   실패한다 (to-be 결과에 맞춰 기대값을 고치는 것을 막는다).
@@ -21,7 +21,7 @@ from urllib.parse import urljoin
 
 from playwright.sync_api import Frame, Locator, Page
 
-from jev_e2e.observe import CompareOptions, compare, observation
+from parity.observe import CompareOptions, compare, observation
 
 
 class UI:
@@ -38,7 +38,7 @@ class UI:
         self._step_dialogs: list[dict[str, Any]] = []
         self._step = 0
         self.observations: list[dict[str, Any]] = []
-        self._shots = Path(tempfile.mkdtemp(prefix="jev-shots-")) if record_dir else None  # 통과하면 골든의 shots/로 옮긴다
+        self._shots = Path(tempfile.mkdtemp(prefix="parity-shots-")) if record_dir else None  # 통과하면 골든의 shots/로 옮긴다
         self.shot_dir = re.sub(r"[^\w.-]+", "_", test_id)
         self.diffs: list[tuple[int, str, list[str]]] = []
         self.assertions: list[dict[str, Any]] = []
@@ -149,7 +149,7 @@ class UI:
         self._after("fill", f'{role} "{name}" = {value}')
 
     def act(self, role: str, name: str, nth: int | None = None) -> None:
-        """역할에 맞는 기본 동작: option은 부모 select에서 선택, checkbox/radio는 체크, 나머지는 클릭 (jev-e2e 러너와 같다)."""
+        """역할에 맞는 기본 동작: option은 부모 select에서 선택, checkbox/radio는 체크, 나머지는 클릭 (parity 러너와 같다)."""
         loc = self.locate(role, name, nth)
         if role == "option":
             sel = loc.locator("xpath=ancestor::select")

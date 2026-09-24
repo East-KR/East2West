@@ -1,6 +1,6 @@
 """결함 주입(mutation)으로 테스트의 결함 탐지력을 잰다. 앱 코드는 건드리지 않고, 브라우저가 받는 응답(HTML/JS/JSON)을 가로채 바꾼다.
 
-jev-e2e mutate e2e/<app> --base-url <as-is> --compare golden/<app>
+parity mutate e2e/<app> --base-url <as-is> --compare golden/<app>
 
 1. 발견: 테스트를 한 번 돌리며 테스트별로 받은 응답을 모은다 (이 실행이 통과해야 한다).
 2. 생성: 응답마다 결함 후보 자리를 찾는다 (연산자 OPS). (경로, 연산자)당 최대 N개를 고르게 뽑는다.
@@ -231,7 +231,7 @@ def _failed(junit: Path) -> list[str]:
 def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int, max_per_op: int,
         allow_unapproved: bool, out: Path) -> dict[str, Any]:
     common = ["--base-url", base_url] + (["--compare", str(compare)] if compare else []) + (["--allow-unapproved"] if allow_unapproved else [])
-    work = Path(tempfile.mkdtemp(prefix="jev-mutate-"))
+    work = Path(tempfile.mkdtemp(prefix="parity-mutate-"))
     t0 = time.time()
     print(f"[1/3] discovery run on {base_url} ({'expects + golden' if compare else 'expects only'})")
     r = _pytest([*targets, *common, "--jev-capture", str(work / "cap")])

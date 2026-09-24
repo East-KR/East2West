@@ -187,7 +187,7 @@ class Crawler:
         self.start = start  # 시나리오 goto에 그대로 쓴다 (상대 경로면 --base-url로 as-is/to-be 전환)
         self.start_url = start if urlparse(start).scheme else urljoin((base_url or "").rstrip("/") + "/", start.lstrip("/"))
         if not urlparse(self.start_url).scheme:
-            raise ValueError(f"relative start {start!r} needs --base-url or JEV_BASE_URL")
+            raise ValueError(f"relative start {start!r} needs --base-url or PARITY_BASE_URL")
         self.inputs = inputs or {}
         self.deny = re.compile(deny)
         self.max_depth, self.max_states, self.max_actions, self.group_min = max_depth, max_states, max_actions, group_min
@@ -565,8 +565,8 @@ class Crawler:
 
     def pytest_module(self) -> str:
         """같은 경로를 Playwright 테스트(ui fixture)로. 승인·결함 주입·검증 보고서 흐름에 그대로 올라간다."""
-        L = ['"""jev-e2e crawl이 만든 테스트. 현재 동작의 기록이다. 검토하고 업무상 중요한 값(금액 등) 확인을 더한 뒤 e2e/<app>/로 옮겨 쓴다.',
-             "", f"시작: {self.start}", '"""', "from jev_e2e.runner import _expand", ""]
+        L = ['"""parity crawl이 만든 테스트. 현재 동작의 기록이다. 검토하고 업무상 중요한 값(금액 등) 확인을 더한 뒤 e2e/<app>/로 옮겨 쓴다.',
+             "", f"시작: {self.start}", '"""', "from parity.runner import _expand", ""]
         for i, path in enumerate(self.paths(), 1):
             spec, cache = self.scenario(path)
             L += ["", f"def test_crawl_{i:02d}(ui):", f'    """{spec["name"].removeprefix("[탐색] ")}"""']
@@ -601,7 +601,7 @@ class Crawler:
         marker = check_output_dir(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         cache_dir.mkdir(parents=True, exist_ok=True)
-        marker.write_text("jev-e2e crawl output: regenerated on every crawl. Move reviewed files out before editing them.\n", encoding="utf-8")
+        marker.write_text("parity crawl output: regenerated on every crawl. Move reviewed files out before editing them.\n", encoding="utf-8")
         (out_dir / "graph.json").write_text(json.dumps(self.to_dict(), ensure_ascii=False, indent=1), encoding="utf-8")
         (out_dir / "graph.md").write_text(self.markdown(), encoding="utf-8")
         for old in out_dir.glob("crawl_*.yaml"):  # 이전 탐색이 만든 시나리오 (이 도구의 산출물)
@@ -611,7 +611,7 @@ class Crawler:
         for i, path in enumerate(self.paths(), 1):
             spec, cache = self.scenario(path)
             f = out_dir / f"crawl_{i:02d}.yaml"
-            header = ("# jev-e2e crawl이 만든 시나리오. 현재 동작의 기록이므로 맞는 동작인지 검토한 뒤 쓴다.\n"
+            header = ("# parity crawl이 만든 시나리오. 현재 동작의 기록이므로 맞는 동작인지 검토한 뒤 쓴다.\n"
                       "# 이 폴더는 crawl을 다시 돌리면 덮어쓴다. 검토한 파일은 scenarios/<app>/로 옮겨서 고친다.\n")
             f.write_text(header + yaml.safe_dump(spec, allow_unicode=True, sort_keys=False, width=200), encoding="utf-8")
             (cache_dir / f"{f.stem}.json").write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")

@@ -1,4 +1,4 @@
-# 개발 루프 데모: 개발 → jev-e2e → 실패 수정 (2026-09-23)
+# 개발 루프 데모: 개발 → parity → 실패 수정 (2026-09-23)
 
 `demo-app/app.py`(표준 라이브러리, 포트 8787)를 대상으로 "화면·백엔드 수정 → 테스트 → 실패 유형별 수정" 루프를 세 바퀴 돌렸다.
 시나리오는 `scenarios/demo/01_login.yaml`(로그인 후 세션 저장)과 `scenarios/demo/02_reservation.yaml`(이름, 캘린더, 숙박 일수 select, 조식 checkbox, 제출, 금액 검증).
@@ -6,10 +6,10 @@
 ```bash
 python demo-app/app.py 8787 &
 export TYPESAFE_API_KEY=...
-uv run jev-e2e run scenarios/demo/01_login.yaml                                          # 로그인 → .auth/demo.json 저장
-uv run jev-e2e run scenarios/demo/02_reservation.yaml --storage-state .auth/demo.json      # 로그인 상태 재사용
+uv run parity run scenarios/demo/01_login.yaml                                          # 로그인 → .auth/demo.json 저장
+uv run parity run scenarios/demo/02_reservation.yaml --storage-state .auth/demo.json      # 로그인 상태 재사용
 # CI (API 키 없음): 캐시만 재생, 캐시 미스는 실패
-uv run jev-e2e run scenarios/demo/*.yaml --storage-state .auth/demo.json --replay-only
+uv run parity run scenarios/demo/*.yaml --storage-state .auth/demo.json --replay-only
 ```
 
 ## 기준 실행
@@ -81,7 +81,7 @@ uv run jev-e2e run scenarios/demo/*.yaml --storage-state .auth/demo.json --repla
 
 ## 스킬로 시나리오 생성 (2026-09-23)
 
-당시 `jev-e2e-scenarios` 스킬(지금은 `e2e-tests`, `jev-smoke`로 나뉨)의 절차(코드에서 대상·기대값 → explorer로 실제 이름·흐름 → 관점별 작성 → 실행·분류)를 데모 앱에 적용했다. 생성은 Claude Code 세션 안에서 했으므로 별도 LLM 비용 없음. 실행은 Jev.
+당시 `parity-scenarios` 스킬(지금은 `e2e-tests`, `smoke`로 나뉨)의 절차(코드에서 대상·기대값 → explorer로 실제 이름·흐름 → 관점별 작성 → 실행·분류)를 데모 앱에 적용했다. 생성은 Claude Code 세션 안에서 했으므로 별도 LLM 비용 없음. 실행은 Jev.
 
 | 파일 | 관점 | 첫 실행 | 분류와 조치 |
 | :--- | :--- | :--- | :--- |

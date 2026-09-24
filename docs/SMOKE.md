@@ -20,8 +20,8 @@ steps:
 
 ```bash
 python demo-app/erp_app.py 8811 asis & python demo-app/erp_app.py 8812 tobe &
-uv run jev-e2e run scenarios/smoke/screen_smoke.yaml --base-url http://127.0.0.1:8811 --cache-dir .jev-cache/smoke   # as-is: Jev가 화면별 요소 결정 → 캐시
-uv run jev-e2e run scenarios/smoke/screen_smoke.yaml --base-url http://127.0.0.1:8812 --cache-dir .jev-cache/smoke --replay-only --junit reports/junit-smoke.xml
+uv run parity run scenarios/smoke/screen_smoke.yaml --base-url http://127.0.0.1:8811 --cache-dir .parity-cache/smoke   # as-is: Jev가 화면별 요소 결정 → 캐시
+uv run parity run scenarios/smoke/screen_smoke.yaml --base-url http://127.0.0.1:8812 --cache-dir .parity-cache/smoke --replay-only --junit reports/junit-smoke.xml
 ```
 
 ## 데모 (`demo-app/erp_app.py`, 화면 12개)
@@ -29,7 +29,7 @@ uv run jev-e2e run scenarios/smoke/screen_smoke.yaml --base-url http://127.0.0.1
 조회 버튼 이름이 화면마다 다르고 (조회, 검색, 찾기, 조회하기, Search, 목록 불러오기, 집계 실행, 🔍(aria-label 검색), 검색하기, 문서 조회),
 옆에 비슷한 이름의 다른 버튼이 있다 (검색 조건 초기화, 조회 권한 요청, 상세 검색 열기, 조회 조건 저장, Reset …). to-be에는 결함 5개를 넣었다.
 
-| | jev-e2e | Playwright (일반 규칙: 이름에 조회/검색/찾기/search 포함한 첫 버튼, `examples/comparison/test_smoke_regex_baseline.py`) |
+| | Jev 러너 (`parity run`) | Playwright (일반 규칙: 이름에 조회/검색/찾기/search 포함한 첫 버튼, `examples/comparison/test_smoke_regex_baseline.py`) |
 | :--- | :--- | :--- |
 | as-is (결함 없음) | **12/12 PASS**. Jev 24회 전부 정답, 유사 버튼 오클릭 0, margin 최소 0.29 | 10/12. 주문 내역은 "상세 검색 열기"를 **잘못 눌러** 실패, 매출 집계는 버튼을 못 찾아 실패 |
 | to-be (결함 5개) | **5/5 탐지, 오탐 0**, Jev 호출 0 (캐시 재생) | 결함 5개 중 4개 + 오탐 1 (주문 내역). 매출 집계의 결함(빈 결과)은 스크립트 실패에 가려짐 |

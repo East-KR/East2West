@@ -255,7 +255,7 @@ def _seen(line: str) -> str:
 
 def _timeline(d: Path, name: str, rules: list[str], out_dir: Path) -> str:
     """골든에 기록된 as-is 동작: 단계마다 화면, 동작, 새로 나타난 내용, 뜬 알림창, 그 시점에 확인한 기대값."""
-    from jev_e2e.observe import flatten, mask
+    from parity.observe import flatten, mask
     data = json.loads((d / f"{name}.json").read_text(encoding="utf-8"))
     by_step: dict[int, list[dict[str, Any]]] = {}
     for a in data.get("assertions", []):
@@ -368,7 +368,7 @@ def write_review(d: Path, *, tests_dir: Path | None = None, out: Path | None = N
     B.append(f"<section id='rules'><div class='sh'><h2>이름 변경</h2><p>to-be에서 바뀌어도 되는 라벨</p></div>{map_html}"
              f"<div class='sh' style='margin-top:14px'><h2>동등 결함</h2><p>일부러 넣어도 화면이 같아서 탐지율에서 빼는 결함</p></div>{eq_html}</section>")
 
-    cmd = f"uv run jev-e2e approve {d} --by <이름>"
+    cmd = f"uv run parity approve {d} --by <이름>"
     if st["ok"]:
         msg = f"<b>승인된 기준</b>입니다. 기록이 바뀌면 이 화면이 다시 만들어지고 재승인을 요청합니다."
         bar = f"<div class='bar-approve'><div class='in'><p>{msg}</p></div></div>"

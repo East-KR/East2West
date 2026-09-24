@@ -8,12 +8,12 @@ step 종류
   dialog: accept | dismiss | {accept: <prompt 입력값>}   다음에 뜨는 alert/confirm/prompt 하나의 처리 (기본 accept)
   save_storage_state: <path>
 
-goto의 상대 경로는 --base-url (또는 JEV_BASE_URL) 기준. 문자열 값의 ${VAR}는 환경변수로 치환 (비밀번호 등).
+goto의 상대 경로는 --base-url (또는 PARITY_BASE_URL) 기준. 문자열 값의 ${VAR}는 환경변수로 치환 (비밀번호 등).
 프레임: 최상위 문서와 보이는 frame/iframe을 모두 후보로 본다 (레거시 frameset). 캐시된 프레임에 요소가 없으면
 다른 프레임에서 같은 (role, name)을 찾는다 (as-is frameset 캐시를 to-be 단일 페이지에서 재생).
 기록/비교: --record DIR 은 스텝별 관찰값을 골든으로 저장, --compare DIR 은 골든과 비교해 차이를 보고 (observe.py).
 
-캐시: 첫 실행에서 Jev가 고른 (role, name, nth, scope)을 .jev-cache/<시나리오>.json에 **스텝 문장을 키로** 저장하고,
+캐시: 첫 실행에서 Jev가 고른 (role, name, nth, scope)을 .parity-cache/<시나리오>.json에 **스텝 문장을 키로** 저장하고,
 다음 실행부터는 그 요소가 페이지에 있으면 Jev 없이 재생한다. 못 찾으면 Jev를 다시 불러 캐시를 고친다 (healed).
 --replay-only 모드에서는 Jev를 부르지 않고 캐시 미스를 실패로 처리한다 (CI용, API 키 불필요).
 """
@@ -72,7 +72,7 @@ class RunResult:
 
 class Runner:
     def __init__(self, *, headed: bool = False, use_cache: bool = True, min_margin: float = 0.1, max_candidates: int = 60,
-                 settle_ms: int = 1500, expect_timeout_s: float = 10, report_dir: Path = Path("reports"), cache_dir: Path = Path(".jev-cache"),
+                 settle_ms: int = 1500, expect_timeout_s: float = 10, report_dir: Path = Path("reports"), cache_dir: Path = Path(".parity-cache"),
                  storage_state: Path | None = None, replay_only: bool = False, base_url: str | None = None,
                  record_dir: Path | None = None, compare_dir: Path | None = None, compare_opts: CompareOptions | None = None):
         self.headed, self.use_cache, self.min_margin, self.max_candidates = headed, use_cache, min_margin, max_candidates
@@ -409,7 +409,7 @@ class Runner:
         if urlparse(target).scheme:
             return target
         if not self.base_url:
-            raise ValueError(f"relative goto {target!r} needs --base-url or JEV_BASE_URL")
+            raise ValueError(f"relative goto {target!r} needs --base-url or PARITY_BASE_URL")
         return urljoin(self.base_url.rstrip("/") + "/", target.lstrip("/"))
 
     @staticmethod

@@ -1,6 +1,6 @@
-"""pytest 플러그인: `ui` fixture와 as-is/to-be 비교 옵션. jev-e2e를 설치하면 자동 등록된다 (pyproject의 pytest11 entry point).
+"""pytest 플러그인: `ui` fixture와 as-is/to-be 비교 옵션. parity를 설치하면 자동 등록된다 (pyproject의 pytest11 entry point).
 
-uv run pytest e2e/<app> --base-url <as-is> --record golden/<app>     # as-is 골든 기록 → 사람이 `jev-e2e approve golden/<app>`
+uv run pytest e2e/<app> --base-url <as-is> --record golden/<app>     # as-is 골든 기록 → 사람이 `parity approve golden/<app>`
 uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app>    # to-be 비교 (승인된 오라클만)
 
 비교 규칙(마스킹, 이름 매핑)은 오라클 디렉터리 안에만 둔다 (oracle.py). 테스트 코드나 명령행으로 바꿀 수 없다.
@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 from playwright.sync_api import sync_playwright
 
-from jev_e2e.observe import CompareOptions
+from parity.observe import CompareOptions
 
 from . import mutation, oracle
 from .ui import UI
@@ -23,17 +23,17 @@ _capture: mutation.Capture | None = None
 
 
 def pytest_addoption(parser):
-    g = parser.getgroup("jev-e2e", "as-is/to-be E2E (jev_e2e.pwtest)")
-    g.addoption("--base-url", default=os.environ.get("JEV_BASE_URL"), help="대상 앱 기준 URL (기본 JEV_BASE_URL)")
-    g.addoption("--record", type=Path, default=None, help="골든 기록 디렉터리 (as-is에서). 기록 후 사람이 jev-e2e approve")
+    g = parser.getgroup("parity", "as-is/to-be E2E (parity.pwtest)")
+    g.addoption("--base-url", default=os.environ.get("PARITY_BASE_URL"), help="대상 앱 기준 URL (기본 PARITY_BASE_URL)")
+    g.addoption("--record", type=Path, default=None, help="골든 기록 디렉터리 (as-is에서). 기록 후 사람이 parity approve")
     g.addoption("--compare", type=Path, default=None, help="승인된 오라클 디렉터리와 비교 (to-be에서)")
     g.addoption("--name-map", type=Path, default=None, help="as-is 이름 → to-be 이름 JSON. --compare 디렉터리 안의 파일만")
     g.addoption("--allow-unapproved", action="store_true", help="승인 안 된 오라클로 비교 (결과에 UNAPPROVED로 남는다)")
     g.addoption("--settle-ms", type=int, default=500)
     g.addoption("--headed", action="store_true")
     g.addoption("--storage-state", type=Path, default=None, help="로그인 상태 JSON (Playwright storage_state)")
-    g.addoption("--jev-capture", type=Path, default=None, help="(internal: jev-e2e mutate)")
-    g.addoption("--jev-mutant", default=None, help="(internal: jev-e2e mutate)")
+    g.addoption("--jev-capture", type=Path, default=None, help="(internal: parity mutate)")
+    g.addoption("--jev-mutant", default=None, help="(internal: parity mutate)")
 
 
 def pytest_configure(config):
@@ -46,7 +46,7 @@ def pytest_configure(config):
         st = oracle.status(compare)
         if not st["ok"] and not config.getoption("--allow-unapproved"):
             raise pytest.UsageError("oracle not approved, comparison refused:\n  " + "\n  ".join(st["problems"])
-                                    + f"\nA person reviews and runs `uv run jev-e2e approve {compare}` in a terminal.")
+                                    + f"\nA person reviews and runs `uv run parity approve {compare}` in a terminal.")
         config._jev_oracle = st
         nm = config.getoption("--name-map")
         if nm and nm.resolve().parent != compare.resolve():
@@ -76,7 +76,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     from . import html
     page = html.write_review(record)
     terminalreporter.write_line(f"\n승인 검토 화면: {page.resolve().as_uri()}")
-    terminalreporter.write_line(f"확인 후 승인 (사람, 터미널): uv run jev-e2e approve {record} --by <이름>")
+    terminalreporter.write_line(f"확인 후 승인 (사람, 터미널): uv run parity approve {record} --by <이름>")
 
 
 def pytest_report_header(config):
@@ -122,7 +122,7 @@ def ui(request, browser):
     cfg = request.config
     base_url = cfg.getoption("--base-url")
     if not base_url:
-        pytest.fail("--base-url (or JEV_BASE_URL) is required", pytrace=False)
+        pytest.fail("--base-url (or PARITY_BASE_URL) is required", pytrace=False)
     if hasattr(request.module, "COMPARE_IGNORE"):
         pytest.fail("COMPARE_IGNORE in test code is not used: put mask rules in <oracle dir>/oracle.json so they are approved", pytrace=False)
     compare, name_map = cfg.getoption("--compare"), cfg.getoption("--name-map")

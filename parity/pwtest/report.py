@@ -1,6 +1,6 @@
 """검증 보고서: 산출물(오라클 승인 상태, JUnit XML, 결함 주입 결과)에서만 만든다. 서술은 넣지 않는다.
 
-jev-e2e report --oracle golden/<app> --junit reports/junit-<target>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
+parity report --oracle golden/<app> --junit reports/junit-<target>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
 """
 from __future__ import annotations
 
@@ -82,7 +82,7 @@ def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: P
     trusted = all(ok for _, ok, _ in checks) and bool(runs) and bool(gold)
 
     L = [f"# 검증 보고서: {oracle_dir.name}", "",
-         f"생성 {time.strftime('%Y-%m-%d %H:%M:%S')} · `jev-e2e report`가 아래 산출물에서만 만들었다.", ""]
+         f"생성 {time.strftime('%Y-%m-%d %H:%M:%S')} · `parity report`가 아래 산출물에서만 만들었다.", ""]
     L += ["## 결과를 믿을 수 있는가", "", "| 확인 | 결과 | 근거 |", "| :--- | :--- | :--- |"]
     L += [f"| {name} | {'✅' if ok else '❌'} | {detail} |" for name, ok, detail in checks]
     if not runs:

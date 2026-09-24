@@ -5,9 +5,9 @@ description: Write, run and triage Playwright E2E tests (pytest `ui` fixture) fr
 
 # E2E tests (Playwright + `ui` fixture)
 
-Tests live in `e2e/<app>/test_*.py` and use the `ui` fixture from the `jev_e2e.pwtest` pytest plugin (auto-registered). Its API and the reason behind each call are in [jev_e2e/pwtest/ui.py](../../../jev_e2e/pwtest/ui.py); options in `uv run pytest --help` under "as-is/to-be E2E". Worked example: [e2e/legacy/test_orders.py](../../../e2e/legacy/test_orders.py).
+Tests live in `e2e/<app>/test_*.py` and use the `ui` fixture from the `parity.pwtest` pytest plugin (auto-registered). Its API and the reason behind each call are in [parity/pwtest/ui.py](../../../parity/pwtest/ui.py); options in `uv run pytest --help` under "as-is/to-be E2E". Worked example: [e2e/legacy/test_orders.py](../../../e2e/legacy/test_orders.py).
 
-For a sweep over many similar screens ("do all menus open and query"), use the `jev-smoke` skill instead; this skill is for flows whose values you check.
+For a sweep over many similar screens ("do all menus open and query"), use the `smoke` skill instead; this skill is for flows whose values you check.
 
 ## 0. Pick the mode
 
@@ -40,8 +40,8 @@ Names in tests come from this output, never from memory — in migration mode fr
 For a screen with many flows, map them with the crawler first; it costs no LLM tokens and writes a Playwright draft of every path ([docs/CRAWL.md](../../../docs/CRAWL.md)). It clicks save/confirm buttons for real, so run it only against a test environment, and show the user the `--dry-run` list first:
 
 ```bash
-uv run jev-e2e crawl <path> --base-url <as-is> --fixtures <inputs.yaml> --out crawl/<app> --dry-run
-uv run jev-e2e crawl <path> --base-url <as-is> --fixtures <inputs.yaml> --out crawl/<app>
+uv run parity crawl <path> --base-url <as-is> --fixtures <inputs.yaml> --out crawl/<app> --dry-run
+uv run parity crawl <path> --base-url <as-is> --fixtures <inputs.yaml> --out crawl/<app>
 ```
 
 `crawl/<app>/graph.md` is the flow list for your target list; `test_crawl.py` checks navigation only. Copy the tests you keep into `e2e/<app>/`, give each a docstring, and add the business values (amounts, messages) — `crawl/<app>/` is regenerated on every crawl.
@@ -72,7 +72,7 @@ uv run pytest e2e/<app> --base-url <url>
 | expect fails, screenshot `reports/<test>-fail.png` shows the app doing something other than the code says | app bug candidate | report with test, screenshot, expected vs actual; leave the test as is |
 | expect fails, your expected value was wrong | test error | recompute from the code, rerun |
 
-Migration mode runs on an **oracle**: `golden/<app>/` holds the as-is observations, the expectations each test asserted, mask rules (`oracle.json`) and name maps. A person approves it; comparison refuses an unapproved or changed oracle, and a hook blocks agent edits to it. Rules and reasons: [jev_e2e/pwtest/oracle.py](../../../jev_e2e/pwtest/oracle.py).
+Migration mode runs on an **oracle**: `golden/<app>/` holds the as-is observations, the expectations each test asserted, mask rules (`oracle.json`) and name maps. A person approves it; comparison refuses an unapproved or changed oracle, and a hook blocks agent edits to it. Rules and reasons: [parity/pwtest/oracle.py](../../../parity/pwtest/oracle.py).
 
 ```bash
 uv run pytest e2e/<app> --base-url <as-is>                  # until green: every failure here is a test error, fix the expected value to what as-is shows
@@ -80,12 +80,12 @@ uv run pytest e2e/<app> --base-url <as-is>                  # second green run: 
 uv run pytest e2e/<app> --base-url <as-is> --record golden/<app>
 ```
 
-Then stop for approval: tell the user to run `uv run jev-e2e approve golden/<app> --by <name>` in their own terminal; recording already wrote the review page `reports/review-<app>.html` (per test: each step's screenshot, action, what appeared, dialogs, checked values) — give the user that path so they review before approving; `approve` opens it again. Mask rules, name maps and equivalent-mutant entries are proposals you write in your message; the user puts them in `golden/<app>/`.
+Then stop for approval: tell the user to run `uv run parity approve golden/<app> --by <name>` in their own terminal; recording already wrote the review page `reports/review-<app>.html` (per test: each step's screenshot, action, what appeared, dialogs, checked values) — give the user that path so they review before approving; `approve` opens it again. Mask rules, name maps and equivalent-mutant entries are proposals you write in your message; the user puts them in `golden/<app>/`.
 
 Next, prove the tests catch defects:
 
 ```bash
-uv run jev-e2e mutate e2e/<app> --base-url <as-is> --compare golden/<app> --max-per-op 100
+uv run parity mutate e2e/<app> --base-url <as-is> --compare golden/<app> --max-per-op 100
 ```
 
 Each survivor is either a test gap (add or extend a test, expected values from a green as-is run, re-record) or a defect with no observable effect, which you propose to the user as an `equivalent_mutants` entry with its reason. Repeat until the score is at least 80% and every survivor is classified; re-recording needs re-approval.
@@ -94,7 +94,7 @@ Then compare and report:
 
 ```bash
 uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app> --junitxml reports/junit-<app>.xml
-uv run jev-e2e report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
+uv run parity report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
 ```
 
 `--allow-unapproved` exists for experiments; a result produced with it is never the verification result, and the report marks it untrusted.
@@ -105,7 +105,7 @@ uv run jev-e2e report --oracle golden/<app> --junit reports/junit-<app>.xml --mu
 | `not found in any frame` | element renamed or re-widgeted in to-be. Intended rename: propose a name map entry (`golden/<app>/name_map.<target>.json`); different widget: extend `ui.py`; otherwise a to-be defect |
 | `differs from golden` or expect fails | behavior differs: to-be defect; quote the diff lines |
 | `expectation changed since as-is recording` | a test's expected value was edited after recording: restore it; the as-is recording is the truth |
-| diff lines that are pure layout, not content, value or dialog | comparator noise: propose a mask rule, or change `jev_e2e/observe.py` `flatten`; tell the user which |
+| diff lines that are pure layout, not content, value or dialog | comparator noise: propose a mask rule, or change `parity/observe.py` `flatten`; tell the user which |
 
 Done when general-mode tests pass or each failure is classified, and in migration mode when `reports/verification-<app>.md` exists and every to-be failure in it is classified.
 
