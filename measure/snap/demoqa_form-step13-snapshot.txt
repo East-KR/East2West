@@ -1,0 +1,102 @@
+- banner:
+  - link:
+    - /url: https://demoqa.com
+    - img
+- img
+- text: Elements
+- img
+- img
+- text: Forms
+- img
+- img
+- text: Alerts, Frame & Windows
+- img
+- img
+- text: Widgets
+- img
+- list:
+  - listitem:
+    - link "Accordian":
+      - /url: /accordian
+      - img
+      - text: Accordian
+  - listitem:
+    - link "Auto Complete":
+      - /url: /auto-complete
+      - img
+      - text: Auto Complete
+  - listitem:
+    - link "Date Picker":
+      - /url: /date-picker
+      - img
+      - text: Date Picker
+  - listitem:
+    - link "Slider":
+      - /url: /slider
+      - img
+      - text: Slider
+  - listitem:
+    - link "Progress Bar":
+      - /url: /progress-bar
+      - img
+      - text: Progress Bar
+  - listitem:
+    - link "Tabs":
+      - /url: /tabs
+      - img
+      - text: Tabs
+  - listitem:
+    - link "Tool Tips":
+      - /url: /tool-tips
+      - img
+      - text: Tool Tips
+  - listitem:
+    - link "Menu":
+      - /url: /menu
+      - img
+      - text: Menu
+  - listitem:
+    - link "Select Menu":
+      - /url: /select-menu
+      - img
+      - text: Select Menu
+- img
+- text: Interactions
+- img
+- img
+- text: Book Store Application
+- img
+- heading "Select Menu" [level=1]
+- text: Select Value
+- log
+- text: Select Option
+- combobox
+- text: Select One
+- log
+- text: Select Title
+- combobox
+- text: Old Style Select Menu
+- combobox:
+  - option "Red"
+  - option "Blue"
+  - option "Green" [selected]
+  - option "Yellow"
+  - option "Purple"
+  - option "Black"
+  - option "White"
+  - option "Voilet"
+  - option "Indigo"
+  - option "Magenta"
+  - option "Aqua"
+- paragraph: Multiselect drop down
+- log
+- text: Select...
+- combobox
+- paragraph: Standard multi select
+- listbox:
+  - option "Volvo"
+  - option "Saab"
+  - option "Opel"
+  - option "Audi"
+- iframe
+- contentinfo: © 2013-2026 TOOLSQA.COM | ALL RIGHTS RESERVED.

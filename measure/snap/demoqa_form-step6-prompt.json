@@ -1,0 +1,32 @@
+{
+ "step": "취미 중 음악 체크",
+ "action": "click",
+ "page": {
+  "url": "https://demoqa.com/automation-practice-form",
+  "title": "demosite"
+ },
+ "history": [
+  "fill textbox First Name",
+  "fill textbox Last Name",
+  "fill textbox name@example.com",
+  "click radio Male",
+  "fill textbox Mobile Number"
+ ],
+ "criteria": {
+  "c0": "click link \"Practice Form\"",
+  "c1": "click textbox \"First Name\" in \"Name\"",
+  "c2": "click textbox \"Last Name\" in \"Name\"",
+  "c3": "click textbox \"name@example.com\"",
+  "c4": "click radio \"Male\" in \"Gender\"",
+  "c5": "click radio \"Female\" in \"Male\"",
+  "c6": "click radio \"Other\" in \"Female\"",
+  "c7": "click textbox \"Mobile Number\"",
+  "c8": "click checkbox \"Sports\" in \"Hobbies\"",
+  "c9": "click checkbox \"Reading\" in \"Sports\"",
+  "c10": "click checkbox \"Music\" in \"Reading\"",
+  "c11": "click button \"Choose File\" in \"Music Picture\"",
+  "c12": "click textbox \"Current Address\"",
+  "c13": "click button \"Submit\" in \"Select City\"",
+  "abstain": "No candidate matches this step on the current page; do not act."
+ }
+}

@@ -1,0 +1,9 @@
+name: "스모크 - ${SCREEN}: 열기, 기본 조회, 첫 항목 상세"
+matrix_file: screens.yaml
+steps:
+  - goto: ${URL}
+  - expect: { http_ok: true, no_js_error: true }
+  - do: 검색 조건 그대로 목록 조회를 실행하는 버튼 누르기
+  - expect: { no_dialog: true, no_js_error: true, rows_at_least: 1 }
+  - do: 결과 목록 첫 번째 행의 항목 열기
+  - expect: { http_ok: true, title_contains: "상세" }

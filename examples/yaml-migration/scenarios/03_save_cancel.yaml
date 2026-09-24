@@ -1,0 +1,12 @@
+name: "저장 확인 창에서 취소하면 입력이 남고 저장되지 않는다"
+steps:
+  - goto: /
+  - do: 상단 메뉴에서 주문 등록으로 이동
+  - do: 품목에서 노트북 선택
+  - do: 수량 입력
+    fill: "2"
+  - dialog: dismiss                                # 다음 confirm 하나를 취소
+  - do: 저장 버튼 누르기
+  - expect: { dialog: "저장하시겠습니까?" }
+  - expect: { field: "수량", value: "2" }
+  - expect: { snapshot_contains: 'option "노트북" [selected]' }

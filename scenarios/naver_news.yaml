@@ -1,0 +1,7 @@
+name: 네이버 뉴스 진입 후 스포츠 섹션
+steps:
+  - goto: https://www.naver.com/
+  - do: 상단 주요 서비스 메뉴에서 뉴스로 이동
+  - expect: { url_contains: "news.naver.com" }
+  - do: 스포츠 뉴스 섹션으로 이동
+  - expect: { url_contains: "sports" }

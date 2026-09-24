@@ -1,0 +1,7 @@
+name: 쿠팡 홈 검색어 입력 (headed 전용, 홈 이외 페이지는 봇 차단)
+steps:
+  - goto: https://www.coupang.com/
+  - expect: { title_contains: "쿠팡" }
+  - do: 상품 검색창에 검색어 입력
+    fill: 무선 키보드
+  - expect: { field: "쿠팡 상품 검색", value: "무선 키보드" }

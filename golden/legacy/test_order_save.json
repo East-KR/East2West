@@ -1,0 +1,196 @@
+{
+ "test": "test_order_save",
+ "base_url": "http://127.0.0.1:8801",
+ "recorded_at": "2026-09-24 18:04:14",
+ "assertions": [
+  {
+   "step": 5,
+   "kind": "field",
+   "target": "부가세",
+   "value": "120"
+  },
+  {
+   "step": 5,
+   "kind": "field",
+   "target": "합계",
+   "value": "1,355"
+  },
+  {
+   "step": 6,
+   "kind": "dialog",
+   "target": "저장하시겠습니까?",
+   "value": null
+  },
+  {
+   "step": 6,
+   "kind": "text",
+   "target": "주문이 저장되었습니다",
+   "value": null
+  },
+  {
+   "step": 6,
+   "kind": "text",
+   "target": "합계 1,355원",
+   "value": null
+  }
+ ],
+ "steps": [
+  {
+   "index": 0,
+   "kind": "goto",
+   "text": "/",
+   "url": "/",
+   "title": "주문관리",
+   "content": [
+    "link \"주문 등록\"",
+    "link \"주문 조회\"",
+    "text: 주문 등록",
+    "text: 품목",
+    "combobox \"품목\": 노트북",
+    "text: 수량",
+    "textbox \"수량\"",
+    "text: 공급가액",
+    "textbox \"공급가액\"",
+    "text: 부가세",
+    "textbox \"부가세\"",
+    "text: 합계",
+    "textbox \"합계\"",
+    "button \"계산\"",
+    "button \"저장\""
+   ],
+   "snapshot": "- document:\n  - iframe\n  - iframe\n- link \"주문 등록\":\n  - /url: /order.jsp\n- text: \"|\"\n- link \"주문 조회\":\n  - /url: /list.jsp\n- heading \"주문 등록\" [level=2]\n- table:\n  - rowgroup:\n    - row \"품목 노트북\":\n      - rowheader \"품목\"\n      - cell \"노트북\":\n        - combobox \"품목\":\n          - option \"노트북\" [selected]\n          - option \"마우스\"\n          - option \"볼펜\"\n    - row \"수량\":\n      - rowheader \"수량\"\n      - cell:\n        - textbox \"수량\"\n    - row \"공급가액\":\n      - rowheader \"공급가액\"\n      - cell:\n        - textbox \"공급가액\"\n    - row \"부가세\":\n      - rowheader \"부가세\"\n      - cell:\n        - textbox \"부가세\"\n    - row \"합계\":\n      - rowheader \"합계\"\n      - cell:\n        - textbox \"합계\"\n- button \"계산\"\n- button \"저장\"",
+   "dialogs": [],
+   "shot": "shots/test_order_save/00.jpg"
+  },
+  {
+   "index": 1,
+   "kind": "click",
+   "text": "link \"주문 등록\"",
+   "url": "/",
+   "title": "주문관리",
+   "content": [
+    "link \"주문 등록\"",
+    "link \"주문 조회\"",
+    "text: 주문 등록",
+    "text: 품목",
+    "combobox \"품목\": 노트북",
+    "text: 수량",
+    "textbox \"수량\"",
+    "text: 공급가액",
+    "textbox \"공급가액\"",
+    "text: 부가세",
+    "textbox \"부가세\"",
+    "text: 합계",
+    "textbox \"합계\"",
+    "button \"계산\"",
+    "button \"저장\""
+   ],
+   "snapshot": "- document:\n  - iframe\n  - iframe\n- link \"주문 등록\":\n  - /url: /order.jsp\n- text: \"|\"\n- link \"주문 조회\":\n  - /url: /list.jsp\n- heading \"주문 등록\" [level=2]\n- table:\n  - rowgroup:\n    - row \"품목 노트북\":\n      - rowheader \"품목\"\n      - cell \"노트북\":\n        - combobox \"품목\":\n          - option \"노트북\" [selected]\n          - option \"마우스\"\n          - option \"볼펜\"\n    - row \"수량\":\n      - rowheader \"수량\"\n      - cell:\n        - textbox \"수량\"\n    - row \"공급가액\":\n      - rowheader \"공급가액\"\n      - cell:\n        - textbox \"공급가액\"\n    - row \"부가세\":\n      - rowheader \"부가세\"\n      - cell:\n        - textbox \"부가세\"\n    - row \"합계\":\n      - rowheader \"합계\"\n      - cell:\n        - textbox \"합계\"\n- button \"계산\"\n- button \"저장\"",
+   "dialogs": [],
+   "shot": "shots/test_order_save/01.jpg"
+  },
+  {
+   "index": 2,
+   "kind": "select",
+   "text": "combobox \"품목\" = 볼펜",
+   "url": "/",
+   "title": "주문관리",
+   "content": [
+    "link \"주문 등록\"",
+    "link \"주문 조회\"",
+    "text: 주문 등록",
+    "text: 품목",
+    "combobox \"품목\": 볼펜",
+    "text: 수량",
+    "textbox \"수량\"",
+    "text: 공급가액",
+    "textbox \"공급가액\"",
+    "text: 부가세",
+    "textbox \"부가세\"",
+    "text: 합계",
+    "textbox \"합계\"",
+    "button \"계산\"",
+    "button \"저장\""
+   ],
+   "snapshot": "- document:\n  - iframe\n  - iframe\n- link \"주문 등록\":\n  - /url: /order.jsp\n- text: \"|\"\n- link \"주문 조회\":\n  - /url: /list.jsp\n- heading \"주문 등록\" [level=2]\n- table:\n  - rowgroup:\n    - row \"품목 볼펜\":\n      - rowheader \"품목\"\n      - cell \"볼펜\":\n        - combobox \"품목\":\n          - option \"노트북\"\n          - option \"마우스\"\n          - option \"볼펜\" [selected]\n    - row \"수량\":\n      - rowheader \"수량\"\n      - cell:\n        - textbox \"수량\"\n    - row \"공급가액\":\n      - rowheader \"공급가액\"\n      - cell:\n        - textbox \"공급가액\"\n    - row \"부가세\":\n      - rowheader \"부가세\"\n      - cell:\n        - textbox \"부가세\"\n    - row \"합계\":\n      - rowheader \"합계\"\n      - cell:\n        - textbox \"합계\"\n- button \"계산\"\n- button \"저장\"",
+   "dialogs": [],
+   "shot": "shots/test_order_save/02.jpg"
+  },
+  {
+   "index": 3,
+   "kind": "fill",
+   "text": "textbox \"수량\" = 1",
+   "url": "/",
+   "title": "주문관리",
+   "content": [
+    "link \"주문 등록\"",
+    "link \"주문 조회\"",
+    "text: 주문 등록",
+    "text: 품목",
+    "combobox \"품목\": 볼펜",
+    "text: 수량",
+    "textbox \"수량\": 1",
+    "text: 공급가액",
+    "textbox \"공급가액\"",
+    "text: 부가세",
+    "textbox \"부가세\"",
+    "text: 합계",
+    "textbox \"합계\"",
+    "button \"계산\"",
+    "button \"저장\""
+   ],
+   "snapshot": "- document:\n  - iframe\n  - iframe\n- link \"주문 등록\":\n  - /url: /order.jsp\n- text: \"|\"\n- link \"주문 조회\":\n  - /url: /list.jsp\n- heading \"주문 등록\" [level=2]\n- table:\n  - rowgroup:\n    - row \"품목 볼펜\":\n      - rowheader \"품목\"\n      - cell \"볼펜\":\n        - combobox \"품목\":\n          - option \"노트북\"\n          - option \"마우스\"\n          - option \"볼펜\" [selected]\n    - row \"수량 1\":\n      - rowheader \"수량\"\n      - cell \"1\":\n        - textbox \"수량\": \"1\"\n    - row \"공급가액\":\n      - rowheader \"공급가액\"\n      - cell:\n        - textbox \"공급가액\"\n    - row \"부가세\":\n      - rowheader \"부가세\"\n      - cell:\n        - textbox \"부가세\"\n    - row \"합계\":\n      - rowheader \"합계\"\n      - cell:\n        - textbox \"합계\"\n- button \"계산\"\n- button \"저장\"",
+   "dialogs": [],
+   "shot": "shots/test_order_save/03.jpg"
+  },
+  {
+   "index": 4,
+   "kind": "click",
+   "text": "button \"계산\"",
+   "url": "/",
+   "title": "주문관리",
+   "content": [
+    "link \"주문 등록\"",
+    "link \"주문 조회\"",
+    "text: 주문 등록",
+    "text: 품목",
+    "combobox \"품목\": 볼펜",
+    "text: 수량",
+    "textbox \"수량\": 1",
+    "text: 공급가액",
+    "textbox \"공급가액\": 1,235",
+    "text: 부가세",
+    "textbox \"부가세\": 120",
+    "text: 합계",
+    "textbox \"합계\": 1,355",
+    "button \"계산\"",
+    "button \"저장\""
+   ],
+   "snapshot": "- document:\n  - iframe\n  - iframe\n- link \"주문 등록\":\n  - /url: /order.jsp\n- text: \"|\"\n- link \"주문 조회\":\n  - /url: /list.jsp\n- heading \"주문 등록\" [level=2]\n- table:\n  - rowgroup:\n    - row \"품목 볼펜\":\n      - rowheader \"품목\"\n      - cell \"볼펜\":\n        - combobox \"품목\":\n          - option \"노트북\"\n          - option \"마우스\"\n          - option \"볼펜\" [selected]\n    - row \"수량 1\":\n      - rowheader \"수량\"\n      - cell \"1\":\n        - textbox \"수량\": \"1\"\n    - row \"공급가액 1,235\":\n      - rowheader \"공급가액\"\n      - cell \"1,235\":\n        - textbox \"공급가액\": 1,235\n    - row \"부가세 120\":\n      - rowheader \"부가세\"\n      - cell \"120\":\n        - textbox \"부가세\": \"120\"\n    - row \"합계 1,355\":\n      - rowheader \"합계\"\n      - cell \"1,355\":\n        - textbox \"합계\": 1,355\n- button \"계산\"\n- button \"저장\"",
+   "dialogs": [],
+   "shot": "shots/test_order_save/04.jpg"
+  },
+  {
+   "index": 5,
+   "kind": "click",
+   "text": "button \"저장\"",
+   "url": "/",
+   "title": "주문관리",
+   "content": [
+    "link \"주문 등록\"",
+    "link \"주문 조회\"",
+    "text: 주문이 저장되었습니다. 주문번호 323",
+    "text: 볼펜 1개, 공급가액 1,235원, 부가세 120원, 합계 1,355원"
+   ],
+   "snapshot": "- document:\n  - iframe\n  - iframe\n- link \"주문 등록\":\n  - /url: /order.jsp\n- text: \"|\"\n- link \"주문 조회\":\n  - /url: /list.jsp\n- paragraph: 주문이 저장되었습니다. 주문번호 323\n- paragraph: 볼펜 1개, 공급가액 1,235원, 부가세 120원, 합계 1,355원",
+   "dialogs": [
+    {
+     "type": "confirm",
+     "message": "저장하시겠습니까?",
+     "action": "accept"
+    }
+   ],
+   "shot": "shots/test_order_save/05.jpg"
+  }
+ ]
+}

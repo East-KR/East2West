@@ -1,0 +1,23 @@
+name: 네이버 호텔 - 목적지(지역→구), 캘린더+적용, 인원 선택 후 검색
+steps:
+  - goto: https://hotels.naver.com/
+  - do: 광고 팝업을 7일간 보지 않기로 닫기
+  - do: 어디로 여행 가시나요 여행지 선택 열기
+  - do: 여행지 검색 패널의 지역 버튼 목록에서 부산 선택
+  - do: 부산 하위 지역 목록에서 해운대구 선택
+  - do: 지역 선택완료 버튼 누르기
+  - expect: { text: "해운대구" }
+  - do: 숙박일정 선택 열기
+  - do: 캘린더에서 2026년 10월 15일 선택
+  - do: 캘린더에서 2026년 10월 17일 선택
+  - do: 선택한 숙박일정 적용
+  - expect: { text: "10.15" }
+  - do: 인원 선택 열기
+  - do: 성인 인원 1명 늘리기
+  - do: 인원 적용
+  - expect: { text: "성인3" }
+  - do: 호텔 검색 실행
+  - expect: { url_contains: "accommodation/search/", text: "해운대구" }
+  - expect: { url_contains: "checkIn=2026-10-15" }
+  - expect: { url_contains: "checkOut=2026-10-17" }
+  - expect: { url_contains: "adultCnt=3" }

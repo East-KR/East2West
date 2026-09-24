@@ -1,0 +1,32 @@
+[project]
+name = "jev-e2e"
+version = "0.1.0"
+description = "Prototype: natural-language E2E steps decided by TypeSafe Jev, executed by Playwright"
+requires-python = ">=3.11"
+dependencies = [
+  "playwright>=1.50",
+  "typesafe-sdk>=0.6.0",
+  "pyyaml>=6.0",
+]
+
+[project.scripts]
+jev-e2e = "jev_e2e.cli:main"
+
+[project.entry-points.pytest11]
+jev_e2e = "jev_e2e.pwtest.plugin"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["jev_e2e"]
+
+[tool.pytest.ini_options]
+testpaths = ["e2e"]
+addopts = "-p no:cacheprovider"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

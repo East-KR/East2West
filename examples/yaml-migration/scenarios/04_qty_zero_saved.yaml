@@ -1,0 +1,12 @@
+name: "경계값 - 수량 0은 막지 않고 합계 0원으로 저장된다 (as-is 버그 보존)"
+compare:
+  ignore: ['주문번호 \d+']
+steps:
+  - goto: /
+  - do: 상단 메뉴에서 주문 등록으로 이동
+  - do: 수량 입력
+    fill: "0"
+  - do: 저장 버튼 누르기
+  - expect: { dialog: "저장하시겠습니까?" }
+  - expect: { text: "노트북 0개" }               # 품목 기본값 = 첫 옵션 노트북
+  - expect: { text: "합계 0원" }

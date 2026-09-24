@@ -1,0 +1,1024 @@
+- banner:
+  - link "Naver":
+    - /url: https://www.naver.com/
+    - img
+    - text: Naver
+  - strong: 사용자 링크
+  - list:
+    - listitem:
+      - link "로그인":
+        - /url: https://nid.naver.com/nidlogin.login
+    - listitem:
+      - link "서비스 더보기":
+        - /url: javascript:;
+  - img
+  - navigation:
+    - link "여행상품":
+      - /url: https://travel-event.naver.com
+      - img
+      - text: 여행상품
+    - link "여행정보":
+      - /url: https://travel.naver.com
+      - img
+      - text: 여행정보
+    - link "로그인 후 등급확인":
+      - /url: https://nid.naver.com/nidlogin.login?svctype=262144&url=https://hotels.naver.com/accommodation?locationTargetId%3D%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C%20%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC%26locationType%3Dquery%26popup%3Dopen
+    - link "마이페이지":
+      - /url: https://travel.naver.com/my
+      - img
+      - text: 마이페이지
+  - navigation "여행 서비스":
+    - link "여행핫딜":
+      - /url: https://travel-event.naver.com
+    - link "항공":
+      - /url: https://flight.naver.com
+    - link "호텔":
+      - /url: https://hotels.naver.com
+    - link "패키지":
+      - /url: https://pkgtour.naver.com
+    - link "For U":
+      - /url: https://travel4u.naver.com
+- text: 전세계 예약사이트 요금 한번에 비교! 알아두면 도움 되는 생생한 숙박후기 힐링 호캉스 패키지는 네이버 객실 패키지로! 여행가기 전 확인 필수! 다양한 할인/적립!
+- button
+- button
+- button
+- button
+- tablist:
+  - tab "국내 호텔"
+  - tab "해외 호텔"
+  - tab "공유숙박 베타": 공유숙박
+  - tab "모텔"
+- tab "부산광역시 해운대구"
+- button "숙박일정을 선택하세요"
+- button "성인2"
+- button "검색"
+- text: 체크인
+- button "2026.10.15. 목"
+- button "이전날짜"
+- button "다음날짜"
+- text: 체크아웃
+- button "날짜를 선택하세요"
+- text: 2026.09.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 2 3 4 5":
+      - cell
+      - cell
+      - cell "1":
+        - button "1" [disabled]
+      - cell "2":
+        - button "2" [disabled]
+      - cell "3":
+        - button "3" [disabled]
+      - cell "4":
+        - button "4" [disabled]
+      - cell "5":
+        - button "5" [disabled]
+    - row "6 7 8 9 10 11 12":
+      - cell "6":
+        - button "6" [disabled]
+      - cell "7":
+        - button "7" [disabled]
+      - cell "8":
+        - button "8" [disabled]
+      - cell "9":
+        - button "9" [disabled]
+      - cell "10":
+        - button "10" [disabled]
+      - cell "11":
+        - button "11" [disabled]
+      - cell "12":
+        - button "12" [disabled]
+    - row "13 14 15 16 17 18 19":
+      - cell "13":
+        - button "13" [disabled]
+      - cell "14":
+        - button "14" [disabled]
+      - cell "15":
+        - button "15" [disabled]
+      - cell "16":
+        - button "16" [disabled]
+      - cell "17":
+        - button "17" [disabled]
+      - cell "18":
+        - button "18" [disabled]
+      - cell "19":
+        - button "19" [disabled]
+    - row "20 21 22 오늘 23 24 추석 연휴 25 추석 26 추석 연휴":
+      - cell "20":
+        - button "20" [disabled]
+      - cell "21":
+        - button "21" [disabled]
+      - cell "22 오늘":
+        - button "22 오늘"
+      - cell "23":
+        - button "23"
+      - cell "24 추석 연휴":
+        - button "24 추석 연휴"
+      - cell "25 추석":
+        - button "25 추석"
+      - cell "26 추석 연휴":
+        - button "26 추석 연휴"
+    - row "27 28 29 30":
+      - cell "27":
+        - button "27"
+      - cell "28":
+        - button "28"
+      - cell "29":
+        - button "29"
+      - cell "30":
+        - button "30"
+      - cell
+      - cell
+      - cell
+- text: 2026.10.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 2 3 개천절":
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell "1":
+        - button "1"
+      - cell "2":
+        - button "2"
+      - cell "3 개천절":
+        - button "3 개천절"
+    - row "4 5 대체공휴일(개천절) 6 7 8 9 한글날 10":
+      - cell "4":
+        - button "4"
+      - cell "5 대체공휴일(개천절)":
+        - button "5 대체공휴일(개천절)"
+      - cell "6":
+        - button "6"
+      - cell "7":
+        - button "7"
+      - cell "8":
+        - button "8"
+      - cell "9 한글날":
+        - button "9 한글날"
+      - cell "10":
+        - button "10"
+    - row "11 12 13 14 15 체크인 16 17":
+      - cell "11":
+        - button "11"
+      - cell "12":
+        - button "12"
+      - cell "13":
+        - button "13"
+      - cell "14":
+        - button "14"
+      - cell "15 체크인":
+        - button "15 체크인"
+      - cell "16":
+        - button "16"
+      - cell "17":
+        - button "17"
+    - row "18 19 20 21 22 23 24":
+      - cell "18":
+        - button "18"
+      - cell "19":
+        - button "19"
+      - cell "20":
+        - button "20"
+      - cell "21":
+        - button "21"
+      - cell "22":
+        - button "22"
+      - cell "23":
+        - button "23"
+      - cell "24":
+        - button "24"
+    - row "25 26 27 28 29 30 31":
+      - cell "25":
+        - button "25"
+      - cell "26":
+        - button "26"
+      - cell "27":
+        - button "27"
+      - cell "28":
+        - button "28"
+      - cell "29":
+        - button "29"
+      - cell "30":
+        - button "30"
+      - cell "31":
+        - button "31"
+- text: 2026.11.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 2 3 4 5 6 7":
+      - cell "1":
+        - button "1"
+      - cell "2":
+        - button "2"
+      - cell "3":
+        - button "3"
+      - cell "4":
+        - button "4"
+      - cell "5":
+        - button "5"
+      - cell "6":
+        - button "6"
+      - cell "7":
+        - button "7"
+    - row "8 9 10 11 12 13 14":
+      - cell "8":
+        - button "8"
+      - cell "9":
+        - button "9"
+      - cell "10":
+        - button "10"
+      - cell "11":
+        - button "11"
+      - cell "12":
+        - button "12"
+      - cell "13":
+        - button "13"
+      - cell "14":
+        - button "14"
+    - row "15 16 17 18 19 20 21":
+      - cell "15":
+        - button "15"
+      - cell "16":
+        - button "16"
+      - cell "17":
+        - button "17"
+      - cell "18":
+        - button "18"
+      - cell "19":
+        - button "19"
+      - cell "20":
+        - button "20"
+      - cell "21":
+        - button "21"
+    - row "22 23 24 25 26 27 28":
+      - cell "22":
+        - button "22"
+      - cell "23":
+        - button "23"
+      - cell "24":
+        - button "24"
+      - cell "25":
+        - button "25"
+      - cell "26":
+        - button "26"
+      - cell "27":
+        - button "27"
+      - cell "28":
+        - button "28"
+    - row "29 30":
+      - cell "29":
+        - button "29"
+      - cell "30":
+        - button "30"
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+- text: 2026.12.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 2 3 4 5":
+      - cell
+      - cell
+      - cell "1":
+        - button "1"
+      - cell "2":
+        - button "2"
+      - cell "3":
+        - button "3"
+      - cell "4":
+        - button "4"
+      - cell "5":
+        - button "5"
+    - row "6 7 8 9 10 11 12":
+      - cell "6":
+        - button "6"
+      - cell "7":
+        - button "7"
+      - cell "8":
+        - button "8"
+      - cell "9":
+        - button "9"
+      - cell "10":
+        - button "10"
+      - cell "11":
+        - button "11"
+      - cell "12":
+        - button "12"
+    - row "13 14 15 16 17 18 19":
+      - cell "13":
+        - button "13"
+      - cell "14":
+        - button "14"
+      - cell "15":
+        - button "15"
+      - cell "16":
+        - button "16"
+      - cell "17":
+        - button "17"
+      - cell "18":
+        - button "18"
+      - cell "19":
+        - button "19"
+    - row "20 21 22 23 24 25 성탄절 26":
+      - cell "20":
+        - button "20"
+      - cell "21":
+        - button "21"
+      - cell "22":
+        - button "22"
+      - cell "23":
+        - button "23"
+      - cell "24":
+        - button "24"
+      - cell "25 성탄절":
+        - button "25 성탄절"
+      - cell "26":
+        - button "26"
+    - row "27 28 29 30 31":
+      - cell "27":
+        - button "27"
+      - cell "28":
+        - button "28"
+      - cell "29":
+        - button "29"
+      - cell "30":
+        - button "30"
+      - cell "31":
+        - button "31"
+      - cell
+      - cell
+- text: 2027.01.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 새해 첫날 2":
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell "1 새해 첫날":
+        - button "1 새해 첫날"
+      - cell "2":
+        - button "2"
+    - row "3 4 5 6 7 8 9":
+      - cell "3":
+        - button "3"
+      - cell "4":
+        - button "4"
+      - cell "5":
+        - button "5"
+      - cell "6":
+        - button "6"
+      - cell "7":
+        - button "7"
+      - cell "8":
+        - button "8"
+      - cell "9":
+        - button "9"
+    - row "10 11 12 13 14 15 16":
+      - cell "10":
+        - button "10"
+      - cell "11":
+        - button "11"
+      - cell "12":
+        - button "12"
+      - cell "13":
+        - button "13"
+      - cell "14":
+        - button "14"
+      - cell "15":
+        - button "15"
+      - cell "16":
+        - button "16"
+    - row "17 18 19 20 21 22 23":
+      - cell "17":
+        - button "17"
+      - cell "18":
+        - button "18"
+      - cell "19":
+        - button "19"
+      - cell "20":
+        - button "20"
+      - cell "21":
+        - button "21"
+      - cell "22":
+        - button "22"
+      - cell "23":
+        - button "23"
+    - row "24 25 26 27 28 29 30":
+      - cell "24":
+        - button "24"
+      - cell "25":
+        - button "25"
+      - cell "26":
+        - button "26"
+      - cell "27":
+        - button "27"
+      - cell "28":
+        - button "28"
+      - cell "29":
+        - button "29"
+      - cell "30":
+        - button "30"
+    - row "31":
+      - cell "31":
+        - button "31"
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+- text: 2027.02.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 2 3 4 5 6 설날 연휴":
+      - cell
+      - cell "1":
+        - button "1"
+      - cell "2":
+        - button "2"
+      - cell "3":
+        - button "3"
+      - cell "4":
+        - button "4"
+      - cell "5":
+        - button "5"
+      - cell "6 설날 연휴":
+        - button "6 설날 연휴"
+    - row "7 설날 8 설날 연휴 9 대체공휴일(설날) 10 11 12 13":
+      - cell "7 설날":
+        - button "7 설날"
+      - cell "8 설날 연휴":
+        - button "8 설날 연휴"
+      - cell "9 대체공휴일(설날)":
+        - button "9 대체공휴일(설날)"
+      - cell "10":
+        - button "10"
+      - cell "11":
+        - button "11"
+      - cell "12":
+        - button "12"
+      - cell "13":
+        - button "13"
+    - row "14 15 16 17 18 19 20":
+      - cell "14":
+        - button "14"
+      - cell "15":
+        - button "15"
+      - cell "16":
+        - button "16"
+      - cell "17":
+        - button "17"
+      - cell "18":
+        - button "18"
+      - cell "19":
+        - button "19"
+      - cell "20":
+        - button "20"
+    - row "21 22 23 24 25 26 27":
+      - cell "21":
+        - button "21"
+      - cell "22":
+        - button "22"
+      - cell "23":
+        - button "23"
+      - cell "24":
+        - button "24"
+      - cell "25":
+        - button "25"
+      - cell "26":
+        - button "26"
+      - cell "27":
+        - button "27"
+    - row "28":
+      - cell "28":
+        - button "28"
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+- text: 2027.03.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 삼일절 2 3 4 5 6":
+      - cell
+      - cell "1 삼일절":
+        - button "1 삼일절"
+      - cell "2":
+        - button "2"
+      - cell "3":
+        - button "3"
+      - cell "4":
+        - button "4"
+      - cell "5":
+        - button "5"
+      - cell "6":
+        - button "6"
+    - row "7 8 9 10 11 12 13":
+      - cell "7":
+        - button "7"
+      - cell "8":
+        - button "8"
+      - cell "9":
+        - button "9"
+      - cell "10":
+        - button "10"
+      - cell "11":
+        - button "11"
+      - cell "12":
+        - button "12"
+      - cell "13":
+        - button "13"
+    - row "14 15 16 17 18 19 20":
+      - cell "14":
+        - button "14"
+      - cell "15":
+        - button "15"
+      - cell "16":
+        - button "16"
+      - cell "17":
+        - button "17"
+      - cell "18":
+        - button "18"
+      - cell "19":
+        - button "19"
+      - cell "20":
+        - button "20"
+    - row "21 22 23 24 25 26 27":
+      - cell "21":
+        - button "21"
+      - cell "22":
+        - button "22"
+      - cell "23":
+        - button "23"
+      - cell "24":
+        - button "24"
+      - cell "25":
+        - button "25"
+      - cell "26":
+        - button "26"
+      - cell "27":
+        - button "27"
+    - row "28 29 30 31":
+      - cell "28":
+        - button "28"
+      - cell "29":
+        - button "29"
+      - cell "30":
+        - button "30"
+      - cell "31":
+        - button "31"
+      - cell
+      - cell
+      - cell
+- text: 2027.04.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 2 3":
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell "1":
+        - button "1"
+      - cell "2":
+        - button "2"
+      - cell "3":
+        - button "3"
+    - row "4 5 6 7 8 9 10":
+      - cell "4":
+        - button "4"
+      - cell "5":
+        - button "5"
+      - cell "6":
+        - button "6"
+      - cell "7":
+        - button "7"
+      - cell "8":
+        - button "8"
+      - cell "9":
+        - button "9"
+      - cell "10":
+        - button "10"
+    - row "11 12 13 14 15 16 17":
+      - cell "11":
+        - button "11"
+      - cell "12":
+        - button "12"
+      - cell "13":
+        - button "13"
+      - cell "14":
+        - button "14"
+      - cell "15":
+        - button "15"
+      - cell "16":
+        - button "16"
+      - cell "17":
+        - button "17"
+    - row "18 19 20 21 22 23 24":
+      - cell "18":
+        - button "18"
+      - cell "19":
+        - button "19"
+      - cell "20":
+        - button "20"
+      - cell "21":
+        - button "21"
+      - cell "22":
+        - button "22"
+      - cell "23":
+        - button "23"
+      - cell "24":
+        - button "24"
+    - row "25 26 27 28 29 30":
+      - cell "25":
+        - button "25"
+      - cell "26":
+        - button "26"
+      - cell "27":
+        - button "27"
+      - cell "28":
+        - button "28"
+      - cell "29":
+        - button "29"
+      - cell "30":
+        - button "30"
+      - cell
+- text: 2027.05.
+- table:
+  - rowgroup:
+    - row "일 월 화 수 목 금 토":
+      - columnheader "일"
+      - columnheader "월"
+      - columnheader "화"
+      - columnheader "수"
+      - columnheader "목"
+      - columnheader "금"
+      - columnheader "토"
+  - rowgroup:
+    - row "1 노동절":
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell "1 노동절":
+        - button "1 노동절"
+    - row "2 3 대체공휴일(노동절) 4 5 어린이날 6 7 8":
+      - cell "2":
+        - button "2"
+      - cell "3 대체공휴일(노동절)":
+        - button "3 대체공휴일(노동절)"
+      - cell "4":
+        - button "4"
+      - cell "5 어린이날":
+        - button "5 어린이날"
+      - cell "6":
+        - button "6"
+      - cell "7":
+        - button "7"
+      - cell "8":
+        - button "8"
+    - row "9 10 11 12 13 부처님 오신 날 14 15":
+      - cell "9":
+        - button "9"
+      - cell "10":
+        - button "10"
+      - cell "11":
+        - button "11"
+      - cell "12":
+        - button "12"
+      - cell "13 부처님 오신 날":
+        - button "13 부처님 오신 날"
+      - cell "14":
+        - button "14"
+      - cell "15":
+        - button "15"
+    - row "16 17 18 19 20 21 22":
+      - cell "16":
+        - button "16"
+      - cell "17":
+        - button "17"
+      - cell "18":
+        - button "18"
+      - cell "19":
+        - button "19"
+      - cell "20":
+        - button "20"
+      - cell "21":
+        - button "21"
+      - cell "22":
+        - button "22"
+    - row "23 24 25 26 27 28 29":
+      - cell "23":
+        - button "23"
+      - cell "24":
+        - button "24"
+      - cell "25":
+        - button "25"
+      - cell "26":
+        - button "26"
+      - cell "27":
+        - button "27"
+      - cell "28":
+        - button "28"
+      - cell "29":
+        - button "29"
+    - row "30 31":
+      - cell "30":
+        - button "30"
+      - cell "31":
+        - button "31"
+      - cell
+      - cell
+      - cell
+      - cell
+      - cell
+- text: 09.24. 추석 연휴 09.25. 추석 09.26. 추석 연휴 10.03. 개천절 10.05. 대체공휴일(개천절) 10.09. 한글날 12.25. 성탄절 01.01. 새해 첫날 02.06. 설날 연휴 02.07. 설날 02.08. 설날 연휴 02.09. 대체공휴일(설날) 03.01. 삼일절 05.01. 노동절 05.03. 대체공휴일(노동절) 05.05. 어린이날 05.13. 부처님 오신 날 06.06. 현충일 07.17. 제헌절 07.19. 대체공휴일(제헌절) 08.15. 광복절 08.16. 대체공휴일(광복절) 09.14. 추석 연휴 09.15. 추석 09.16. 추석 연휴
+- button "적용" [disabled]
+- text: 네이버 단독⚡번쩍특가
+- paragraph: 단 7일간, 최대 70% 릴레이 할인
+- link:
+  - /url: https://travel.naver.co.kr/thunderprice
+- text: 호텔 할인쿠폰
+- paragraph: ✈️항공권 구매시 최대 15% 할인쿠폰 지급
+- link:
+  - /url: https://travel.naver.co.kr/secretcoupon
+- text: 🛫항공+호텔🏨
+- paragraph: 항공+호텔 둘 다 사면, 호텔 5% 적립!
+- link:
+  - /url: https://travel-event.naver.com/promotion/flightplushotel
+- img "이미지 배너"
+- link:
+  - /url: https://travel-event.naver.com/promotion/hotelcheckin
+- img "이미지 배너"
+- link:
+  - /url: https://travel.naver.co.kr/pensioncardsale2609
+- img "이미지 배너"
+- link:
+  - /url: https://travel.naver.co.kr/secretmall_2609
+- img "이미지 배너"
+- link:
+  - /url: https://travel-event.naver.com/promotion/secretmallmain
+- img "이미지 배너"
+- link:
+  - /url: https://travel-event.naver.com/promotion/flightplushotel
+- img "이미지 배너"
+- link:
+  - /url: https://travel-event.naver.com/promotion/festa2609
+- img "이미지 배너"
+- link:
+  - /url: https://travel.naver.co.kr/monthlysecretmall
+- img "이미지 배너"
+- link:
+  - /url: https://travel.naver.co.kr/gdc202609
+- text: 3/8
+- link "트래블클럽 로그인 후 등급확인 하세요":
+  - /url: https://nid.naver.com/nidlogin.login?svctype=262144&url=https://hotels.naver.com/accommodation?locationTargetId%3D%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C%20%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC%26locationType%3Dquery
+- link "쇼핑 라이브":
+  - /url: https://shoppinglive.naver.com/channels/66400
+- link "쿠폰":
+  - /url: https://travel.naver.co.kr/secretcoupon
+- heading "호텔 Best 차트 인기호텔 선정 기준 국내 해외" [level=3]:
+  - strong: 호텔 Best 차트
+  - button "인기호텔 선정 기준"
+  - button "국내 해외"
+- tablist:
+  - tab "서울" [selected]
+  - tab "부산"
+  - tab "서귀포시"
+  - tab "제주시"
+  - tab "강릉"
+  - tab "속초"
+  - tab "인천"
+  - tab "경주"
+  - tab "대구"
+  - tab "대전"
+- figure:
+  - img "호텔파크하비오"
+- text: 1 변동없음
+- emphasis: 호텔파크하비오
+- text: 8.3 3성급 92,185원~
+- link:
+  - /url: /accommodation/search/detail/domestic/348137028?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "메이필드호텔"
+- text: 2 변동없음
+- emphasis: 메이필드호텔
+- text: 8.8 5성급 171,960원~
+- link:
+  - /url: /accommodation/search/detail/domestic/12219887?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "안토"
+- text: 3 변동없음
+- emphasis: 안토
+- text: 8.7 272,343원~
+- link:
+  - /url: /accommodation/search/detail/domestic/1664357859?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "서머셋팰리스서울"
+- text: 4 변동없음
+- emphasis: 서머셋팰리스서울
+- text: 8.8 4급 136,158원~
+- link:
+  - /url: /accommodation/search/detail/domestic/17909540?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "서울올림픽파크텔"
+- text: 5 변동없음
+- emphasis: 서울올림픽파크텔
+- text: 8.8 4급 117,336원~
+- link:
+  - /url: /accommodation/search/detail/domestic/11629666?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "그랜드 워커힐 서울"
+- text: 6 진입
+- emphasis: 그랜드 워커힐 서울
+- text: 9.0 5성급 255,945원~
+- link:
+  - /url: /accommodation/search/detail/domestic/11583218?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "나인트리 프리미어 로카우스 호텔 서울 용산"
+- text: 7 순위증가
+- emphasis: 나인트리 프리미어 로카우스 호텔 서울 용산
+- text: 9.2 4성급 189,604원~
+- link:
+  - /url: /accommodation/search/detail/domestic/1123513872?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "롯데호텔 월드"
+- text: 8 순위증가
+- emphasis: 롯데호텔 월드
+- text: 9.2 5성급 330,443원~
+- link:
+  - /url: /accommodation/search/detail/domestic/11583212?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "라마다서울신도림호텔"
+- text: 9 순위하락
+- emphasis: 라마다서울신도림호텔
+- text: 9.0 4성급 116,339원~
+- link:
+  - /url: /accommodation/search/detail/domestic/986184099?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- figure:
+  - img "호텔리베라 청담"
+- text: 10 순위하락
+- emphasis: 호텔리베라 청담
+- text: 8.2 4성급 140,160원~
+- link:
+  - /url: /accommodation/search/detail/domestic/11583207?locationTargetId=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC&locationType=query
+- list:
+  - listitem:
+    - img "부킹닷컴"
+  - listitem:
+    - img "아고다"
+  - listitem:
+    - img "호텔스닷컴"
+  - listitem:
+    - img "호텔스컴바인"
+  - listitem:
+    - img "트립닷컴"
+  - listitem:
+    - img "호텔엔조이"
+  - listitem:
+    - img "호텔패스"
+  - listitem:
+    - img "라쿠텐"
+  - listitem:
+    - img "아코르"
+  - listitem:
+    - img "Jalan"
+  - listitem:
+    - img "하나투어"
+  - listitem:
+    - img "NOL"
+  - listitem:
+    - img "모두투어"
+  - listitem:
+    - img "트립비토즈"
+  - listitem:
+    - img "여기어때"
+  - listitem:
+    - img "시크릿몰"
+  - listitem:
+    - img "재패니칸"
+  - listitem:
+    - img "인터콘티넨탈"
+  - listitem:
+    - img "메리어트"
+  - listitem:
+    - img "힐튼"
+  - listitem:
+    - img "하얏트"
+  - listitem:
+    - img "에어비앤비"
+- contentinfo:
+  - link "로그인":
+    - /url: https://nid.naver.com/nidlogin.login?svctype=262144&url=https%3A%2F%2Fhotels.naver.com%2Faccommodation%3FlocationTargetId%3D%25EB%25B6%2580%25EC%2582%25B0%25EA%25B4%2591%25EC%2597%25AD%25EC%258B%259C%2B%25ED%2595%25B4%25EC%259A%25B4%25EB%258C%2580%25EA%25B5%25AC%26locationType%3Dquery
+  - link "전체서비스":
+    - /url: https://m.naver.com/services.html
+  - button "공유하기"
+  - link "개인정보처리방침":
+    - /url: https://policy.naver.com/policy/privacy.html
+    - strong: 개인정보처리방침
+  - link "이용약관":
+    - /url: https://policy.naver.com/policy/service.html
+  - link "고객센터":
+    - /url: https://help.naver.com/alias/contents2/navertravel/travel.naver
+  - link "사업자정보 공개":
+    - /url: https://www.ftc.go.kr/bizCommPop.do?wrkr_no=2208162517
+  - term: 사업자 등록번호
+  - definition: 220-81-62517
+  - term: 통신판매번호
+  - definition: 2006-경기성남-0692
+  - term: 대표이사
+  - definition: 최수연
+  - term: 전화번호
+  - definition: 1588-3820(대표전화/고객센터)
+  - term: 이메일
+  - definition: ccnaver@naver.com
+  - term: 주소
+  - definition: 경기도 성남시 분당구 정자일로 95 NAVER 1784, 13561
+  - term: 호스팅 서비스 제공
+  - definition: NAVER Cloud
+  - paragraph: 네이버 호텔은 제휴사에서 제공하는 호텔정보 및 가격정보를 비교, 중개하는 서비스로서, 네이버(주)는 통신판매의 당사자가 아닙니다. 호텔 검색 결과 및 거래에 관한 의무와 책임은 판매자에게 있습니다. 외국인 관광 도시민박법에 따라 지정된 제주지역 외 국내 게스트하우스는 외국인만 투숙 가능합니다.
+  - text: NAVER
+- alert: 네이버 호텔

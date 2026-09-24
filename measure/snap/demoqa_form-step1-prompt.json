@@ -1,0 +1,17 @@
+{
+ "step": "이름(First Name) 입력",
+ "action": "fill",
+ "page": {
+  "url": "https://demoqa.com/automation-practice-form",
+  "title": "demosite"
+ },
+ "history": [],
+ "criteria": {
+  "c0": "fill textbox \"First Name\" in \"Name\"",
+  "c1": "fill textbox \"Last Name\" in \"Name\"",
+  "c2": "fill textbox \"name@example.com\"",
+  "c3": "fill textbox \"Mobile Number\"",
+  "c4": "fill textbox \"Current Address\"",
+  "abstain": "No candidate matches this step on the current page; do not act."
+ }
+}

@@ -1,0 +1,13 @@
+# 스모크 대상 화면 목록. 실제로는 as-is 메뉴/라우터 코드에서 뽑는다.
+- { SCREEN: 사원 조회,   URL: /emp }
+- { SCREEN: 부서 목록,   URL: /dept }
+- { SCREEN: 거래처 관리, URL: /vendor }
+- { SCREEN: 품목 마스터, URL: /item }
+- { SCREEN: 재고 현황,   URL: /stock }
+- { SCREEN: 주문 내역,   URL: /order }
+- { SCREEN: 매출 집계,   URL: /sales }
+- { SCREEN: 입고 관리,   URL: /inbound }
+- { SCREEN: 출고 관리,   URL: /outbound }
+- { SCREEN: 급여 명세,   URL: /pay }
+- { SCREEN: 결재 문서함, URL: /approval }
+- { SCREEN: 공지사항,    URL: /notice }

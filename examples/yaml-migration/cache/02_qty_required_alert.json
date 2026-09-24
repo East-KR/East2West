@@ -1,0 +1,29 @@
+{
+ "상단 메뉴에서 주문 등록으로 이동": {
+  "role": "link",
+  "name": "주문 등록",
+  "nth": 0,
+  "dup": 1,
+  "scope": "",
+  "step": "상단 메뉴에서 주문 등록으로 이동",
+  "frame": "menu"
+ },
+ "품목에서 마우스 선택": {
+  "role": "option",
+  "name": "마우스",
+  "nth": 0,
+  "dup": 1,
+  "scope": "",
+  "step": "품목에서 마우스 선택",
+  "frame": "main"
+ },
+ "저장 버튼 누르기": {
+  "role": "button",
+  "name": "저장",
+  "nth": 0,
+  "dup": 1,
+  "scope": "",
+  "step": "저장 버튼 누르기",
+  "frame": "main"
+ }
+}

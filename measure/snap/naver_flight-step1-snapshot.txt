@@ -1,0 +1,221 @@
+- main:
+  - link "Naver":
+    - /url: https://www.naver.com/
+    - img
+    - text: Naver
+  - strong: 사용자 링크
+  - list:
+    - listitem:
+      - link "로그인":
+        - /url: https://nid.naver.com/nidlogin.login
+    - listitem:
+      - link "서비스 더보기":
+        - /url: javascript:;
+  - img
+  - navigation:
+    - link "여행상품":
+      - /url: https://travel-event.naver.com
+      - img
+      - text: 여행상품
+    - link "여행정보":
+      - /url: https://travel.naver.com
+      - img
+      - text: 여행정보
+    - button "0":
+      - img
+      - text: "0"
+    - link "로그인 후 등급확인":
+      - /url: https://nid.naver.com/nidlogin.login?svctype=262144&url=https://flight.naver.com/?popup%3Dopen
+    - link "마이페이지":
+      - /url: https://travel.naver.com/my
+      - img
+      - text: 마이페이지
+  - navigation "여행 서비스":
+    - link "여행핫딜":
+      - /url: https://travel-event.naver.com
+    - link "항공":
+      - /url: https://flight.naver.com
+    - link "호텔":
+      - /url: https://hotels.naver.com
+    - link "패키지":
+      - /url: https://pkgtour.naver.com
+    - link "For U":
+      - /url: https://travel4u.naver.com
+  - link "매일 진행되는 네이버페이 적립이벤트":
+    - /url: https://travel-event.naver.com?code=flight
+  - text: 설레는 여행의 시작 네이버 항공권!
+  - link "항공권 구매하면 호텔 최대 15% 할인":
+    - /url: https://travel.naver.co.kr/secretcoupon
+  - button
+  - button
+  - button
+  - tablist:
+    - tab "왕복" [selected]
+    - tab "편도"
+    - tab "다구간"
+  - tabpanel:
+    - button "서울 ICN, GMP (모든 공항)":
+      - text: 서울
+      - img
+      - text: ICN, GMP (모든 공항)
+    - button "도착지 도시, 공항 검색":
+      - text: 도착지
+      - img
+      - text: 도시, 공항 검색
+    - button "출도착지 전환":
+      - img
+    - button "가는 날":
+      - img
+      - text: 가는 날
+    - button "오는 날":
+      - img
+      - text: 오는 날
+    - button "성인 1명":
+      - img
+      - text: 성인 1명
+    - button "전체":
+      - img
+      - text: 전체
+    - button "검색"
+  - iframe
+  - iframe
+  - iframe
+  - iframe
+  - iframe
+  - iframe
+  - iframe
+  - text: 1/4
+  - link "트래블클럽 로그인 후 등급확인 하세요":
+    - /url: https://nid.naver.com/nidlogin.login?svctype=262144&url=https://flight.naver.com/
+  - button "닫기"
+  - link "쇼핑 라이브":
+    - /url: https://shoppinglive.naver.com/channels/66400
+  - link "쿠폰":
+    - /url: https://travel.naver.co.kr/secretcoupon
+  - heading "요즘 인기 항공권" [level=3]:
+    - text: 요즘 인기 항공권
+    - button:
+      - img
+  - tablist:
+    - tab "예약 TOP10" [selected]
+    - tab "조회 급상승"
+  - text: 서울 출발
+  - button:
+    - img
+  - button "전체" [pressed]
+  - button "동남아"
+  - button "일본/중국"
+  - button "유럽"
+  - button "북미"
+  - button "남태평양"
+  - button "아시아/남미/아프리카"
+  - list:
+    - listitem:
+      - button "1 유지 제주 CJU 대한민국 직항, 1시간 15분 46,400원~":
+        - figure:
+          - img "제주"
+        - text: 1 유지
+        - emphasis: 제주
+        - text: CJU 대한민국 직항, 1시간 15분 46,400원~
+    - listitem:
+      - button "2 유지 도쿄 NRT 일본 직항, 2시간 20분 221,400원~":
+        - figure:
+          - img "도쿄"
+        - text: 2 유지
+        - emphasis: 도쿄
+        - text: NRT 일본 직항, 2시간 20분 221,400원~
+    - listitem:
+      - button "3 유지 부산 PUS 대한민국 직항, 1시간 5분 60,200원~":
+        - figure:
+          - img "부산"
+        - text: 3 유지
+        - emphasis: 부산
+        - text: PUS 대한민국 직항, 1시간 5분 60,200원~
+    - listitem:
+      - button "4 유지 후쿠오카 FUK 일본 직항, 1시간 25분 168,411원~":
+        - figure:
+          - img "후쿠오카"
+        - text: 4 유지
+        - emphasis: 후쿠오카
+        - text: FUK 일본 직항, 1시간 25분 168,411원~
+    - listitem:
+      - button "5 유지 오사카 KIX 일본 직항, 2시간 185,400원~":
+        - figure:
+          - img "오사카"
+        - text: 5 유지
+        - emphasis: 오사카
+        - text: KIX 일본 직항, 2시간 185,400원~
+    - listitem:
+      - button "6 유지 삿포로 CTS 일본 직항, 2시간 30분 235,900원~":
+        - figure:
+          - img "삿포로"
+        - text: 6 유지
+        - emphasis: 삿포로
+        - text: CTS 일본 직항, 2시간 30분 235,900원~
+    - listitem:
+      - button "7 유지 방콕 BKK 태국 직항, 6시간 5분 300,200원~":
+        - figure:
+          - img "방콕"
+        - text: 7 유지
+        - emphasis: 방콕
+        - text: BKK 태국 직항, 6시간 5분 300,200원~
+    - listitem:
+      - button "8 유지 상하이 PVG 중국 직항, 2시간 10분 201,399원~":
+        - figure:
+          - img "상하이"
+        - text: 8 유지
+        - emphasis: 상하이
+        - text: PVG 중국 직항, 2시간 10분 201,399원~
+    - listitem:
+      - button "9 유지 다낭 DAD 베트남 직항, 4시간 40분 198,900원~":
+        - figure:
+          - img "다낭"
+        - text: 9 유지
+        - emphasis: 다낭
+        - text: DAD 베트남 직항, 4시간 40분 198,900원~
+    - listitem:
+      - button "10 유지 도쿄 HND 일본 직항, 2시간 5분 340,648원~":
+        - figure:
+          - img "도쿄"
+        - text: 10 유지
+        - emphasis: 도쿄
+        - text: HND 일본 직항, 2시간 5분 340,648원~
+  - heading "전 세계 모든 항공권" [level=3]
+  - link:
+    - /url: /flights/everywhere/monthly/SEL?viewType=map
+  - link "전 세계 항공권 보기":
+    - /url: /flights/everywhere/monthly/SEL?viewType=map
+  - contentinfo:
+    - link "개인정보처리방침":
+      - /url: https://policy.naver.com/policy/privacy.html
+    - link "이용약관":
+      - /url: https://policy.naver.com/policy/service.html
+    - link "사업자정보 공개":
+      - /url: https://www.ftc.go.kr/bizCommPop.do?wrkr_no=2208162517
+    - link "고객센터":
+      - /url: https://help.naver.com/service/30031/category/6220?lang=ko
+    - link "로그인":
+      - /url: https://nid.naver.com/nidlogin.login?svctype=262144&url=https%3A%2F%2Fflight.naver.com%2F
+    - link "전체서비스":
+      - /url: https://www.naver.com/more.html
+    - term: 사업자등록번호
+    - definition: 220-81-62517
+    - term: 통신판매번호
+    - definition: 2006-경기성남-0692
+    - term: 대표이사
+    - definition: 최수연
+    - term: 전화번호
+    - definition: 1588-3820
+    - term: 이메일
+    - definition: ccnaver@naver.com
+    - term: 주소
+    - definition: 경기도 성남시 분당구 정자일로 95 NAVER 1784, 13561
+    - term: 호스팅 서비스 제공
+    - definition: NAVER Cloud
+    - paragraph: 네이버 항공권은 제휴사에서 제공하는 항공권 스케줄 및 가격정보를 비교, 중개하는 서비스로서 네이버㈜는 통신판매의 당사자가 아니며, 항공권 검색 결과, 구매 및 환불 등과 관련한 의무와 책임은 각 판매자에게 있습니다.
+    - text: NAVER
+    - img
+- iframe
+- button "7일간 보지 않기"
+- button "닫기"
+- alert

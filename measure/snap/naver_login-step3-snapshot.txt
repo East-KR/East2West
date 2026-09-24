@@ -1,0 +1,50 @@
+- link "본문 바로가기":
+  - /url: "#content"
+- main:
+  - banner:
+    - link "네이버":
+      - /url: https://www.naver.com
+      - heading "네이버" [level=1]
+  - list:
+    - listitem:
+      - text: 아이디 또는 전화번호
+      - textbox "아이디 또는 전화번호":
+        - /placeholder: ""
+    - listitem:
+      - text: 비밀번호
+      - textbox "비밀번호"
+  - checkbox "로그인 상태 유지"
+  - text: 로그인 상태 유지 IP 보안
+  - switch "IP 보안" [checked]
+  - text: "ON"
+  - list:
+    - listitem:
+      - button "로그인"
+  - list:
+    - listitem:
+      - link "QR 코드 로그인":
+        - /url: "#none"
+    - listitem:
+      - link "일회용 번호 로그인":
+        - /url: "#none"
+  - list:
+    - listitem:
+      - link "아이디 찾기":
+        - /url: https://nid.naver.com/user2/api/route?m=routeIdInquiry&lang=ko_KR
+    - listitem:
+      - link "비밀번호 찾기":
+        - /url: https://nid.naver.com/user2/api/route?m=routePwInquiry&lang=ko_KR
+    - listitem:
+      - link "회원가입":
+        - /url: https://nid.naver.com/account/signup?lang=ko_KR&realname=N&rurl=https%3A%2F%2Fwww.naver.com%2F
+  - iframe
+  - contentinfo:
+    - listitem:
+      - link "스마트봇 상담":
+        - /url: https://nca.naver.com/chat/account/view
+    - listitem:
+      - link "고객센터":
+        - /url: https://help.naver.com/service/5640/category/bookmark?lang=ko
+    - listitem:
+      - listbox "언어선택": 한국어
+  - text: © NAVER Corp.

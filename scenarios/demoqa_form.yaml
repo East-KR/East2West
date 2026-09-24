@@ -1,0 +1,22 @@
+name: demoqa 연습 폼 - 텍스트·라디오·체크박스·셀렉트
+steps:
+  - goto: https://demoqa.com/automation-practice-form
+  - do: 이름(First Name) 입력
+    fill: Gildong
+  - do: 성(Last Name) 입력
+    fill: Hong
+  - do: 이메일 입력
+    fill: gildong@example.com
+  - do: 성별 남성 선택
+  - do: 휴대폰 번호 입력
+    fill: "0101234567"
+  - do: 취미 중 음악 체크
+  - do: 취미 중 독서 체크
+  - expect: { snapshot_contains: 'radio "Male" [checked]' }
+  - expect: { snapshot_contains: 'checkbox "Music" [checked]' }
+  - expect: { snapshot_contains: 'checkbox "Reading" [checked]' }
+  - goto: https://demoqa.com/select-menu
+  - do: 옛날 스타일 색상 셀렉트에서 Green 선택
+  - do: 자동차 셀렉트에서 Audi 선택
+  - expect: { snapshot_contains: 'option "Green" [selected]' }
+  - expect: { snapshot_contains: 'option "Audi" [selected]' }

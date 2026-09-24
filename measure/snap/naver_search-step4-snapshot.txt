@@ -1,0 +1,2036 @@
+- link "메뉴 영역으로 바로가기":
+  - /url: "#lnb"
+- link "본문 영역으로 바로가기":
+  - /url: "#content"
+- text: 현재 PC에 최적화된 브라우저
+- strong: 웨일을 설치하세요
+- link "다운로드":
+  - /url: https://whale.naver.com/ko/?wpid=search_theme1
+- button "닫기"
+- heading "NAVER" [level=1]:
+  - link "NAVER":
+    - /url: https://www.naver.com
+- search:
+  - group "검색":
+    - combobox "검색어를 입력해 주세요.":
+      - text: 아이폰 17
+      - dialog "자동완성 레이어"
+    - button "한글 입력기"
+    - button "검색"
+- strong: 사용자 링크
+- list:
+  - listitem:
+    - link "로그인":
+      - /url: https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fsearch.naver.com%2Fsearch.naver%3Fwhere%3Dnexearch%26sm%3Dtop_hty%26fbm%3D0%26ie%3Dutf8%26query%3D%25EC%2595%2584%25EC%259D%25B4%25ED%258F%25B0%2B17%26ackey%3Dy2hghkma
+  - listitem:
+    - link "서비스 더보기":
+      - /url: javascript:;
+- tab "AI new"
+- tab "이미지"
+- tab "쇼핑 새 창 열림"
+- tab "클립"
+- tab "블로그"
+- tab "카페"
+- tab "지식iN"
+- tab "동영상"
+- tab "뉴스"
+- tab "어학사전 새 창 열림"
+- button "더보기"
+- list:
+  - listitem:
+    - button "공유"
+- main:
+  - heading "아이폰 17 검색 결과" [level=1]
+  - link "홈페이지":
+    - /url: https://ader.naver.com/v1/Rr3PA-fLRemiNGg9tkESQ7NAPfmgcwA5evhQ85GNRg9EyFdJ06HXJyjBn3i85IX6wSD7o3eDy_pJVN-HdU6ds3PTcD3NtCJVw5r3XGBSXoegOxijS1A7VcFFYqLqIW_Bgu6X0JvYqQEWDBUa15WqJ0Qw-XigX-esYhdzWNekSGWFCBxU0RDXQmVJTzoGwq3Br2oo3YchP8lfb-tPuwiEUIiKOrvLz08cfuFP-T6ZvDQeCeOdLpErTyi9rDZYWf_m9Ma93z8d8y8R-93qKdgHJy4FNeDU_Q0mnp31zNQ8phAExZaXH-O6M-hehWD03QWPQZFat0OM1fws7EcOrFdkajwEqGmr5zVv7Ikgz8GgXkLe1R6mPO6xuQfbBREmuINFjw_JOqLVn1dYcXDNS-UE4Q9RDABviZIb9U-apw6EuoEPmnqY1kk7rhNwvsb2pnu7?c=naver.search.pc.brand&t=0
+  - img
+  - link "새소식 새로운 iPhone 18 Pro 지금 구입 가능":
+    - /url: https://ader.naver.com/v1/XE9VY2mBLSUrrV9XzVq2A6zHproInFr7wtbeCuUmobJjpwGt6tTGU9OOzLRL9aiQFEdoKndYm_LU5iz43wy_RqLWzgu-i7kZ5iJkLUOjEf245ZCz4gBC5E8z2JT672HtnL56vwAXJltMlBOERg2XqX3mq3H13ANp1SC_hV-3jyH3x-fZLLT3F2F2krmTSjzQE9WYv_Q_VOjOfuV9gDJx6PbeseW1qK5n0aLqsATZy2K5M-B2SQM3EwPwy4jx5OvNQJw54FjpDK2wprDPZ61nnwTAC4P6uXDbHjAFASF1RoX4ouxw4jSpnrCwnKhKtFP5whQSNE1lIR8xJImsfSdjibhpfNa-fkFQ-xgGhPgcc_DIwh9IKv0a7wTfQNqkBmU0JUdKaFdXUVK79WnOm5twKQ3Q3wYi2ZLNHyufWDO4tukanV1JYjEF8jX0wWdo1lst?c=naver.search.pc.brand&t=0
+    - img
+    - strong: 새소식
+    - text: 새로운 iPhone 18 Pro 지금 구입 가능
+    - img
+  - link:
+    - /url: https://ader.naver.com/v1/ydd9rxRn2-np1jgDk5Tc9SFSuDfo8iSKNX7piOg5yLJP1pDIabqW--VPtCY9OAMapizA9G-tcNySAZZK41mjB_eykm8fOVsJ-g54IJOZ9GrGVLuA8HhmW2YrLOY4s5xXtFHby8jocqMvumEAljC27w7muwD_jv60TfBSWrK727c7SBRXYlWuKf8EjC2tzHBoZG7Z5tAA_uQuR5DLdhjlvyl8-LUSHqlyjUbAbnLALLHOYkkWoUSqIoDpuYtEwDV4s6OMEwZK8ERfJHx3FRrxlKoRbqmktPiVF1wtJyAVaKva8Ehe4lCZPaeAcQf35z59wxn5LxzaabWsH0EXZnv9a-mXeYGHqMOTDsSWvdQUWVTTlz7macd5akfWwnipAafwrp8gwdrjtLoGKOk44S1CXXIYiIvGgKQvPComiHJYXPqrhL8XZc8Uh2ONH26c73LO?c=naver.search.pc.brand&t=0
+  - link "새로운 iPhone 18 Pro":
+    - /url: https://ader.naver.com/v1/Tra6U0UX-RbvYtQw0UeLOXzn20PhynItH1u0dHyH9F7Y4OznYohz4LtKyjEk_V4484-HApy0Vy1nS00Z5FC67qxo3aIGrtcamv4HpQUKzalS-WF3c4ZJi6dLR1cz3Tpt4jB3lyYDgn8kAT81w2BHBd4ktLx1Gx1It-c0Ky_Ui16Ws22zMOfY8VNRiVHOQN-z6Qm4mjtV0C-th-uj_d7ncC5P_7qnzZoh3WYvgXhUpQ9wBTW_8rbicm7qaDkQya-GdAmBZZipIVZfjwvyhY3EcE21hPFzO2jn92ujuoJ5LXrzPIIpt1054ItU6dKuJQcW8MTpn273DARD7AXkPGG0sVdUGyPVcX6aW-CZZL-75aFBflUQAKi912cvJEd8pYRpqCCtdKT7lXwUk40X6edz_07PI_8c9udLRCHDwJujoSDZ3J6T3kjL6i0E2NIHzuV7?c=naver.search.pc.brand&t=0
+  - paragraph: iPhone 사상 최고의 성능 및 카메라.
+  - paragraph: 배터리 사용 시간의 커다란 도약까지.
+  - list:
+    - listitem:
+      - link "비교하기":
+        - /url: https://ader.naver.com/v1/c8ISUzWAps8fTf1KUN9Za22ce45e6Iq5tSlt-YFJUXtrNBFvdGDszP8hkTYlJCefBW_PBo1V5O7Do5HNzVx_ebAye78FeJ3wVpXw1uWFXvrVHD6YSWolaXumUuMTJ_U4oj0XmxoxzCM2fRyDpOsLrrMMg43t_QR8WtO_EN1F8wcSkEOy9POsGEiSB8o5M4POa9b36Opn097KIlzKmy_nq8LdY7y9StBnmNCoVEmkSuaQrktQE0na6sNob_Qp5QVSUILf91v-j3MqMNUuB_CNHR6-nkkhhy3sQzkn43XsSBWyFqR_xzp6v3fBOa85KpbLwLIPFbaU5zjR_FVYIVVdag7nWbPccPxutHlgEuZCS7qQ_GaBtyy75yIm-N1jiluCx_bYKRfS2rpCoHezxA5M-WiIB7rNdVnyud62XRG4D3Yn9qQPX0CpJ7O2Rq0_PX5X?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "갈아타기":
+        - /url: https://ader.naver.com/v1/TPiO-hdkZDoi_HOtWzjBSZeB5pHcHYYD2HC1-T2LwnDbyqouKOyXifhY2uEUqNhmBj_5Ji74aOCV3GsqJYRh3YNm58IIHSwV3zxYu0hlbp4kwtIygZcePoJuDTktCoxjsktTcP66Cgvy2lq0zaDfwPtkfpuf0AmNUN9ZgtevqwsyeTLhGfTdO8KhN5fj2MSKryQq-pAP6XAnmGp4QmJ-6ZQ5j33k8Ct5HXbnwSU7l2LLAgLa9tcR1MioTxFDzAs6eyOVeWe-aL91kFXL_Wd46qdcVf8x8-qsGBB1bevWqoDpvMro5dqjnV0vHsmO2Mi0bq36rmlwNwJYyXu04n-n0bZMtoN61XJUH3j6inEKtAvW266iQLZbUkErPK1Il8ImDBOYV-xfPPU37ssbmTH0fGsO13OLE_V4pWUeoNOxVUDlSLuwGN5iSVj55CSPK3h8?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "액세서리":
+        - /url: https://ader.naver.com/v1/UPEaY1VEvZdCxGx5JMUUhj-X8dQbY6-FIO3MLeZYqh23BpEdJ7PkjUyhCrHbovqBbSLdiiDRSgN_szk3iHoQvzTyP5nfv-hS2CJfugwx2rX6JmteX8gCsxC8wxhXtoMPVnwQc6-rjHPZHRKs-kpae2B49JCzCyZAQWJxomwGAy_yUxuy98jkBwtmhjK99rLGTvOU2ibdX2hTPln6aaND-3tojVqZjX9kNoJP5JL39qOoc2HBSHXWaZUcVjr9CtfWdR91UZz4s68GTW_Z-ucbyECaHo-X6jhIIa3XeyKMCCEBmzX4pOzadSGTwAKke8Eu7bMuYfb2ILVy5Ftym0bTWmLCO157j7zfHYG2oSJjNjDm_dO2WzcT7XxT9f4kzUcP4xH3WbBbP6aClxQfgdA73qezhyARlz0Jsx-WuvZ4FzEX51O_gg2r_meJTg60ykzpgJy0G3h7zjYKZlFWt7FcbQ==?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "구입하기":
+        - /url: https://ader.naver.com/v1/UPEaY1VEvZdCxGx5JMUUhnsMgLC6Kcwm8m_8N2vsNs61dx7nXamyTNXG2C3bjh8AE3bHm8FYhdx8QSMXldpQgnAcc7T5CrchPZZbXyniflaVW1dWjnxfAn5gwMV0enokVbK1fiDgmgeohCz_JKmByFx_zKq0UAgkmhr_daK5dUP1wD1wO5rahqggYRjcZXM49d-_8tPRKAlb8rK2FG1Nd0flEz5pcPm7EYn7ctJrTdSK99xLMGpLLgvnWaCrRDClAbZ8Iq4O5ujJoFdoliKQZ34UAFl4pnnBmgzrPVe8KPluCFXQ565JoXuhvWh_K1LgBCX5IjQYQybRfGKLexkG71Sr5Lj1k0WgkILZ5SSX4VhFzrf_z6closrnHoAW0zd3tmy_Bvt-DgkOH723AxHkxcXwetdka52JAc34RFv_9e5YVuWlXfzCb63_m82Z10Ra?c=naver.search.pc.brand&t=0
+  - list:
+    - listitem:
+      - link "전체 라인업":
+        - /url: https://ader.naver.com/v1/c8ISUzWAps8fTf1KUN9Za1brq2XjsvFMkC_4oR7BrHfYLmNmNFiiIWYTUMfY7aND95d8q8mkAWy6xoQB_ucPWV_WFlGUdU4msGfgLlEA3rDyeDOMngCwCU9Cx3cBllTxRpNTWAQAm14-AmYJsmZ0kK2nUB8HDfXHx39iy_YPE3_v0pEXyN9r_bzVHXC3ZA948xHwa0cTebOH208xO_ebwzLXYKO3s7CbIqVVFFaE-qQZREbDfq2fSIjvd-7muJdGTNg4YSXZcJsPjHwmXoghTxocqPJbBdM0El2YrwwGFElZDiJ14fToOoInqIyDSKe3JGgjiTJkVos8ELvf7nz81h_5nXoDyRZZITIz1Mzv7XgqIZEZRaab7MtH1CEsOSmyAFP5zNyyYyNVaEHYSFwF1AnvcKNY3G8gwvjzcZu8tTPzJ1VjUNo3KdCes-nhpK-_?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "iOS 27":
+        - /url: https://ader.naver.com/v1/T3beDoAn05OXk312CLtMOpswHzvTZv0iYD8dTn1VlnaVC_DFYTjvIVBSghRlQv8Mr8wdP1pLjftUnY1YOMsyLQvhISXBD7i04Q8iQTUct6GcpMZhcjcx6Q8VphYIhKPrlZ9eDI1DyAGDKiZKjSukP-AVqt6hyYAyp8cwhgg3z4E3gMMjddyJGexz05ro9yNfRUcSXY8IeP7ptegrkV5FYipZmkUI4BydBiiGs-yzntl_ViJoycSMYTv2DSGqZ1Urk_MGuiuw_2n8nMPB3qzC65HG8bacWEK0KRoIRXbpkdye8IHrTAJY5jy4sZbx5eNm_Ik_7nQuS5l2a8Dm26IT5mMDCQixrq0mvVoAAGj-QN5Brrx9CcVgNmVxakwFFloQ_nz81W5Jus82saXHIWjJiLApY47mKVCWiDB99_hMSK5B3tKwaUA4zNU565XzIOU2?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "보상 판매":
+        - /url: https://ader.naver.com/v1/DZVCelKiM473PxnZxVRxI66gr8qwWF_2xaB_EwDUCP-B415umEg3EdR1T1mDeY8p9RsjaQiNHnujLQ_nCTaYwS20P8Jp8-QOh3J0ogm6Nl6fkCeBpcNYyQOACqcIGUWyyjQmNBMgP__jkB6p_GUT7NIrgk5XjGWOcbLJIT0h0do5Teeso8HC9y1qiCNAODKBlrrHtbl9reBCnm5oXN8aCMOULYdeZRuNYJTEpisi3jO2AVqoPkJLOLoQ9UHG6kFRkpHrL3E8TFpkMIWRStGJd8HUQZ7ucrdytCS7pnb6tpmTZrNxu58hxW8ZSmX9veH8pp0onhV75ZVPf0OndWJGAH3vS_Jgg1QbrcUC3NhqcpKXyfMvePro24rtrEF8s7q9UKyY6r8KdtbN_PxeSVXa20yIXxnA2AxSBKSYoVOMfwNCLNs31jdGvZgJT3eZ1VeO?c=naver.search.pc.brand&t=0
+  - strong: 새로운 iPhone Duo의 이모저모
+  - list:
+    - listitem:
+      - link "폴더블 디자인":
+        - /url: https://ader.naver.com/v1/5nu7bY3KtKHQmoeGGtvoqXYE_x6MH5X87gRF5NA_e9NsuchlLypvfKMZ_BdDC3cM4Wtn3a9xl00vmfmOw6OtyxYFGOoXfcF5xWMvOzmlsD5sJXzP6WounxHUw0dElNzK3KPnaEfFyL1xG84GbepI5g3dQW70rHUgrIrSHf89Cn8_oC6PTD7XJyj34PEfy4geNaYPcZELob5dgvIWa676zGBVWCjA78ocpDo7G2JkdMPWZqwasiIMSbBNaCmc6fTNHr9nVqMlCBIqaAZY_IkFM5uzD8yB0WFUZTVd-x-u61BEw1X4aV-8MzmnHT64YSEo8EYyN5H3UxnYKTWGS60D6-4nZl-jgCOdL1TiNJqAKv1SNpkw9qdCkyPoOQqcOAIzNf75UXcKKv98jtMIvWxJhp5hOb9zWiyFeeOsVs9zYg09kd4rmmfPFYnqMWSyqVz8baqQVCGma9fpbXaVFV7NmQ==?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "디스플레이":
+        - /url: https://ader.naver.com/v1/v3IIevUJ3CGL1WdYdgc8YQMnhu0g7IlnsQml59sb9hc-xq4jG_W-c6k0LwrqDYdOdJ9GslOdDDuE8ovmEsOJ9Da9XU5sRE-3AhbnShL_n6zvqVIe7Uc1hnq4vnzCWvowsV3p_mCy7ZO6pQynIOYRcZoby6HTmClloBQZ9-cG1r2Ju6gPcRg75HfrgZyj3NqPjRnCgw22cppvnRdRjGFQ-WxS8Sow9JQz9WKuGP7nMok2XtQpITq7dGMs0xiNwzbQ5s0dxElx9tH_4OP-RkdsPMhmBQgK8v-9VWzHotDUpgwb7TEgz-cvaANbLModoJgVZAQfjsoCDr9Uq0_CsJCDTUTHauYEzoMIFhIHvNgOyq3XARWyLb2nP8O5j3MpoqeVwaO2uymUgYZjC996esQiZyIyK6WJtSto4r6lNf7QrVmt_TZlPBOkoYv0PqzPdBg_l93TeQbOl5GvbFSxZk_npKR6_x22mvSo3g4HPkzgL8A=?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "다각도의 매력":
+        - /url: https://ader.naver.com/v1/m_OKPtNVX509uo3lt5N8QMKfVuX22CLynYGNwNMPSzJFZIq7l-N-iNfBdxRum20ZNp9IT7y9Grk42XWXduiw9pkN_2tEUveg2kYUdMLkJN_R01Dp9XE7HuIkZRMxPlo3MFUuXfCUnHe4MMwlgEtIIK_n2Yq4epuxiGKTgI4gKoq-9m_hcEVDwi_I7LCPLYmxSjyGOmWFpJbbUYpdk6zpSMr2bBMgwuaHipp3C22bJIZFIUPuBd5jsSebhGcS3JTo3zJoyjqzyI8eksF9whKGfOsx7-eQfq7HLu0XrHnIhtjdHoiOgMpKtE2EpTmGW0m5cljPa3PrvBav1XCtE5tUE5D2EgR8xSeQugTPVlIfuok7qqVK6Y9wYlZ9WTrlvDA46dWNxRQiTcI6WRyQXVBYCO3hKzQ-OulUxG2pqblo-mR2CL7wPyqktHydCMj0FXl5S85sA1dQt_P_IJPQmnA25gnsfgaP3g8X75PaA28fPMQ=?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "새로운카메라기능":
+        - /url: https://ader.naver.com/v1/nlIQOXL57RA7c96AedBfG4hRZn-V5P56ZX8be5LdNuvqOAr7uYQ2tGu4jx_kKMqbM7PYP-wQyg3auD-ejjbi6AoT7eep1jA6BIMNmyX4QtMfPHrjmIWRh0f7AgeOVibIVK40F0P8WcNdurvMCa6RUhgZk82Qxmbz9rpo4108jQxlsp7gn9a9s9dhvVwAM6PaEUPWNxhPAKiaT4MMyVdkKiscDEHoL00iKorbkmUYEse6B6t2FLuzLUZGiS0kfwV_x-4-TwcZH1JFtCA6lC8u5xfDF-Xk3lWXQPyx_vsXrd4giLtGH0D4m5UTff6en43iMRAvFd9Gdh9brpsjBmoUB4sfc-N5ONzzQbrs4B7zdjPrfvwoRmOE1-CilmDbbNyYgf8wuHTI7edxUNcwkcomQOV4R6WA2Er7m1DJ6lFaosWPsIR-qoYbpf5QEBWYpNJ7tg9UL7kycgFLS4zj51HOqQ==?c=naver.search.pc.brand&t=0
+    - listitem:
+      - link "성능 및 배터리":
+        - /url: https://ader.naver.com/v1/5nu7bY3KtKHQmoeGGtvoqUStfCxKQ5HfyguhdKEFPiT1Aq6IiXqv6Km5TQd35WhbFXGtNEKtY01JNDmQyVrX0A_w64zMZZIsg3H04Z5dcI4aJhnBsRVyDIuEte9Bd6nTXnzUCfBiUrIApaI3G7TcHaLz3aY39I_igEwbLctQ_XNjQsmCOU8TFj4u6TCc29u3tgyhIYJnIQPTd74gNdEUlpfK4wGOjcn8oChkwuigkQJcO8nojxjw5iQtoUsfY-ztqVCv1nbT-ZHhBcK-4lUEqnJJ7zA57Qo_uBzMo2EXKUL9X3JUSkWR31jU93-SUpibqlDUZ6Jp0WW3WF0-e4lpMUv4R-IamHuP6mZsqZyWUwb6oCr2dBGNo9R6uqqe762Saoyx6pxmOADiJqIJGGvsqaRX_2-YCc6CVcu4A5wP9Tn1s0L-3FN8Semn-2OMe750ocoVrkgHoayGKFx8B3UK_x3QlLSAlbhl5pRvfXBtYUU=?c=naver.search.pc.brand&t=0
+  - heading "아이폰17 관련 광고" [level=2]
+  - button "이 광고가 표시된 이유"
+  - link "등록 안내":
+    - /url: //saedu.naver.com/adbiz/searchad/clickChoice.naver
+  - list:
+    - listitem:
+      - link "링크이미지":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNx1J2JCL980FR13aSDt1AsHMiZeLiGI1pDtqZB7cYHn3xHrqHBY7dMGfQ7kcHWw4RwB_0TNBouP-8dM-PD98Q6rTUH63FqWStfkQdpdwD3hyH3gPYLyBl65R-s9jA5v33Bxnkic6qDlGtrNvvPgVCx6eiC_iwejiay1xuuNRMuR0r-87suOjb2ChuV4hdpq3pX24DwFxd0eD_GkYAQ0AAqOva0RfHJkSA2hobNQ8pN3vSnSz1Ml44I7F79wfJOnfw=?c=naver.search.pc.plsearch&t=1
+        - img "링크이미지"
+      - link "favicon":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNx1J2JCL980FR13aSDt1AsHMiZeLiGI1pDtqZB7cYHn3xHrqHBY7dMGfQ7kcHWw4RwB_0TNBouP-8dM-PD98Q6fC9AkvWuwprRC68YAGKVNhz1w1Cv94f__xzUsOofoar8KaT-1CQDYCWd4HgmfeSPCrB38GvnG0aZ5hNuLYevrnf5k6KUTYifYAdCqYYwQBjmXjtMkNhJS6DHuD9kRBSS6L9nM93zM2i760uXEAw4oI6M7hZEcpgwNaGgWTMrdOM=?c=naver.search.pc.plsearch&t=1
+        - img "favicon"
+      - img "광고":
+        - img
+      - button "네이버 로그인"
+      - link "성지폰":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNx1J2JCL980FR13aSDt1AsHMiZeLiGI1pDtqZB7cYHn3xHrqHBY7dMGfQ7kcHWw4RwB_0TNBouP-8dM-PD98Q6fC9AkvWuwprRC68YAGKVNhz1w1Cv94f__xzUsOofoar8KaT-1CQDYCWd4HgmfeSPCrB38GvnG0aZ5hNuLYevrnf5k6KUTYifYAdCqYYwQBjmXjtMkNhJS6DHuD9kRBSS6L9nM93zM2i760uXEAw4oI6M7hZEcpgwNaGgWTMrdOM=?c=naver.search.pc.plsearch&t=1
+      - link "sungjiphone.com":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNx1J2JCL980FR13aSDt1AsHMiZeLiGI1pDtqZB7cYHn3xHrqHBY7dMGfQ7kcHWw4RwB_0TNBouP-8dM-PD98Q6fC9AkvWuwprRC68YAGKVNhz1w1Cv94f__xzUsOofoar8KaT-1CQDYCWd4HgmfeSPCrB38GvnG0aZ5hNuLYevrnf5k6KUTYifYAdCqYYwQBjmXjtMkNhJS6DHuD9kRBSS6L9nM93zM2i760uXEAw4oI6M7hZEcpgwNaGgWTMrdOM=?c=naver.search.pc.plsearch&t=1
+      - link "아이폰17 선착순접수 혜택 변동 주의 실구매가 지금확인":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNx1J2JCL980FR13aSDt1AsHMiZeLiGI1pDtqZB7cYHn3xHrqHBY7dMGfQ7kcHWw4RwB_0TNBouP-8dM-PD98Q6fC9AkvWuwprRC68YAGKVNhz1w1Cv94f__xzUsOofoar8KaT-1CQDYCWd4HgmfeSPCrB38GvnG0aZ5hNuLYevrnf5k6KUTYifYAdCqYYwQBjmXjtMkNhJS6DHuD9kRBSS6L9nM93zM2i760uXEAw4oI6M7hZEcpgwNaGgWTMrdOM=?c=naver.search.pc.plsearch&t=1
+        - strong: 아이폰17
+        - text: 선착순접수 혜택 변동 주의 실구매가 지금확인
+      - link "인기 색상, 용량은 조건에 따라 변동, 오늘 혜택 확인하세요":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNx1J2JCL980FR13aSDt1AsHMiZeLiGI1pDtqZB7cYHn3xHrqHBY7dMGfQ7kcHWw4RwB_0TNBouP-8dM-PD98Q6fC9AkvWuwprRC68YAGKVNhz1w1Cv94f__xzUsOofoar8KaT-1CQDYCWd4HgmfeSPCrB38GvnG0aZ5hNuLYevrnf5k6KUTYifYAdCqYYwQBjmXjtMkNhJS6DHuD9kRBSS6L9nM93zM2i760uXEAw4oI6M7hZEcpgwNaGgWTMrdOM=?c=naver.search.pc.plsearch&t=1
+      - link "이벤트 오늘접수 더보기":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNx1J2JCL980FR13aSDt1AsHMiZeLiGI1pDtqZB7cYHn3xHrqHBY7dMGfQ7kcHWw4RwB_0TNBouP-8dM-PD98Q6XrPFFKQO7LBXcABMOmCURIG3yuAccanfWSyzo-_v5zNZzS11nTLJBg6gnl4imYMOvWs2Y_8uzY8bq7Kns5WbfVJiSD9XIaDiYYm6iz8raBfgd2jxSJ6h-Rv-pBehXB_44y8Ddv2uKs3GGvJJXUV4oBOBtGDwwcmfJIgq3uk-L2A=?c=naver.search.pc.plsearch&t=1
+        - text: 이벤트 오늘접수
+        - img "더보기":
+          - img
+    - listitem:
+      - link "favicon":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjMaqa6zDG_HPPDWe9SS_PT8jt7Bl3hY4ckArAXOGJXs6FP94AakeGZWL-FPIS1--yh8aHCazCMtyaDNc62sXH_dGENijTxu_Zsc_u-5zM6hQ-vSW4lpRhqULODROiY5uzpJ6HG3s8HSKV0rCfPEkQXPlI4Ul1gX0bJn11BYomA3tLOASdzC6r5I5weKFaI_BJlgmmS0kvEc_dP404EVc41ORykJfVk3KOMZdw0mF0xGUoABlr_53Y4qSKmBiAkdsQR3SweXapklQXfE14P3xZu3E_W4JVYcwoFuDM4eYLlNbA==?c=naver.search.pc.plsearch&t=0
+        - img "favicon"
+      - img "광고":
+        - img
+      - button "네이버 톡톡"
+      - link "KT스토어":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjMaqa6zDG_HPPDWe9SS_PT8jt7Bl3hY4ckArAXOGJXs6FP94AakeGZWL-FPIS1--yh8aHCazCMtyaDNc62sXH_dGENijTxu_Zsc_u-5zM6hQ-vSW4lpRhqULODROiY5uzpJ6HG3s8HSKV0rCfPEkQXPlI4Ul1gX0bJn11BYomA3tLOASdzC6r5I5weKFaI_BJlgmmS0kvEc_dP404EVc41ORykJfVk3KOMZdw0mF0xGUoABlr_53Y4qSKmBiAkdsQR3SweXapklQXfE14P3xZu3E_W4JVYcwoFuDM4eYLlNbA==?c=naver.search.pc.plsearch&t=0
+      - link "ktstore.net":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjMaqa6zDG_HPPDWe9SS_PT8jt7Bl3hY4ckArAXOGJXs6FP94AakeGZWL-FPIS1--yh8aHCazCMtyaDNc62sXH_dGENijTxu_Zsc_u-5zM6hQ-vSW4lpRhqULODROiY5uzpJ6HG3s8HSKV0rCfPEkQXPlI4Ul1gX0bJn11BYomA3tLOASdzC6r5I5weKFaI_BJlgmmS0kvEc_dP404EVc41ORykJfVk3KOMZdw0mF0xGUoABlr_53Y4qSKmBiAkdsQR3SweXapklQXfE14P3xZu3E_W4JVYcwoFuDM4eYLlNbA==?c=naver.search.pc.plsearch&t=0
+      - link "아이폰17프로 공식KT스토어 요금제자유선택 기기값최대할인":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjMaqa6zDG_HPPDWe9SS_PT8jt7Bl3hY4ckArAXOGJXs6FP94AakeGZWL-FPIS1--yh8aHCazCMtyaDNc62sXH_dGENijTxu_Zsc_u-5zM6hQ-vSW4lpRhqULODROiY5uzpJ6HG3s8HSKV0rCfPEkQXPlI4Ul1gX0bJn11BYomA3tLOASdzC6r5I5weKFaI_BJlgmmS0kvEc_dP404EVc41ORykJfVk3KOMZdw0mF0xGUoABlr_53Y4qSKmBiAkdsQR3SweXapklQXfE14P3xZu3E_W4JVYcwoFuDM4eYLlNbA==?c=naver.search.pc.plsearch&t=0
+        - strong: 아이폰17
+        - text: 프로 공식KT스토어 요금제자유선택 기기값최대할인
+      - link "아이폰17프로 단독 95만원할인 에어팟프로3 증정 아이폰구매는 역시 KT스토어":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjMaqa6zDG_HPPDWe9SS_PT8jt7Bl3hY4ckArAXOGJXs6FP94AakeGZWL-FPIS1--yh8aHCazCMtyaDNc62sXH_dGENijTxu_Zsc_u-5zM6hQ-vSW4lpRhqULODROiY5uzpJ6HG3s8HSKV0rCfPEkQXPlI4Ul1gX0bJn11BYomA3tLOASdzC6r5I5weKFaI_BJlgmmS0kvEc_dP404EVc41ORykJfVk3KOMZdw0mF0xGUoABlr_53Y4qSKmBiAkdsQR3SweXapklQXfE14P3xZu3E_W4JVYcwoFuDM4eYLlNbA==?c=naver.search.pc.plsearch&t=0
+        - strong: 아이폰17
+        - text: 프로 단독 95만원할인 에어팟프로3 증정
+        - strong: 아이폰
+        - text: 구매는 역시 KT스토어
+      - link "광고 아이폰프로":
+        - /url: https://ader.naver.com/v1/PLqDUU5KRYMogoPi30dpZj3PGrXLEFZj9PoHgmC4fus6KKtXDn3i0DsKLuc7TgrJh6j_24FwJOVNUOOJlaGnujRAZrqIciOsS2jKmnpypUh_TBaduz-RIsHL-Ldvh9pPGe9GSTKN_Qv4iEQKNciQlv13ERXJBSWo3_2GQW8NRWlInfJvsABq9APs1TvtraxtfnvzaUIEfHsPqrZJWx1aSEa6jWXuO8m32TL8IKBqiyi5dUA_WCqv1EA9DoFZgMIsEFeXE6xi4ABcKY_2DfPMhq2127ZiQQZnoLUSsIDvzHPuzm2TdJJz3UO5E7l_dY-164Bn89mPuXIs3uS8WUdmggyCjX6qJ5ocaGZmrsEo9-k=?c=naver.search.pc.plsearch&t=0
+        - img "광고"
+        - text: 아이폰프로
+      - link "광고 프로맥스":
+        - /url: https://ader.naver.com/v1/PLqDUU5KRYMogoPi30dpZj3PGrXLEFZj9PoHgmC4fus6KKtXDn3i0DsKLuc7TgrJh6j_24FwJOVNUOOJlaGnujRAZrqIciOsS2jKmnpypUh_TBaduz-RIsHL-Ldvh9pPGe9GSTKN_Qv4iEQKNciQlv13ERXJBSWo3_2GQW8NRWlInfJvsABq9APs1TvtraxtfnvzaUIEfHsPqrZJWx1aSEa6jWXuO8m32TL8IKBqiyi5dUA_WCqv1EA9DoFZgMIsEFeXE6xi4ABcKY_2DfPMhq2127ZiQQZnoLUSsIDvzHPuzm2TdJJz3UO5E7l_dY-164Bn89mPuXIs3uS8WUdmggyCjX6qJ5ocaGZmrsEo9-k=?c=naver.search.pc.plsearch&t=0
+        - img "광고"
+        - text: 프로맥스
+      - link "광고 아이폰에어":
+        - /url: https://ader.naver.com/v1/PLqDUU5KRYMogoPi30dpZj3PGrXLEFZj9PoHgmC4fus6KKtXDn3i0DsKLuc7TgrJh6j_24FwJOVNUOOJlaGnujRAZrqIciOsS2jKmnpypUh_TBaduz-RIsHL-Ldvh9pPGe9GSTKN_Qv4iEQKNciQlv13ERXJBSWo3_2GQW8NRWlInfJvsABq9APs1TvtraxtfnvzaUIEfHsPqrZJWx1aSEa6jWXuO8m32TL8IKBqiyi5dUA_WCqv1EA9DoFZgMIsEFeXE6xi4ABcKY_2DfPMhq2127ZiQQZnoLUSsIDvzHPuzm2TdJJz3UO5E7l_dY-164Bn89mPuXIs3uS8WUdmggyCjX6qJ5ocaGZmrsEo9-k=?c=naver.search.pc.plsearch&t=0
+        - img "광고"
+        - text: 아이폰에어
+    - listitem:
+      - link "favicon":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNRlZvUTpDzNPMEi0W2NAieWUumwStHE73KMeKFdtiCUtIjWDkAg9YBA7BoeWiJE0hMg4zDz4mXJRKncgdfp6QlwzZMWu56fiFt29y-j8RctQR2KbGcRk7CMV39SlxYH6m5rMinE7IRaqHHpBjfffRuOU_0IbIq6i0nyWxqo0BECfaaMVzEfpjR7R1eKto1q_wDvOm-QnCbgfT1qwuDAI8qpHKuojXOl4JylGxS4ZtbMCsW2-3W7DLzUifAYWKiapYirWQMRpfU0CaBBwVBIeGC?c=naver.search.pc.plsearch&t=0
+        - img "favicon"
+      - img "광고":
+        - img
+      - button "네이버 톡톡"
+      - link "KT공식몰":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNRlZvUTpDzNPMEi0W2NAieWUumwStHE73KMeKFdtiCUtIjWDkAg9YBA7BoeWiJE0hMg4zDz4mXJRKncgdfp6QlwzZMWu56fiFt29y-j8RctQR2KbGcRk7CMV39SlxYH6m5rMinE7IRaqHHpBjfffRuOU_0IbIq6i0nyWxqo0BECfaaMVzEfpjR7R1eKto1q_wDvOm-QnCbgfT1qwuDAI8qpHKuojXOl4JylGxS4ZtbMCsW2-3W7DLzUifAYWKiapYirWQMRpfU0CaBBwVBIeGC?c=naver.search.pc.plsearch&t=0
+      - link "kt-mall.co.kr":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNRlZvUTpDzNPMEi0W2NAieWUumwStHE73KMeKFdtiCUtIjWDkAg9YBA7BoeWiJE0hMg4zDz4mXJRKncgdfp6QlwzZMWu56fiFt29y-j8RctQR2KbGcRk7CMV39SlxYH6m5rMinE7IRaqHHpBjfffRuOU_0IbIq6i0nyWxqo0BECfaaMVzEfpjR7R1eKto1q_wDvOm-QnCbgfT1qwuDAI8qpHKuojXOl4JylGxS4ZtbMCsW2-3W7DLzUifAYWKiapYirWQMRpfU0CaBBwVBIeGC?c=naver.search.pc.plsearch&t=0
+      - link "아이폰17 단독혜택 KT몰! 기기값 추가할인+사은품 제공 아이폰17은 공식 KT몰에서":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNRlZvUTpDzNPMEi0W2NAieWUumwStHE73KMeKFdtiCUtIjWDkAg9YBA7BoeWiJE0hMg4zDz4mXJRKncgdfp6QlwzZMWu56fiFt29y-j8RctQR2KbGcRk7CMV39SlxYH6m5rMinE7IRaqHHpBjfffRuOU_0IbIq6i0nyWxqo0BECfaaMVzEfpjR7R1eKto1q_wDvOm-QnCbgfT1qwuDAI8qpHKuojXOl4JylGxS4ZtbMCsW2-3W7DLzUifAYWKiapYirWQMRpfU0CaBBwVBIeGC?c=naver.search.pc.plsearch&t=0
+        - strong: 아이폰17
+        - text: 단독혜택 KT몰! 기기값 추가할인+사은품 제공
+        - strong: 아이폰17
+        - text: 은 공식 KT몰에서
+      - link "아이폰17시리즈 단독혜택! 단말기 추가할인+빠른배송! 구매는 믿을수 있는 KT몰!":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNRlZvUTpDzNPMEi0W2NAieWUumwStHE73KMeKFdtiCUtIjWDkAg9YBA7BoeWiJE0hMg4zDz4mXJRKncgdfp6QlwzZMWu56fiFt29y-j8RctQR2KbGcRk7CMV39SlxYH6m5rMinE7IRaqHHpBjfffRuOU_0IbIq6i0nyWxqo0BECfaaMVzEfpjR7R1eKto1q_wDvOm-QnCbgfT1qwuDAI8qpHKuojXOl4JylGxS4ZtbMCsW2-3W7DLzUifAYWKiapYirWQMRpfU0CaBBwVBIeGC?c=naver.search.pc.plsearch&t=0
+        - strong: 아이폰17
+        - text: 시리즈 단독혜택! 단말기 추가할인+빠른배송! 구매는 믿을수 있는 KT몰!
+      - link "광고 아이폰17":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNRlZvUTpDzNPMEi0W2NAieWUumwStHE73KMeKFdtiCUtIjWDkAg9YBA7BoeWiJE0hMg4zDz4mXJRKncgdfp6QlwzZMWu56fiFt29y-j8Rctdy5xpk7_vBaIPZOvap3398CXahKtYP0mmUUVR8VPVFNRoapLE2Ac-uEEFhhKpVD-PibQ3Mq2y1qMNQgJsTGcw886MtDjn564sYMdVf6FjvZh9CQe_TL__pK2A84nmgy_xky0ZMjPWwqdw3QPotZbP6p1ooDKPs_YApwEg4MfU7xLr1WsDaF7NKlbIrY7S10Gw==?c=naver.search.pc.plsearch&t=0
+        - img "광고"
+        - text: 아이폰17
+      - link "광고 즉시구매":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNRlZvUTpDzNPMEi0W2NAieWUumwStHE73KMeKFdtiCUtIjWDkAg9YBA7BoeWiJE0hMg4zDz4mXJRKncgdfp6QlwzZMWu56fiFt29y-j8Rctdy5xpk7_vBaIPZOvap3398CXahKtYP0mmUUVR8VPVFNRoapLE2Ac-uEEFhhKpVD-PibQ3Mq2y1qMNQgJsTGcw886MtDjn564sYMdVf6FjvZh9CQe_TL__pK2A84nmgy_xky0ZMjPWwqdw3QPotZbP6p1ooDKPs_YApwEg4MfU7xLr1WsDaF7NKlbIrY7S10Gw==?c=naver.search.pc.plsearch&t=0
+        - img "광고"
+        - text: 즉시구매
+      - link "광고 역대급혜택":
+        - /url: https://ader.naver.com/v1/ElsEwJM3igtWA8ddkbKuzUR0PiJixaPyDjFlHHaLjjNRlZvUTpDzNPMEi0W2NAieWUumwStHE73KMeKFdtiCUtIjWDkAg9YBA7BoeWiJE0hMg4zDz4mXJRKncgdfp6QlwzZMWu56fiFt29y-j8Rctdy5xpk7_vBaIPZOvap3398CXahKtYP0mmUUVR8VPVFNRoapLE2Ac-uEEFhhKpVD-PibQ3Mq2y1qMNQgJsTGcw886MtDjn564sYMdVf6FjvZh9CQe_TL__pK2A84nmgy_xky0ZMjPWwqdw3QPotZbP6p1ooDKPs_YApwEg4MfU7xLr1WsDaF7NKlbIrY7S10Gw==?c=naver.search.pc.plsearch&t=0
+        - img "광고"
+        - text: 역대급혜택
+    - listitem:
+      - link "링크이미지":
+        - /url: https://ader.naver.com/v1/p2n3HRujTC1WivHnwEh-6IMIwIfDQL19lhayBq2hjfFGM1z-ZoX18838u09KNi0e603RFl_rgpHQ0-Ej5_Hz4_KWg_P1srVSDpjscTq6dcjByZS5fuKXw7wwxa40Fg5ximTspJJ2o5sEFAGcsn55fe_EoH59FkpsUv-oPIoqdfqS9ZMF3s2UbecSJUBkR77vNU96ZiAM4T78jSQFk1QGT72lNAcEZvq_Wl5JB07zzYT3oESCmiJwiwkVP7ueszqlCrLGkK5AO2qpOPGzgjce0xMRd91IKd2rTw1U8wBDXi9OOaltzNzDpf8xwVjUBLc3HSZksRNzh9nIPqditYX08NR8XmdMUxecwZuGHngJZtPFcmdc9y5h7KQrbTrMD0mc4iv96x9vigIL-5SOISdFKpZLfGRtwyeq_5eIjNDYFNotp5ODcG53CGu23hiheDMzhwgvA18CFKfGQiHCkaH4N6KYkIXEQmvIrLsSLW2obVE=?c=naver.search.pc.plsearch&t=1
+        - img "링크이미지"
+      - link "favicon":
+        - /url: https://ader.naver.com/v1/xElnZphXnJj55LFwAKJCuHoCkcP7Y0Tmnxl8Pcm3BJCqJItn5e_vNaSU67KmD1aZ81RKm3hUeU8bLTD9FEwhZn-vwM2a0ddgDUxCxI5fPDS3TFKHPNrVTlE32hkqwnRqR30cQgX4MZBX5QCPoMKYZeypWBmPX_YSHMNYHSj7gfWWiezexr2-6T1fgkdAo7MwIPYGjgj7J7VkMjLZBc-tqM7zmJrufM_2lcspS4zLaxuOsQK7kH26zRH9fwc7Xt5W5P6KQlX4F-_zcYgNiqSqjBrfby-wXKSXv-ROdcDdX7liadqoQGCYE5GiMnZJqaX3MW_-9-IiPC14UurfK-F6AFiwPRTebyN6YFCk5YKiuTz6mh3VoHuP9F5nZL6Mv6TbsTOV_A7MJBd34YAxGJDdLyUFmu5d1pE8qSvHasolQHOwpK6GFlpturpG1aWpF-IR6bT4jenOd_I352eCY-Jz5FNDdi5Pxs5cxviteMstWn8=?c=naver.search.pc.plsearch&t=1
+        - img "favicon"
+      - img "광고":
+        - img
+      - button "네이버 로그인"
+      - link "하이폰":
+        - /url: https://ader.naver.com/v1/xElnZphXnJj55LFwAKJCuHoCkcP7Y0Tmnxl8Pcm3BJCqJItn5e_vNaSU67KmD1aZ81RKm3hUeU8bLTD9FEwhZn-vwM2a0ddgDUxCxI5fPDS3TFKHPNrVTlE32hkqwnRqR30cQgX4MZBX5QCPoMKYZeypWBmPX_YSHMNYHSj7gfWWiezexr2-6T1fgkdAo7MwIPYGjgj7J7VkMjLZBc-tqM7zmJrufM_2lcspS4zLaxuOsQK7kH26zRH9fwc7Xt5W5P6KQlX4F-_zcYgNiqSqjBrfby-wXKSXv-ROdcDdX7liadqoQGCYE5GiMnZJqaX3MW_-9-IiPC14UurfK-F6AFiwPRTebyN6YFCk5YKiuTz6mh3VoHuP9F5nZL6Mv6TbsTOV_A7MJBd34YAxGJDdLyUFmu5d1pE8qSvHasolQHOwpK6GFlpturpG1aWpF-IR6bT4jenOd_I352eCY-Jz5FNDdi5Pxs5cxviteMstWn8=?c=naver.search.pc.plsearch&t=1
+      - link "hi-phone.kr":
+        - /url: https://ader.naver.com/v1/xElnZphXnJj55LFwAKJCuHoCkcP7Y0Tmnxl8Pcm3BJCqJItn5e_vNaSU67KmD1aZ81RKm3hUeU8bLTD9FEwhZn-vwM2a0ddgDUxCxI5fPDS3TFKHPNrVTlE32hkqwnRqR30cQgX4MZBX5QCPoMKYZeypWBmPX_YSHMNYHSj7gfWWiezexr2-6T1fgkdAo7MwIPYGjgj7J7VkMjLZBc-tqM7zmJrufM_2lcspS4zLaxuOsQK7kH26zRH9fwc7Xt5W5P6KQlX4F-_zcYgNiqSqjBrfby-wXKSXv-ROdcDdX7liadqoQGCYE5GiMnZJqaX3MW_-9-IiPC14UurfK-F6AFiwPRTebyN6YFCk5YKiuTz6mh3VoHuP9F5nZL6Mv6TbsTOV_A7MJBd34YAxGJDdLyUFmu5d1pE8qSvHasolQHOwpK6GFlpturpG1aWpF-IR6bT4jenOd_I352eCY-Jz5FNDdi5Pxs5cxviteMstWn8=?c=naver.search.pc.plsearch&t=1
+      - link "하이폰 아이폰17 아이폰17 고민 해결 아이폰도 똑똑하게 사자!":
+        - /url: https://ader.naver.com/v1/xElnZphXnJj55LFwAKJCuHoCkcP7Y0Tmnxl8Pcm3BJCqJItn5e_vNaSU67KmD1aZ81RKm3hUeU8bLTD9FEwhZn-vwM2a0ddgDUxCxI5fPDS3TFKHPNrVTlE32hkqwnRqR30cQgX4MZBX5QCPoMKYZeypWBmPX_YSHMNYHSj7gfWWiezexr2-6T1fgkdAo7MwIPYGjgj7J7VkMjLZBc-tqM7zmJrufM_2lcspS4zLaxuOsQK7kH26zRH9fwc7Xt5W5P6KQlX4F-_zcYgNiqSqjBrfby-wXKSXv-ROdcDdX7liadqoQGCYE5GiMnZJqaX3MW_-9-IiPC14UurfK-F6AFiwPRTebyN6YFCk5YKiuTz6mh3VoHuP9F5nZL6Mv6TbsTOV_A7MJBd34YAxGJDdLyUFmu5d1pE8qSvHasolQHOwpK6GFlpturpG1aWpF-IR6bT4jenOd_I352eCY-Jz5FNDdi5Pxs5cxviteMstWn8=?c=naver.search.pc.plsearch&t=1
+        - text: 하이폰
+        - strong: 아이폰17
+        - strong: 아이폰17
+        - text: 고민 해결
+        - strong: 아이폰
+        - text: 도 똑똑하게 사자!
+      - link "매일 쏟아지는 지원금 폭격 아이폰17 싸게사는법 여기있다! 한 번도 안 산 분은 있어도 한 번만 산 분은 없어요!":
+        - /url: https://ader.naver.com/v1/xElnZphXnJj55LFwAKJCuHoCkcP7Y0Tmnxl8Pcm3BJCqJItn5e_vNaSU67KmD1aZ81RKm3hUeU8bLTD9FEwhZn-vwM2a0ddgDUxCxI5fPDS3TFKHPNrVTlE32hkqwnRqR30cQgX4MZBX5QCPoMKYZeypWBmPX_YSHMNYHSj7gfWWiezexr2-6T1fgkdAo7MwIPYGjgj7J7VkMjLZBc-tqM7zmJrufM_2lcspS4zLaxuOsQK7kH26zRH9fwc7Xt5W5P6KQlX4F-_zcYgNiqSqjBrfby-wXKSXv-ROdcDdX7liadqoQGCYE5GiMnZJqaX3MW_-9-IiPC14UurfK-F6AFiwPRTebyN6YFCk5YKiuTz6mh3VoHuP9F5nZL6Mv6TbsTOV_A7MJBd34YAxGJDdLyUFmu5d1pE8qSvHasolQHOwpK6GFlpturpG1aWpF-IR6bT4jenOd_I352eCY-Jz5FNDdi5Pxs5cxviteMstWn8=?c=naver.search.pc.plsearch&t=1
+        - text: 매일 쏟아지는 지원금 폭격
+        - strong: 아이폰17
+        - text: 싸게사는법 여기있다! 한 번도 안 산 분은 있어도 한 번만 산 분은 없어요!
+      - link "할인 인터넷+휴대폰100만원지급 더보기":
+        - /url: https://ader.naver.com/v1/tW9pZLuTRFrDyfDyCRKu6SlInVAFJro7p7n4BHVAp86S9DdDTDLpHhoEsPXmtkFOBiDnNsiCu2nD2XpPpxWerGFRoUlQpDcAoXsMChmK9SaOzNrjWQSfHD6IhmgXrA44crSB_HrxppAz_1S9uW4JUtVed2UZW20rA1wD7lV0M14HAHAjEd7lJtikvAgN4hdej82c4lWEeRxvBt-jV-AZcr6ijtcdpjS4OSNYXfnRCVFE0R7Cb-ccve7JAoz4eLvZJUQwk7jF-EYk7uazRzoW2H9Euy1c_tBA4VWYmj1ZfeSwFk_tV5Js9CmtEKKiOxwD0Kan4jc9_F4P12HzEkDqojhuBY213PDqnVLEWrjsYwoEdeeZbLASMhMFDBJWIU1OnFrAEB7dkHitwdvjO2AfaBl38PlnBHAI3lMirIwDNa0L8xhnzxZXYt_NOXy8ochdYJifm33jLiSHVXmFw8W0bUN8ykE7tvEGNuyYQrs7q3TdSHq3ZYH2XRY-1OFNItt4?c=naver.search.pc.plsearch&t=1
+        - text: 할인 인터넷+휴대폰100만원지급
+        - img "더보기":
+          - img
+      - list:
+        - listitem:
+          - link "갤럭시 가격":
+            - /url: https://ader.naver.com/v1/VZveCT14iNKicWm8DOAsGa_qIneca48iSfFxjKdaGJTuXRL8sa9ueGq9PxqBxjQZOrDe1h2d1u4uUP0kx0yVXpyP-34tSHFln-haA8Bd0OKKPe9UonXcAC59ymBUc-6OzLfIRbH-WR0TfcBhF-QgZUO6F-rMPUbvHtyGHYvYc2nbdRiuvpnjbTSQTFkcGEz1o33cQtbTwl8VyIminVav3QQvSb0zk8jME920xtbXvyBiN_vXyemND_-FCkmMv4k-ZHwzyV4bHz2ENR4qG_s2J18gy4k_GP0Ors6GSU9VMVLwb58hElB4zF6bIIz07G3st2QwNHQjh0s9UTYqe_DzT2i5JCZzBYeM_1j_udVasnTzdsrqXqfsQzgkOBnWhxTvvd7YbmfVMljFWLX_jJfEe9u3fwcjo16bTDOho9I8G5j9bMzESpa72ch8foE_9YOUcLKEzmbulHsARmkCRUlHiEw_ip8gWas3TrXHlLgKBbhGQgIpyIhEczV-A4akVzN1?c=naver.search.pc.plsearch&t=1
+        - listitem:
+          - link "아이폰 가격":
+            - /url: https://ader.naver.com/v1/KMHPn76giyW1KMxENgyIZU4syOxzcgC0yQj7wHgnl1pdBL21CQ68Tpu4P1tNPheHki80EP86IUXMh5XQXFej_mD4kyt5-TumOCUFHKI7UPvmPvtrFkMKfozuKIPVuR-C5WfKdukcD8kNsCoESqf6GJyU-Z6xvb-relZdigtzdoZIAuCy4GBAOn-v0O9dlFE7JxHYdR39M3RhaUjfFN8S5qxHI7SKUWEEWRyQ3_AcZoN00C45RschoUy06Fsre7oBuQAQFQ_xeaKGS09h5DSUTF_u5D-XJadpyQH8c3vWFyIoK1GRpELGAcp04mDiSglPGDteu9_rC0-Wi0Ge0FfWMGtfkD28yLM2p05ZydueoSA9yHa0y6Vj5K79E4feZALNEvEeOfwbJoAtnMp-ZBpHU2NwOJZLduZ5cDmCTUPG7_p0WpwMIFc4hqn3UREmi-88t0MN-sDd8rGjP52RFmRdtUEBfHtwyfo3FUfb9jo9ZPs=?c=naver.search.pc.plsearch&t=1
+        - listitem:
+          - link "인터넷TV":
+            - /url: https://ader.naver.com/v1/WYRUgwW2DWoi8yDDJRMCtMXrGZT9mT0NxJmyM_GKheyAh4e74sZAnlG0EjA-JXVJK1RtE1YW27KWSLhL1Q3dm1MIzYtWZ106ELmsTZRe0LtZgf57tkzkg1dPFma4QYlWB1YkEMu6SyNkfvdZx0od87kF5k34oVYCn9cZdvAtVWIcPZY09F_CQIju2vjyQqjEh8-ss0Ni-PfSfJAhzemXV1drHogJEKj6Lq9tl4ZSl4ni6AROFUUPf71koxvxKtJW_xiAaP0mE9-nn9PORtrxPZDCW1w_Y0eGBbxVlwHJRSMQ0A_qfbwx0LTHTNlDEkanmygH4AxzfZEGEkT8OEkosBH60wssAwDuh3nzSJ4HkQ9VW0-oWyPUu_7uVEbSCVxddm6_P6CgiVRNtYipPqBVGC3yNhSmXaho6j4h5PD9_TvDp2looNG5Vj4LhYKg0Z9OFX2ASxVNqfrYo1KGQe4McrFpgLX9NZ2LPYlA2uVxoH8=?c=naver.search.pc.plsearch&t=1
+    - listitem:
+      - link "링크이미지":
+        - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ytkG2glFLMBcuIw2i7jem9pSImnT-Hfs9KDcU_VNeA9yN2QZm27L_OG0zoQgw1wjS7zA8DWPUbO-Mm-BXrEkCFvZIGvfWuFJG9VCxwyXK45U2M89CB_0dL-seg-ci8OMPH2AqhvLlOZF7Rri6lApdb9thg02ezJSV17FZrHeQAAv77MiQC_QHhg6M7ii87mg5e3lb7QkRI1A89UUcAUUf1fCDhPd4ZEIYKGlXymVOEvlheHMb1j0M0oZiW8KaEHPfojQf366iJaX-sRdkKVepA-1xHiHj-FYle7tIU3FwkBvgY9JU4O7idwWtFe9mOU7Lpj46xTJmLl6bO9H9E4YHtglHgpqOimiXiIDW0TRwQyISFtqx9so8ifzPg5Mi4rlk0-BEOBsS0Td0aoiFlqo6HHVAcYAMk0_x_A9qjfdvUCkTY7MLX4Lcbjx2bjvGsT487PJBHYeHqQSLkPklt_fqELw=?c=naver.search.pc.plsearch&t=1
+        - img "링크이미지"
+      - link "favicon":
+        - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ythLEoRQThAtum-gp59Yg0YiIpWhpsnXcmAk29OwkDiDdo0CXOXVRFpr-bv5CnNyiioE4T6JA7ASlO22-IqYSKrVeD8A9l8q9gMMCTSb9B1pychegKK-mTTiGxmM5NbMSL81zTO80DRziOdNzdgRycO3j4F2oZkFJjk4wIyblpcylob7_cvX3uGcXGRTVJoN3PDUhkK6mYFysKEHo7W_wg8lnQhh-G7BDoQdG_T1XZ9rTgjaB7NoosX3w67fGaCkXxK5Z0kozU1QCLxIeaq9lp5XcpRIiVq0ZGrrVQCJRJsdGIDCa0Dcdx-w3yJTPGuCiVOal1ne6Ozt4kIOM2REjAEG7T6so1tMa6BAKp6yA4l0cu0BPPytds-6NSMLtcweRKq21MSYKNTz7IFa1qVKCc5vKDVbV1nDrvuDOr-x-93f-FXUrYppeTIhDxjFQcaKnrttv5ENEpA0MJ1t_9_3U7HE=?c=naver.search.pc.plsearch&t=1
+        - img "favicon"
+      - img "광고":
+        - img
+      - link "폰사와":
+        - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ythLEoRQThAtum-gp59Yg0YiIpWhpsnXcmAk29OwkDiDdo0CXOXVRFpr-bv5CnNyiioE4T6JA7ASlO22-IqYSKrVeD8A9l8q9gMMCTSb9B1pychegKK-mTTiGxmM5NbMSL81zTO80DRziOdNzdgRycO3j4F2oZkFJjk4wIyblpcylob7_cvX3uGcXGRTVJoN3PDUhkK6mYFysKEHo7W_wg8lnQhh-G7BDoQdG_T1XZ9rTgjaB7NoosX3w67fGaCkXxK5Z0kozU1QCLxIeaq9lp5XcpRIiVq0ZGrrVQCJRJsdGIDCa0Dcdx-w3yJTPGuCiVOal1ne6Ozt4kIOM2REjAEG7T6so1tMa6BAKp6yA4l0cu0BPPytds-6NSMLtcweRKq21MSYKNTz7IFa1qVKCc5vKDVbV1nDrvuDOr-x-93f-FXUrYppeTIhDxjFQcaKnrttv5ENEpA0MJ1t_9_3U7HE=?c=naver.search.pc.plsearch&t=1
+      - link "phonesawa.co.kr":
+        - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ythLEoRQThAtum-gp59Yg0YiIpWhpsnXcmAk29OwkDiDdo0CXOXVRFpr-bv5CnNyiioE4T6JA7ASlO22-IqYSKrVeD8A9l8q9gMMCTSb9B1pychegKK-mTTiGxmM5NbMSL81zTO80DRziOdNzdgRycO3j4F2oZkFJjk4wIyblpcylob7_cvX3uGcXGRTVJoN3PDUhkK6mYFysKEHo7W_wg8lnQhh-G7BDoQdG_T1XZ9rTgjaB7NoosX3w67fGaCkXxK5Z0kozU1QCLxIeaq9lp5XcpRIiVq0ZGrrVQCJRJsdGIDCa0Dcdx-w3yJTPGuCiVOal1ne6Ozt4kIOM2REjAEG7T6so1tMa6BAKp6yA4l0cu0BPPytds-6NSMLtcweRKq21MSYKNTz7IFa1qVKCc5vKDVbV1nDrvuDOr-x-93f-FXUrYppeTIhDxjFQcaKnrttv5ENEpA0MJ1t_9_3U7HE=?c=naver.search.pc.plsearch&t=1
+      - link "아이폰17 아이폰사와":
+        - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ythLEoRQThAtum-gp59Yg0YiIpWhpsnXcmAk29OwkDiDdo0CXOXVRFpr-bv5CnNyiioE4T6JA7ASlO22-IqYSKrVeD8A9l8q9gMMCTSb9B1pychegKK-mTTiGxmM5NbMSL81zTO80DRziOdNzdgRycO3j4F2oZkFJjk4wIyblpcylob7_cvX3uGcXGRTVJoN3PDUhkK6mYFysKEHo7W_wg8lnQhh-G7BDoQdG_T1XZ9rTgjaB7NoosX3w67fGaCkXxK5Z0kozU1QCLxIeaq9lp5XcpRIiVq0ZGrrVQCJRJsdGIDCa0Dcdx-w3yJTPGuCiVOal1ne6Ozt4kIOM2REjAEG7T6so1tMa6BAKp6yA4l0cu0BPPytds-6NSMLtcweRKq21MSYKNTz7IFa1qVKCc5vKDVbV1nDrvuDOr-x-93f-FXUrYppeTIhDxjFQcaKnrttv5ENEpA0MJ1t_9_3U7HE=?c=naver.search.pc.plsearch&t=1
+        - strong: 아이폰17
+        - strong: 아이폰
+        - text: 사와
+      - link "아이폰17, 아이폰사와! 역시 이번에도 since2003 폰사와 극딜할인!":
+        - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ythLEoRQThAtum-gp59Yg0YiIpWhpsnXcmAk29OwkDiDdo0CXOXVRFpr-bv5CnNyiioE4T6JA7ASlO22-IqYSKrVeD8A9l8q9gMMCTSb9B1pychegKK-mTTiGxmM5NbMSL81zTO80DRziOdNzdgRycO3j4F2oZkFJjk4wIyblpcylob7_cvX3uGcXGRTVJoN3PDUhkK6mYFysKEHo7W_wg8lnQhh-G7BDoQdG_T1XZ9rTgjaB7NoosX3w67fGaCkXxK5Z0kozU1QCLxIeaq9lp5XcpRIiVq0ZGrrVQCJRJsdGIDCa0Dcdx-w3yJTPGuCiVOal1ne6Ozt4kIOM2REjAEG7T6so1tMa6BAKp6yA4l0cu0BPPytds-6NSMLtcweRKq21MSYKNTz7IFa1qVKCc5vKDVbV1nDrvuDOr-x-93f-FXUrYppeTIhDxjFQcaKnrttv5ENEpA0MJ1t_9_3U7HE=?c=naver.search.pc.plsearch&t=1
+        - strong: 아이폰17
+        - text: ","
+        - strong: 아이폰
+        - text: 사와! 역시 이번에도 since2003 폰사와 극딜할인!
+      - link "사은품 단말기 할인 + 사은품제공 더보기":
+        - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ytkG2glFLMBcuIw2i7jem9pSImnT-Hfs9KDcU_VNeA9yN2QZm27L_OG0zoQgw1wjS7zA8DWPUbO-Mm-BXrEkCFvZIGvfWuFJG9VCxwyXK45U2M89CB_0dL-seg-ci8OMPH2AqhvLlOZF7Rri6lApdb9thg02ezJSV17FZrHeQAAv77MiQC_QHhg6M7ii87mg5e3lb7QkRI1A89UUcAUUf1fCDhPd4ZEIYKGlXymVOEvlheHMb1j0M0oZiW8KaEHPfojQf366iJaX-sRdkKVepA-1xHiHj-FYle7tIU3FwkBvgY9JU4O7idwWtFe9mOU7Lpj46xTJmLl6bO9H9E4YHtgmghz3pv05zNqmKiRIXpIRZpCsi2TJGe0aIFwZ8XqMu1znB4sYf6kxDoJ-dCYhIoGjhYaQY3EHd5CdjbXaX-EScomhVzBjJFQJ0sUWMeOfI0JQUQ7UtMrwraZnaJjXRAGM=?c=naver.search.pc.plsearch&t=1
+        - text: 사은품 단말기 할인 + 사은품제공
+        - img "더보기":
+          - img
+      - list:
+        - listitem:
+          - link "SKT":
+            - /url: https://ader.naver.com/v1/6NhzVspOC2ZZogkaxiozrGLR0Bfx3k4Nj7MRqYzX2l7XArmX-Nr7e_yDlLMBpYAjyx22r7fHB7GNGVCS5nvElDpd7xmD5bdGCN29UKNR-ZTa1ZYqOzCw16gsWjFXm0aFKv4LE_29m6sAUSClN0KvRiOm6dExGO2Ta9cmeIBAoRfTMVDM7NS--a4gjYuGuJ2xu1eZHJXpaE251bgFdeshWLVJfJghI7iNsfUEQSSTZf93nvGX69ksBB3_slDzHpdWfuVcxg7-il2zCRNt96mTEO6F41dbsWPQPsPNC1idZOVpWMb1Ua6dTdTa6X_ecL2ft-PhGCqPYSTyLY9aTbPWixiV4GX_Uzeo1d9CHS4v-YFXieK3A7XlKMgtHlUgNioCN0D3rEgK22ofiCg7_rrqCGyGKYWA9_maa2DxlBnrtyS-lzJQtBKAGFN6WQS5TfsnszD18KvETYBWLbwzDS6GX8Ke36KTWMFkKgYIDC0tJa4=?c=naver.search.pc.plsearch&t=1
+        - listitem:
+          - link "KT":
+            - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ytummXCDqNrEsX3WlA7GEpvrWeGQTBEgk-9TTbVjCmpWaRPIjFFBNxpEwUrT5pyf8xuym_4fCbYYCjhY8oJUD3wWu4v4peUfYGpKmXG5mEJ_JASpVie5w1oXpgxLWh-QiRxTJw2xN_hbPcqeezlou8bi6bzZcWPCemIjHPNXNi2vEcDG2Ovif3A2hjf4eyPrcELkNxJYPjFxsvSwO9Im5VG1HNubFMDIR34OmHdQKe7Yx0czmwKSWYNXC6LkW8PT597TfNyct7tH4_SfeIeAQSz9tkjsOpBzAwLN07wPvwtWqFLM1p1JIYyrryjujicYRGNJr-ey17QAwFrrYYhW5xg6AlqKpASzB2u35yb4gYf2vT7UQUQugS-HvPsqADz4z4BLkUIXnOMqZZ79MXsajdOOASS4w1TsfpAWHePoja-GW7AFx8Ylfuz4OjK07oG8n_pkzyzxuF05qvlh4HepWCEA=?c=naver.search.pc.plsearch&t=1
+        - listitem:
+          - link "LG":
+            - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3ytummXCDqNrEsX3WlA7GEpvrWeGQTBEgk-9TTbVjCmpWaRPIjFFBNxpEwUrT5pyf8xuym_4fCbYYCjhY8oJUD3wWu4v4peUfYGpKmXG5mEJ_JASpVie5w1oXpgxLWh-QiRxTJw2xN_hbPcqeezlou8bgegfWlOhlN5Pwk7jLY6bpBnb8ri2B4Sx4fYRhVt5Ca8I2zdxnU4HHveUPX1CqBMsKeptbIAeIJRYs6oPwqG7bIygwqH8kRcqjbw4C4Fq2WETIZkqYiR-EtX-sParD9xWlOJRa6j8nfOjojzzwm9YUqVUBCvZeEr3kOVs0HWESmHnPD0SvhVpuCFe0FwMK7f3zhduNLDQ5CVcKnXnxHeEW2SIy7L_QN72mZlRH3G4AsykQNKLdL6P3eaqmxRB82hoG-6IOZaEng8a4aYqxeSJZlKgHzP_dB1cnauZqBWLuhDGRIBFiGX4aqn1UKheascGY=?c=naver.search.pc.plsearch&t=1
+        - listitem:
+          - link "알뜰폰":
+            - /url: https://ader.naver.com/v1/d77L4qb7MnaSyL6sQU3yts3efMteBzRHI5_t9tISaG0e-Fu9EqTHk5U2EAu2WP0YJoOSax36JhL2T8-6XK8Me4Zc2gzlqi0tJGQKSBoswhLa7clTW7vBCTgHqHCjkBTkRktQJ-By2e0F3QfRhENwm93Io9MNQ4trrzk8zUybn7uF2QSvqbfhc2YG6WM_qGE-Qc8GLJDQ0_7xvo0lGFVVsx1EZ7lsp3CCVNOHlsOA4A782KCqv7pzPmwsdo0Qu9AqG9iuODoDMmtrnLmv789XJ76LHaau6RGLBnBp9wjuT0AXsaAW1jBNBXshKHt7VOZtFh1uv5gwoh1Mj3zUKvaEW3xdV2gdgFjBVP_2PyTgz-L39MRZoUMwj5PnedUYxI6tmMGyu25AdM8569aoK-EVbROCNPlW342wL6sni1LqvjGtJYWiZJKdmL_HOgPQrp5QkuknzfVEvdeEQuRgLXgP9uF-voDh0GJxcdV4Ym0NWTU=?c=naver.search.pc.plsearch&t=1
+    - listitem:
+      - link "링크이미지":
+        - /url: https://ader.naver.com/v1/kg_RVQDEebi1H3PT01I-nwV51uZlvF17gAUvAV27u8WCubgtyuNmJaCjfFCR0pgMyKiZdZhbEGEpDLcmFJ7jpbz7JTmr4BkCi7DGr1QmjAky4_LN-9uf_H8rTpvaok69Bo8a2tpaGYPXejszdYU42i8ksQAAiCZL-Y2Zmi46f-EM6HYbyNoJYNvX5-OTOdQd2D5Dx2opXhIvkfhlNAA-gtPYRBBFPRxQUUskf0gB9rc_ciLvbdyUB97FTezRp0S-Srfv3DtuYn1eibJQuc4D8esa1foKrRvji6k7gsqYeCYXbnsavHQuflVm-zcmFm3KAXWDz67fsca0aohMogyqlGHXgpmqVVJWp-n3OisGnB814H38HeFHC2ZoMEn3Gnra2PRAyQZWh1D2FOgziromwkboTe4Am4gqeQjX7f5pg5XU6QPfuznbES7WZ8L-2qX5RlyvW-nIVbYukEDQBov9pvEQp3CD-WSV61q_q3vB4TpmE8t6vgCu6NdzxG9y9vL8?c=naver.search.pc.plsearch&t=0
+        - img "링크이미지"
+      - link "favicon":
+        - /url: https://ader.naver.com/v1/1X2p0TqijRBbZYhoEsSiXh21f0B78FaEoM_nL_5bg44ocTdEJVHnR-Quip705xTEDnjQT9TJju3ih9fb4b_BL201SUr1kd5Drxe-mD0eLsvWaWWq8iw9S32GkOSEy6yC6dj-etiFHU2DmKnPNERFv8Grc3djgnU36FxoNFmv2ZyX9jSzybVVsF6pFcLfeUDROWcBLEXd7wp447H9x8zoIgpp_ObWdkHc-yKEManBKqU8UfgN8Pm5J4ss3i9Tj2NYHNf7yZScOuIdpl8G-CUCw-HbWwOVkBQJ7q-0T4Y9RqROxA8kfxxLRraN2U8o3LjZEw3i4W5X7DAM3yc0O2W7SnTRjVIDXvXstP4rE69mgSxaWNdBRANT-XKKuSGrEqFpDKgH2w0PN4yP29BlxIp7Ttpw9XrjlKpSctArvjXXw8YBoDqvTzxeSIgSWfsYZZa_MGKHYCxZP57USNiOLQp-O5knNv8Z8MWEq--a56QO7dmxciiMyFKxIlof7Rh3C5mk?c=naver.search.pc.plsearch&t=0
+        - img "favicon"
+      - img "광고":
+        - img
+      - link "쿠팡":
+        - /url: https://ader.naver.com/v1/1X2p0TqijRBbZYhoEsSiXh21f0B78FaEoM_nL_5bg44ocTdEJVHnR-Quip705xTEDnjQT9TJju3ih9fb4b_BL201SUr1kd5Drxe-mD0eLsvWaWWq8iw9S32GkOSEy6yC6dj-etiFHU2DmKnPNERFv8Grc3djgnU36FxoNFmv2ZyX9jSzybVVsF6pFcLfeUDROWcBLEXd7wp447H9x8zoIgpp_ObWdkHc-yKEManBKqU8UfgN8Pm5J4ss3i9Tj2NYHNf7yZScOuIdpl8G-CUCw-HbWwOVkBQJ7q-0T4Y9RqROxA8kfxxLRraN2U8o3LjZEw3i4W5X7DAM3yc0O2W7SnTRjVIDXvXstP4rE69mgSxaWNdBRANT-XKKuSGrEqFpDKgH2w0PN4yP29BlxIp7Ttpw9XrjlKpSctArvjXXw8YBoDqvTzxeSIgSWfsYZZa_MGKHYCxZP57USNiOLQp-O5knNv8Z8MWEq--a56QO7dmxciiMyFKxIlof7Rh3C5mk?c=naver.search.pc.plsearch&t=0
+      - link "coupang.com":
+        - /url: https://ader.naver.com/v1/1X2p0TqijRBbZYhoEsSiXh21f0B78FaEoM_nL_5bg44ocTdEJVHnR-Quip705xTEDnjQT9TJju3ih9fb4b_BL201SUr1kd5Drxe-mD0eLsvWaWWq8iw9S32GkOSEy6yC6dj-etiFHU2DmKnPNERFv8Grc3djgnU36FxoNFmv2ZyX9jSzybVVsF6pFcLfeUDROWcBLEXd7wp447H9x8zoIgpp_ObWdkHc-yKEManBKqU8UfgN8Pm5J4ss3i9Tj2NYHNf7yZScOuIdpl8G-CUCw-HbWwOVkBQJ7q-0T4Y9RqROxA8kfxxLRraN2U8o3LjZEw3i4W5X7DAM3yc0O2W7SnTRjVIDXvXstP4rE69mgSxaWNdBRANT-XKKuSGrEqFpDKgH2w0PN4yP29BlxIp7Ttpw9XrjlKpSctArvjXXw8YBoDqvTzxeSIgSWfsYZZa_MGKHYCxZP57USNiOLQp-O5knNv8Z8MWEq--a56QO7dmxciiMyFKxIlof7Rh3C5mk?c=naver.search.pc.plsearch&t=0
+      - link "아이폰17 쿠팡 새 학기 스마트 준비 아이폰17 새롭게 꾸며요":
+        - /url: https://ader.naver.com/v1/1X2p0TqijRBbZYhoEsSiXh21f0B78FaEoM_nL_5bg44ocTdEJVHnR-Quip705xTEDnjQT9TJju3ih9fb4b_BL201SUr1kd5Drxe-mD0eLsvWaWWq8iw9S32GkOSEy6yC6dj-etiFHU2DmKnPNERFv8Grc3djgnU36FxoNFmv2ZyX9jSzybVVsF6pFcLfeUDROWcBLEXd7wp447H9x8zoIgpp_ObWdkHc-yKEManBKqU8UfgN8Pm5J4ss3i9Tj2NYHNf7yZScOuIdpl8G-CUCw-HbWwOVkBQJ7q-0T4Y9RqROxA8kfxxLRraN2U8o3LjZEw3i4W5X7DAM3yc0O2W7SnTRjVIDXvXstP4rE69mgSxaWNdBRANT-XKKuSGrEqFpDKgH2w0PN4yP29BlxIp7Ttpw9XrjlKpSctArvjXXw8YBoDqvTzxeSIgSWfsYZZa_MGKHYCxZP57USNiOLQp-O5knNv8Z8MWEq--a56QO7dmxciiMyFKxIlof7Rh3C5mk?c=naver.search.pc.plsearch&t=0
+        - strong: 아이폰17
+        - text: 쿠팡 새 학기 스마트 준비
+        - strong: 아이폰17
+        - text: 새롭게 꾸며요
+      - link "튼튼한 아이폰17 케이스로 새 학기 걱정 끝! 오늘 주문 내일 도착":
+        - /url: https://ader.naver.com/v1/1X2p0TqijRBbZYhoEsSiXh21f0B78FaEoM_nL_5bg44ocTdEJVHnR-Quip705xTEDnjQT9TJju3ih9fb4b_BL201SUr1kd5Drxe-mD0eLsvWaWWq8iw9S32GkOSEy6yC6dj-etiFHU2DmKnPNERFv8Grc3djgnU36FxoNFmv2ZyX9jSzybVVsF6pFcLfeUDROWcBLEXd7wp447H9x8zoIgpp_ObWdkHc-yKEManBKqU8UfgN8Pm5J4ss3i9Tj2NYHNf7yZScOuIdpl8G-CUCw-HbWwOVkBQJ7q-0T4Y9RqROxA8kfxxLRraN2U8o3LjZEw3i4W5X7DAM3yc0O2W7SnTRjVIDXvXstP4rE69mgSxaWNdBRANT-XKKuSGrEqFpDKgH2w0PN4yP29BlxIp7Ttpw9XrjlKpSctArvjXXw8YBoDqvTzxeSIgSWfsYZZa_MGKHYCxZP57USNiOLQp-O5knNv8Z8MWEq--a56QO7dmxciiMyFKxIlof7Rh3C5mk?c=naver.search.pc.plsearch&t=0
+        - text: 튼튼한
+        - strong: 아이폰17
+        - text: 케이스로 새 학기 걱정 끝! 오늘 주문 내일 도착
+      - link "오늘주문 내일도착 로켓배송 더보기":
+        - /url: https://ader.naver.com/v1/kg_RVQDEebi1H3PT01I-nzVMZkbbviLKRqU0AAFJe1dCzK8K2mS1aIO9Wrj-MgVWQaF3ugMN6XAOdpgVRBsMo4GvESW42Qi11894Ad-W-H4rH7PwdZ1gWckjVhLXgUbqpMZyvqmTvN6PcR1huaJXxKiGneXxfafv-MY0ioTZg566PKXxvHJjbJ9fBG679lykdnENgums4PyPCLJtWwBRwWTthuxjJ-hdSCM63ce-R3jE0yRFQyXljw6OSYNDxcB4Zpl1UIfdKNTHlfe6eKZG9GjfkEJVX8LmzEm6PxW7ChH3fnK4e60SZtmntdgT4aYtGKDVxQmeU_r0CNBZOBdlPoA-m9IfVvnLa8JKlsa2yiA33kBjNwQ8D04rBoUhXVHQTSGSaybJ9oY_iweIOVE3TFBOa5B0I1Wez0LbzqDyzmN48pWuTIEQgmKB1uxehUE1X1FLPwNuI4xPSuRU8rB0CKj1FkkIokcQ69Zafc4wYyFoyXS9HezMDlALoEyIiLoD?c=naver.search.pc.plsearch&t=0
+        - text: 오늘주문 내일도착 로켓배송
+        - img "더보기":
+          - img
+      - list:
+        - listitem:
+          - link "아이폰17":
+            - /url: https://ader.naver.com/v1/Dv9JCtsBtTI8obh4jOdAM6nWFZvmgkeElI5nUS1JP-4MeQlcycKgzC0aVsc1PCio5fsohvrG2Zd2-a_Xx1-e6O9K2dA7nos517oW6s3kEvoDmdKz7uERogjyGw4HE-rj7ZJZS6i7KZYe4BmWe1_WhuDcRYyW1HLloqE4HL8SO6qGay45xogXHlTq4pBrUrykImGdCTKWeBxP2tIPTExofHpoz6T0l21l-j_i9y4njGQqcTzQQXBdYVbvITBEdNmKwjm-nSfwgZ7_-QBlIPEHsa7iL4GyLII9WAUes526WO_XENC6dIGeCpBBPN4ebMvhEgqrLabJdiu-i_jK-MS5M9xbrotaQ8da6hGd2aUTWjRebsvKPeGSrnBp1XZPRQ8brpVk0GbDiAI25toZ42jrOvBUMOFKcnbsGT-RWhya7gdrbeYVnAcmNxAlYL5zdD4YvAa3qx-duTPMUQAsbmrdPoryCId-W7ctXPivmhCdhDZU0egKcft15xdR4P3c-sWpEUdiBIFevS4Te95139LNrGGuyTyhiVHY7HJ70qpiFmU=?c=naver.search.pc.plsearch&t=0
+        - listitem:
+          - link "아이폰":
+            - /url: https://ader.naver.com/v1/7Zn-zjg5z-czoD8yOzR0IigY2GkvhwT-v3dUKGHzzBeFk5zqoCNXnNYQDYXxwl-TAaB4gvcsFuHJtdiLz1aYkCBSk6KvBsrUD4EqQlhg27lV_PlnllwTtupIUKJuPsf44n_hukIflMY6Dakcg0kbCSjdEUXBkNNDiukgbwWRHBchXztPyD9f0EduQkI0AqlrzboELUB9qao5EXH8P0SgM9zlURcOaUJZdVpoP7ciEQ8Zl_hqFhvuaUBhxHTFLjA2KXkr4Tf7r-eGyRvDiCBMXtoA74DW8R7nZdoTpCril4WdOp1_oqzZUjHI-0Ifdv3NwjdLgMd26yff4c19ah9I0a2ddBnGEV6F7xygQCA2uBdUgdxNuR8vc2Xee8k9V3P2AZgzB8KfP8gOqynLUa6YEiGTmiYU3GVuyCT80UhlCYsf93igsoy-rRkYb4uejTEzmEE8YHTwUuoyuFjQe25i6fgz13MwOsBorU_qMgo2XESQPCbWi6kYPPD1NT0TWDGTnum7-tvreuY08ae6lVrty1GiFdM0-sA2SX41p4irnho=?c=naver.search.pc.plsearch&t=0
+        - listitem:
+          - link "17프로맥스":
+            - /url: https://ader.naver.com/v1/RucWvl_HJY4n8gDi9vIeLWsYHHFVxXNxRE-1vGWtRXwsKKySPNp4opDjp7j20BE7rkEYiVdEaxtWHLKUlitqD3l6Y5-OvVd_qou709Bpdqnc33Kn2dzywy-G4NEzNDDnQxRrrtbqgw_MmheCwt-hq3XSwbvLwTpxdcB9oxU4YVUFs2iKO1-ona4alBs5jiKfVlrENs0qK6o2yJb-r6Wt5TfrTWgPCgVK3AcNLwM0b9jXxFPqGDqOf5fybNB3znQRTF3nOEW9WUFOirimb5FU2DU37Zrb2Z4MP_r_FVMcFjpuzjKzIcg8jm6PR3Ax1fPOGFUqkVOBV-W-N8bB718cFacSCqAAxxNRasa9XjbKxoJKkRda5fF2Ui_lYeyQvDPowMo1ZKMTcRQ4gmKnI0vQeQtqya50-3UAgLS0z1B0Ez5E6sdz2BqQ2TE1kpSca6A4FQEB10aSK1aupJdWh-CHBBIdJDOVAEHbVSY3Be9vemX3fH-6XbZL9Na47zDyi6OmC4YowL7oTqTlGxTP3eaNgFydfmZKYNnxOlrnvwHvmWcCrQryb76s3HxeO4h_Fc5HHwIbiVdBdMrd3nXjXmjMtA==?c=naver.search.pc.plsearch&t=0
+        - listitem:
+          - link "아이폰자급제":
+            - /url: https://ader.naver.com/v1/zFFpHoBwKAqnmFPogBu9wj8VkT8VHzyToKZ_8hYQYjXLS2FvXvYv6IHpCmZHeEI_Gox-sy-jxBFPAIRu2AwHfJpaNy3CzoXMIPd1lN6SDEQPctghXu2wSGKOHZPP1uNOk__MLi8sJD5nmgmPYIpxKDHUwm3JD9DxS7QH2sa_NOXrN6a29HNs-Rw1sIAyQ64EuwmlmpOi3C06dNLyxUCNb9Hn2CJXdeCvQbijhEi6gOtA1UYNzGiqYCqYKp_cYMM2yXbalEJ4-yJgtyJNxd0F19yiCuhQsF8Zy64klCGrRRWsJ2O_mf1FWLM3gD8mP971chmrmh35RFTUrq4ENBPKsh1Df_V49g2eSujryL_hewkcVo_SsBfDs0x5d_iDj-pj8m2c2i1ez3OaT2l7ZoC4Dh7TA_ph-fL6K1tZUM6VKpw-c2Wa2RNNrnFpTXTkzaXzRSHWIdoEvw2HGQG1li0FgtDsdEPpoDF_cqT9zNsXKHKfu7YYjb17y7DiwypaPLu5UN_FIqjhaB3z6iQjh7GTe7mCR7p_14-DXndN5hZWniKzD9559yTW2tMB3eAQ9-Sz?c=naver.search.pc.plsearch&t=0
+    - listitem:
+      - link "링크이미지":
+        - /url: https://ader.naver.com/v1/xE0Lpzi8rhHaboNcJRTTwSzjXNJDJHBsyncKWN3jYkvrJuofgPbbXi5HZyL8mal8LLOoZb9d5mb7iTzuMnSiVTMVTx5u2CTvegHLqbakWNHo69DtA-fDUiFWPP42_cCiWkcU6S6VOYwepJTMzzwhi7Wy0pfbjeXwLMwFgybsSzm9Ou9TxHlUe8a-BlX5TkkLZ6uERMhm1TlE2OkIsdQUNAPQAXpOrPxutrVbwIhzpXZmxjSeuF9PAofnQ5tDCB1s1X7GpFqSnxs7PJEHbTCHicksXo_IuObJAipX-IVIgdjcGfqnQlYsV-msWwhSaditx3vaQ9fi7z6a-jM0vN8qN1qu3RH-ELBZqqmPHp0FxQq_3J_Kn-DrJLNFhHrXejvcnPOcHsx5pspiOOa6PQcteOJUGOwcxB_37UMl9Xfdb9rLkuZV4zVm4niufjUYnFaIx6DgdkVh9Zl3soJFOWLj6Uo0q-lI7-Zux6E2mbq4QVX2Zd4MW9HSEKOMqch2IBoX?c=naver.search.pc.plsearch&t=0
+        - img "링크이미지"
+      - link "favicon":
+        - /url: https://ader.naver.com/v1/-GNRisKmlX4q1eUQDfkMbgstznCl0xkSgiSx3ITAB2cbXlZy_KeqArSuUQ0M_D8RCqRvb01iWScsNEmovjc4dKILvSF1wmokvaj3lCcd4nZ680ZVRcopXoj9jAGvmGS_lS3lMkkDyZyY5DV6UNsy7o2ii2ksdqlhkRQw4yZbX-_tFC9gPcMvfIoluRf23HhX7QrGaUrumG1KENjPbAJE98mGLVkY7WIcee4wRLI01ynBz-ku7hBnk68H84eNe1_6an2FidfNCIbXqZPaoPFN-p9HX_n6SIi91Pi14Tr4meM2dT7PStNeH6oNwg8_XHAGyqd01vbh9FD9W3a6vb1CujgUsBCYXreWpnz-FcGs8idzVqAWBXAA56yJmmyUI7R4iED-3A-RABroLwcO1rCwqKzzAJwOV_qLClX2ODEeBGTlkaacyfzDusldX561CSLZ073MdxJ-U96n3DsXhNzr7a2Ynmq4WfEs1Eyr8F5EFcM=?c=naver.search.pc.plsearch&t=0
+        - img "favicon"
+      - img "광고":
+        - img
+      - button "네이버페이"
+      - link "노란마켓공식홈페이지":
+        - /url: https://ader.naver.com/v1/-GNRisKmlX4q1eUQDfkMbgstznCl0xkSgiSx3ITAB2cbXlZy_KeqArSuUQ0M_D8RCqRvb01iWScsNEmovjc4dKILvSF1wmokvaj3lCcd4nZ680ZVRcopXoj9jAGvmGS_lS3lMkkDyZyY5DV6UNsy7o2ii2ksdqlhkRQw4yZbX-_tFC9gPcMvfIoluRf23HhX7QrGaUrumG1KENjPbAJE98mGLVkY7WIcee4wRLI01ynBz-ku7hBnk68H84eNe1_6an2FidfNCIbXqZPaoPFN-p9HX_n6SIi91Pi14Tr4meM2dT7PStNeH6oNwg8_XHAGyqd01vbh9FD9W3a6vb1CujgUsBCYXreWpnz-FcGs8idzVqAWBXAA56yJmmyUI7R4iED-3A-RABroLwcO1rCwqKzzAJwOV_qLClX2ODEeBGTlkaacyfzDusldX561CSLZ073MdxJ-U96n3DsXhNzr7a2Ynmq4WfEs1Eyr8F5EFcM=?c=naver.search.pc.plsearch&t=0
+      - link "y-market.co.kr":
+        - /url: https://ader.naver.com/v1/-GNRisKmlX4q1eUQDfkMbgstznCl0xkSgiSx3ITAB2cbXlZy_KeqArSuUQ0M_D8RCqRvb01iWScsNEmovjc4dKILvSF1wmokvaj3lCcd4nZ680ZVRcopXoj9jAGvmGS_lS3lMkkDyZyY5DV6UNsy7o2ii2ksdqlhkRQw4yZbX-_tFC9gPcMvfIoluRf23HhX7QrGaUrumG1KENjPbAJE98mGLVkY7WIcee4wRLI01ynBz-ku7hBnk68H84eNe1_6an2FidfNCIbXqZPaoPFN-p9HX_n6SIi91Pi14Tr4meM2dT7PStNeH6oNwg8_XHAGyqd01vbh9FD9W3a6vb1CujgUsBCYXreWpnz-FcGs8idzVqAWBXAA56yJmmyUI7R4iED-3A-RABroLwcO1rCwqKzzAJwOV_qLClX2ODEeBGTlkaacyfzDusldX561CSLZ073MdxJ-U96n3DsXhNzr7a2Ynmq4WfEs1Eyr8F5EFcM=?c=naver.search.pc.plsearch&t=0
+      - link "착한가격 휴대폰특가 노란마켓 아이폰16이 9만원대?":
+        - /url: https://ader.naver.com/v1/-GNRisKmlX4q1eUQDfkMbgstznCl0xkSgiSx3ITAB2cbXlZy_KeqArSuUQ0M_D8RCqRvb01iWScsNEmovjc4dKILvSF1wmokvaj3lCcd4nZ680ZVRcopXoj9jAGvmGS_lS3lMkkDyZyY5DV6UNsy7o2ii2ksdqlhkRQw4yZbX-_tFC9gPcMvfIoluRf23HhX7QrGaUrumG1KENjPbAJE98mGLVkY7WIcee4wRLI01ynBz-ku7hBnk68H84eNe1_6an2FidfNCIbXqZPaoPFN-p9HX_n6SIi91Pi14Tr4meM2dT7PStNeH6oNwg8_XHAGyqd01vbh9FD9W3a6vb1CujgUsBCYXreWpnz-FcGs8idzVqAWBXAA56yJmmyUI7R4iED-3A-RABroLwcO1rCwqKzzAJwOV_qLClX2ODEeBGTlkaacyfzDusldX561CSLZ073MdxJ-U96n3DsXhNzr7a2Ynmq4WfEs1Eyr8F5EFcM=?c=naver.search.pc.plsearch&t=0
+        - text: 착한가격 휴대폰특가 노란마켓
+        - strong: 아이폰
+        - text: 16이 9만원대?
+      - link "SINCE 2010, 온오프 휴대폰할인 전문 쇼핑몰 노란마켓 전국 60개 지점보유":
+        - /url: https://ader.naver.com/v1/-GNRisKmlX4q1eUQDfkMbgstznCl0xkSgiSx3ITAB2cbXlZy_KeqArSuUQ0M_D8RCqRvb01iWScsNEmovjc4dKILvSF1wmokvaj3lCcd4nZ680ZVRcopXoj9jAGvmGS_lS3lMkkDyZyY5DV6UNsy7o2ii2ksdqlhkRQw4yZbX-_tFC9gPcMvfIoluRf23HhX7QrGaUrumG1KENjPbAJE98mGLVkY7WIcee4wRLI01ynBz-ku7hBnk68H84eNe1_6an2FidfNCIbXqZPaoPFN-p9HX_n6SIi91Pi14Tr4meM2dT7PStNeH6oNwg8_XHAGyqd01vbh9FD9W3a6vb1CujgUsBCYXreWpnz-FcGs8idzVqAWBXAA56yJmmyUI7R4iED-3A-RABroLwcO1rCwqKzzAJwOV_qLClX2ODEeBGTlkaacyfzDusldX561CSLZ073MdxJ-U96n3DsXhNzr7a2Ynmq4WfEs1Eyr8F5EFcM=?c=naver.search.pc.plsearch&t=0
+  - link "더보기":
+    - /url: https://ad.search.naver.com/search.naver?where=ad&query=%EC%95%84%EC%9D%B4%ED%8F%B017&referenceId=jr6Ugdqos5raEgRVnbK-040801&buckets=impression-neo-SA_SERVING-1119%5E5
+  - heading "네이버 가격비교" [level=2]
+  - button "이 정보가 표시된 이유":
+    - text: 이 정보가 표시된 이유
+    - img
+  - text: 다른 사이트를 보시려면
+  - link "클릭":
+    - /url: https://search.naver.com/search.naver?sm=tab_clk.shpftc&qvt=0&query=%EA%B0%80%EA%B2%A9%EB%B9%84%EA%B5%90%EC%82%AC%EC%9D%B4%ED%8A%B8%20nsite%3Anaver.com&ssc=tab.ur.all
+  - text: 하세요
+  - list:
+    - listitem:
+      - button "휴대폰종류 선택됨"
+    - listitem:
+      - button "키워드추천"
+    - listitem:
+      - button "내장메모리"
+  - list:
+    - listitem:
+      - button "전체 선택됨"
+    - listitem:
+      - button "자급제폰"
+    - listitem:
+      - button "SKT"
+    - listitem:
+      - button "KT"
+    - listitem:
+      - button "LGU+"
+    - listitem:
+      - button "공기계/중고폰"
+  - checkbox "N배송 빠르게 받기"
+  - text: N배송 빠르게 받기
+  - checkbox "빠른배송"
+  - text: 빠른배송
+  - button "배송지 설정 새 창으로 열기"
+  - list:
+    - listitem:
+      - link "Apple <mark>아이폰 17</mark> 자급제 256GB 화이트 MG6K4KH/A 스마트폰 A19 칩 15.9cm ProMotion 48MP 카메라 Ceramic Shield 2 eSIM":
+        - /url: https://ader.naver.com/v1/UzKpXs-p71-Bu8wz2V5iSzwQ6IeabfsCP1xYH8FiCNkL3sB0W0gqi_1b6rKmLDy-K2GzC21CBPe6huyNInz7Ag7fAxD1pWOWHn2Yeavv3cXKoBCJUFt43N6-E3hdWyJ_n74FmY2xfenn586xpWHco0FNfhNui2n_36XliezubN0G2d7bPnYY8whiIGyH8PifMPCV23LhrEqwO-v3puzljcWqyLEHdTGq2H6dg_-qyfsy3yAfYE846R-4FiFYrwqAExXSLGILptjM_kfML4iu6RbtmAnAfKgsWhPLtRPixu-2sLL9x_3XBSP-QOCQ-rNAAxuFwpnoCCdKnU6CRCySrSgwEwWxsINrrs7zTnu__nzEajMySFVs-8N6sIA5fbUx_DuP-FKr65mjS8mmIVUICxhHchS3VjFVcSOeepETEgcqWmsB4DO25wXUFfFdmUAMQOIW1ARl38NxDumGDbFOTPcoMJBKuUAjq7JHo0s74Z8DYha3EYPpKcb21angofkvK4eea9BIETEaR1yvfNtNjLjv5DUXWrm_vgqPS28G8v10QxI13JboKbE0qu52a0v3IdT9hVm_7Stkkcc4xC8sNA==?c=naver.search.pc.npla&t=0&ui=GUIDE
+        - img "Apple <mark>아이폰 17</mark> 자급제 256GB 화이트 MG6K4KH/A 스마트폰 A19 칩 15.9cm ProMotion 48MP 카메라 Ceramic Shield 2 eSIM"
+      - link "쿠팡 특가 바로가기":
+        - /url: https://ader.naver.com/v1/UzKpXs-p71-Bu8wz2V5iSzwQ6IeabfsCP1xYH8FiCNkL3sB0W0gqi_1b6rKmLDy-K2GzC21CBPe6huyNInz7Ag7fAxD1pWOWHn2Yeavv3cXKoBCJUFt43N6-E3hdWyJ_n74FmY2xfenn586xpWHco0FNfhNui2n_36XliezubN0G2d7bPnYY8whiIGyH8PifMPCV23LhrEqwO-v3puzljcWqyLEHdTGq2H6dg_-qyfsy3yAfYE846R-4FiFYrwqAExXSLGILptjM_kfML4iu6RbtmAnAfKgsWhPLtRPixu-2sLL9x_3XBSP-QOCQ-rNAAxuFwpnoCCdKnU6CRCySrSgwEwWxsINrrs7zTnu__nzEajMySFVs-8N6sIA5fbUx_DuP-FKr65mjS8mmIVUICxhHchS3VjFVcSOeepETEgcqWmsB4DO25wXUFfFdmUAMQOIW1ARl38NxDumGDbFOTPcoMJBKuUAjq7JHo0s74Z8DYha3EYPpKcb21angofkvK4eea9BIETEaR1yvfNtNjLjv5DUXWrm_vgqPS28G8v10QxI13JboKbE0qu52a0v3IdT9hVm_7Stkkcc4xC8sNA==?c=naver.search.pc.npla&t=0&ui=GUIDE
+      - link "Apple 아이폰 17 자급제 256GB 화이트 MG6K4KH/A 스마트폰 A19 칩 15.9cm ProMotion 48MP 카메라 Ceramic Shield 2 eSIM":
+        - /url: https://ader.naver.com/v1/UzKpXs-p71-Bu8wz2V5iSzwQ6IeabfsCP1xYH8FiCNkL3sB0W0gqi_1b6rKmLDy-K2GzC21CBPe6huyNInz7Ag7fAxD1pWOWHn2Yeavv3cXKoBCJUFt43N6-E3hdWyJ_n74FmY2xfenn586xpWHco0FNfhNui2n_36XliezubN0G2d7bPnYY8whiIGyH8PifMPCV23LhrEqwO-v3puzljcWqyLEHdTGq2H6dg_-qyfsy3yAfYE846R-4FiFYrwqAExXSLGILptjM_kfML4iu6RbtmAnAfKgsWhPLtRPixu-2sLL9x_3XBSP-QOCQ-rNAAxuFwpnoCCdKnU6CRCySrSgwEwWxsINrrs7zTnu__nzEajMySFVs-8N6sIA5fbUx_DuP-FKr65mjS8mmIVUICxhHchS3VjFVcSOeepETEgcqWmsB4DO25wXUFfFdmUAMQOIW1ARl38NxDumGDbFOTPcoMJBKuUAjq7JHo0s74Z8DYha3EYPpKcb21angofkvK4eea9BIETEaR1yvfNtNjLjv5DUXWrm_vgqPS28G8v10QxI13JboKbE0qu52a0v3IdT9hVm_7Stkkcc4xC8sNA==?c=naver.search.pc.npla&t=0&ui=GUIDE
+        - text: Apple
+        - mark: 아이폰 17
+        - text: 자급제 256GB 화이트 MG6K4KH/A 스마트폰 A19 칩 15.9cm ProMotion 48MP 카메라 Ceramic Shield 2 eSIM
+      - text: 1,406,500 원
+      - img
+      - text: 배송비 무료 빠른배송 내일 9.23.(수) 도착예정
+      - link "쿠팡":
+        - /url: https://ader.naver.com/v1/UzKpXs-p71-Bu8wz2V5iSzwQ6IeabfsCP1xYH8FiCNkL3sB0W0gqi_1b6rKmLDy-K2GzC21CBPe6huyNInz7Ag7fAxD1pWOWHn2Yeavv3cXKoBCJUFt43N6-E3hdWyJ_n74FmY2xfenn586xpWHco0FNfhNui2n_36XliezubN0G2d7bPnYY8whiIGyH8PifMPCV23LhrEqwO-v3puzljcWqyLEHdTGq2H6dg_-qyfsy3yAfYE846R-4FiFYrwqAExXSLGILptjM_kfML4iu6RbtmAnAfKgsWhPLtRPixu-2sLL9x_3XBSP-QOCQ-rNAAxuFwpnoCCdKnU6CRCySrSgwEwWxsINrrs7zTnu__nzEajMySFVs-8N6sIA5fbUx_DuP-FKr65mjS8mmIVUICxhHchS3VjFVcSOeepETEgcqWmsB4DO25wXUFfFdmUAMQOIW1ARl38NxDumGDbFOTPcoMJBKuUAjq7JHo0s74Z8DYha3EYPpKcb21angofkvK4eea9BIETEaR1yvfNtNjLjv5DUXWrm_vgqPS28G8v10QxI13JboKbE0qu52a0v3IdT9hVm_7Stkkcc4xC8sNA==?c=naver.search.pc.npla&t=0&ui=GUIDE
+      - button "광고":
+        - text: 광고
+        - img
+      - text: 인증
+    - listitem:
+      - link "Apple <mark>아이폰 17</mark> Pro 자급제 256GB 실버 MG8G4KH/A 스마트폰 핸드폰 휴대폰 공기계 자급제폰 폰 휴대전화":
+        - /url: https://ader.naver.com/v1/-F1APXFr8WFiQ5p6pZUVRHZ7EPwKhLT77Usa5cJkLgC695ikjW-t1WIv2sGG_IJwfAGu1W_ghL2DOkwwl6yvbLqWjRDvZ6WwrEWsFJa5krwM8KYjY_sZPzBC76Qlt72vr1OSJnKzqZvABacoPFFIoGoMYxf82w_mz7ZfZf-38SBqb-N2JZMri1u4rH03dUpL9ksqpVAnhOdnfGYgVr8kv9xXaeKQTwdz6uLStKiejxrW0hf_19Ce_DsCFKzu3hb64lTHxSmQdzI-P-QQ2EgAHe2_5lnYJZ49cSKt-78ugFePp-bDHtJf6o13_-aFtBq6p1EFL-wInfXDHtgYsWIpwQHLZWjxo0ZZwO5tJ2OvXItWrfHwBytHOy-9AThXDiJsqShoArcUQRY6imv0lcuxuZOCu5CWql-36P_rI4ZJyf_uSRqFa-I0mzdxnayCg_Jn18cYzeQjDaPtlDG-UudP8xvNezEK4HA8W4Js5B_a-FkzcvPAspK96xs6ANdeacW2d_ATjC45YxT4Q-PlqHpdUs3T_E0YrpoEDwAGQo38rV_-MovbfaJSeXtYdFfPexVN58lOtI-3ITMOEK8SnTVBUw==?c=naver.search.pc.npla&t=0&ui=GUIDE
+        - img "Apple <mark>아이폰 17</mark> Pro 자급제 256GB 실버 MG8G4KH/A 스마트폰 핸드폰 휴대폰 공기계 자급제폰 폰 휴대전화"
+      - link "전문가급 카메라":
+        - /url: https://ader.naver.com/v1/-F1APXFr8WFiQ5p6pZUVRHZ7EPwKhLT77Usa5cJkLgC695ikjW-t1WIv2sGG_IJwfAGu1W_ghL2DOkwwl6yvbLqWjRDvZ6WwrEWsFJa5krwM8KYjY_sZPzBC76Qlt72vr1OSJnKzqZvABacoPFFIoGoMYxf82w_mz7ZfZf-38SBqb-N2JZMri1u4rH03dUpL9ksqpVAnhOdnfGYgVr8kv9xXaeKQTwdz6uLStKiejxrW0hf_19Ce_DsCFKzu3hb64lTHxSmQdzI-P-QQ2EgAHe2_5lnYJZ49cSKt-78ugFePp-bDHtJf6o13_-aFtBq6p1EFL-wInfXDHtgYsWIpwQHLZWjxo0ZZwO5tJ2OvXItWrfHwBytHOy-9AThXDiJsqShoArcUQRY6imv0lcuxuZOCu5CWql-36P_rI4ZJyf_uSRqFa-I0mzdxnayCg_Jn18cYzeQjDaPtlDG-UudP8xvNezEK4HA8W4Js5B_a-FkzcvPAspK96xs6ANdeacW2d_ATjC45YxT4Q-PlqHpdUs3T_E0YrpoEDwAGQo38rV_-MovbfaJSeXtYdFfPexVN58lOtI-3ITMOEK8SnTVBUw==?c=naver.search.pc.npla&t=0&ui=GUIDE
+      - link "Apple 아이폰 17 Pro 자급제 256GB 실버 MG8G4KH/A 스마트폰 핸드폰 휴대폰 공기계 자급제폰 폰 휴대전화":
+        - /url: https://ader.naver.com/v1/-F1APXFr8WFiQ5p6pZUVRHZ7EPwKhLT77Usa5cJkLgC695ikjW-t1WIv2sGG_IJwfAGu1W_ghL2DOkwwl6yvbLqWjRDvZ6WwrEWsFJa5krwM8KYjY_sZPzBC76Qlt72vr1OSJnKzqZvABacoPFFIoGoMYxf82w_mz7ZfZf-38SBqb-N2JZMri1u4rH03dUpL9ksqpVAnhOdnfGYgVr8kv9xXaeKQTwdz6uLStKiejxrW0hf_19Ce_DsCFKzu3hb64lTHxSmQdzI-P-QQ2EgAHe2_5lnYJZ49cSKt-78ugFePp-bDHtJf6o13_-aFtBq6p1EFL-wInfXDHtgYsWIpwQHLZWjxo0ZZwO5tJ2OvXItWrfHwBytHOy-9AThXDiJsqShoArcUQRY6imv0lcuxuZOCu5CWql-36P_rI4ZJyf_uSRqFa-I0mzdxnayCg_Jn18cYzeQjDaPtlDG-UudP8xvNezEK4HA8W4Js5B_a-FkzcvPAspK96xs6ANdeacW2d_ATjC45YxT4Q-PlqHpdUs3T_E0YrpoEDwAGQo38rV_-MovbfaJSeXtYdFfPexVN58lOtI-3ITMOEK8SnTVBUw==?c=naver.search.pc.npla&t=0&ui=GUIDE
+        - text: Apple
+        - mark: 아이폰 17
+        - text: Pro 자급제 256GB 실버 MG8G4KH/A 스마트폰 핸드폰 휴대폰 공기계 자급제폰 폰 휴대전화
+      - text: 1,718,400 원
+      - img
+      - text: 배송비 무료 빠른배송 내일 9.23.(수) 도착예정
+      - link "쿠팡":
+        - /url: https://ader.naver.com/v1/-F1APXFr8WFiQ5p6pZUVRHZ7EPwKhLT77Usa5cJkLgC695ikjW-t1WIv2sGG_IJwfAGu1W_ghL2DOkwwl6yvbLqWjRDvZ6WwrEWsFJa5krwM8KYjY_sZPzBC76Qlt72vr1OSJnKzqZvABacoPFFIoGoMYxf82w_mz7ZfZf-38SBqb-N2JZMri1u4rH03dUpL9ksqpVAnhOdnfGYgVr8kv9xXaeKQTwdz6uLStKiejxrW0hf_19Ce_DsCFKzu3hb64lTHxSmQdzI-P-QQ2EgAHe2_5lnYJZ49cSKt-78ugFePp-bDHtJf6o13_-aFtBq6p1EFL-wInfXDHtgYsWIpwQHLZWjxo0ZZwO5tJ2OvXItWrfHwBytHOy-9AThXDiJsqShoArcUQRY6imv0lcuxuZOCu5CWql-36P_rI4ZJyf_uSRqFa-I0mzdxnayCg_Jn18cYzeQjDaPtlDG-UudP8xvNezEK4HA8W4Js5B_a-FkzcvPAspK96xs6ANdeacW2d_ATjC45YxT4Q-PlqHpdUs3T_E0YrpoEDwAGQo38rV_-MovbfaJSeXtYdFfPexVN58lOtI-3ITMOEK8SnTVBUw==?c=naver.search.pc.npla&t=0&ui=GUIDE
+      - button "광고":
+        - text: 광고
+        - img
+      - text: 인증
+    - listitem:
+      - link "Apple <mark>아이폰 17</mark> 자급제 256GB 블랙 MG6J4KH/A 스마트폰 Ceramic Shield 2 120Hz ProMotion 48MP 카메라 A19칩 eSIM":
+        - /url: https://ader.naver.com/v1/UzKpXs-p71-Bu8wz2V5iSyOOYxixVAvg6gK1YInHsCNzxqIjGkIj-45MKqO3QJh-mUDrHHC86E6WDdmmomaoNfgLiFJXB-0zh8sWgM1HwZupa-lOk3wIe76U_FqtTTVdBTyXFp6fNTtLR-6aDQuf_e3TD8NsDq6HWr5qvAPW-XowS5YHAKOYwnYuMAE_ZbkC8eq6gWePPdLbmqUjSgCCpT_MCsjmsBVXVJ-BgN1i5lwu2PZnrGZYSIRsHp-fFJKGRZL6-UeRwaV3YUaJBMbSqYF9rslux-c6r_3jeDA4sLHVGQ9s3MGPR_gdAaZg8w6lhXGS2McGPGOkMIkqPW-B16yiw3W_mqHyYHOglqV8mWwIKmMOoee6hbOsccnD-aqiL36Ucxn50kpzPIZ8WzRcfrH8_zlyPOw8ED543mUu67H28kAvCdJlneGEkRi_Si5ipni2MFCxngWNc8I12mDEIBD-sSBBw-VGxGuhFs_8DjpZ_OeRR-sBjOKpDcBTC5TdkX81Mej9Lo7lSuEqqnHicHP_1Con7F9BXncpKfFwzJOX9mUZ8rzBVw2hP5pQYPDVcqcyxb2m2NKvk-kIZ4VBfQ==?c=naver.search.pc.npla&t=0&ui=GUIDE
+        - img "Apple <mark>아이폰 17</mark> 자급제 256GB 블랙 MG6J4KH/A 스마트폰 Ceramic Shield 2 120Hz ProMotion 48MP 카메라 A19칩 eSIM"
+      - link "약정없는 자급제폰":
+        - /url: https://ader.naver.com/v1/UzKpXs-p71-Bu8wz2V5iSyOOYxixVAvg6gK1YInHsCNzxqIjGkIj-45MKqO3QJh-mUDrHHC86E6WDdmmomaoNfgLiFJXB-0zh8sWgM1HwZupa-lOk3wIe76U_FqtTTVdBTyXFp6fNTtLR-6aDQuf_e3TD8NsDq6HWr5qvAPW-XowS5YHAKOYwnYuMAE_ZbkC8eq6gWePPdLbmqUjSgCCpT_MCsjmsBVXVJ-BgN1i5lwu2PZnrGZYSIRsHp-fFJKGRZL6-UeRwaV3YUaJBMbSqYF9rslux-c6r_3jeDA4sLHVGQ9s3MGPR_gdAaZg8w6lhXGS2McGPGOkMIkqPW-B16yiw3W_mqHyYHOglqV8mWwIKmMOoee6hbOsccnD-aqiL36Ucxn50kpzPIZ8WzRcfrH8_zlyPOw8ED543mUu67H28kAvCdJlneGEkRi_Si5ipni2MFCxngWNc8I12mDEIBD-sSBBw-VGxGuhFs_8DjpZ_OeRR-sBjOKpDcBTC5TdkX81Mej9Lo7lSuEqqnHicHP_1Con7F9BXncpKfFwzJOX9mUZ8rzBVw2hP5pQYPDVcqcyxb2m2NKvk-kIZ4VBfQ==?c=naver.search.pc.npla&t=0&ui=GUIDE
+      - link "Apple 아이폰 17 자급제 256GB 블랙 MG6J4KH/A 스마트폰 Ceramic Shield 2 120Hz ProMotion 48MP 카메라 A19칩 eSIM":
+        - /url: https://ader.naver.com/v1/UzKpXs-p71-Bu8wz2V5iSyOOYxixVAvg6gK1YInHsCNzxqIjGkIj-45MKqO3QJh-mUDrHHC86E6WDdmmomaoNfgLiFJXB-0zh8sWgM1HwZupa-lOk3wIe76U_FqtTTVdBTyXFp6fNTtLR-6aDQuf_e3TD8NsDq6HWr5qvAPW-XowS5YHAKOYwnYuMAE_ZbkC8eq6gWePPdLbmqUjSgCCpT_MCsjmsBVXVJ-BgN1i5lwu2PZnrGZYSIRsHp-fFJKGRZL6-UeRwaV3YUaJBMbSqYF9rslux-c6r_3jeDA4sLHVGQ9s3MGPR_gdAaZg8w6lhXGS2McGPGOkMIkqPW-B16yiw3W_mqHyYHOglqV8mWwIKmMOoee6hbOsccnD-aqiL36Ucxn50kpzPIZ8WzRcfrH8_zlyPOw8ED543mUu67H28kAvCdJlneGEkRi_Si5ipni2MFCxngWNc8I12mDEIBD-sSBBw-VGxGuhFs_8DjpZ_OeRR-sBjOKpDcBTC5TdkX81Mej9Lo7lSuEqqnHicHP_1Con7F9BXncpKfFwzJOX9mUZ8rzBVw2hP5pQYPDVcqcyxb2m2NKvk-kIZ4VBfQ==?c=naver.search.pc.npla&t=0&ui=GUIDE
+        - text: Apple
+        - mark: 아이폰 17
+        - text: 자급제 256GB 블랙 MG6J4KH/A 스마트폰 Ceramic Shield 2 120Hz ProMotion 48MP 카메라 A19칩 eSIM
+      - text: 1,406,500 원
+      - img
+      - text: 배송비 무료 빠른배송 내일 9.23.(수) 도착예정
+      - link "쿠팡":
+        - /url: https://ader.naver.com/v1/UzKpXs-p71-Bu8wz2V5iSyOOYxixVAvg6gK1YInHsCNzxqIjGkIj-45MKqO3QJh-mUDrHHC86E6WDdmmomaoNfgLiFJXB-0zh8sWgM1HwZupa-lOk3wIe76U_FqtTTVdBTyXFp6fNTtLR-6aDQuf_e3TD8NsDq6HWr5qvAPW-XowS5YHAKOYwnYuMAE_ZbkC8eq6gWePPdLbmqUjSgCCpT_MCsjmsBVXVJ-BgN1i5lwu2PZnrGZYSIRsHp-fFJKGRZL6-UeRwaV3YUaJBMbSqYF9rslux-c6r_3jeDA4sLHVGQ9s3MGPR_gdAaZg8w6lhXGS2McGPGOkMIkqPW-B16yiw3W_mqHyYHOglqV8mWwIKmMOoee6hbOsccnD-aqiL36Ucxn50kpzPIZ8WzRcfrH8_zlyPOw8ED543mUu67H28kAvCdJlneGEkRi_Si5ipni2MFCxngWNc8I12mDEIBD-sSBBw-VGxGuhFs_8DjpZ_OeRR-sBjOKpDcBTC5TdkX81Mej9Lo7lSuEqqnHicHP_1Con7F9BXncpKfFwzJOX9mUZ8rzBVw2hP5pQYPDVcqcyxb2m2NKvk-kIZ4VBfQ==?c=naver.search.pc.npla&t=0&ui=GUIDE
+      - button "광고":
+        - text: 광고
+        - img
+      - text: 인증
+    - listitem:
+      - link "<mark>아이폰 17</mark> 256GB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56666632837&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=51aeffb04911c14791755f19b7396b2fd0130e36&frm=NVSCPRO
+        - img "<mark>아이폰 17</mark> 256GB [자급제]"
+      - link "아이폰 17 256GB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56666632837&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=51aeffb04911c14791755f19b7396b2fd0130e36&frm=NVSCPRO
+        - mark: 아이폰 17
+        - text: 256GB [자급제]
+      - text: 최저 1,406,500 원
+      - img
+      - text: 배송비 무료
+      - img
+      - text: 4.9 (1.2만) 찜 513 판매처 144
+    - listitem:
+      - link "<mark>아이폰 17</mark> 프로 512GB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56666065295&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=733644914b8bf463830f0c5d84c68f95c9249d7e&frm=NVSCPRO
+        - img "<mark>아이폰 17</mark> 프로 512GB [자급제]"
+      - link "아이폰 17 프로 512GB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56666065295&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=733644914b8bf463830f0c5d84c68f95c9249d7e&frm=NVSCPRO
+        - mark: 아이폰 17
+        - text: 프로 512GB [자급제]
+      - text: 최저 2,005,000 원
+      - img
+      - text: 배송비 무료
+      - img
+      - text: 4.87 (1,035) 찜 82 판매처 89
+    - listitem:
+      - link "<mark>아이폰 17</mark> 프로 256GB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56666065238&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=018a6431bbb1fb3150fa418f9359971ee29d6f3b&frm=NVSCPRO
+        - img "<mark>아이폰 17</mark> 프로 256GB [자급제]"
+      - link "아이폰 17 프로 256GB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56666065238&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=018a6431bbb1fb3150fa418f9359971ee29d6f3b&frm=NVSCPRO
+        - mark: 아이폰 17
+        - text: 프로 256GB [자급제]
+      - text: 최저 1,718,400 원
+      - img
+      - text: 배송비 무료
+      - img
+      - text: 4.9 (4,609) 찜 171 판매처 103
+    - listitem:
+      - link "<mark>아이폰 17</mark> 512GB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56642218976&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=3dc9380dd0956bb30259797c68bba58db495b723&frm=NVSCPRO
+        - img "<mark>아이폰 17</mark> 512GB [자급제]"
+      - link "아이폰 17 512GB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56642218976&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=3dc9380dd0956bb30259797c68bba58db495b723&frm=NVSCPRO
+        - mark: 아이폰 17
+        - text: 512GB [자급제]
+      - text: 최저 1,697,500 원
+      - img
+      - text: 배송비 무료
+      - img
+      - text: 4.91 (1,915) 찜 178 판매처 116
+    - listitem:
+      - link "<mark>아이폰 17</mark> 프로 1TB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56666065346&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=d9d36c6720f8f133342259c67bfcd283d43e3cb4&frm=NVSCPRO
+        - img "<mark>아이폰 17</mark> 프로 1TB [자급제]"
+      - link "아이폰 17 프로 1TB [자급제]":
+        - /url: https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=56666065346&cat_id=50001519&query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&t=mucsslhz&h=d9d36c6720f8f133342259c67bfcd283d43e3cb4&frm=NVSCPRO
+        - mark: 아이폰 17
+        - text: 프로 1TB [자급제]
+      - text: 최저 2,294,400 원
+      - img
+      - text: 배송비 무료
+      - img
+      - text: 4.92 (173) 찜 26 판매처 74
+  - text: 네이버는 상품 판매의 당사자가 아닙니다.
+  - link "법적고지 및 안내":
+    - /url: https://shopping.naver.com/help/legal-basis
+  - link "네이버 가격비교 더보기":
+    - /url: https://search.shopping.naver.com/search/all?query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&frm=NVSCPRO&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801
+    - text: 네이버 가격비교 더보기
+    - img
+  - heading "네이버플러스 스토어" [level=2]
+  - button "이 정보가 표시된 이유":
+    - text: 이 정보가 표시된 이유
+    - img
+  - link "네이버플러스 멤버십 지금 시작하고 최대 5% 적립을 누려요!":
+    - /url: https://nid.naver.com/membership/join?dtm_source=naver_plusshoping&dtm_medium=display&dtm_campaign=point
+    - text: 네이버플러스 멤버십 지금 시작하고 최대 5% 적립을 누려요!
+    - img
+  - list:
+    - listitem:
+      - link "애플 아이폰 17 프로 자급제 256GB 1,790,000 원 배송비 무료 N내일배송 9.23.(수) 도착 4.9 (5,546) 애플 공식 브랜드스토어 공식":
+        - /url: https://smartstore.naver.com/main/products/12379874471?nl-query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801&NaPm=ci%3Djr6Ugdqos5raEgRVnbK-040801%7Cct%3Dmucsslzx%7Ctr%3Dnsls%7Csn%3D758501%7Chk%3D07f03bad9ef170f9a84fa2740e12cb03efb6ba21
+      - img "애플 아이폰 17 프로 자급제 256GB"
+      - link "애플 아이폰 17 프로 자급제 256GB":
+        - /url: https://smartstore.naver.com/main/products/12379874471?nl-query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801&NaPm=ci%3Djr6Ugdqos5raEgRVnbK-040801%7Cct%3Dmucsslzx%7Ctr%3Dnsls%7Csn%3D758501%7Chk%3D07f03bad9ef170f9a84fa2740e12cb03efb6ba21
+      - text: 1,790,000 원
+      - img
+      - text: 배송비 무료 N내일배송 9.23.(수) 도착
+      - img
+      - text: 4.9 (5,546)
+      - link "애플 공식 브랜드스토어 공식":
+        - /url: https://smartstore.naver.com/inflow/outlink/url?url=https%3A%2F%2Fsmartstore.naver.com%2Fbluebox00718&tr=nsls&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801
+        - text: 애플 공식 브랜드스토어 공식
+        - img
+    - listitem:
+      - link "애플 아이폰 17 자급제 256GB 1,450,000 원 배송비 무료 N내일배송 9.23.(수) 도착 4.9 (9,999+) 애플 공식 브랜드스토어 공식":
+        - /url: https://smartstore.naver.com/main/products/12379874461?nl-query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801&NaPm=ci%3Djr6Ugdqos5raEgRVnbK-040801%7Cct%3Dmucsslzy%7Ctr%3Dnsls%7Csn%3D758501%7Chk%3D1cbd9642f176374ef5812b64936dafdd3f1d87e1
+      - img "애플 아이폰 17 자급제 256GB"
+      - link "애플 아이폰 17 자급제 256GB":
+        - /url: https://smartstore.naver.com/main/products/12379874461?nl-query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801&NaPm=ci%3Djr6Ugdqos5raEgRVnbK-040801%7Cct%3Dmucsslzy%7Ctr%3Dnsls%7Csn%3D758501%7Chk%3D1cbd9642f176374ef5812b64936dafdd3f1d87e1
+      - text: 1,450,000 원
+      - img
+      - text: 배송비 무료 N내일배송 9.23.(수) 도착
+      - img
+      - text: 4.9 (9,999+)
+      - link "애플 공식 브랜드스토어 공식":
+        - /url: https://smartstore.naver.com/inflow/outlink/url?url=https%3A%2F%2Fsmartstore.naver.com%2Fbluebox00718&tr=nsls&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801
+        - text: 애플 공식 브랜드스토어 공식
+        - img
+    - listitem:
+      - link "애플 아이폰 17 자급제 512GB 1,750,000 원 배송비 무료 N내일배송 9.23.(수) 도착 4.9 (9,999+) 애플 공식 브랜드스토어 공식":
+        - /url: https://smartstore.naver.com/main/products/12379874467?nl-query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801&NaPm=ci%3Djr6Ugdqos5raEgRVnbK-040801%7Cct%3Dmucsslzy%7Ctr%3Dnsls%7Csn%3D758501%7Chk%3D1cbd9642f176374ef5812b64936dafdd3f1d87e1
+      - img "애플 아이폰 17 자급제 512GB"
+      - link "애플 아이폰 17 자급제 512GB":
+        - /url: https://smartstore.naver.com/main/products/12379874467?nl-query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801&NaPm=ci%3Djr6Ugdqos5raEgRVnbK-040801%7Cct%3Dmucsslzy%7Ctr%3Dnsls%7Csn%3D758501%7Chk%3D1cbd9642f176374ef5812b64936dafdd3f1d87e1
+      - text: 1,750,000 원
+      - img
+      - text: 배송비 무료 N내일배송 9.23.(수) 도착
+      - img
+      - text: 4.9 (9,999+)
+      - link "애플 공식 브랜드스토어 공식":
+        - /url: https://smartstore.naver.com/inflow/outlink/url?url=https%3A%2F%2Fsmartstore.naver.com%2Fbluebox00718&tr=nsls&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801
+        - text: 애플 공식 브랜드스토어 공식
+        - img
+    - listitem:
+      - link "애플 아이폰 17 프로 자급제 512GB 2,090,000 원 배송비 무료 N내일배송 9.23.(수) 도착 4.9 (5,546) 애플 공식 브랜드스토어 공식":
+        - /url: https://smartstore.naver.com/main/products/12379874474?nl-query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801&NaPm=ci%3Djr6Ugdqos5raEgRVnbK-040801%7Cct%3Dmucsslzy%7Ctr%3Dnsls%7Csn%3D758501%7Chk%3D1cbd9642f176374ef5812b64936dafdd3f1d87e1
+      - img "애플 아이폰 17 프로 자급제 512GB"
+      - link "애플 아이폰 17 프로 자급제 512GB":
+        - /url: https://smartstore.naver.com/main/products/12379874474?nl-query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801&NaPm=ci%3Djr6Ugdqos5raEgRVnbK-040801%7Cct%3Dmucsslzy%7Ctr%3Dnsls%7Csn%3D758501%7Chk%3D1cbd9642f176374ef5812b64936dafdd3f1d87e1
+      - text: 2,090,000 원
+      - img
+      - text: 배송비 무료 N내일배송 9.23.(수) 도착
+      - img
+      - text: 4.9 (5,546)
+      - link "애플 공식 브랜드스토어 공식":
+        - /url: https://smartstore.naver.com/inflow/outlink/url?url=https%3A%2F%2Fsmartstore.naver.com%2Fbluebox00718&tr=nsls&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801
+        - text: 애플 공식 브랜드스토어 공식
+        - img
+  - text: 네이버는 상품 판매의 당사자가 아닙니다.
+  - link "법적고지 및 안내":
+    - /url: https://shopping.naver.com/help/legal-basis
+  - link "네이버플러스 스토어 더보기":
+    - /url: https://search.shopping.naver.com/ns/search?query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&nl-ts-pid=jr6Ugdqos5raEgRVnbK-040801
+    - text: 네이버플러스 스토어 더보기
+    - img
+  - strong: AI로 더 알아보기
+  - paragraph: 딱 맞는 상품을 찾고 구매해보세요.
+  - link:
+    - /url: https://search.naver.com/search.naver?query=%EC%95%84%EC%9D%B4%ED%8F%B0%2017&ssc=tab.ait.all&sm=tab_clk.aitabshop&ait_agent_type=shopping&dtm_source=search&dtm_medium=shopping_banner
+  - heading "네이버 클립" [level=2]
+  - button "정보 확인 도움말"
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%221%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=F5A3A35E836761C4844284E49B65315D787C&serviceType=NTV
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - link "지금 아이폰17프로 막차 타야 하는 이유 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%221%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=F5A3A35E836761C4844284E49B65315D787C&serviceType=NTV
+    - text: 지금
+    - mark: 아이폰17
+    - text: 프로 막차 타야 하는 이유 새 창 열림
+  - link "프로필 이미지 다공략 1주 전 조회 20.5만 새 창 열림":
+    - /url: https://clip.naver.com/@dagongrak
+    - img "프로필 이미지"
+    - text: 다공략 1주 전 조회 20.5만 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%222%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=9E765DA11704DC61829F660E51D2BEA0C45A&serviceType=NTV
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - link "아이폰 18프로 맥스 초스피드 언박싱!! 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%222%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=9E765DA11704DC61829F660E51D2BEA0C45A&serviceType=NTV
+    - mark: 아이폰
+    - text: 18프로 맥스 초스피드 언박싱!! 새 창 열림
+  - link "프로필 이미지 티노 4일 전 조회 11.2만 새 창 열림":
+    - /url: https://clip.naver.com/@tinoreview
+    - img "프로필 이미지"
+    - text: 티노 4일 전 조회 11.2만 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?blogId=bom_blooming&docNo=16085223&mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%223%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=606FEE850557008302ACB84EB5CDA045088B&serviceType=MOMENT
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - link "아이폰18 프로 vs 아이폰17📱 54만원 더 주고 프로로 갈 가치가... 새 창 열림":
+    - /url: https://m.naver.com/shorts/?blogId=bom_blooming&docNo=16085223&mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%223%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=606FEE850557008302ACB84EB5CDA045088B&serviceType=MOMENT
+    - mark: 아이폰
+    - text: 18 프로 vs
+    - mark: 아이폰17
+    - text: 📱 54만원 더 주고 프로로 갈 가치가... 새 창 열림
+  - link "프로필 이미지 오늘노트 14시간 전 조회 57 새 창 열림":
+    - /url: https://m.blog.naver.com/bom_blooming
+    - img "프로필 이미지"
+    - text: 오늘노트 14시간 전 조회 57 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%224%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=8C7CE5B8F46F73D1C240757BD6F9E80411AA&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17 #아이폰추천 #아이폰고민 #아이폰구매 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%224%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=8C7CE5B8F46F73D1C240757BD6F9E80411AA&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "#"
+    - mark: 아이폰
+    - text: "추천 #"
+    - mark: 아이폰
+    - text: "고민 #"
+    - mark: 아이폰
+    - text: 구매 새 창 열림
+  - link "프로필 이미지 솔루션디렉터 7시간 전 조회 12 새 창 열림":
+    - /url: https://clip.naver.com/@giftpalette
+    - img "프로필 이미지"
+    - text: 솔루션디렉터 7시간 전 조회 12 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%225%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=9F8480561913AC210AC2CD8464B57F0825B8&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17프로 #아이폰17 #아이폰용량 #자급제 #알뜰폰 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%225%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=9F8480561913AC210AC2CD8464B57F0825B8&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰17
+    - text: "#"
+    - mark: 아이폰
+    - text: "용량 #자급제 #알뜰폰 새 창 열림"
+  - link "ouvz1sv21u 1일 전 조회 87 새 창 열림":
+    - /url: https://clip.naver.com/@ouvz1sv21u
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%226%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=D5E4F01AE835640BBC7F346FF3FB11FE605A&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰 #아이폰17프로 #아이폰17 #자급제 #자급제폰 #아이폰추천... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%226%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=D5E4F01AE835640BBC7F346FF3FB11FE605A&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰17
+    - text: "#자급제 #자급제폰 #"
+    - mark: 아이폰
+    - text: 추천... 새 창 열림
+  - link "프로필 이미지 kai 6시간 전 조회 24 새 창 열림":
+    - /url: https://clip.naver.com/@l4fgew4msw
+    - img "프로필 이미지"
+    - text: kai 6시간 전 조회 24 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%227%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=E20347442455AA547FE698024B2ED4AC4972&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17프로 #아이폰17 #애플 #스마트폰 #자급제 #알뜰폰... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%227%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=E20347442455AA547FE698024B2ED4AC4972&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰17
+    - text: "#애플 #스마트폰 #자급제 #알뜰폰... 새 창 열림"
+  - link "프로필 이미지 trendbites 1일 전 조회 63 새 창 열림":
+    - /url: https://clip.naver.com/@trendbites
+    - img "프로필 이미지"
+    - text: trendbites 1일 전 조회 63 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%228%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=6CB8B6054718C4A917C1D3B32D2F617EC61B&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17프로 #아이폰17 #자급제폰 #알뜰폰 #알뜰요금제 #통신비절약... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%228%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=6CB8B6054718C4A917C1D3B32D2F617EC61B&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰17
+    - text: "#자급제폰 #알뜰폰 #알뜰요금제 #통신비절약... 새 창 열림"
+  - link "프로필 이미지 진진슨 2일 전 조회 110 새 창 열림":
+    - /url: https://clip.naver.com/@jinjin_ingingson
+    - img "프로필 이미지"
+    - text: 진진슨 2일 전 조회 110 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%229%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=0BCE27D6BBD20261D9525B6D9C178BE30775&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - link "아이폰18 나왔는데 아이폰17 사도될까?! ↗️ 영상 하단 링크 클릭... 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%229%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=0BCE27D6BBD20261D9525B6D9C178BE30775&serviceType=CLIP
+    - mark: 아이폰
+    - text: 18 나왔는데
+    - mark: 아이폰17
+    - text: 사도될까?! ↗️ 영상 하단 링크 클릭... 새 창 열림
+  - link "프로필 이미지 jibessok 3일 전 조회 152 새 창 열림":
+    - /url: https://clip.naver.com/@jibessok
+    - img "프로필 이미지"
+    - text: jibessok 3일 전 조회 152 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2210%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=9E481E5417D0F55DBBB25E02D2935297792F&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17 #아이폰17프로 #아이폰 #애플 #신형아이폰 #스마트폰 #IT테크... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2210%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=9E481E5417D0F55DBBB25E02D2935297792F&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰
+    - text: "#애플 #신형"
+    - mark: 아이폰
+    - text: "#스마트폰 #IT테크... 새 창 열림"
+  - link "프로필 이미지 잘샀냥 4일 전 조회 159 새 창 열림":
+    - /url: https://clip.naver.com/@chic_nyany
+    - img "프로필 이미지"
+    - text: 잘샀냥 4일 전 조회 159 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2211%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=82D901FEE1C8F805A785846317A64DCB93AE&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17 #아이폰17프로 #아이폰케이스 #정품케이스 #실리콘케이스... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2211%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=82D901FEE1C8F805A785846317A64DCB93AE&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰
+    - text: "케이스 #정품케이스 #실리콘케이스... 새 창 열림"
+  - link "프로필 이미지 goodThings 1일 전 조회 89 새 창 열림":
+    - /url: https://clip.naver.com/@info_good_things
+    - img "프로필 이미지"
+    - text: goodThings 1일 전 조회 89 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2212%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=25CD98035C5B2862FA6C4D526B4198B54EFB&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "가격 확인해보세요👇 #아이폰17프로 #아이폰18프로 #아이폰18 #아이폰17 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2212%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=25CD98035C5B2862FA6C4D526B4198B54EFB&serviceType=CLIP
+    - text: "가격 확인해보세요👇 #"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰
+    - text: "18프로 #"
+    - mark: 아이폰
+    - text: "18 #"
+    - mark: 아이폰17
+    - text: 새 창 열림
+  - link "프로필 이미지 하이부부 1일 전 조회 149 새 창 열림":
+    - /url: https://clip.naver.com/@highbubu_travel
+    - img "프로필 이미지"
+    - text: 하이부부 1일 전 조회 149 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2213%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=DAAA4C8C96D6B52727C17F0CCCD89C1657BB&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17프로 #아이폰17 #아이폰용량 #아이폰512GB #자급제 #알뜰폰... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2213%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=DAAA4C8C96D6B52727C17F0CCCD89C1657BB&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰17
+    - text: "#"
+    - mark: 아이폰
+    - text: "용량 #"
+    - mark: 아이폰
+    - text: "512GB #자급제 #알뜰폰... 새 창 열림"
+  - link "프로필 이미지 쿠킹대디의 음식이야기 2일 전 조회 137 새 창 열림":
+    - /url: https://clip.naver.com/@cook_dad
+    - img "프로필 이미지"
+    - text: 쿠킹대디의 음식이야기 2일 전 조회 137 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2214%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=6A98E54E3F6B5D41B6960A6DD4AD13278429&serviceType=NTV
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - link "아이폰17 번호이동 지원금 폭발한 현장 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2214%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=6A98E54E3F6B5D41B6960A6DD4AD13278429&serviceType=NTV
+    - mark: 아이폰17
+    - text: 번호이동 지원금 폭발한 현장 새 창 열림
+  - link "프로필 이미지 대한폰 4일 전 조회 62 새 창 열림":
+    - /url: https://tv.naver.com/daehanphone
+    - img "프로필 이미지"
+    - text: 대한폰 4일 전 조회 62 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2215%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=715AA7E360356A0E025A9BA6387B8A7596E3&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "아이폰 17프로 vs 아이폰 18프로 실버 비교 #아이폰17... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2215%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=715AA7E360356A0E025A9BA6387B8A7596E3&serviceType=CLIP
+    - mark: 아이폰 17
+    - text: 프로 vs
+    - mark: 아이폰
+    - text: "18프로 실버 비교 #"
+    - mark: 아이폰17
+    - text: ... 새 창 열림
+  - link "프로필 이미지 알파리뷰 4일 전 조회 3.2만 새 창 열림":
+    - /url: https://clip.naver.com/@alpa_1215
+    - img "프로필 이미지"
+    - text: 알파리뷰 4일 전 조회 3.2만 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2216%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=266CB1B8010E9FCDFAD77BF4F9E7B849FEE9&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17프로 #아이폰17 #아이폰자급제 #아이폰카메라 #자급제폰... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2216%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=266CB1B8010E9FCDFAD77BF4F9E7B849FEE9&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰17
+    - text: "#"
+    - mark: 아이폰
+    - text: "자급제 #"
+    - mark: 아이폰
+    - text: "카메라 #자급제폰... 새 창 열림"
+  - link "ssing222222 3일 전 조회 190 새 창 열림":
+    - /url: https://clip.naver.com/@ssing222222
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2217%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=B11280FEA119897458CE120BA613CF56C968&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17프로 #아이폰17 #자급제 #알뜰폰 #알뜰폰요금제 #통신비절약... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2217%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=B11280FEA119897458CE120BA613CF56C968&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰17
+    - text: "#자급제 #알뜰폰 #알뜰폰요금제 #통신비절약... 새 창 열림"
+  - link "프로필 이미지 기기학개론 4일 전 조회 99 새 창 열림":
+    - /url: https://clip.naver.com/@06nf2dhowb
+    - img "프로필 이미지"
+    - text: 기기학개론 4일 전 조회 99 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2218%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=EC7D92AA62371F515C700FC3B833223888E9&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - link "아이폰18프로와 아이폰17프로중에 고민하는분들이 더 많아진... 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2218%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=EC7D92AA62371F515C700FC3B833223888E9&serviceType=CLIP
+    - mark: 아이폰
+    - text: 18프로와
+    - mark: 아이폰17
+    - text: 프로중에 고민하는분들이 더 많아진... 새 창 열림
+  - link "프로필 이미지 T리뷰 4일 전 조회 3.7만 새 창 열림":
+    - /url: https://clip.naver.com/@treview1
+    - img "프로필 이미지"
+    - text: T리뷰 4일 전 조회 3.7만 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2219%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=E8CD17D14FD91784B97989F34E6764B20723&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17프로 #아이폰17 #갤럭시s26울트라 #갤럭시아이폰비교... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2219%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=E8CD17D14FD91784B97989F34E6764B20723&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "프로 #"
+    - mark: 아이폰17
+    - text: "#갤럭시s26울트라 #갤럭시"
+    - mark: 아이폰
+    - text: 비교... 새 창 열림
+  - link "프로필 이미지 휴대폰성지 휴대폰파크 5일 전 조회 246 새 창 열림":
+    - /url: https://clip.naver.com/@phonepark00
+    - img "프로필 이미지"
+    - text: 휴대폰성지 휴대폰파크 5일 전 조회 246 새 창 열림
+  - link "클립 이미지 새 창 열림":
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2220%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=225B07823C380A95044957707F7CE007402B&serviceType=CLIP
+    - img "클립 이미지"
+    - text: 새 창 열림
+  - 'link "#아이폰17e #아이폰17 #아이폰17시리즈 #아이폰17프로 #애플아이폰 영상... 새 창 열림"':
+    - /url: https://m.naver.com/shorts/?mediaType=VOD&recId=%7B%22query%22%3A%22%EC%95%84%EC%9D%B4%ED%8F%B0+17%22%2C%22seedIndex%22%3A%2220%22%2C%22type%22%3A%22ALL%22%2C%22order%22%3A%22RELATED%22%2C%22filter%22%3A%22LOW_QUALITY_LEVEL_3%22%2C%22theme%22%3A%22shopping%22%2C%22now%22%3A%220%22%7D&recType=CLIP_SEARCH&seedMediaId=225B07823C380A95044957707F7CE007402B&serviceType=CLIP
+    - text: "#"
+    - mark: 아이폰17
+    - text: "e #"
+    - mark: 아이폰17
+    - text: "#"
+    - mark: 아이폰17
+    - text: "시리즈 #"
+    - mark: 아이폰17
+    - text: "프로 #애플"
+    - mark: 아이폰
+    - text: 영상... 새 창 열림
+  - link "프로필 이미지 휴대폰성지 휴대폰파크 1주 전 조회 165 새 창 열림":
+    - /url: https://clip.naver.com/@phoneparkprice
+    - img "프로필 이미지"
+    - text: 휴대폰성지 휴대폰파크 1주 전 조회 165 새 창 열림
+  - button "다음"
+  - link "클립 더보기":
+    - /url: "?nso=&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_smr&sort=rel&ssc=tab.clip.all"
+  - text: 함께 많이 찾는
+  - button "정보 확인 도움말"
+  - link "아이폰17프로":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B017%ED%94%84%EB%A1%9C"
+    - text: 아이폰17
+    - mark: 프로
+  - link "아이폰17 자급제":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B017%20%EC%9E%90%EA%B8%89%EC%A0%9C"
+    - text: 아이폰17
+    - mark: 자급제
+  - link "아이폰17 색상":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B017%20%EC%83%89%EC%83%81"
+    - text: 아이폰17
+    - mark: 색상
+  - link "아이폰 에어":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B0%20%EC%97%90%EC%96%B4"
+    - text: 아이폰
+    - mark: 에어
+  - link "아이폰17 세이지":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B017%20%EC%84%B8%EC%9D%B4%EC%A7%80"
+    - text: 아이폰17
+    - mark: 세이지
+  - link "아이폰13미니":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B013%EB%AF%B8%EB%8B%88"
+    - text: 아이폰
+    - mark: 13미니
+  - link "아이폰17 512":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B017%20512"
+    - text: 아이폰17
+    - mark: "512"
+  - link "아이폰15프로":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B015%ED%94%84%EB%A1%9C"
+    - text: 아이폰
+    - mark: 15프로
+  - link "삼성 폴드8":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%82%BC%EC%84%B1%20%ED%8F%B4%EB%93%9C8"
+    - mark: 삼성 폴드8
+  - link "아이폰17 256":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B017%20256"
+    - text: 아이폰17
+    - mark: "256"
+  - link "아이폰17 512기가":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B017%20512%EA%B8%B0%EA%B0%80"
+    - text: 아이폰17
+    - mark: 512기가
+  - link "갤럭시 폴드":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EA%B0%A4%EB%9F%AD%EC%8B%9C%20%ED%8F%B4%EB%93%9C"
+    - mark: 갤럭시 폴드
+  - link "아이폰17 공기계":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EC%95%84%EC%9D%B4%ED%8F%B017%20%EA%B3%B5%EA%B8%B0%EA%B3%84"
+    - text: 아이폰17
+    - mark: 공기계
+  - link "갤럭시 s25":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EA%B0%A4%EB%9F%AD%EC%8B%9C%20s25"
+    - mark: 갤럭시 s25
+  - link "갤럭시26":
+    - /url: "?where=nexearch&sm=tab_clk.ndT&query=%EA%B0%A4%EB%9F%AD%EC%8B%9C26"
+    - mark: 갤럭시26
+  - navigation:
+    - button "이전 페이지로 가기" [disabled]
+    - text: 1 3
+    - button "다음 페이지로 가기"
+  - heading "IT·컴퓨터 관련 브랜드 콘텐츠" [level=2]
+  - link "새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRyKCQYdCsKBdCeAuYSjwPBdv_hCWzfnJfFlAHWqGo5XEMhRV3Yw5faxqljYuIs_6zWNfu9VP773IoOOMk6bRAxSrVZtAgaFfUzB49ICicMOL6XQO47m546bLE-Hb7z4iRvHUM0YVlPdlosjpxqm1nCMLuI-g4w0jV2tQuXdJruLBhBF54pNplkTlAiZd03broZUw_NfbZhoMo7RYORgLM4e?c=naver.search.pc.pwc_pk&t=0
+  - link "휴대폰직방 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRyKCQYdCsKBdCeAuYSjwPBdv_hCWzfnJfFlAHWqGo5XEMhRV3Yw5faxqljYuIs_6zWNfu9VP773IoOOMk6bRAxSrVZtAgaFfUzB49ICicMOL6XQO47m546bLE-Hb7z4iRvHUM0YVlPdlosjpxqm1nCMLuI-g4w0jV2tQuXdJruLBhBF54pNplkTlAiZd03broZUw_NfbZhoMo7RYORgLM4e?c=naver.search.pc.pwc_pk&t=0
+  - text: 2026.05.26.
+  - link "새 창 열림":
+    - /url: https://help.naver.com/alias/search/integration_m/integration_m68
+  - link "아이폰17 시세표 카페 휴대폰 싸게 사는 법 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRyKCQYdCsKBdCeAuYSjwPBdv_hCWzfnJfFlAHWqGo5XEMhRV3Yw5faxqljYuIs_6zWNfu9VP773IoOOMk6bRAxSrVZtAgaFfUzB49ICicMOL6XQO47m546bLE-Hb7z4iRvHUM0YVlPdlosjpxqm1nCMLuI-g4w0jV2tQuXdJruLBhBF54pNplkTlAiZd03broZUw_NfbZhoMo7RYORgLM4e?c=naver.search.pc.pwc_pk&t=0
+    - strong: 아이폰17
+    - text: 시세표 카페 휴대폰 싸게 사는 법 새 창 열림
+  - link "전국 휴대폰 성지폰 시세표를 확인 후 최신 스마트폰을 구입하시면 30~70만 원 저렴하게 구입하실 수 있습니다. 핸드폰싸게사는법, 휴대폰싸게사는법, 아이폰싸게사는법 어렵지 않습니다.... 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRyKCQYdCsKBdCeAuYSjwPBdv_hCWzfnJfFlAHWqGo5XEMhRV3Yw5faxqljYuIs_6zWNfu9VP773IoOOMk6bRAxSrVZtAgaFfUzB49ICicMOL6XQO47m546bLE-Hb7z4iRvHUM0YVlPdlosjpxqm1nCMLuI-g4w0jV2tQuXdJruLBhBF54pNplkTlAiZd03broZUw_NfbZhoMo7RYORgLM4e?c=naver.search.pc.pwc_pk&t=0
+    - text: 전국 휴대폰 성지폰 시세표를 확인 후 최신 스마트폰을 구입하시면 30~70만 원 저렴하게 구입하실 수 있습니다. 핸드폰싸게사는법, 휴대폰싸게사는법,
+    - strong: 아이폰
+    - text: 싸게사는법 어렵지 않습니다.... 새 창 열림
+  - link "새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRyKCQYdCsKBdCeAuYSjwPBdv_hCWzfnJfFlAHWqGo5XEMhRV3Yw5faxqljYuIs_6zWNfu9VP773IoOOMk6bRAxSrVZtAgaFfUzB49ICicMOL6XQO47m546bLE-Hb7z4iRvHUM0YVlPdlosjpxqm1nCMLuI-g4w0jV2tQuXdJruLBhBF54pNplkTlAiZd03broZUw_NfbZhoMo7RYORgLM4e?c=naver.search.pc.pwc_pk&t=0
+    - img
+    - text: 새 창 열림
+  - link "새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRz_kbIDfCRHkDLfPU8liLuPIBfdk3dLlkHEwQS_BhS72QVxEnD25MrUJqrT2ugl0kbLikYRMHc6SS115jXHQEjFcpA8tdsngmzFuDeE0gogyzDVUCzQ1F2G3YKDBkwKeqQO9oAn2ZubDlxaPiMq1HI04-rqrKG8_oEeucw5nupzuXj5nAdo9NGnlA6OcvbULxl1JbFUmQkhyPN34mWxJuaf?c=naver.search.pc.pwc_pk&t=0
+  - link "휴대폰 싸게사는 방법 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRz_kbIDfCRHkDLfPU8liLuPIBfdk3dLlkHEwQS_BhS72QVxEnD25MrUJqrT2ugl0kbLikYRMHc6SS115jXHQEjFcpA8tdsngmzFuDeE0gogyzDVUCzQ1F2G3YKDBkwKeqQO9oAn2ZubDlxaPiMq1HI04-rqrKG8_oEeucw5nupzuXj5nAdo9NGnlA6OcvbULxl1JbFUmQkhyPN34mWxJuaf?c=naver.search.pc.pwc_pk&t=0
+  - text: 2026.04.09.
+  - link "새 창 열림":
+    - /url: https://help.naver.com/alias/search/integration_m/integration_m68
+  - link "아이폰17 일반 에어 플러스 프로 맥스 싸게사는법 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRz_kbIDfCRHkDLfPU8liLuPIBfdk3dLlkHEwQS_BhS72QVxEnD25MrUJqrT2ugl0kbLikYRMHc6SS115jXHQEjFcpA8tdsngmzFuDeE0gogyzDVUCzQ1F2G3YKDBkwKeqQO9oAn2ZubDlxaPiMq1HI04-rqrKG8_oEeucw5nupzuXj5nAdo9NGnlA6OcvbULxl1JbFUmQkhyPN34mWxJuaf?c=naver.search.pc.pwc_pk&t=0
+    - strong: 아이폰17
+    - text: 일반 에어 플러스 프로 맥스 싸게사는법 새 창 열림
+  - link "누구든지 30~70만 원 저렴하게 구입할 수 있습니다. 휴대폰 성지는 판매 수수료에서 최소 마진만 남기고, 나머지를 고객에게 돌려드리고 있어서 가장 저렴하고 합리적인 선택이 휴대폰성지 입니다.... 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRz_kbIDfCRHkDLfPU8liLuPIBfdk3dLlkHEwQS_BhS72QVxEnD25MrUJqrT2ugl0kbLikYRMHc6SS115jXHQEjFcpA8tdsngmzFuDeE0gogyzDVUCzQ1F2G3YKDBkwKeqQO9oAn2ZubDlxaPiMq1HI04-rqrKG8_oEeucw5nupzuXj5nAdo9NGnlA6OcvbULxl1JbFUmQkhyPN34mWxJuaf?c=naver.search.pc.pwc_pk&t=0
+  - link "새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRz_kbIDfCRHkDLfPU8liLuPIBfdk3dLlkHEwQS_BhS72QVxEnD25MrUJqrT2ugl0kbLikYRMHc6SS115jXHQEjFcpA8tdsngmzFuDeE0gogyzDVUCzQ1F2G3YKDBkwKeqQO9oAn2ZubDlxaPiMq1HI04-rqrKG8_oEeucw5nupzuXj5nAdo9NGnlA6OcvbULxl1JbFUmQkhyPN34mWxJuaf?c=naver.search.pc.pwc_pk&t=0
+    - img
+    - text: 새 창 열림
+  - link "새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRzNnDI94WJ7RO2Kj-F-snrzWBKcbtOIa69ecd-DOmI_fOrpLkT0bHx1Qm8Vi2p1m6Slh-T7cfk7yvDivNNQlPCjeFvgoEPEEyOF-sTFsZ8K3Au3Pp27p4c5C-WvX86Vv6QHKLGF4s61pYnLQkcRiYLjlUNC86mQEl2-tZA2XAXU8GKEnpljP8SJCOZU_tG5SReVOInss1TuTC5pQgLYgmoT?c=naver.search.pc.pwc_pk&t=0
+  - link "아이엠듀 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRzNnDI94WJ7RO2Kj-F-snrzWBKcbtOIa69ecd-DOmI_fOrpLkT0bHx1Qm8Vi2p1m6Slh-T7cfk7yvDivNNQlPCjeFvgoEPEEyOF-sTFsZ8K3Au3Pp27p4c5C-WvX86Vv6QHKLGF4s61pYnLQkcRiYLjlUNC86mQEl2-tZA2XAXU8GKEnpljP8SJCOZU_tG5SReVOInss1TuTC5pQgLYgmoT?c=naver.search.pc.pwc_pk&t=0
+  - text: 2026.05.07.
+  - link "새 창 열림":
+    - /url: https://help.naver.com/alias/search/integration_m/integration_m68
+  - link "아이폰17 악세사리는 아이엠듀 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRzNnDI94WJ7RO2Kj-F-snrzWBKcbtOIa69ecd-DOmI_fOrpLkT0bHx1Qm8Vi2p1m6Slh-T7cfk7yvDivNNQlPCjeFvgoEPEEyOF-sTFsZ8K3Au3Pp27p4c5C-WvX86Vv6QHKLGF4s61pYnLQkcRiYLjlUNC86mQEl2-tZA2XAXU8GKEnpljP8SJCOZU_tG5SReVOInss1TuTC5pQgLYgmoT?c=naver.search.pc.pwc_pk&t=0
+    - strong: 아이폰17
+    - text: 악세사리는 아이엠듀 새 창 열림
+  - link "아이엠듀와 함께 아이폰을 더욱 안전하게! 프로부터 맥스, 슬림, 에어, 미니의 새로운 아이폰 17 애플 시리즈 악세사리를 아이엠듀와 함께 하세요!... 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRzNnDI94WJ7RO2Kj-F-snrzWBKcbtOIa69ecd-DOmI_fOrpLkT0bHx1Qm8Vi2p1m6Slh-T7cfk7yvDivNNQlPCjeFvgoEPEEyOF-sTFsZ8K3Au3Pp27p4c5C-WvX86Vv6QHKLGF4s61pYnLQkcRiYLjlUNC86mQEl2-tZA2XAXU8GKEnpljP8SJCOZU_tG5SReVOInss1TuTC5pQgLYgmoT?c=naver.search.pc.pwc_pk&t=0
+    - text: 아이엠듀와 함께
+    - strong: 아이폰
+    - text: 을 더욱 안전하게! 프로부터 맥스, 슬림, 에어, 미니의 새로운
+    - strong: 아이폰 17
+    - text: 애플 시리즈 악세사리를 아이엠듀와 함께 하세요!... 새 창 열림
+  - link "29 새 창 열림":
+    - /url: https://ader.naver.com/v1/AzIfFtNe24wgGRHR8TMqsfRHklW9oddGvpxXOG7zFRzNnDI94WJ7RO2Kj-F-snrzWBKcbtOIa69ecd-DOmI_fOrpLkT0bHx1Qm8Vi2p1m6Slh-T7cfk7yvDivNNQlPCjeFvgoEPEEyOF-sTFsZ8K3Au3Pp27p4c5C-WvX86Vv6QHKLGF4s61pYnLQkcRiYLjlUNC86mQEl2-tZA2XAXU8GKEnpljP8SJCOZU_tG5SReVOInss1TuTC5pQgLYgmoT?c=naver.search.pc.pwc_pk&t=0
+    - img
+    - text: 29 새 창 열림
+  - link "IT·컴퓨터 관련 브랜드 콘텐츠 더보기":
+    - /url: "#lb_api=https%3A%2F%2Fs.search.naver.com%2Fp%2Freview%2F50%2Fsearch.naver%3Fabt%3D%26ac%3D0%26api_type%3D5%26aq%3D0%26enlu_query%3DIggCACiBULhjAAAAtdoURqXUdp9ygLuVMM8qJg10xFRSRgw2wRzhr0Z%252BqZEjYrphnNFgNd1jFz2Qd6MngQsTelFQxk7w58zQGuk6ZiFJ1NvFH4ss%252FRTfGtVh26lsnMm0Q%252BOME%252BFP8ZB40FAxfTOoGIBu6uYa%252F%252BOpxWucjLBrnRGrHMIjmntzQzj3EXE7MH8lduTQAajBQiBcvDOGN8cTqCZ3gmbKyIs94VUuXvTPVjPYM0gbXHI9kEGjwTMvWtFMjkBz0o%252FjlC%252BOuXfBXohdiUMSJYnIXzTI%252ByiBhOsAh05vtU4fsAYzXx7JoQSCGDCrNe0fZGFBkC4cwk9k7eLRfOTuCKsAqXwZHcHVkZ3vp%252BGiAn%252BzcWmioIzaC6HAQuOLZaNzszbszfIcPPwPtK4SvptVhMoYGdnUjFlPnoOifhl0l9Ng31E5MEVcM458A6Tdd6eH2jV9BJIDVNUIcouQup%252FtPRWRgdhjii2YECBs3NgGzodrizGH0a0%252B4ksr2gwHhVstaQvx8%252FZI3mpHw2VC9%252Fz4VpHThhgSuOvlE8p4%252FYLtTJcCjmL5%252F8SbTNePrCRcAbXkwCG6jr1nZt8qlgjex2%252Bs4We58HujW%252F4KCpCAcWdq3O1ulR%252BOeUDMsIiMYGhl%252Fbao35CUkVpnC5pdorsWlh1gIt5FKo61y1fgI3PgqCUMn%252FqAFsPMgH06N93kfVmvc7%252BbCxNUsY5aYTNx2e187t4fc3qkVgC99t9nRaoek1Bbmq1b5%252B69TadTVK%252BG36NWYIxciBEgRwDnAb0%252FnTsjKAoHZ8Rj7MGOjjXxAti%252BRFHxE00GDBIY0vF0pyDidziN8J6E8ZWQiobNgp1nRuGE9sr%252B8dTq4APEZ6PwkT2JuLh3qYApApBZDUXmGyIkuVFLOJvtK%252Boa%252F3X%252Fym7E7fagEDOxDBwFNVJf8cRo9iSeotXfQTpSzSJzFhjB3%252FUNoPfR%252BPdbeN27kyTMBvgx2vjX%252BEf3hgTuTPwlM1XiI2UPqm9%252F1KP%252FGYhn7o000W4Ar%252BsdJHnBorffgfEPcPZrCS7luZcE5IgNHdosw8jAug%253D%253D%26enqx_theme%3DIggCAGeCULi3AAAAh%252FDtntZaiMLGh3DOFtIyqw%252Ft3q4clEos1p2O1NTRYn6VYJrjuBzdUeEGPIrXB51OlKjXU%252Fzj6EnccpWBZ%252F175RlIJcozaszlhnlwmyw7YEA%253D%26equery%3DIggCACGCULhDAAAAu2IlkAcF3MluHVlzd%252FMpzA%253D%253D%26fgn_city%3D%26fgn_region%3D%26lgl_lat%3D37.544075%26lgl_long%3D126.847725%26lgl_rcode%3D09500103%26ngn_country%3DKR%26nso%3D%26nx_and_query%3D%26nx_search_query%3D%26nx_sub_query%3D%26page%3D1%26prank%3D0%26qdt%3D0%26query%3D%25EC%2595%2584%25EC%259D%25B4%25ED%258F%25B0%2B17%26sm%3Dtop_hty%26spq%3D0%26ssc%3Dtab.itb.all%26start%3D1%26ur%3D1%26area%3DugB_pkR"
+  - link "Apple www.apple.com›iphone-17 새 창 열림":
+    - /url: https://www.apple.com/kr/iphone-17/
+  - button "옵션 메뉴 열기"
+  - link "iPhone <mark>17</mark>의 이미지 새 창 열림":
+    - /url: https://www.apple.com/kr/iphone-17/
+    - img "iPhone <mark>17</mark>의 이미지"
+    - text: 새 창 열림
+  - link "iPhone 17 새 창 열림":
+    - /url: https://www.apple.com/kr/iphone-17/
+    - text: iPhone
+    - mark: "17"
+    - text: 새 창 열림
+  - link "iPhone 17. Center Stage 전면 카메라. 최신 세대 Ceramic Shield. 15.9cm ProMotion 디스플레이. A19 칩. 5가지 아름다운 컬러. 새 창 열림":
+    - /url: https://www.apple.com/kr/iphone-17/
+    - text: iPhone
+    - mark: "17"
+    - text: . Center Stage 전면 카메라. 최신 세대 Ceramic Shield. 15.9cm ProMotion 디스플레이. A19 칩. 5가지 아름다운 컬러. 새 창 열림
+  - link "iPhone 17 새 창 열림":
+    - /url: https://www.apple.com/iphone-17/
+    - text: iPhone
+    - mark: "17"
+    - text: 새 창 열림
+  - text: From $899 or $37.45/mo. for 24 mo.* Lease from $25.99 for 24 mo. with Apple Upgrade◊
+  - link "관련문서 더보기":
+    - /url: "?page=2&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+site%3Awww.apple.com&qvt=0&ssc=tab.ur.all"
+  - link "나무위키 namu.wiki›iPhone 17 새 창 열림":
+    - /url: https://namu.wiki/w/iPhone%2017
+  - button "옵션 메뉴 열기"
+  - link "iPhone <mark>17</mark>의 이미지 새 창 열림":
+    - /url: https://namu.wiki/w/iPhone%2017
+    - img "iPhone <mark>17</mark>의 이미지"
+    - text: 새 창 열림
+  - link "iPhone 17 새 창 열림":
+    - /url: https://namu.wiki/w/iPhone%2017
+    - text: iPhone
+    - mark: "17"
+    - text: 새 창 열림
+  - link "Apple이 2025년9월 10일 , Apple 이벤트에서 공개한 iOS스마트폰. iPhone 16의 후속작으로 디자인은 그대로 가져왔지만 화면이 조금 커지고 새로운 마감인 라벤더, 세이지, 미스트 블루, 화이트, 블랙 색상으로 출시되었다. 세로 149.6 mm, 가로 71.5 mm, 두께 7.95 mm, 무게 177 g으로 전작 대비 가로 0.1 mm가 감소하고, 세로 2 mm, 두께 0.15 mm, 무게는 7 g 증가하였다... 새 창 열림":
+    - /url: https://namu.wiki/w/iPhone%2017
+  - link "iPhone 17 시리즈 새 창 열림":
+    - /url: https://namu.wiki/w/iPhone%2017%20%EC%8B%9C%EB%A6%AC%EC%A6%88
+    - text: iPhone
+    - mark: "17"
+    - text: 시리즈 새 창 열림
+  - text: 동시대에 나온 iPhone Air는 명목상
+  - mark: "17"
+  - text: 시리즈에 속하지 않으므로 해당 문서 참고. 2. iPhone
+  - mark: "17"
+  - text: 자세한 내용은 iPhone
+  - mark: "17"
+  - text: 문서를 참고하십시오. 3. iPhone
+  - mark: "17"
+  - text: Pro 시리즈 자세한 내용은 iPhone
+  - mark: "17"
+  - text: Pro 문서를 참고하십시오. 자세한 내용은 iPhone
+  - mark: "17"
+  - text: Pro Max 문서를 참고하십시오. 4. iPhone
+  - mark: "17"
+  - text: e 자세한 내용은 iPhone
+  - mark: "17"
+  - text: e 문서를 참고하십시오. 5. 논란 및...
+  - link "관련문서 더보기":
+    - /url: "?page=2&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+site%3Anamu.wiki&qvt=0&ssc=tab.ur.all"
+  - link "위키백과 한국어 ko.wikipedia.org›아이폰_17_프로 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C
+  - button "옵션 메뉴 열기"
+  - link "<mark>아이폰 17</mark> 프로의 이미지 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C
+    - img "<mark>아이폰 17</mark> 프로의 이미지"
+    - text: 새 창 열림
+  - link "아이폰 17 프로 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C
+    - mark: 아이폰 17
+    - text: 프로 새 창 열림
+  - link "아이폰 17 프로 (iPhone 17 Pro)와 아이폰 17 프로 맥스 (iPhone 17 Pro Max)는 애플에서 개발하고 판매하는 스마트폰이다. 아이폰 17과 아이폰 에어와 함께 이들은 아이폰의 19번째 세대를 구성하며, 2025년 9월 9일 쿠퍼티노에 위치한 애플 파크에서 열린 애플 이벤트에서 아이폰 16 프로 및 아이폰 16 프로 맥스의 후속작으로 공개되었고 2025년 9월 19일에 출시되었다. 디자인 아이폰 17 프로 모..... 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C
+    - mark: 아이폰 17
+    - text: 프로 (iPhone
+    - mark: "17"
+    - text: Pro)와
+    - mark: 아이폰 17
+    - text: 프로 맥스 (iPhone
+    - mark: "17"
+    - text: Pro Max)는 애플에서 개발하고 판매하는 스마트폰이다.
+    - mark: 아이폰 17
+    - text: 과
+    - mark: 아이폰
+    - text: 에어와 함께 이들은
+    - mark: 아이폰
+    - text: 의 19번째 세대를 구성하며, 2025년 9월 9일 쿠퍼티노에 위치한 애플 파크에서 열린 애플 이벤트에서
+    - mark: 아이폰
+    - text: 16 프로 및
+    - mark: 아이폰
+    - text: 16 프로 맥스의 후속작으로 공개되었고 2025년 9월 19일에 출시되었다. 디자인
+    - mark: 아이폰 17
+    - text: 프로 모..... 새 창 열림
+  - 'link "개발사 애플 운영 체제 출시: iOS 26 유형 스마트폰 발매 2025년 9월 19일 새 창 열림"':
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C
+  - link "디자인 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C#%EB%94%94%EC%9E%90%EC%9D%B8
+  - link "사양 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C#%EC%82%AC%EC%96%91
+  - link "출시 및 가격 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C#%EC%B6%9C%EC%8B%9C_%EB%B0%8F_%EA%B0%80%EA%B2%A9
+  - link "각주 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17_%ED%94%84%EB%A1%9C#%EA%B0%81%EC%A3%BC
+  - link "아이폰 17 - 위키백과 한국어 새 창 열림":
+    - /url: https://ko.wikipedia.org/wiki/%EC%95%84%EC%9D%B4%ED%8F%B0_17
+    - mark: 아이폰 17
+    - text: "- 위키백과 한국어 새 창 열림"
+  - mark: 아이폰 17
+  - text: (iPhone
+  - mark: "17"
+  - text: )은 애플이 개발하고 판매하는 스마트폰이다. 19세대
+  - mark: 아이폰
+  - text: 으로,
+  - mark: 아이폰
+  - text: 16의 후속 모델이다. 이 장치는 고가 모델인
+  - mark: 아이폰 17
+  - text: 프로 및
+  - mark: "17"
+  - text: 프로 맥스와
+  - mark: 아이폰
+  - text: 에어와 함께 2025년 9월 9일 쿠퍼티노 애플 파크에서 열린 애플 이벤트에서 발표되었으며 2025년 9월 19일에 출시되었다. iOS 26을 기본으로 탑재했다. 사양 디자인
+  - mark: 아이폰 17
+  - text: 은 라벤더, 세이지, 미스트 블루, ......
+  - link "관련문서 더보기":
+    - /url: "?page=2&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+site%3Ako.wikipedia.org&qvt=0&ssc=tab.ur.all"
+  - link "새 창 열림":
+    - /url: https://in.naver.com/yiforbe
+  - link "포비 새 창 열림":
+    - /url: https://in.naver.com/yiforbe
+  - text: 2주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰 17프로 리퍼 가격 애플케어 가격 리퍼후기 꿀팁 새 창 열림":
+    - /url: https://blog.naver.com/thddl0413/224404537175
+    - mark: 아이폰 17
+    - text: 프로 리퍼 가격 애플케어 가격 리퍼후기 꿀팁 새 창 열림
+  - link "그리고 요즘에 아이폰17 시리즈 리퍼받기 엄청 까다롭다고 하는데요. 액체 들어가는거 아니면 절대로 안해준다는듯. 난 재수없게 액정도 박살낫고 재수있게 액체도 들어갔다 이말이햐~~~ 아이폰17프로 애플케어플러스 가입시 아이폰17프로 리퍼비용 12만원! 혹시라도..아이폰 17시리즈 구매하신분들중에 애플케어 안하신분들 빨리 가입하시는거..ㅊㅊ 난 두번이나... 새 창 열림":
+    - /url: https://blog.naver.com/thddl0413/224404537175
+    - text: 그리고 요즘에
+    - mark: 아이폰17
+    - text: 시리즈 리퍼받기 엄청 까다롭다고 하는데요. 액체 들어가는거 아니면 절대로 안해준다는듯. 난 재수없게 액정도 박살낫고 재수있게 액체도 들어갔다 이말이햐~~~
+    - mark: 아이폰17
+    - text: 프로 애플케어플러스 가입시
+    - mark: 아이폰17
+    - text: 프로 리퍼비용 12만원! 혹시라도..
+    - mark: 아이폰 17
+    - text: 시리즈 구매하신분들중에 애플케어 안하신분들 빨리 가입하시는거..ㅊㅊ 난 두번이나... 새 창 열림
+  - link "11 새 창 열림":
+    - /url: https://blog.naver.com/thddl0413/224404537175
+    - img
+    - text: 11 새 창 열림
+  - link "새 창 열림":
+    - /url: https://in.naver.com/djusti
+  - link "버들붕어 새 창 열림":
+    - /url: https://in.naver.com/djusti
+  - text: 2주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰18 디자인 , 17 프로와 달라진 점 총정리 새 창 열림":
+    - /url: https://blog.naver.com/djusti/224410950125
+    - mark: 아이폰
+    - text: 18 디자인 ,
+    - mark: "17"
+    - text: 프로와 달라진 점 총정리 새 창 열림
+  - link "아이폰 17 Pro를 쓰고 있다면 이번 세대에서 바꿀 이유가 충분한지부터 궁금할 겁니다. 9월 9일 공개된 아이폰 18 Pro는 외형을 완전히 갈아엎기보다 전면부와 카메라, 색상에 변화를 줬습니다. 특히 아이폰18 디자인에서 눈에 띄는 부분은 작아진 Dynamic Island와 새 버건디 컬러인데요. 국내 출시는 9월 18일로 잡혔습니다. 신제품을 기다리는 분이라면 기존 폰의... 새 창 열림":
+    - /url: https://blog.naver.com/djusti/224410950125
+    - mark: 아이폰 17
+    - text: Pro를 쓰고 있다면 이번 세대에서 바꿀 이유가 충분한지부터 궁금할 겁니다. 9월 9일 공개된
+    - mark: 아이폰
+    - text: 18 Pro는 외형을 완전히 갈아엎기보다 전면부와 카메라, 색상에 변화를 줬습니다. 특히
+    - mark: 아이폰
+    - text: 18 디자인에서 눈에 띄는 부분은 작아진 Dynamic Island와 새 버건디 컬러인데요. 국내 출시는 9월 18일로 잡혔습니다. 신제품을 기다리는 분이라면 기존 폰의... 새 창 열림
+  - link "10 새 창 열림":
+    - /url: https://blog.naver.com/djusti/224410950125
+    - img
+    - text: 10 새 창 열림
+  - link "새 창 열림":
+    - /url: https://in.naver.com/lomentist
+  - link "로맨티스트 새 창 열림":
+    - /url: https://in.naver.com/lomentist
+  - text: 3주 전
+  - button "옵션 메뉴 열기"
+  - link "갤럭시 Z 폴드8 512GB 써보니, 아이폰17 프로와 비교해 체감된 차이 새 창 열림":
+    - /url: https://blog.naver.com/bluekai1/224402818687
+    - text: 갤럭시 Z 폴드8 512GB 써보니,
+    - mark: 아이폰17
+    - text: 프로와 비교해 체감된 차이 새 창 열림
+  - link "갤럭시 Z 폴드8 512GB 써보니, 아이폰17 프로와 비교해 체감된 차이 스마트폰을 바꿀 때 화면 크기보다 먼저 보는 게 무게였는데, 갤럭시 Z 폴드8은 실제로 들어봤을 때 예상과 조금 달랐어. 폴더블폰이면 아무래도 묵직할 거라고 생각했거든. 그런데 Z 폴드8은 201g이라 숫자만 놓고 봐도 생각보다 부담이 크지 않은 편이었고, 펼쳤을 때 나오는 넓은 화면까지 생각하면 꽤... 새 창 열림":
+    - /url: https://blog.naver.com/bluekai1/224402818687
+    - text: 갤럭시 Z 폴드8 512GB 써보니,
+    - mark: 아이폰17
+    - text: 프로와 비교해 체감된 차이 스마트폰을 바꿀 때 화면 크기보다 먼저 보는 게 무게였는데, 갤럭시 Z 폴드8은 실제로 들어봤을 때 예상과 조금 달랐어. 폴더블폰이면 아무래도 묵직할 거라고 생각했거든. 그런데 Z 폴드8은 201g이라 숫자만 놓고 봐도 생각보다 부담이 크지 않은 편이었고, 펼쳤을 때 나오는 넓은 화면까지 생각하면 꽤... 새 창 열림
+  - link "8 새 창 열림":
+    - /url: https://blog.naver.com/bluekai1/224402818687
+    - img
+    - text: 8 새 창 열림
+  - link "새 창 열림":
+    - /url: https://in.naver.com/chestnuts.zip
+  - link "밤식이아빠 새 창 열림":
+    - /url: https://in.naver.com/chestnuts.zip
+  - text: 2주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰 18 포기하고 17 프로맥스 자급제 구매 이유 후기 새 창 열림":
+    - /url: https://blog.naver.com/chestnuts_zip/224404823064
+    - mark: 아이폰
+    - text: 18 포기하고
+    - mark: "17"
+    - text: 프로맥스 자급제 구매 이유 후기 새 창 열림
+  - link "원래라면 아이폰 18까지 기다려볼 생각도 있었지만 결국 아이폰 17 프로맥스 자급제로 바꿨고, 지금은 오히려 빨리 바꾸길 잘했다는 생각이 들어요. 아이폰 18 포기하고 17 프로맥스 자급제 구매 이유 후기 1. 아이폰 18을 기다리지 않은 이유 신제품을 기다리는 재미도 있지만 제 경우에는 기다림보다 현재 불편함이 더 컸습니다. 특히 블로그와 SNS를 운영하면서 사진과... 새 창 열림":
+    - /url: https://blog.naver.com/chestnuts_zip/224404823064
+    - text: 원래라면
+    - mark: 아이폰
+    - text: 18까지 기다려볼 생각도 있었지만 결국
+    - mark: 아이폰 17
+    - text: 프로맥스 자급제로 바꿨고, 지금은 오히려 빨리 바꾸길 잘했다는 생각이 들어요.
+    - mark: 아이폰
+    - text: 18 포기하고
+    - mark: "17"
+    - text: 프로맥스 자급제 구매 이유 후기 1.
+    - mark: 아이폰
+    - text: 18을 기다리지 않은 이유 신제품을 기다리는 재미도 있지만 제 경우에는 기다림보다 현재 불편함이 더 컸습니다. 특히 블로그와 SNS를 운영하면서 사진과... 새 창 열림
+  - link "6 새 창 열림":
+    - /url: https://blog.naver.com/chestnuts_zip/224404823064
+    - img
+    - text: 6 새 창 열림
+  - link "새 창 열림":
+    - /url: https://in.naver.com/realog
+  - link "하엘파파 새 창 열림":
+    - /url: https://in.naver.com/realog
+  - text: 3주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰18 프로 얼마나 좋길래? 17 프로에서 넘어갈 이유 3가지 새 창 열림":
+    - /url: https://blog.naver.com/musediet/224396893026
+    - mark: 아이폰
+    - text: 18 프로 얼마나 좋길래?
+    - mark: "17"
+    - text: 프로에서 넘어갈 이유 3가지 새 창 열림
+  - link "아이폰17 프로가 출시된 지 아직 1년이 지나지 않았지만, 벌써 차세대 모델인 아이폰18 프로에 대한 관심이 상당히 높아지고 있습니다. 특히 이번 아이폰18 프로는 단순히 프로세서만 바뀌는 수준의 업그레이드보다는 배터리, 카메라, 디자인 등 실제 사용 경험과 관련된 부분에서 변화가 예상되고 있는데요. 물론 아직 애플이 공식적으로 공개한 제품은 아니기 때문에... 새 창 열림":
+    - /url: https://blog.naver.com/musediet/224396893026
+    - mark: 아이폰17
+    - text: 프로가 출시된 지 아직 1년이 지나지 않았지만, 벌써 차세대 모델인
+    - mark: 아이폰
+    - text: 18 프로에 대한 관심이 상당히 높아지고 있습니다. 특히 이번
+    - mark: 아이폰
+    - text: 18 프로는 단순히 프로세서만 바뀌는 수준의 업그레이드보다는 배터리, 카메라, 디자인 등 실제 사용 경험과 관련된 부분에서 변화가 예상되고 있는데요. 물론 아직 애플이 공식적으로 공개한 제품은 아니기 때문에... 새 창 열림
+  - link "7 새 창 열림":
+    - /url: https://blog.naver.com/musediet/224396893026
+    - img
+    - text: 7 새 창 열림
+  - heading "뉴스" [level=2]
+  - link "관련도순":
+    - /url: "?nso=so%3Ar%2Cp%3Aall%2Ca%3Aall&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_smr&sort=0&ssc=tab.news.all"
+  - link "최신순":
+    - /url: "?nso=so%3Add%2Cp%3Aall%2Ca%3Aall&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_smr&sort=1&ssc=tab.news.all"
+  - link "모바일 메인 언론사":
+    - /url: "?nso=so%3Ar%2Cp%3Aall%2Ca%3Aall&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&service_area=1&sm=tab_smr&sort=0&ssc=tab.news.all"
+    - text: 모바일 메인 언론사
+    - switch "모바일 메인 언론사"
+  - link "연합뉴스의 프로필 이미지 새 창 열림":
+    - /url: https://media.naver.com/press/001
+    - img "연합뉴스의 프로필 이미지"
+    - text: 새 창 열림
+  - link "연합뉴스 새 창 열림":
+    - /url: https://media.naver.com/press/001
+  - text: 4일 전
+  - link "네이버뉴스 새 창 열림":
+    - /url: https://n.news.naver.com/mnews/article/001/0016319696?sid=105
+  - button "옵션 메뉴 열기"
+  - link "[가보니] \"전날 저녁부터 밤샘\"…아이폰 18 프로 첫날 오픈런 새 창 열림":
+    - /url: https://www.yna.co.kr/view/AKR20260918030100017?input=1195m
+    - text: "[가보니] \"전날 저녁부터 밤샘\"…"
+    - mark: 아이폰
+    - text: 18 프로 첫날 오픈런 새 창 열림
+  - link "이씨는 \"매년 새로 바꾸는 편이고, 아이폰 16·17 출시 때도 1번으로 입장을 시도했으나 실패했다\"며 \"이번에는 성공해서 기쁘다\"고 말했다. 지난해 하반기 출시된 아이폰 에어를 사용하고 있다는 이씨는 가변 조리개가 탑재된 카메라 기능을 사용하기 위해 이날 아이폰 18 프로를 구매했다. 애플워치 12도 함께... 새 창 열림":
+    - /url: https://www.yna.co.kr/view/AKR20260918030100017?input=1195m
+    - text: 이씨는 "매년 새로 바꾸는 편이고,
+    - mark: 아이폰
+    - text: 16·
+    - mark: "17"
+    - text: 출시 때도 1번으로 입장을 시도했으나 실패했다"며 "이번에는 성공해서 기쁘다"고 말했다. 지난해 하반기 출시된
+    - mark: 아이폰
+    - text: 에어를 사용하고 있다는 이씨는 가변 조리개가 탑재된 카메라 기능을 사용하기 위해 이날
+    - mark: 아이폰
+    - text: 18 프로를 구매했다. 애플워치 12도 함께... 새 창 열림
+  - link "[가보니] &quot;전날 저녁부터 밤샘&quot;…<mark>아이폰</mark> 18 프로 첫날 오픈런의 이미지 새 창 열림":
+    - /url: https://www.yna.co.kr/view/AKR20260918030100017?input=1195m
+    - img "[가보니] &quot;전날 저녁부터 밤샘&quot;…<mark>아이폰</mark> 18 프로 첫날 오픈런의 이미지"
+    - text: 새 창 열림
+  - link "\"전날 저녁부터 줄 섰죠\"…아이폰 18 출시에 매장 앞 긴 줄 새 창 열림":
+    - /url: http://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202609180332&t=NN
+    - text: "\"전날 저녁부터 줄 섰죠\"…"
+    - mark: 아이폰
+    - text: 18 출시에 매장 앞 긴 줄 새 창 열림
+  - text: 한국경제TV 4일 전
+  - link "네이버뉴스 새 창 열림":
+    - /url: https://n.news.naver.com/mnews/article/215/0001266414?sid=105
+  - link "애플 아이폰 18 프로 시리즈, 국내 판매 개시...199만원부터 새 창 열림":
+    - /url: https://www.chosun.com/economy/tech_it/2026/09/18/HHFZW5PFORCFLFBZFMASZK7UM4/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news
+    - text: 애플
+    - mark: 아이폰
+    - text: 18 프로 시리즈, 국내 판매 개시...199만원부터 새 창 열림
+  - text: 조선일보 4일 전
+  - link "네이버뉴스 새 창 열림":
+    - /url: https://n.news.naver.com/mnews/article/023/0003999195?sid=105
+  - link "관련뉴스 전체보기":
+    - /url: "?de=&docid=0010016319696&ds=&field=0&mynews=0&news_office_checked=&nso=so%3Ar%2Cp%3Aall%2Ca%3Aall&office_section_code=0&office_type=0&pd=-1&photo=0&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&related=1&sm=tab_tnw&sort=0&ssc=tab.news.all"
+  - link "서울경제의 프로필 이미지 새 창 열림":
+    - /url: https://media.naver.com/press/011
+    - img "서울경제의 프로필 이미지"
+    - text: 새 창 열림
+  - link "서울경제 새 창 열림":
+    - /url: https://media.naver.com/press/011
+  - text: 1일 전
+  - link "네이버뉴스 새 창 열림":
+    - /url: https://n.news.naver.com/mnews/article/011/0004663879?sid=101
+  - button "옵션 메뉴 열기"
+  - link "애플 아이폰 400만원 시대…“AI 여전히 뒤처져” 새 창 열림":
+    - /url: https://www.sedaily.com/article/20093201?ref=naver
+    - text: 애플
+    - mark: 아이폰
+    - text: 400만원 시대…“AI 여전히 뒤처져” 새 창 열림
+  - link "지난해 ‘아이폰 17 프로 맥스’의 2TB 모델이 319만 원으로 300만 원을 돌파한 데 이어 1년 만에 80만 원 인상되며 사실상 400만 원에 다다른 셈이다. 화면이 더 작은 ‘아이폰 18 프로’도 199만~379만 원으로 역시 400만 원에 근접했다. 전작 ‘아이폰 17 프로’와 비교하면 동일 사양 기준 20만~50만 원... 새 창 열림":
+    - /url: https://www.sedaily.com/article/20093201?ref=naver
+    - text: 지난해 ‘
+    - mark: 아이폰 17
+    - text: 프로 맥스’의 2TB 모델이 319만 원으로 300만 원을 돌파한 데 이어 1년 만에 80만 원 인상되며 사실상 400만 원에 다다른 셈이다. 화면이 더 작은 ‘아이폰 18 프로’도 199만~379만 원으로 역시 400만 원에 근접했다. 전작 ‘
+    - mark: 아이폰 17
+    - text: 프로’와 비교하면 동일 사양 기준 20만~50만 원... 새 창 열림
+  - link "애플 <mark>아이폰</mark> 400만원 시대…“AI 여전히 뒤처져”의 이미지 새 창 열림":
+    - /url: https://www.sedaily.com/article/20093201?ref=naver
+    - img "애플 <mark>아이폰</mark> 400만원 시대…“AI 여전히 뒤처져”의 이미지"
+    - text: 새 창 열림
+  - link "뉴시스의 프로필 이미지 새 창 열림":
+    - /url: https://media.naver.com/press/003
+    - img "뉴시스의 프로필 이미지"
+    - text: 새 창 열림
+  - link "뉴시스 새 창 열림":
+    - /url: https://media.naver.com/press/003
+  - text: 4일 전
+  - link "네이버뉴스 새 창 열림":
+    - /url: https://n.news.naver.com/mnews/article/003/0014198861?sid=105
+  - button "옵션 메뉴 열기"
+  - link "[현장]\"3년 도전 끝에 1호 구매\"…아이폰18 프로 첫날, 명동에 300명 몰렸... 새 창 열림":
+    - /url: https://www.newsis.com/view/NISX20260918_0003794964
+    - text: "[현장]\"3년 도전 끝에 1호 구매\"…"
+    - mark: 아이폰
+    - text: 18 프로 첫날, 명동에 300명 몰렸... 새 창 열림
+  - link "지난해 아이폰17 시리즈 출시 당시에는 개점 전 약 150명이 애플 명동을 찾았고, 국내가 처음 아이폰 1차 출시국에 포함됐던 2024년 아이폰16 출시 때는 100여명이 대기했다. 올해 3월 아이폰17e와 맥북 네오 출시 당시 대기자는 약 50명이었다. 이번 아이폰18 프로 출시일에는 지난해 아이폰17보다 2배, 올해 3월... 새 창 열림":
+    - /url: https://www.newsis.com/view/NISX20260918_0003794964
+    - text: 지난해
+    - mark: 아이폰17
+    - text: 시리즈 출시 당시에는 개점 전 약 150명이 애플 명동을 찾았고, 국내가 처음 아이폰 1차 출시국에 포함됐던 2024년 아이폰16 출시 때는 100여명이 대기했다. 올해 3월
+    - mark: 아이폰17
+    - text: e와 맥북 네오 출시 당시 대기자는 약 50명이었다. 이번 아이폰18 프로 출시일에는 지난해
+    - mark: 아이폰17
+    - text: 보다 2배, 올해 3월... 새 창 열림
+  - link "[현장]&quot;3년 도전 끝에 1호 구매&quot;…<mark>아이폰</mark>18 프로 첫날, 명동에 300명 몰렸...의 이미지 새 창 열림":
+    - /url: https://www.newsis.com/view/NISX20260918_0003794964
+    - img "[현장]&quot;3년 도전 끝에 1호 구매&quot;…<mark>아이폰</mark>18 프로 첫날, 명동에 300명 몰렸...의 이미지"
+    - text: 새 창 열림
+  - link "“아침 8시부터 긴 줄, 매장 열리자 박수”…아이폰 신제품 출시 현장 ... 새 창 열림":
+    - /url: https://www.mk.co.kr/article/12156162
+    - text: “아침 8시부터 긴 줄, 매장 열리자 박수”…
+    - mark: 아이폰
+    - text: 신제품 출시 현장 ... 새 창 열림
+  - text: 매일경제 4일 전
+  - link "네이버뉴스 새 창 열림":
+    - /url: https://n.news.naver.com/mnews/article/009/0005737085?sid=101
+  - link "애플 첫 접는 폰 '아이폰 듀오' 등장…삼성 팬덤 \"재탕일 뿐\" 냉소 새 창 열림":
+    - /url: https://www.newspim.com/news/view/20260918000508
+    - text: 애플 첫 접는 폰 '
+    - mark: 아이폰
+    - text: 듀오' 등장…삼성 팬덤 "재탕일 뿐" 냉소 새 창 열림
+  - text: 뉴스핌 4일 전
+  - link "지디넷코리아의 프로필 이미지 새 창 열림":
+    - /url: https://media.naver.com/press/092
+    - img "지디넷코리아의 프로필 이미지"
+    - text: 새 창 열림
+  - link "지디넷코리아 새 창 열림":
+    - /url: https://media.naver.com/press/092
+  - text: 1일 전
+  - link "네이버뉴스 새 창 열림":
+    - /url: https://n.news.naver.com/mnews/article/092/0002438315?sid=105
+  - button "옵션 메뉴 열기"
+  - link "\"긁고, 태우고, 떨어뜨리고\" 아이폰18 프로 내구성 테스트 결과는 새 창 열림":
+    - /url: https://zdnet.co.kr/view/?no=20260921145146
+    - text: "\"긁고, 태우고, 떨어뜨리고\""
+    - mark: 아이폰
+    - text: 18 프로 내구성 테스트 결과는 새 창 열림
+  - link "낙하 테스트를 진행한 아이폰18 프로와 아이폰17 프로(사진=애플트렉 유튜브 캡쳐) 특히 어깨 높이에서 떨어뜨린 테스트에서는 아이폰18 프로의 후면 유리가 여러 차례 충격을 견뎌낸 반면, 아이폰17 프로의 후면 유리는 크게 파손됐다. 다만 전면 유리는 두 모델 모두 충격에 약한 모습을 보였다. 낙하... 새 창 열림":
+    - /url: https://zdnet.co.kr/view/?no=20260921145146
+    - text: 낙하 테스트를 진행한 아이폰18 프로와
+    - mark: 아이폰17
+    - text: 프로(사진=애플트렉 유튜브 캡쳐) 특히 어깨 높이에서 떨어뜨린 테스트에서는 아이폰18 프로의 후면 유리가 여러 차례 충격을 견뎌낸 반면,
+    - mark: 아이폰17
+    - text: 프로의 후면 유리는 크게 파손됐다. 다만 전면 유리는 두 모델 모두 충격에 약한 모습을 보였다. 낙하... 새 창 열림
+  - link "&quot;긁고, 태우고, 떨어뜨리고&quot; <mark>아이폰</mark>18 프로 내구성 테스트 결과는의 이미지 새 창 열림":
+    - /url: https://zdnet.co.kr/view/?no=20260921145146
+    - img "&quot;긁고, 태우고, 떨어뜨리고&quot; <mark>아이폰</mark>18 프로 내구성 테스트 결과는의 이미지"
+    - text: 새 창 열림
+  - link "아이폰18 프로 내구성 테스트 공개…긁힘·굽힘엔 강하지만 낙하에는 취... 새 창 열림":
+    - /url: https://kbench.com/?q=node/282047
+    - mark: 아이폰
+    - text: 18 프로 내구성 테스트 공개…긁힘·굽힘엔 강하지만 낙하에는 취... 새 창 열림
+  - text: 케이벤치 1일 전
+  - link "언론사가 선정한 주요기사 혹은 심층기획 기사입니다. 새 창 열림":
+    - /url: https://news.naver.com/main/static/channelPromotion.html
+  - link "뉴스 더보기":
+    - /url: "?nso=so%3Ar%2Cp%3Aall%2Ca%3Aall&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_smr&sort=0&ssc=tab.news.all"
+  - link "새 창 열림":
+    - /url: https://cafe.naver.com/morningjjang
+  - link "국내 최대 기아 모닝 동호회,전 세대 모닝에 대한 정보가 가득^^ 새 창 열림":
+    - /url: https://cafe.naver.com/morningjjang
+  - text: 2주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰 17 일반 구입 전 꼭 봐야 할 실사용 찐후기 새 창 열림":
+    - /url: https://cafe.naver.com/morningjjang/1969657?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6Im1vcm5pbmdqamFuZyIsImFydGljbGVJZCI6MTk2OTY1NywiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.Q8NF9pqWYaSSCe1M6NVtVmxXUxgrTgIXw7TgmsGp6oM
+    - mark: 아이폰 17
+    - text: 일반 구입 전 꼭 봐야 할 실사용 찐후기 새 창 열림
+  - link "및 전월 실적 채우기 조건 유무 넷째, 이 모든 부대비용을 싹 제외하고 내 통장에서 빠져나가는 최종 할부원금 꼼꼼하게 시세표를 대조하고 발품을 팔면 호구 잡히지 않고 마음에 쏙 드는 조건으로 갈아타실 수 있습니다. 기기 변경을 계획 중이시라면 자급제 총합 견적과 성지 조건을 냉정하게 비교해 보시고 현명한 소비하시기 바랍니다! 아이폰17 성지 가격 보러가기 새 창 열림":
+    - /url: https://cafe.naver.com/morningjjang/1969657?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6Im1vcm5pbmdqamFuZyIsImFydGljbGVJZCI6MTk2OTY1NywiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.Q8NF9pqWYaSSCe1M6NVtVmxXUxgrTgIXw7TgmsGp6oM
+    - text: 및 전월 실적 채우기 조건 유무 넷째, 이 모든 부대비용을 싹 제외하고 내 통장에서 빠져나가는 최종 할부원금 꼼꼼하게 시세표를 대조하고 발품을 팔면 호구 잡히지 않고 마음에 쏙 드는 조건으로 갈아타실 수 있습니다. 기기 변경을 계획 중이시라면 자급제 총합 견적과 성지 조건을 냉정하게 비교해 보시고 현명한 소비하시기 바랍니다!
+    - mark: 아이폰17
+    - text: 성지 가격 보러가기 새 창 열림
+  - link "3 새 창 열림":
+    - /url: https://cafe.naver.com/morningjjang/1969657?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6Im1vcm5pbmdqamFuZyIsImFydGljbGVJZCI6MTk2OTY1NywiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.Q8NF9pqWYaSSCe1M6NVtVmxXUxgrTgIXw7TgmsGp6oM
+    - img
+    - text: 3 새 창 열림
+  - link "RE 아이폰 17 프로 무게가 손목에 부담이라니 난감하네요 새 창 열림":
+    - /url: https://cafe.naver.com/morningjjang/1969657?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6Im1vcm5pbmdqamFuZyIsImFydGljbGVJZCI6MTk2OTY1NywiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.Q8NF9pqWYaSSCe1M6NVtVmxXUxgrTgIXw7TgmsGp6oM
+    - text: RE
+    - mark: 아이폰 17
+    - text: 프로 무게가 손목에 부담이라니 난감하네요 새 창 열림
+  - link "RE 아이폰 17 전면 셀피 화각 넓어진 게 눈에 띄네요 새 창 열림":
+    - /url: https://cafe.naver.com/morningjjang/1969657?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6Im1vcm5pbmdqamFuZyIsImFydGljbGVJZCI6MTk2OTY1NywiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.Q8NF9pqWYaSSCe1M6NVtVmxXUxgrTgIXw7TgmsGp6oM
+    - text: RE
+    - mark: 아이폰 17
+    - text: 전면 셀피 화각 넓어진 게 눈에 띄네요 새 창 열림
+  - link "새 창 열림":
+    - /url: https://cafe.naver.com/lolkor
+  - link "리그오브레전드 한국커뮤니티 - LoLKor 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor
+  - text: 6일 전
+  - button "옵션 메뉴 열기"
+  - link "대구휴대폰성지 아이폰17 기기변경 하고 온 후기입니다! 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor/31347245?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImxvbGtvciIsImFydGljbGVJZCI6MzEzNDcyNDUsImlzc3VlZEF0IjoxNzkwMDg4OTA3MjA4fQ.mAF6an9nXslc14mCcfj0K2_uvhDTFU6rx8N6cHDURPA
+    - text: 대구휴대폰성지
+    - mark: 아이폰17
+    - text: 기기변경 하고 온 후기입니다! 새 창 열림
+  - link "대구휴대폰성지 아이폰17 기기변경 하고 온 후기입니다! 안녕하세요 여러분! 드디어 저도 이번에 대구휴대폰성지 발품 팔아서 아이폰17로 기기변경 성공했습니다! 사실 폰 바꿀 때가 되긴 했는데, 요즘 출고가 너무 비싸잖아요? 자급제로 살까 하다가 지갑 탈탈 털릴 것 같아서 주변에 엄청 물어보고 다녔거든요. 그러다 친구가 대구에서 제대로 된 성지 한 곳을 알려줘서... 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor/31347245?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImxvbGtvciIsImFydGljbGVJZCI6MzEzNDcyNDUsImlzc3VlZEF0IjoxNzkwMDg4OTA3MjA4fQ.mAF6an9nXslc14mCcfj0K2_uvhDTFU6rx8N6cHDURPA
+    - text: 대구휴대폰성지
+    - mark: 아이폰17
+    - text: 기기변경 하고 온 후기입니다! 안녕하세요 여러분! 드디어 저도 이번에 대구휴대폰성지 발품 팔아서
+    - mark: 아이폰17
+    - text: 로 기기변경 성공했습니다! 사실 폰 바꿀 때가 되긴 했는데, 요즘 출고가 너무 비싸잖아요? 자급제로 살까 하다가 지갑 탈탈 털릴 것 같아서 주변에 엄청 물어보고 다녔거든요. 그러다 친구가 대구에서 제대로 된 성지 한 곳을 알려줘서... 새 창 열림
+  - link "4 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor/31347245?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImxvbGtvciIsImFydGljbGVJZCI6MzEzNDcyNDUsImlzc3VlZEF0IjoxNzkwMDg4OTA3MjA4fQ.mAF6an9nXslc14mCcfj0K2_uvhDTFU6rx8N6cHDURPA
+    - img
+    - text: 4 새 창 열림
+  - link "RE 카톡으로 시세표 보고 상담이 속전속결이라니 대구휴대폰성지 놀랍네요 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor/31347245?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImxvbGtvciIsImFydGljbGVJZCI6MzEzNDcyNDUsImlzc3VlZEF0IjoxNzkwMDg4OTA3MjA4fQ.mAF6an9nXslc14mCcfj0K2_uvhDTFU6rx8N6cHDURPA
+  - link "RE 아이폰17 기기변경 때 색상은 어떤 걸로 하셨어요? 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor/31347245?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImxvbGtvciIsImFydGljbGVJZCI6MzEzNDcyNDUsImlzc3VlZEF0IjoxNzkwMDg4OTA3MjA4fQ.mAF6an9nXslc14mCcfj0K2_uvhDTFU6rx8N6cHDURPA
+    - text: RE
+    - mark: 아이폰17
+    - text: 기기변경 때 색상은 어떤 걸로 하셨어요? 새 창 열림
+  - link "RE 대구휴대폰성지에서 유지기간도 짧았나요? 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor/31347245?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImxvbGtvciIsImFydGljbGVJZCI6MzEzNDcyNDUsImlzc3VlZEF0IjoxNzkwMDg4OTA3MjA4fQ.mAF6an9nXslc14mCcfj0K2_uvhDTFU6rx8N6cHDURPA
+  - link "RE 자급제 고민하다 대구휴대폰성지에서 바꾸셨다니 부럽네요ㅎㅎ 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor/31347245?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImxvbGtvciIsImFydGljbGVJZCI6MzEzNDcyNDUsImlzc3VlZEF0IjoxNzkwMDg4OTA3MjA4fQ.mAF6an9nXslc14mCcfj0K2_uvhDTFU6rx8N6cHDURPA
+  - link "RE 아이폰17 기기변경 유지기간도 짧은 편인가요? 새 창 열림":
+    - /url: https://cafe.naver.com/lolkor/31347245?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImxvbGtvciIsImFydGljbGVJZCI6MzEzNDcyNDUsImlzc3VlZEF0IjoxNzkwMDg4OTA3MjA4fQ.mAF6an9nXslc14mCcfj0K2_uvhDTFU6rx8N6cHDURPA
+    - text: RE
+    - mark: 아이폰17
+    - text: 기기변경 유지기간도 짧은 편인가요? 새 창 열림
+  - button "다음"
+  - link "Apple Support support.apple.com 새 창 열림":
+    - /url: https://support.apple.com/ko-kr/125090
+  - button "옵션 메뉴 열기"
+  - link "iPhone <mark>17</mark> Pro - 기술 사양의 이미지 새 창 열림":
+    - /url: https://support.apple.com/ko-kr/125090
+    - img "iPhone <mark>17</mark> Pro - 기술 사양의 이미지"
+    - text: 새 창 열림
+  - link "iPhone 17 Pro - 기술 사양 새 창 열림":
+    - /url: https://support.apple.com/ko-kr/125090
+    - text: iPhone
+    - mark: "17"
+    - text: Pro - 기술 사양 새 창 열림
+  - link "Super Retina XDR 디스플레이 15.9cm(대각선) 전면 화면 OLED 디스플레이 2622 x 1206 픽셀 해상도(460ppi) 새 창 열림":
+    - /url: https://support.apple.com/ko-kr/125090
+  - link "iPhone <mark>17</mark> - 기술 사양의 이미지 새 창 열림":
+    - /url: https://support.apple.com/ko-kr/125089
+    - img "iPhone <mark>17</mark> - 기술 사양의 이미지"
+    - text: 새 창 열림
+  - link "iPhone 17 - 기술 사양 새 창 열림":
+    - /url: https://support.apple.com/ko-kr/125089
+    - text: iPhone
+    - mark: "17"
+    - text: "- 기술 사양 새 창 열림"
+  - text: 알루미늄 디자인, Ceramic Shield 2 소재 전면, 컬러 인퓨즈 글래스 소재 후면(블랙, 미스트 블루, 세이지, 라벤더)
+  - link "관련문서 더보기":
+    - /url: "?page=2&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+site%3Asupport.apple.com&qvt=0&ssc=tab.ur.all"
+  - link "네이버 지식iN 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - img "네이버 지식iN"
+    - text: 새 창 열림
+  - link "네이버 지식iN 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+  - button "옵션 메뉴 열기"
+  - link "아이폰 17프로 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - mark: 아이폰 17
+    - text: 프로 새 창 열림
+  - link "17 프로 카메라 유리렌즈보호필름 끼는데 이 핸드폰 케이스 껴지나요? 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - mark: "17"
+    - text: 프로 카메라 유리렌즈보호필름 끼는데 이 핸드폰 케이스 껴지나요? 새 창 열림
+  - link "새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - img
+    - text: 새 창 열림
+  - link "안녕하세요. 하이닥-네이버 지식iN 상담의 오영삼 입니다. 핵심만 먼저 말씀드리자면, 아이폰 17 프로용 카메라 유리 렌즈 보호 필름을 부착한 상태에서는 현재 사진으로 보여주신 케이스의 장착이 어려울 가능성이 매우 높습니다. 카메라 보호 필름은 렌즈 부분의 돌출을 미세하게 증가시키는데, 이로 인해 케이스 내부 공간이 부족해질 수 있기 때문입니다. □ 케이스 호환성 문제의 원.... 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?answerNo=1&dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3#answer1
+  - link "alt 새 창 열림":
+    - /url: https://kin.naver.com/search/profileLink?answerNo=1&dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb
+    - img "alt"
+    - text: 새 창 열림
+  - link "오영삼 새 창 열림":
+    - /url: https://kin.naver.com/search/profileLink?answerNo=1&dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb
+  - link "의사 새 창 열림":
+    - /url: https://kin.naver.com/search/profileLink?answerNo=1&dirId=70112&docId=495148697&kinsrch_src=pc_nx_urb
+  - text: 856만 인용 1주 전
+  - link "새 창 열림":
+    - /url: https://in.naver.com/lemoni23
+  - link "조낙타 새 창 열림":
+    - /url: https://in.naver.com/lemoni23
+  - text: 2주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰 18pro 17pro 비교 가격 스펙 13프로 차이는? 새 창 열림":
+    - /url: https://blog.naver.com/lemoni23/224409755816
+    - mark: 아이폰
+    - text: 18pro
+    - mark: "17"
+    - text: pro 비교 가격 스펙 13프로 차이는? 새 창 열림
+  - link "아이폰 17pro를 사용하는 사람들이 저처럼 12나 13pro에서 갈아타고 신세계다!라고 느낄 정도로 체감이 컸다길래 17pro로 갈지, 18pro로 갈지 아직도 고민 중입니다. 아이폰 18프로 스펙, 가격 최근에 애플 기기 전 모델이 큰 폭으로 가격을 인상해 적지 않은 충격을 받았죠. 예상했던 대로 아이폰 18프로는 2나노 공정의 A20 프로 칩과 램 원가 상승으로 1,199$에... 새 창 열림":
+    - /url: https://blog.naver.com/lemoni23/224409755816
+    - mark: 아이폰 17
+    - text: pro를 사용하는 사람들이 저처럼 12나 13pro에서 갈아타고 신세계다!라고 느낄 정도로 체감이 컸다길래
+    - mark: "17"
+    - text: pro로 갈지, 18pro로 갈지 아직도 고민 중입니다.
+    - mark: 아이폰
+    - text: 18프로 스펙, 가격 최근에 애플 기기 전 모델이 큰 폭으로 가격을 인상해 적지 않은 충격을 받았죠. 예상했던 대로
+    - mark: 아이폰
+    - text: 18프로는 2나노 공정의 A20 프로 칩과 램 원가 상승으로 1,199$에... 새 창 열림
+  - link "7 새 창 열림":
+    - /url: https://blog.naver.com/lemoni23/224409755816
+    - img
+    - text: 7 새 창 열림
+  - link "새 창 열림":
+    - /url: https://in.naver.com/dodo.nana
+  - link "아디티 새 창 열림":
+    - /url: https://in.naver.com/dodo.nana
+  - text: 2주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰 18 프로 199만원, 더 놀란 건 아이폰 17 가격 새 창 열림":
+    - /url: https://blog.naver.com/dean4001/224407470133
+    - mark: 아이폰
+    - text: 18 프로 199만원, 더 놀란 건
+    - mark: 아이폰 17
+    - text: 가격 새 창 열림
+  - 'link "최신 모델을 고르는 문제라기보다, 가격이 오른 기존 모델을 살지 더 비싼 신형으로 올라갈지 결정하는 문제에 가까워졌어요. 올해 아이폰은 성능보다 가격부터 다시 계산해봐야 하는 가을이 됐습니다. #아이폰18프로 #아이폰18프로가격 #아이폰17 #아이폰가격인상 #아이폰가격 #아이폰17e #애플 #애플신제품 #아이폰신제품 *이미지출처 : 애플코리아 공식 홈페이지 새 창 열림"':
+    - /url: https://blog.naver.com/dean4001/224407470133
+    - text: 최신 모델을 고르는 문제라기보다, 가격이 오른 기존 모델을 살지 더 비싼 신형으로 올라갈지 결정하는 문제에 가까워졌어요. 올해
+    - mark: 아이폰
+    - text: "은 성능보다 가격부터 다시 계산해봐야 하는 가을이 됐습니다. #"
+    - mark: 아이폰
+    - text: "18프로 #"
+    - mark: 아이폰
+    - text: "18프로가격 #"
+    - mark: 아이폰17
+    - text: "#"
+    - mark: 아이폰
+    - text: "가격인상 #"
+    - mark: 아이폰
+    - text: "가격 #"
+    - mark: 아이폰17
+    - text: "e #애플 #애플신제품 #"
+    - mark: 아이폰
+    - text: "신제품 *이미지출처 : 애플코리아 공식 홈페이지 새 창 열림"
+  - link "10 새 창 열림":
+    - /url: https://blog.naver.com/dean4001/224407470133
+    - img
+    - text: 10 새 창 열림
+  - link "새 창 열림":
+    - /url: https://in.naver.com/wansojun
+  - link "준또 새 창 열림":
+    - /url: https://in.naver.com/wansojun
+  - text: 1주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰17 일반 화이트 색상 추천이유! 가격인상 현실화! 새 창 열림":
+    - /url: https://blog.naver.com/wansojun/224412276332
+    - mark: 아이폰17
+    - text: 일반 화이트 색상 추천이유! 가격인상 현실화! 새 창 열림
+  - link "아이폰18 프로가 공개된 뒤 오히려 아이폰17 시리즈를 다시 알아보는 분들이 많아졌는데요, 아이폰18 프로 가격 자체가 상당히 높아진 것도 이유지만, 최근에는 이미 출시된 아이폰17 일반형 가격까지 오르면서 분위기가 조금 달라졌기 때문이죠. 기존 아이폰17 일반형은 128~129만원대에서 구입할 수 있었지만, 현재 애플 공식 판매가격은 145만원 수준으로 약 16만원 정도... 새 창 열림":
+    - /url: https://blog.naver.com/wansojun/224412276332
+    - mark: 아이폰
+    - text: 18 프로가 공개된 뒤 오히려
+    - mark: 아이폰17
+    - text: 시리즈를 다시 알아보는 분들이 많아졌는데요,
+    - mark: 아이폰
+    - text: 18 프로 가격 자체가 상당히 높아진 것도 이유지만, 최근에는 이미 출시된
+    - mark: 아이폰17
+    - text: 일반형 가격까지 오르면서 분위기가 조금 달라졌기 때문이죠. 기존
+    - mark: 아이폰17
+    - text: 일반형은 128~129만원대에서 구입할 수 있었지만, 현재 애플 공식 판매가격은 145만원 수준으로 약 16만원 정도... 새 창 열림
+  - link "10 새 창 열림":
+    - /url: https://blog.naver.com/wansojun/224412276332
+    - img
+    - text: 10 새 창 열림
+  - link "새 창 열림":
+    - /url: https://cafe.naver.com/appleiphone
+  - link "아사모 - [240만명, 아이폰17, 아이패드, 애플워치, iOS26] 새 창 열림":
+    - /url: https://cafe.naver.com/appleiphone
+  - text: 2주 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰 17 vs 에어 뭘 사실건가요 새 창 열림":
+    - /url: https://cafe.naver.com/appleiphone/9119093?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFwcGxlaXBob25lIiwiYXJ0aWNsZUlkIjo5MTE5MDkzLCJpc3N1ZWRBdCI6MTc5MDA4ODkwNzIwOH0.f13ioY5-co9JD2u-5WyoHAZmFl0Q88n_AfIUPuj4Uh4
+    - mark: 아이폰 17
+    - text: vs 에어 뭘 사실건가요 새 창 열림
+  - link "지금 쿠팡에서 256기준 17일반보다 인상 전 가격으로 에어가 몇만원 더 싸지는 기현상이 발생하던데 이 가격이면 뭘 사실건가요? 궁금해서 올려봅니다 새 창 열림":
+    - /url: https://cafe.naver.com/appleiphone/9119093?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFwcGxlaXBob25lIiwiYXJ0aWNsZUlkIjo5MTE5MDkzLCJpc3N1ZWRBdCI6MTc5MDA4ODkwNzIwOH0.f13ioY5-co9JD2u-5WyoHAZmFl0Q88n_AfIUPuj4Uh4
+    - text: 지금 쿠팡에서 256기준
+    - mark: "17"
+    - text: 일반보다 인상 전 가격으로 에어가 몇만원 더 싸지는 기현상이 발생하던데 이 가격이면 뭘 사실건가요? 궁금해서 올려봅니다 새 창 열림
+  - link "RE 에어는 카메라 스피커 단점 무게 장점이라 가격보다는 원하는 스펙으로 고를것같아요 새 창 열림":
+    - /url: https://cafe.naver.com/appleiphone/9119093?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFwcGxlaXBob25lIiwiYXJ0aWNsZUlkIjo5MTE5MDkzLCJpc3N1ZWRBdCI6MTc5MDA4ODkwNzIwOH0.f13ioY5-co9JD2u-5WyoHAZmFl0Q88n_AfIUPuj4Uh4
+  - link "RE 본인이 에어의 단점을 보고도 사도 괜찮다 아니면 무조건 17이 맞다고 봐요 새 창 열림":
+    - /url: https://cafe.naver.com/appleiphone/9119093?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFwcGxlaXBob25lIiwiYXJ0aWNsZUlkIjo5MTE5MDkzLCJpc3N1ZWRBdCI6MTc5MDA4ODkwNzIwOH0.f13ioY5-co9JD2u-5WyoHAZmFl0Q88n_AfIUPuj4Uh4
+    - text: RE 본인이 에어의 단점을 보고도 사도 괜찮다 아니면 무조건
+    - mark: "17"
+    - text: 이 맞다고 봐요 새 창 열림
+  - link "RE 에어 256 이미 스카이블루빼고 품절요 ... 새 창 열림":
+    - /url: https://cafe.naver.com/appleiphone/9119093?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFwcGxlaXBob25lIiwiYXJ0aWNsZUlkIjo5MTE5MDkzLCJpc3N1ZWRBdCI6MTc5MDA4ODkwNzIwOH0.f13ioY5-co9JD2u-5WyoHAZmFl0Q88n_AfIUPuj4Uh4
+  - button "다음"
+  - link "새 창 열림":
+    - /url: https://cafe.naver.com/anycallusershow
+  - link "삼성스마트폰-갤럭시폴드8울트라/플립8/갤럭시S26울트라/갤워치9 새 창 열림":
+    - /url: https://cafe.naver.com/anycallusershow
+  - text: 5일 전
+  - button "옵션 메뉴 열기"
+  - link "아이폰17프로vs아이폰18프로 새 창 열림":
+    - /url: https://cafe.naver.com/anycallusershow/5267479?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFueWNhbGx1c2Vyc2hvdyIsImFydGljbGVJZCI6NTI2NzQ3OSwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.jxlCtvfQhO999MyZccXFOtJanuxa50e-mgpZ1AmD2CI
+    - mark: 아이폰17
+    - text: 프로vs
+    - mark: 아이폰
+    - text: 18프로 새 창 열림
+  - link "오로지 디자인만 봤을 때 뭐가 더 에쁜가요? 성능이나 이런 걸 싹 다 빼고요! 새 창 열림":
+    - /url: https://cafe.naver.com/anycallusershow/5267479?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFueWNhbGx1c2Vyc2hvdyIsImFydGljbGVJZCI6NTI2NzQ3OSwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.jxlCtvfQhO999MyZccXFOtJanuxa50e-mgpZ1AmD2CI
+  - link "새 창 열림":
+    - /url: https://cafe.naver.com/anycallusershow/5267479?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFueWNhbGx1c2Vyc2hvdyIsImFydGljbGVJZCI6NTI2NzQ3OSwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.jxlCtvfQhO999MyZccXFOtJanuxa50e-mgpZ1AmD2CI
+    - img
+    - text: 새 창 열림
+  - link "RE 닥 18프로요 17프로의 투톤 흰색은 오바였다봅니다 새 창 열림":
+    - /url: https://cafe.naver.com/anycallusershow/5267479?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFueWNhbGx1c2Vyc2hvdyIsImFydGljbGVJZCI6NTI2NzQ3OSwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.jxlCtvfQhO999MyZccXFOtJanuxa50e-mgpZ1AmD2CI
+    - text: RE 닥 18프로요
+    - mark: "17"
+    - text: 프로의 투톤 흰색은 오바였다봅니다 새 창 열림
+  - link "RE 222 그냥 신선한 디자인 처음 시도된 기종으로써 의미가 있던것 새 창 열림":
+    - /url: https://cafe.naver.com/anycallusershow/5267479?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImFueWNhbGx1c2Vyc2hvdyIsImFydGljbGVJZCI6NTI2NzQ3OSwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.jxlCtvfQhO999MyZccXFOtJanuxa50e-mgpZ1AmD2CI
+  - link "새 창 열림":
+    - /url: https://cafe.naver.com/gpfleamarket
+  - link "김행나-김포여인들의 행복한 나눔(김포맘 한강신도시 엄마 여자) 새 창 열림":
+    - /url: https://cafe.naver.com/gpfleamarket
+  - text: 4일 전
+  - button "옵션 메뉴 열기"
+  - link "신상나오기전 아이폰17 새 창 열림":
+    - /url: https://cafe.naver.com/gpfleamarket/3974362?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImdwZmxlYW1hcmtldCIsImFydGljbGVJZCI6Mzk3NDM2MiwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.ZJ4L1GJAB5wvxefwmtZHgTs3rV03I0wGIxyUEXUTNcs
+    - text: 신상나오기전
+    - mark: 아이폰17
+    - text: 새 창 열림
+  - link "신상나오기전에 갤럭시에서 아이폰으로 갈아타고 상담까지 친절하게 해주셔서 감사해요 새 창 열림":
+    - /url: https://cafe.naver.com/gpfleamarket/3974362?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImdwZmxlYW1hcmtldCIsImFydGljbGVJZCI6Mzk3NDM2MiwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.ZJ4L1GJAB5wvxefwmtZHgTs3rV03I0wGIxyUEXUTNcs
+    - text: 신상나오기전에 갤럭시에서
+    - mark: 아이폰
+    - text: 으로 갈아타고 상담까지 친절하게 해주셔서 감사해요 새 창 열림
+  - link "새 창 열림":
+    - /url: https://cafe.naver.com/gpfleamarket/3974362?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImdwZmxlYW1hcmtldCIsImFydGljbGVJZCI6Mzk3NDM2MiwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.ZJ4L1GJAB5wvxefwmtZHgTs3rV03I0wGIxyUEXUTNcs
+    - img
+    - text: 새 창 열림
+  - link "RE 안녕하세요 에스엠티입니다 ~!! 소중한 후기 남겨주셔서 진심으로 감사드립니다 :) 오랫동안 사용하시던 갤럭시에서 아이폰 17으로 변경 새 창 열림":
+    - /url: https://cafe.naver.com/gpfleamarket/3974362?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImdwZmxlYW1hcmtldCIsImFydGljbGVJZCI6Mzk3NDM2MiwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.ZJ4L1GJAB5wvxefwmtZHgTs3rV03I0wGIxyUEXUTNcs
+    - text: RE 안녕하세요 에스엠티입니다 ~!! 소중한 후기 남겨주셔서 진심으로 감사드립니다 :) 오랫동안 사용하시던 갤럭시에서
+    - mark: 아이폰 17
+    - text: 으로 변경 새 창 열림
+  - link "RE 아이폰17 기기값 얼마인지 알수있을까요? 정보좀주세요~^^ 새 창 열림":
+    - /url: https://cafe.naver.com/gpfleamarket/3974362?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImdwZmxlYW1hcmtldCIsImFydGljbGVJZCI6Mzk3NDM2MiwiaXNzdWVkQXQiOjE3OTAwODg5MDcyMDh9.ZJ4L1GJAB5wvxefwmtZHgTs3rV03I0wGIxyUEXUTNcs
+    - text: RE
+    - mark: 아이폰17
+    - text: 기기값 얼마인지 알수있을까요? 정보좀주세요~^^ 새 창 열림
+  - link "네이버 지식iN 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=1070401&docId=495080051&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - img "네이버 지식iN"
+    - text: 새 창 열림
+  - link "네이버 지식iN 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=1070401&docId=495080051&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+  - button "옵션 메뉴 열기"
+  - link "아이폰 17 배터리 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=1070401&docId=495080051&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - mark: 아이폰 17
+    - text: 배터리 새 창 열림
+  - link "17 로 바꾼지 일주일 정도 되었구요, 핸드폰을 껐다가 다시 켤 때 배터리가 7-8%씩 닳아 있습니다. 그래프도 그렇게 나오구요. 이거 문제 있는 건가요? 앱 배터리 사용량 다 더해도 그렇게는 안나오더라구요 ..ㅜㅜ 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=1070401&docId=495080051&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - mark: "17"
+    - text: 로 바꾼지 일주일 정도 되었구요, 핸드폰을 껐다가 다시 켤 때 배터리가 7-8%씩 닳아 있습니다. 그래프도 그렇게 나오구요. 이거 문제 있는 건가요? 앱 배터리 사용량 다 더해도 그렇게는 안나오더라구요 ..ㅜㅜ 새 창 열림
+  - link "새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=1070401&docId=495080051&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - img
+    - text: 새 창 열림
+  - link "재부팅할 때마다 7~8%가 꾸준히 빠진다면 “무조건 불량”이라고 단정할 수는 없지만, 새 기기에서 반복되면 점검 대상입니다. 전원을 켜는 과정 자체도 배터리를 쓰고, 새 아이폰은 초기 며칠간 사진·앱·iCloud 동기화와 배터리 잔량 보정 때문에 앱별 사용량 합계와 그래프가 딱 맞지 않을 수 있습니다. 올려주신 화면 기준으로는 9월 3일 사용량 79%, 화면 켬 5시간 41분 / 9월 7일 사용량 44%,.... 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?answerNo=2&dirId=1070401&docId=495080051&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3#answer2
+  - link "alt 새 창 열림":
+    - /url: https://kin.naver.com/search/profileLink?answerNo=2&dirId=1070401&docId=495080051&kinsrch_src=pc_nx_urb
+    - img "alt"
+    - text: 새 창 열림
+  - link "올다 생활 연구소 새 창 열림":
+    - /url: https://kin.naver.com/search/profileLink?answerNo=2&dirId=1070401&docId=495080051&kinsrch_src=pc_nx_urb
+  - text: 2주 전
+  - link "네이버 지식iN 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=107040202&docId=495111190&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - img "네이버 지식iN"
+    - text: 새 창 열림
+  - link "네이버 지식iN 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=107040202&docId=495111190&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+  - button "옵션 메뉴 열기"
+  - link "아이폰17프로 512GB VS 아이폰 18프로 512GB 뭐 사야하나요..?? 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=107040202&docId=495111190&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - mark: 아이폰17
+    - text: 프로 512GB VS
+    - mark: 아이폰
+    - text: 18프로 512GB 뭐 사야하나요..?? 새 창 열림
+  - link "안녕하세요? 지금 현제 갤럭시 s23쓰고있습니다. 이번에 아이폰 으로 넘어가고 싶어서 아이폰 18프로 존버했는데 누구는 17 프로 사야한다 누구는 그래도 18프로 다 하시는데 뭐 사야할지 모르겠습니다. 아 그리고 제가 야구장을 조금 많이 다니는데 256GB가 좋을까요? 아니면 그래도 512GB 가 좋을까요? 제발 알려주세요!! 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?dirId=107040202&docId=495111190&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3
+    - text: 안녕하세요? 지금 현제 갤럭시 s23쓰고있습니다. 이번에
+    - mark: 아이폰
+    - text: 으로 넘어가고 싶어서
+    - mark: 아이폰
+    - text: 18프로 존버했는데 누구는
+    - mark: "17"
+    - text: 프로 사야한다 누구는 그래도 18프로 다 하시는데 뭐 사야할지 모르겠습니다. 아 그리고 제가 야구장을 조금 많이 다니는데 256GB가 좋을까요? 아니면 그래도 512GB 가 좋을까요? 제발 알려주세요!! 새 창 열림
+  - link "결론부터 말하면, 지금 바로 바꿔야 하면 아이폰17프로 512GB, 며칠~출시일까지 기다릴 수 있으면 아이폰18프로 조건을 보고 결정하는 쪽이 맞습니다. 갤럭시 S23이 아직 사용 가능하고 원래 18프로를 기다리셨다면 급하게 17프로를 살 이유는 크지 않습니다. 현재 공식 안내 기준으로 아이폰17프로 512GB는 Apple KR 구매 페이지에서 확인되는 판매 단말입니다. 반면 아이폰18프로 512GB도 공식 사양.... 새 창 열림":
+    - /url: https://kin.naver.com/qna/detail.naver?answerNo=1&dirId=107040202&docId=495111190&kinsrch_src=pc_nx_urb&qb=7JWE7J207Y%2BwIDE3#answer1
+  - link "alt 새 창 열림":
+    - /url: https://kin.naver.com/search/profileLink?answerNo=1&dirId=107040202&docId=495111190&kinsrch_src=pc_nx_urb
+    - img "alt"
+    - text: 새 창 열림
+  - link "올다 생활 연구소 새 창 열림":
+    - /url: https://kin.naver.com/search/profileLink?answerNo=1&dirId=107040202&docId=495111190&kinsrch_src=pc_nx_urb
+  - text: 1주 전
+  - link "검색결과 더보기":
+    - /url: "?nso=&page=2&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=1"
+  - heading "이미지" [level=2]
+  - button "이미지 신고하기"
+  - link "색상":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%83%89%EC%83%81&sm=tab_imt&where=image"
+    - img
+    - text: 색상
+  - link "디자인":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%94%94%EC%9E%90%EC%9D%B8&sm=tab_imt&where=image"
+    - img
+    - text: 디자인
+  - link "pro":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+pro&sm=tab_imt&where=image"
+    - img
+    - text: pro
+  - link "출시일":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%B6%9C%EC%8B%9C%EC%9D%BC&sm=tab_imt&where=image"
+    - img
+    - text: 출시일
+  - link "가격":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EA%B0%80%EA%B2%A9&sm=tab_imt&where=image"
+    - img
+    - text: 가격
+  - link "컬러":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%BB%AC%EB%9F%AC&sm=tab_imt&where=image"
+    - img
+    - text: 컬러
+  - link "기본":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EA%B8%B0%EB%B3%B8&sm=tab_imt&where=image"
+    - img
+    - text: 기본
+  - link "air":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+air&sm=tab_imt&where=image"
+    - img
+    - text: air
+  - link "프로":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+%ED%94%84%EB%A1%9C+17&sm=tab_imt&where=image"
+    - img
+    - text: 프로
+  - link "시리즈":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%8B%9C%EB%A6%AC%EC%A6%88&sm=tab_imt&where=image"
+    - img
+    - text: 시리즈
+  - link "예상":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%98%88%EC%83%81&sm=tab_imt&where=image"
+    - img
+    - text: 예상
+  - link "주황":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%A3%BC%ED%99%A9&sm=tab_imt&where=image"
+    - img
+    - text: 주황
+  - link "16":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+16+17&sm=tab_imt&where=image"
+    - img
+    - text: "16"
+  - link "에어":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+%EC%97%90%EC%96%B4+17&sm=tab_imt&where=image"
+    - img
+    - text: 에어
+  - link "미니":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%AF%B8%EB%8B%88&sm=tab_imt&where=image"
+    - img
+    - text: 미니
+  - link "블랙":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%B8%94%EB%9E%99&sm=tab_imt&where=image"
+    - img
+    - text: 블랙
+  - link "초록":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%B4%88%EB%A1%9D&sm=tab_imt&where=image"
+    - img
+    - text: 초록
+  - link "라벤더":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%9D%BC%EB%B2%A4%EB%8D%94&sm=tab_imt&where=image"
+    - img
+    - text: 라벤더
+  - link "말차":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%A7%90%EC%B0%A8&sm=tab_imt&where=image"
+    - img
+    - text: 말차
+  - link "플러스":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%ED%94%8C%EB%9F%AC%EC%8A%A4&sm=tab_imt&where=image"
+    - img
+    - text: 플러스
+  - link "블루":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%B8%94%EB%A3%A8&sm=tab_imt&where=image"
+    - img
+    - text: 블루
+  - link "화이트":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%ED%99%94%EC%9D%B4%ED%8A%B8&sm=tab_imt&where=image"
+    - img
+    - text: 화이트
+  - link "보라":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%B3%B4%EB%9D%BC&sm=tab_imt&where=image"
+    - img
+    - text: 보라
+  - link "실물":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%8B%A4%EB%AC%BC&sm=tab_imt&where=image"
+    - img
+    - text: 실물
+  - link "케이스":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%BC%80%EC%9D%B4%EC%8A%A4&sm=tab_imt&where=image"
+    - img
+    - text: 케이스
+  - link "검정":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EA%B2%80%EC%A0%95&sm=tab_imt&where=image"
+    - img
+    - text: 검정
+  - link "맥스":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%A7%A5%EC%8A%A4&sm=tab_imt&where=image"
+    - img
+    - text: 맥스
+  - link "오렌지":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EC%98%A4%EB%A0%8C%EC%A7%80&sm=tab_imt&where=image"
+    - img
+    - text: 오렌지
+  - link "후기":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%ED%9B%84%EA%B8%B0&sm=tab_imt&where=image"
+    - img
+    - text: 후기
+  - link "만들기":
+    - /url: "?pq=%EC%95%84%EC%9D%B4%ED%8F%B0+17&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17+%EB%A7%8C%EB%93%A4%EA%B8%B0&sm=tab_imt&where=image"
+    - img
+    - text: 만들기
+  - button
+  - button "대구 아이폰 17 프로 256GB 157만 원 즉시 수령 가능":
+    - img "대구 아이폰 17 프로 256GB 157만 원 즉시 수령 가능"
+  - button "아이폰17 시리즈 지금 사도 괜찮을까? 기다려야 하는 이유까지 총정리":
+    - img "아이폰17 시리즈 지금 사도 괜찮을까? 기다려야 하는 이유까지 총정리"
+  - button "아이폰 17 가격 변동설, 9월 신제품 전 지금 사도 괜찮을까":
+    - img "아이폰 17 가격 변동설, 9월 신제품 전 지금 사도 괜찮을까"
+  - button "아이폰17 에어 vs 일반형 비교, 스펙 가격 차이는?":
+    - img "아이폰17 에어 vs 일반형 비교, 스펙 가격 차이는?"
+  - button "아이폰17 vs 아이폰16 비교! 어떤 모델을 선택해야 할까?":
+    - img "아이폰17 vs 아이폰16 비교! 어떤 모델을 선택해야 할까?"
+  - button "아이폰17 지금 사야 할까, 아이폰18 기다릴까 비교정리":
+    - img "아이폰17 지금 사야 할까, 아이폰18 기다릴까 비교정리"
+  - button "아이폰 17 출시 후, 굳이 사야 하나 소리 나오게 된 \"이 프로 모델\" | 120Hz 가격 차이 17 프로 비교":
+    - img "아이폰 17 출시 후, 굳이 사야 하나 소리 나오게 된 \"이 프로 모델\" | 120Hz 가격 차이 17 프로 비교"
+  - button "\"아이폰17 프로보다 50만원 싸?\" 애플 아이폰17 가격 인상 관세 폭탄 잡는다 | 라인업 에어 프로 맥스":
+    - img "\"아이폰17 프로보다 50만원 싸?\" 애플 아이폰17 가격 인상 관세 폭탄 잡는다 | 라인업 에어 프로 맥스"
+  - button "아이폰17 프로 출시 소식 총정리! 디자인·성능·카메라 완벽 분석":
+    - img "아이폰17 프로 출시 소식 총정리! 디자인·성능·카메라 완벽 분석"
+  - button "진주휴대폰성지 판다폰 대안점｜갤럭시 S26·아이폰17 가격 인상 전 구매 타이밍":
+    - img "진주휴대폰성지 판다폰 대안점｜갤럭시 S26·아이폰17 가격 인상 전 구매 타이밍"
+  - link "이미지 더보기":
+    - /url: "?nso=so%3Ar%2Cp%3Aall&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_nmr&ssc=tab.image.all&where=image"
+  - complementary "웨일 브라우저 설치 안내":
+    - img "웨일 브라우저"
+    - text: 브라우저를 업데이트하세요 최신 기술을 품은 네이버 웨일에서 빠른 인터넷을 만나보세요
+    - link "웨일 다운로드":
+      - /url: https://whale.naver.com/ko/?wpid=searchpopup_theme1
+    - button "배너 닫기"
+  - text: 이전
+  - link "1 페이지":
+    - /url: "?nso=&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.nx.all"
+  - link "2 페이지":
+    - /url: "?nso=&page=2&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=1"
+  - link "3 페이지":
+    - /url: "?nso=&page=3&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=21"
+  - link "4 페이지":
+    - /url: "?nso=&page=4&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=41"
+  - link "5 페이지":
+    - /url: "?nso=&page=5&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=61"
+  - link "6 페이지":
+    - /url: "?nso=&page=6&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=81"
+  - link "7 페이지":
+    - /url: "?nso=&page=7&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=101"
+  - link "8 페이지":
+    - /url: "?nso=&page=8&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=121"
+  - link "9 페이지":
+    - /url: "?nso=&page=9&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=141"
+  - link "10 페이지":
+    - /url: "?nso=&page=10&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=161"
+  - link "다음":
+    - /url: "?nso=&page=2&qdt=0&query=%EC%95%84%EC%9D%B4%ED%8F%B0+17&sm=tab_pge&ssc=tab.ur.all&start=1"
+  - heading "숏텐츠 카테크 종합" [level=2]
+  - button "정보 확인 도움말"
+  - link "크래프톤, 인도 게임사 지원 확대 크래프톤, 인도 게임사 지원 확대…개발 후반 프로젝트도 받는다 12시간 전":
+    - /url: "?mra=QkRS%5EU2JUX0NQbQ%3D%3D%5ETEdO%5EU3hUX0NQdA%3D%3D&mra2=U0RC%5EU3hUX0NQdA%3D%3D&query=%ED%81%AC%EB%9E%98%ED%94%84%ED%86%A4%2C+%EC%9D%B8%EB%8F%84+%EA%B2%8C%EC%9E%84%EC%82%AC+%EC%A7%80%EC%9B%90+%ED%99%95%EB%8C%80&qvt=0&sm=tab_sht.best&where=nexearch&x_shortents=%7B%22category%22%3A%22%EC%B9%B4%ED%85%8C%ED%81%AC+%EC%A2%85%ED%95%A9%22%2C%22gdid%22%3A%2288000127_000000000000000014207434%22%7D"
+    - text: 크래프톤, 인도 게임사 지원 확대 크래프톤, 인도 게임사 지원 확대…개발 후반 프로젝트도 받는다 12시간 전
+    - img
+  - link "애플워치 울트라4 세라믹 출시 정보 애플워치 12 울트라4 달라졌다 세라믹 진짜나옴 1주 전":
+    - /url: "?mra=QkRS%5EU2JUX0NQbQ%3D%3D%5ETEdO%5EU3hUX0NQdA%3D%3D&mra2=U0RC%5EU3hUX0NQdA%3D%3D&query=%EC%95%A0%ED%94%8C%EC%9B%8C%EC%B9%98+%EC%9A%B8%ED%8A%B8%EB%9D%BC4+%EC%84%B8%EB%9D%BC%EB%AF%B9+%EC%B6%9C%EC%8B%9C+%EC%A0%95%EB%B3%B4&qvt=0&sm=tab_sht.best&where=nexearch&x_shortents=%7B%22category%22%3A%22%EC%B9%B4%ED%85%8C%ED%81%AC+%EC%A2%85%ED%95%A9%22%2C%22gdid%22%3A%2290000003_00000000000000343FB021A4%22%7D"
+    - text: 애플워치 울트라4 세라믹 출시 정보
+    - img
+    - text: 애플워치 12 울트라4 달라졌다 세라믹 진짜나옴 1주 전
+    - img
+  - link "현대차 2027 디 올 뉴 투싼 풀체인지 공개 5세대 풀체인지 모델, 현대차 '2027 디 올 뉴 투싼' 풀체인지 공개 3주 전":
+    - /url: "?mra=QkRS%5EU2JUX0NQbQ%3D%3D%5ETEdO%5EU3hUX0NQdA%3D%3D&mra2=U0RC%5EU3hUX0NQdA%3D%3D&query=%ED%98%84%EB%8C%80%EC%B0%A8+2027+%EB%94%94+%EC%98%AC+%EB%89%B4+%ED%88%AC%EC%8B%BC+%ED%92%80%EC%B2%B4%EC%9D%B8%EC%A7%80+%EA%B3%B5%EA%B0%9C&qvt=0&sm=tab_sht.best&where=nexearch&x_shortents=%7B%22category%22%3A%22%EC%B9%B4%ED%85%8C%ED%81%AC+%EC%A2%85%ED%95%A9%22%2C%22gdid%22%3A%2290000003_00000000000000343EF1667D%22%7D"
+    - text: 현대차 2027 디 올 뉴 투싼 풀체인지 공개
+    - img
+    - text: 5세대 풀체인지 모델, 현대차 '2027 디 올 뉴 투싼' 풀체인지 공개 3주 전
+    - img
+  - link "갤럭시 폴드8, 옛날 영상부터 봐야 하는 이유 갤럭시 폴드8 꿀팁, 새 폰으로 옛날 동영상부터 열어야 하는 이유 2주 전":
+    - /url: "?mra=QkRS%5EU2JUX0NQbQ%3D%3D%5ETEdO%5EU3hUX0NQdA%3D%3D&mra2=U0RC%5EU3hUX0NQdA%3D%3D&query=%EA%B0%A4%EB%9F%AD%EC%8B%9C+%ED%8F%B4%EB%93%9C8%2C+%EC%98%9B%EB%82%A0+%EC%98%81%EC%83%81%EB%B6%80%ED%84%B0+%EB%B4%90%EC%95%BC+%ED%95%98%EB%8A%94+%EC%9D%B4%EC%9C%A0&qvt=0&sm=tab_sht.best&where=nexearch&x_shortents=%7B%22category%22%3A%22%EC%B9%B4%ED%85%8C%ED%81%AC+%EC%A2%85%ED%95%A9%22%2C%22gdid%22%3A%2290000003_00000000000000343F948DA7%22%7D"
+    - text: 갤럭시 폴드8, 옛날 영상부터 봐야 하는 이유
+    - img
+    - text: 갤럭시 폴드8 꿀팁, 새 폰으로 옛날 동영상부터 열어야 하는 이유 2주 전
+    - img
+  - link "삼성전자, 독일 빌트인 가전 쇼룸 개관 삼성전자, 독일 빌트인 가전 쇼룸 개관 15시간 전":
+    - /url: "?mra=QkRS%5EU2JUX0NQbQ%3D%3D%5ETEdO%5EU3hUX0NQdA%3D%3D&mra2=U0RC%5EU3hUX0NQdA%3D%3D&query=%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90%2C+%EB%8F%85%EC%9D%BC+%EB%B9%8C%ED%8A%B8%EC%9D%B8+%EA%B0%80%EC%A0%84+%EC%87%BC%EB%A3%B8+%EA%B0%9C%EA%B4%80&qvt=0&sm=tab_sht.best&where=nexearch&x_shortents=%7B%22category%22%3A%22%EC%B9%B4%ED%85%8C%ED%81%AC+%EC%A2%85%ED%95%A9%22%2C%22gdid%22%3A%228800011E_000000000000000002438381%22%7D"
+    - text: 삼성전자, 독일 빌트인 가전 쇼룸 개관
+    - img
+    - text: 삼성전자, 독일 빌트인 가전 쇼룸 개관 15시간 전
+    - img
+  - link "태그 하나로, 기록은 더 멀리 오늘의 경험을 기록하고 포인트 적립":
+    - /url: https://mkt.naver.com/p1/atrb?channel_id=naver_pcsearchmktbanner&campaign_id=2603-naverclip-001&target=https%3A%2F%2Fclipcreators.naver.com%2Fpromotion%2Ftoday%3Fdtm_source%3Dnaver_pcsearchmktbanner%26dtm_medium%3Dmktatrb_etc%26dtm_campaign%3D2603-naverclip-001
+    - strong: 태그 하나로, 기록은 더 멀리
+    - paragraph: 오늘의 경험을 기록하고 포인트 적립
+  - link "이번 달 참여하고 쇼핑하면 최대 3만P 추가적립 드려요":
+    - /url: https://mkt.naver.com/p1/atrb?channel_id=naver_pcsearchmktbanner&campaign_id=2609-shopping-012&material=09&target=https%3A%2F%2Fmkt.naver.com%2Fplusmission%3Fdtm_detail%3D09%26dtm_source%3Dnaver_pcsearchmktbanner%26dtm_medium%3Dmktatrb_etc%26dtm_campaign%3D2609-shopping-012
+    - strong: 이번 달 참여하고 쇼핑하면
+    - paragraph: 최대 3만P 추가적립 드려요
+  - link "적립적인 멤버십 전용카드 네이버 현대카드 Ed.3":
+    - /url: https://mkt.naver.com/naverhyundaicard3?eventCode=NAVHJ&dtm_source=naver_pcsearchmktbanner&dtm_medium=display&dtm_campaign=hyundaicard3mkt
+    - strong: 적립적인 멤버십 전용카드
+    - paragraph: 네이버 현대카드 Ed.3
+  - link "끝까지 끝내주는 AI, 네이버 AI탭 검색이 대화가 되다":
+    - /url: https://mkt.naver.com/p1/atrb?channel_id=naver_pcsearchmktbanner&campaign_id=2607-naverAI-001&target=https%3A%2F%2Fmkt.naver.com%2Faitab%3Fdtm_source%3Dnaver_pcsearchmktbanner%26dtm_medium%3Dmktatrb_etc%26dtm_campaign%3D2607-naverAI-001
+    - strong: 끝까지 끝내주는 AI, 네이버 AI탭
+    - paragraph: 검색이 대화가 되다
+- link "맨위로":
+  - /url: "#"
+- link "전체서비스 새 창 열림":
+  - /url: https://www.naver.com/more.html
+- link "이용약관 새 창 열림":
+  - /url: https://policy.naver.com/policy/service.html
+- link "개인정보처리방침 새 창 열림":
+  - /url: https://policy.naver.com/policy/privacy.html
+  - strong: 개인정보처리방침
+  - text: 새 창 열림
+- link "검색 고객센터 새 창 열림":
+  - /url: https://help.naver.com/alias/search/integration/main.naver
+- link "© NAVER Corp. 새 창 열림":
+  - /url: https://www.navercorp.com/

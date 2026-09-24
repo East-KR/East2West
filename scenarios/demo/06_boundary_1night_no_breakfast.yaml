@@ -1,0 +1,14 @@
+name: "경계값 - 1박, 조식 없음이면 총 금액 100,000원"
+steps:
+  - goto: http://127.0.0.1:8787/
+  - do: 투숙객 이름 입력
+    fill: 김최소
+  - do: 캘린더에서 2026년 11월 1일 선택
+  - expect: { field: "선택한 체크인", value: "2026-11-01" }
+  - do: 숙박 일수를 1박으로 선택
+  - do: 예약하기 버튼 누르기
+  - do: 확인 모달에서 확정 버튼 누르기
+  - expect: { url_contains: "/reservations/" }
+  - expect: { url_contains: "nights=1" }
+  - expect: { url_contains: "breakfast=0" }
+  - expect: { text: "총 금액 100,000원" }

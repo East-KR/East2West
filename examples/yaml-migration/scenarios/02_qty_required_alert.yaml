@@ -1,0 +1,8 @@
+name: "유효성 - 수량 없이 저장하면 alert, 저장 안 됨"
+steps:
+  - goto: /
+  - do: 상단 메뉴에서 주문 등록으로 이동
+  - do: 품목에서 마우스 선택
+  - do: 저장 버튼 누르기
+  - expect: { dialog: "수량을 입력하세요." }
+  - expect: { field: "수량", value: "" }

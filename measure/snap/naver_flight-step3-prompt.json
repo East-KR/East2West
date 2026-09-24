@@ -1,0 +1,16 @@
+{
+ "step": "도착지 검색창에 도시 이름 입력",
+ "action": "fill",
+ "page": {
+  "url": "https://flight.naver.com/",
+  "title": "네이버 항공권 | 국내·해외 항공권 최저가 비교"
+ },
+ "history": [
+  "click button 7일간 보지 않기",
+  "click button 도착지 도시, 공항 검색"
+ ],
+ "criteria": {
+  "c0": "fill textbox \"국가, 도시, 공항명 검색\"",
+  "abstain": "No candidate matches this step on the current page; do not act."
+ }
+}

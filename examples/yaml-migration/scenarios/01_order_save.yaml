@@ -1,0 +1,16 @@
+name: "주문 등록 - 볼펜 1개 계산 후 저장 (부가세 10원 절사 동작 보존)"
+compare:
+  ignore: ['주문번호 \d+']   # 실행마다 바뀌는 값은 골든 비교에서 제외
+steps:
+  - goto: /
+  - do: 상단 메뉴에서 주문 등록으로 이동
+  - do: 품목에서 볼펜 선택
+  - do: 수량 입력
+    fill: "1"
+  - do: 계산 버튼 누르기
+  - expect: { field: "부가세", value: "120" }    # as-is 동작: 123.5원 → 10원 단위 절사 (반올림 124원 아님)
+  - expect: { field: "합계", value: "1,355" }
+  - do: 저장 버튼 누르기                           # confirm은 기본 accept
+  - expect: { dialog: "저장하시겠습니까?" }
+  - expect: { text: "주문이 저장되었습니다" }
+  - expect: { text: "합계 1,355원" }

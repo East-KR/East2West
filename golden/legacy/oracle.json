@@ -1,0 +1,13 @@
+{
+ "ignore": [
+  "주문번호 \\d+"
+ ],
+ "equivalent_mutants": [
+  {
+   "path": "/order.jsp",
+   "op": "num",
+   "context": "qty.value||⟦0→1⟧",
+   "reason": "PROPOSED by agent: 수량 빈 값의 기본값. 계산은 항상 수량 입력 후에만 호출되고, 빈 수량 저장은 alert로 막혀 계산에 도달하지 않는다"
+  }
+ ]
+}

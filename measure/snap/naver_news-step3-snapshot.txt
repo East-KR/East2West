@@ -1,0 +1,1892 @@
+- link "본문 바로가기":
+  - /url: "#ct"
+- banner:
+  - link "NAVER":
+    - /url: https://www.naver.com
+  - heading "선택됨 뉴스" [level=1]:
+    - link "선택됨 뉴스":
+      - /url: https://news.naver.com
+  - link "엔터":
+    - /url: https://entertain.naver.com/home
+  - link "스포츠":
+    - /url: https://sports.news.naver.com/index
+  - link "날씨":
+    - /url: https://weather.naver.com/
+  - link "프리미엄":
+    - /url: https://contents.premium.naver.com/
+  - strong: 사용자 링크
+  - list:
+    - listitem:
+      - link "로그인":
+        - /url: https://nid.naver.com/nidlogin.login
+    - listitem:
+      - link "서비스 더보기":
+        - /url: javascript:;
+  - link "검색":
+    - /url: javascript:;
+  - menu:
+    - listitem:
+      - menuitem "언론사별"
+    - listitem:
+      - menuitem "정치"
+    - listitem:
+      - menuitem "경제"
+    - listitem:
+      - menuitem "사회"
+    - listitem:
+      - menuitem "생활/문화"
+    - listitem:
+      - menuitem "IT/과학"
+    - listitem:
+      - menuitem "세계"
+    - listitem:
+      - menuitem "랭킹 신규"
+    - listitem:
+      - menuitem "신문보기 신규"
+    - listitem:
+      - menuitem "오피니언"
+    - listitem:
+      - menuitem "TV"
+    - listitem:
+      - menuitem "팩트체크"
+    - listitem:
+      - menuitem "알고리즘 안내"
+    - listitem:
+      - menuitem "정정보도 모음 신규"
+  - link "MY":
+    - /url: https://media.naver.com/my/home
+  - tooltip "뉴스 이용 설정을 할 수 있어요":
+    - paragraph: 뉴스 이용 설정을 할 수 있어요
+- main:
+  - heading "콘텐츠" [level=3]
+  - strong: "09"
+  - text: .
+  - strong: "22"
+  - text: (화)
+  - list:
+    - listitem:
+      - link "전체 언론사":
+        - /url: "https://news.naver.com/main/officeList.naver "
+    - listitem:
+      - link "뉴스스탠드":
+        - /url: https://newsstand.naver.com/
+    - listitem:
+      - link "라이브러리":
+        - /url: https://newslibrary.naver.com/search/searchByDate.naver
+  - heading "언론사편집 기자 연재" [level=3]:
+    - text: 언론사편집
+    - link "기자":
+      - /url: "#feedJournalistCard"
+    - link "연재":
+      - /url: "#feedSeriesCard"
+  - link "주간경향 09월 22일 23:16":
+    - /url: https://media.naver.com/press/033
+    - emphasis: 주간경향
+    - text: 09월 22일 23:16
+  - button "구독"
+  - link "“북한 콘텐츠? 이젠 식상”…국뽕·먹방 예능으로 탈북민 유튜버가 사는 법":
+    - /url: https://n.news.naver.com/article/033/0000052315?cds=news_media_pc&type=editn
+    - strong: “북한 콘텐츠? 이젠 식상”…국뽕·먹방 예능으로 탈북민 유튜버가 사는 법
+  - list:
+    - listitem:
+      - link "유시민 “대통령 기자회견 별로 의미없는 말···지금껏 국민 속였다”":
+        - /url: https://n.news.naver.com/article/033/0000052338?cds=news_media_pc&type=editn
+    - listitem:
+      - link "한동훈 “팔로우 구걸 똥별” VS 김병주 “급한가? 조금만 비판해도 난사”":
+        - /url: https://n.news.naver.com/article/033/0000052324?cds=news_media_pc&type=editn
+    - listitem:
+      - link "홍준표 “최순실·김건희·김현지, 정권마다 여인천하···이 대통령 단절해야”":
+        - /url: https://n.news.naver.com/article/033/0000052336?cds=news_media_pc&type=editn
+  - link "한국일보 09월 22일 23:21":
+    - /url: https://media.naver.com/press/469
+    - emphasis: 한국일보
+    - text: 09월 22일 23:21
+  - button "구독"
+  - link "[단독] \"김승원 탄원서 '경기도당 회계 조작' 수입·지출 자료, 선관위에도 제출\"":
+    - /url: https://n.news.naver.com/article/469/0000955607?cds=news_media_pc&type=editn
+    - strong: "[단독] \"김승원 탄원서 '경기도당 회계 조작' 수입·지출 자료, 선관위에도 제출\""
+  - list:
+    - listitem:
+      - link "'제재 완화-북핵 중단 맞교환' 李 발언에... \"北 핵보유국 지위 굳힐 수도\" 우려":
+        - /url: https://n.news.naver.com/article/469/0000955614?cds=news_media_pc&type=editn
+    - listitem:
+      - link "김민석 \"희대의 난, 반드시 진압\"... 다시 '사법부와 전면전' 나선 與":
+        - /url: https://n.news.naver.com/article/469/0000955611?cds=news_media_pc&type=editn
+    - listitem:
+      - link "나경원 \"DMZ 폭발 사고는 예고된 참사… 지뢰 파편부터 공개하라\"":
+        - /url: https://n.news.naver.com/article/469/0000955587?cds=news_media_pc&type=editn
+  - heading "이슈NOW를 구독해보세요" [level=3]
+  - button "도움말"
+  - link "구독 설정":
+    - /url: https://media.naver.com/channel/issueSetting
+  - list:
+    - listitem:
+      - link "출렁이는 코스피 파이낸셜뉴스":
+        - /url: https://media.naver.com/issue/014/2091
+        - strong: 출렁이는 코스피
+        - text: 파이낸셜뉴스
+      - button "구독"
+      - list:
+        - listitem:
+          - link "09월 22일 17:00 코스피는 올랐는데 태양광주는 급락…美 수혜 기대도 못 막았다":
+            - /url: https://n.news.naver.com/article/014/0005579825?iid=2091
+            - text: 09월 22일 17:00
+            - emphasis: 코스피는 올랐는데 태양광주는 급락…美 수혜 기대도 못 막았다
+        - listitem:
+          - link "09월 22일 11:11 美반도체 훈풍에…삼성전기·LG이노텍 등 반도체 기판주 '들썩'":
+            - /url: https://n.news.naver.com/article/014/0005579557?iid=2091
+            - text: 09월 22일 11:11
+            - emphasis: 美반도체 훈풍에…삼성전기·LG이노텍 등 반도체 기판주 '들썩'
+        - listitem:
+          - link "09월 22일 04:50 \"추석 앞두고 내 주식 팔고 떠날까, 버틸까\"...증권가가 '이 주식'은 쥐고 가라는 이유":
+            - /url: https://n.news.naver.com/article/014/0005579309?iid=2091
+            - text: 09월 22일 04:50
+            - emphasis: "\"추석 앞두고 내 주식 팔고 떠날까, 버틸까\"...증권가가 '이 주식'은 쥐고 가라는 이유"
+      - list:
+        - listitem: "#코스피"
+        - listitem: "#코스닥"
+        - listitem: "#사천피"
+    - listitem:
+      - link "美·이스라엘, 이란 공습 파이낸셜뉴스":
+        - /url: https://media.naver.com/issue/014/2441
+        - strong: 美·이스라엘, 이란 공습
+        - text: 파이낸셜뉴스
+      - button "구독"
+      - list:
+        - listitem:
+          - link "09월 22일 20:17 이란 '美 군사압박 낮추면 7일 내 호르무즈 재개방'…대화 재개 손짓":
+            - /url: https://n.news.naver.com/article/014/0005579970?iid=2441
+            - text: 09월 22일 20:17
+            - emphasis: 이란 '美 군사압박 낮추면 7일 내 호르무즈 재개방'…대화 재개 손짓
+        - listitem:
+          - link "09월 22일 15:41 이란 대통령, 유엔총회 출국길 \"美·이스라엘, 범죄 폭로 두려워해\"":
+            - /url: https://n.news.naver.com/article/014/0005579771?iid=2441
+            - text: 09월 22일 15:41
+            - emphasis: 이란 대통령, 유엔총회 출국길 "美·이스라엘, 범죄 폭로 두려워해"
+        - listitem:
+          - link "09월 22일 09:44 베선트, 23일부터 이란 항공사 제재 경고":
+            - /url: https://n.news.naver.com/article/014/0005579456?iid=2441
+            - text: 09월 22일 09:44
+            - emphasis: 베선트, 23일부터 이란 항공사 제재 경고
+      - list:
+        - listitem: "#이란"
+        - listitem: "#미국"
+    - listitem:
+      - link "3대 특검 서울신문":
+        - /url: https://media.naver.com/issue/081/932
+        - strong: 3대 특검
+        - text: 서울신문
+      - button "구독"
+      - list:
+        - listitem:
+          - link "09월 22일 15:35 ‘알선수재’ 김건희, 항소심 징역 5년 선고…1심보다 2년 감형":
+            - /url: https://n.news.naver.com/article/081/0003682758?iid=932
+            - text: 09월 22일 15:35
+            - emphasis: ‘알선수재’ 김건희, 항소심 징역 5년 선고…1심보다 2년 감형
+        - listitem:
+          - link "09월 22일 05:02 ‘계엄 가담’ 軍지휘부 중형… 여인형 18년·이진우 15년 선고":
+            - /url: https://n.news.naver.com/article/081/0003682473?iid=932
+            - text: 09월 22일 05:02
+            - emphasis: ‘계엄 가담’ 軍지휘부 중형… 여인형 18년·이진우 15년 선고
+        - listitem:
+          - link "09월 21일 17:09 비상계엄 가담 전직 군 지휘부에 징역 18년 등 중형 선고":
+            - /url: https://n.news.naver.com/article/081/0003682387?iid=932
+            - text: 09월 21일 17:09
+            - emphasis: 비상계엄 가담 전직 군 지휘부에 징역 18년 등 중형 선고
+      - list:
+        - listitem: "#내란특검"
+        - listitem: "#김건희특검"
+        - listitem: "#채상병특검"
+    - listitem:
+      - link "2026 아이치 나고야 아시안게임 매일신문":
+        - /url: https://media.naver.com/issue/088/3019
+        - strong: 2026 아이치 나고야 아시안게임
+        - text: 매일신문
+      - button "구독"
+      - list:
+        - listitem:
+          - link "09월 22일 20:41 사본_ \"북한 세뇌 깨부수려\" 북 응원단 앞에 나타난 '짝퉁' 김정은":
+            - /url: https://n.news.naver.com/article/088/0001030157?iid=3019
+            - text: 09월 22일 20:41
+            - emphasis: 사본_ "북한 세뇌 깨부수려" 북 응원단 앞에 나타난 '짝퉁' 김정은
+        - listitem:
+          - link "09월 22일 20:18 펜싱 에페 송세라, 한국의 6번째 금 획득":
+            - /url: https://n.news.naver.com/article/088/0001030156?iid=3019
+            - text: 09월 22일 20:18
+            - emphasis: 펜싱 에페 송세라, 한국의 6번째 금 획득
+        - listitem:
+          - link "09월 22일 18:52 사격 10m 공기소총 혼성 銀·펜싱 男 플뢰레 윤정현 銅":
+            - /url: https://n.news.naver.com/article/088/0001030149?iid=3019
+            - text: 09월 22일 18:52
+            - emphasis: 사격 10m 공기소총 혼성 銀·펜싱 男 플뢰레 윤정현 銅
+      - list:
+        - listitem: "#아시안게임"
+        - listitem: "#나고야"
+        - listitem: "#아시안게임일정"
+    - listitem:
+      - link "가덕신공항 본격 추진 부산일보":
+        - /url: https://media.naver.com/issue/082/1541
+        - strong: 가덕신공항 본격 추진
+        - text: 부산일보
+      - button "구독"
+      - list:
+        - listitem:
+          - link "09월 21일 18:24 가덕 ‘공사비 암초’ 정부 뭐 하나… 부글부글":
+            - /url: https://n.news.naver.com/article/082/0001399397?iid=1541
+            - text: 09월 21일 18:24
+            - emphasis: 가덕 ‘공사비 암초’ 정부 뭐 하나… 부글부글
+        - listitem:
+          - link "09월 21일 15:54 부산상의, 가덕신공항 공사비·통합LCC 본사 유치에 여당 지원 요청":
+            - /url: https://n.news.naver.com/article/082/0001399319?iid=1541
+            - text: 09월 21일 15:54
+            - emphasis: 부산상의, 가덕신공항 공사비·통합LCC 본사 유치에 여당 지원 요청
+        - listitem:
+          - link "09월 21일 05:12 가덕신공항 공사비, 특별법 운운 말고 추석 전 해결하길":
+            - /url: https://n.news.naver.com/article/082/0001399201?iid=1541
+            - text: 09월 21일 05:12
+            - emphasis: 가덕신공항 공사비, 특별법 운운 말고 추석 전 해결하길
+      - list:
+        - listitem: "#정부현대건설제재착수"
+        - listitem: "#가덕신공항"
+  - button "다른 이슈 더보기 현재 1 / 전체 5":
+    - text: 다른 이슈 더보기 현재 1
+    - emphasis: / 전체 5
+  - link "SBS Biz 09월 22일 19:37":
+    - /url: https://media.naver.com/press/374
+    - emphasis: SBS Biz
+    - text: 09월 22일 19:37
+  - button "구독"
+  - link "'이걸 여태 몰랐네'…210만명이 놓친 '1743억원 혜택'":
+    - /url: https://n.news.naver.com/article/374/0000533983?cds=news_media_pc&type=editn
+    - strong: "'이걸 여태 몰랐네'…210만명이 놓친 '1743억원 혜택'"
+  - list:
+    - listitem:
+      - link "'1000주에 최대 460만원 예상'…삼성전자 배당 받으려면 '이날'까지":
+        - /url: https://n.news.naver.com/article/374/0000534326?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'700 종신보험' 결국 막혔다…금감원, 생보사 판매 제동":
+        - /url: https://n.news.naver.com/article/374/0000534333?cds=news_media_pc&type=editn
+    - listitem:
+      - link "집값 다시 뛰고 빚도 불어난다…금리 인상에 자영업자 '비상'":
+        - /url: https://n.news.naver.com/article/374/0000534329?cds=news_media_pc&type=editn
+  - link "서울신문 09월 22일 23:27":
+    - /url: https://media.naver.com/press/081
+    - emphasis: 서울신문
+    - text: 09월 22일 23:27
+  - button "구독"
+  - link "백령도 부근서 북한 항공기 추정 움직임 감지…선박 70여척 한때 피항":
+    - /url: https://n.news.naver.com/article/081/0003682856?cds=news_media_pc&type=editn
+    - strong: 백령도 부근서 북한 항공기 추정 움직임 감지…선박 70여척 한때 피항
+  - list:
+    - listitem:
+      - link "이 대통령, 중기부 장관·대검찰청 차장 임명안 재가":
+        - /url: https://n.news.naver.com/article/081/0003682866?cds=news_media_pc&type=editn
+    - listitem:
+      - link "르누아르·반 고흐·세잔…인상파 세계적 걸작 광주에 걸리다":
+        - /url: https://n.news.naver.com/article/081/0003682863?cds=news_media_pc&type=editn
+    - listitem:
+      - link "매일 먹었는데 신장 망치고 있었다…“당장 치워라” 영양사가 경고한 ‘이 음식’ [라이프]":
+        - /url: https://n.news.naver.com/article/081/0003682864?cds=news_media_pc&type=editn
+  - link "파이낸셜뉴스 09월 22일 21:52":
+    - /url: https://media.naver.com/press/014
+    - emphasis: 파이낸셜뉴스
+    - text: 09월 22일 21:52
+  - button "구독"
+  - link "\"주담대 못받는다구요?\"..5대 시중은행, 가계대출 총량 증가액 한 달 만에 바닥..'연말 대출절벽' 우려":
+    - /url: https://n.news.naver.com/article/014/0005579819?cds=news_media_pc&type=editn
+    - strong: "\"주담대 못받는다구요?\"..5대 시중은행, 가계대출 총량 증가액 한 달 만에 바닥..'연말 대출절벽' 우려"
+  - list:
+    - listitem:
+      - link "李대통령, 민주당 의원 전원에 '노무현 평전' 선물…통합 강조":
+        - /url: https://n.news.naver.com/article/014/0005579968?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"어깨가 찢어진 줄도 모르고…\" 1500m 꼴찌 김우민의 충격적인 진실 [나고야 AG]":
+        - /url: https://n.news.naver.com/article/014/0005579947?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"개떡같이 잘라\" 13살 아들 울린 커트사진 공개한 母... 유명 브랜드 미용실 '발끈' [어떻게 생각하세요]":
+        - /url: https://n.news.naver.com/article/014/0005579398?cds=news_media_pc&type=editn
+  - link "한국경제TV 09월 22일 23:46":
+    - /url: https://media.naver.com/press/215
+    - emphasis: 한국경제TV
+    - text: 09월 22일 23:46
+  - button "구독"
+  - link "'내가 오늘부터 퇴출이라니'…\"이런 수모는 처음\" 주가 폭락에 예외없다":
+    - /url: https://n.news.naver.com/article/215/0001266834?cds=news_media_pc&type=editn
+    - strong: "'내가 오늘부터 퇴출이라니'…\"이런 수모는 처음\" 주가 폭락에 예외없다"
+  - list:
+    - listitem:
+      - link "[속보] 트럼프 \"이란과 합의할지, 소멸시킬지 큰 결정할 것\"":
+        - /url: https://n.news.naver.com/article/215/0001266944?cds=news_media_pc&type=editn
+    - listitem:
+      - link "삼성이 찜했다더니…하루 만에 '34%' 폭등한 회사":
+        - /url: https://n.news.naver.com/article/215/0001266936?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"30대 여성 속옷 안에서도 나왔다\"…흩어진 단서 끈질기게 쫓아 줄줄이 검거":
+        - /url: https://n.news.naver.com/article/215/0001266941?cds=news_media_pc&type=editn
+  - heading "언론사별 심층기획" [level=3]
+  - link "이슈톡 JIBS":
+    - /url: https://media.naver.com/press/661#SpecialReport
+  - button "구독"
+  - list:
+    - listitem:
+      - link "“내가 떠난 8개월 뒤 문건인데”… ‘한동훈 방지법’에 “타임머신?”":
+        - /url: https://n.news.naver.com/article/661/0000083677?cds=news_media_pc&type=editn
+      - link "JIBS":
+        - /url: https://media.naver.com/press/661
+    - listitem:
+      - link "조국 \"조희대 재제청 거부, 법조 엘리트 오만한 정치 행위.. 위헌\"":
+        - /url: https://n.news.naver.com/article/661/0000083668?cds=news_media_pc&type=editn
+      - link "JIBS":
+        - /url: https://media.naver.com/press/661
+  - link "대법관 재제청 거부 뉴시스":
+    - /url: https://media.naver.com/press/003#SpecialReport
+  - button "구독"
+  - list:
+    - listitem:
+      - link "조희대, 靑 '재제청 요구' 25일만 거부…\"헌법적 근거·사유 없다\"":
+        - /url: https://n.news.naver.com/article/003/0014207551?cds=news_media_pc&type=editn
+      - link "뉴시스":
+        - /url: https://media.naver.com/press/003
+    - listitem:
+      - link "與, 조희대 '대법관 재제청 거부'에 \"대통령과 권력다툼하나…쿠데타적 행태\"":
+        - /url: https://n.news.naver.com/article/003/0014208339?cds=news_media_pc&type=editn
+      - link "뉴시스":
+        - /url: https://media.naver.com/press/003
+  - link "일다 09월 22일 09:49":
+    - /url: https://media.naver.com/press/007
+    - emphasis: 일다
+    - text: 09월 22일 09:49
+  - button "구독"
+  - link "“용주골의 목소리를 담은 이야기가 거의 없었기 때문에”":
+    - /url: https://n.news.naver.com/article/007/0000008291?cds=news_media_pc&type=editn
+    - strong: “용주골의 목소리를 담은 이야기가 거의 없었기 때문에”
+  - list:
+    - listitem:
+      - link "‘애인’을 떠났어도, 아무것도 끝나지 않았어요":
+        - /url: https://n.news.naver.com/article/007/0000008290?cds=news_media_pc&type=editn
+    - listitem:
+      - link "주변인의 감각":
+        - /url: https://n.news.naver.com/article/007/0000008289?cds=news_media_pc&type=editn
+    - listitem:
+      - link "서울 근교의 텃밭에서 미리 그려보는 노후":
+        - /url: https://n.news.naver.com/article/007/0000008288?cds=news_media_pc&type=editn
+  - link "오마이뉴스 09월 22일 22:26":
+    - /url: https://media.naver.com/press/047
+    - emphasis: 오마이뉴스
+    - text: 09월 22일 22:26
+  - button "구독"
+  - link "재제청 '기습' 거부 조희대에 민주당 격앙... \"대통령 출국하자 사법 쿠데타\"":
+    - /url: https://n.news.naver.com/article/047/0002529962?cds=news_media_pc&type=editn
+    - strong: 재제청 '기습' 거부 조희대에 민주당 격앙... "대통령 출국하자 사법 쿠데타"
+  - list:
+    - listitem:
+      - link "쓰레기 만든 기업이 끝까지 책임진다면? 이 정부의 실험":
+        - /url: https://n.news.naver.com/article/047/0002529989?cds=news_media_pc&type=editn
+    - listitem:
+      - link "14만 평 숲속 도서관, 서울에 있습니다":
+        - /url: https://n.news.naver.com/article/047/0002529990?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'뇌물 혐의' 문재인 전 대통령, 내년 1월 국민참여재판 수순... 법원, 증인 대폭 정리":
+        - /url: https://n.news.naver.com/article/047/0002530004?cds=news_media_pc&type=editn
+  - link "매경이코노미 09월 22일 23:49":
+    - /url: https://media.naver.com/press/024
+    - emphasis: 매경이코노미
+    - text: 09월 22일 23:49
+  - button "구독"
+  - link "HBM 키우자 D램 품귀...“삼성전자, 재고 열흘치도 없어” [오늘, 이 종목]":
+    - /url: https://n.news.naver.com/article/024/0000108408?cds=news_media_pc&type=editn
+    - strong: HBM 키우자 D램 품귀...“삼성전자, 재고 열흘치도 없어” [오늘, 이 종목]
+  - list:
+    - listitem:
+      - link "AI 데이터센터 전력 대란…모건스탠리가 짚은 수혜주는?":
+        - /url: https://n.news.naver.com/article/024/0000108417?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“시총 작아도 관심을”...여의도서 꼽은 중소형주 10선":
+        - /url: https://n.news.naver.com/article/024/0000108418?cds=news_media_pc&type=editn
+    - listitem:
+      - link "추석 명절, 건강하게 보내려면...‘명절증후군’ 예방 수칙":
+        - /url: https://n.news.naver.com/article/024/0000108419?cds=news_media_pc&type=editn
+  - link "한겨레21 09월 22일 15:57":
+    - /url: https://media.naver.com/press/036
+    - emphasis: 한겨레21
+    - text: 09월 22일 15:57
+  - button "구독"
+  - link "치매·중증·고령 수용자, 출소해도 갈 곳이 없다":
+    - /url: https://n.news.naver.com/article/036/0000054222?cds=news_media_pc&type=editn
+    - strong: 치매·중증·고령 수용자, 출소해도 갈 곳이 없다
+  - list:
+    - listitem:
+      - link "조희대 “대법관 재제청 응할 수 없다”…청 “헌법에 위배”":
+        - /url: https://n.news.naver.com/article/036/0000054221?cds=news_media_pc&type=editn
+    - listitem:
+      - link "대통령 귀는 어디로 열려야 할까":
+        - /url: https://n.news.naver.com/article/036/0000054220?cds=news_media_pc&type=editn
+    - listitem:
+      - link "청년들 “세입자로 살아도 삶이 위태롭지 않은 사회 원해”":
+        - /url: https://n.news.naver.com/article/036/0000054218?cds=news_media_pc&type=editn
+  - link "머니투데이 09월 22일 23:34":
+    - /url: https://media.naver.com/press/008
+    - emphasis: 머니투데이
+    - text: 09월 22일 23:34
+  - button "구독"
+  - link "\"이란, 美 군사 압박 풀면 7일 안에 호르무즈 재개방 제안\"":
+    - /url: https://n.news.naver.com/article/008/0005417567?cds=news_media_pc&type=editn
+    - strong: "\"이란, 美 군사 압박 풀면 7일 안에 호르무즈 재개방 제안\""
+  - list:
+    - listitem:
+      - link "국산 4.5세대 전투기 'KF-21' 1호기 도입…개발 25년만 성공":
+        - /url: https://n.news.naver.com/article/008/0005417581?cds=news_media_pc&type=editn
+    - listitem:
+      - link "남편 죽고 의붓아들 입양하려니 \"독신자는 안 돼\"…헌재 심판대 오른다":
+        - /url: https://n.news.naver.com/article/008/0005417569?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'검객' 송세라가 찌른 한국 6번째 금…사격 은·수영 동 추가, 종합 3위":
+        - /url: https://n.news.naver.com/article/008/0005417579?cds=news_media_pc&type=editn
+  - link "조세일보 09월 22일 21:53":
+    - /url: https://media.naver.com/press/123
+    - emphasis: 조세일보
+    - text: 09월 22일 21:53
+  - button "구독"
+  - link "엔캐리 청산은 없었지만…일본 돈은 귀국하고 있다 [마켓프리즘]":
+    - /url: https://n.news.naver.com/article/123/0002390729?cds=news_media_pc&type=editn
+    - strong: 엔캐리 청산은 없었지만…일본 돈은 귀국하고 있다 [마켓프리즘]
+  - list:
+    - listitem:
+      - link "靑 \"재제청 요청, 총리 부서 전자문서로\"...조희대 주장 정면 반박":
+        - /url: https://n.news.naver.com/article/123/0002390730?cds=news_media_pc&type=editn
+    - listitem:
+      - link "공소청 수사인력 70% 감축…검사 인력은 공판부로 재배치":
+        - /url: https://n.news.naver.com/article/123/0002390738?cds=news_media_pc&type=editn
+    - listitem:
+      - link "김건희, '매관매직' 2심 징역 5년으로 감형...바쉐론 등 일부 '무죄'":
+        - /url: https://n.news.naver.com/article/123/0002390720?cds=news_media_pc&type=editn
+  - link "신동아 09월 22일 23:56":
+    - /url: https://media.naver.com/press/262
+    - emphasis: 신동아
+    - text: 09월 22일 23:56
+  - button "구독"
+  - link "“반공이 국시(國是)였던 나라, 이젠 ‘이재명 구하기’가 국시”":
+    - /url: https://n.news.naver.com/article/262/0000019710?cds=news_media_pc&type=editn
+    - strong: “반공이 국시(國是)였던 나라, 이젠 ‘이재명 구하기’가 국시”
+  - list:
+    - listitem:
+      - link "집권 2년 차 1분기 지지율 하락 폭, 역대 대통령 중 가장 커":
+        - /url: https://n.news.naver.com/article/262/0000019709?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[신동아 만평 ‘안마봉’] ‘민심 사자굴’ 속 이재명 대통령":
+        - /url: https://n.news.naver.com/article/262/0000019708?cds=news_media_pc&type=editn
+    - listitem:
+      - link "역사가 된 호텔, 네덜란드 헤이그 이준열사기념관을 가다":
+        - /url: https://n.news.naver.com/article/262/0000019707?cds=news_media_pc&type=editn
+  - link "여성신문 09월 22일 19:12":
+    - /url: https://media.naver.com/press/310
+    - emphasis: 여성신문
+    - text: 09월 22일 19:12
+  - button "구독"
+  - link "전남광주통합특별시 ‘여성 부시장’ 탄생 눈 앞… 윤난실 후보자 인사청문 착수":
+    - /url: https://n.news.naver.com/article/310/0000140225?cds=news_media_pc&type=editn
+    - strong: 전남광주통합특별시 ‘여성 부시장’ 탄생 눈 앞… 윤난실 후보자 인사청문 착수
+  - list:
+    - listitem:
+      - link "파리에선 거장 대접, 한국은 이제야…‘빛의 화가’ 방혜자":
+        - /url: https://n.news.naver.com/article/310/0000140158?cds=news_media_pc&type=editn
+    - listitem:
+      - link "원민경 장관 “임신중지약 도입 늦어져 여성 건강권 침해…건보 적용돼야”":
+        - /url: https://n.news.naver.com/article/310/0000140201?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[W 인물] 기후변호사에서 첫 80년대생 장관으로… 이소영 중기부 장관 후보자는 누구":
+        - /url: https://n.news.naver.com/article/310/0000140210?cds=news_media_pc&type=editn
+  - link "대전일보 09월 22일 23:38":
+    - /url: https://media.naver.com/press/656
+    - emphasis: 대전일보
+    - text: 09월 22일 23:38
+  - button "구독"
+  - link "국군사관학교·軍 전투기 분산배치…강신철號 첫 시험대는 충청권":
+    - /url: https://n.news.naver.com/article/656/0000187609?cds=news_media_pc&type=editn
+    - strong: 국군사관학교·軍 전투기 분산배치…강신철號 첫 시험대는 충청권
+  - list:
+    - listitem:
+      - link "기존 혁신도시 공공기관 2차 이전 '집적 공세'…수세 몰리는 충청권":
+        - /url: https://n.news.naver.com/article/656/0000187606?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"특별법 막히면 조례로?\"…세종 행정수도 '게임체인저' 될까":
+        - /url: https://n.news.naver.com/article/656/0000187585?cds=news_media_pc&type=editn
+    - listitem:
+      - link "압수영장·피의자 조서 외부 AI에…충청권 경찰 수사기밀 유출":
+        - /url: https://n.news.naver.com/article/656/0000187581?cds=news_media_pc&type=editn
+  - link "비즈워치 09월 22일 20:46":
+    - /url: https://media.naver.com/press/648
+    - emphasis: 비즈워치
+    - text: 09월 22일 20:46
+  - button "구독"
+  - link "\"4만달러 시대, 고객 원하는 것 찾겠다\" 도공의 혁신 예고":
+    - /url: https://n.news.naver.com/article/648/0000051008?cds=news_media_pc&type=editn
+    - strong: "\"4만달러 시대, 고객 원하는 것 찾겠다\" 도공의 혁신 예고"
+  - list:
+    - listitem:
+      - link "한은 \"기준금리 0.25%p 인상때 가계 이자부담 3.3조↑\"":
+        - /url: https://n.news.naver.com/article/648/0000051006?cds=news_media_pc&type=editn
+    - listitem:
+      - link "삼전닉스 레버리지보다 심하네...원자재 ETP '널뛰기'에 투자주의보":
+        - /url: https://n.news.naver.com/article/648/0000051000?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[단독]금융협회장 연봉 서열, 금투협회장이 은행연합회장 제쳤다":
+        - /url: https://n.news.naver.com/article/648/0000050989?cds=news_media_pc&type=editn
+  - link "기자협회보 09월 22일 19:10":
+    - /url: https://media.naver.com/press/127
+    - emphasis: 기자협회보
+    - text: 09월 22일 19:10
+  - button "구독"
+  - link "\"사장 선출 늦추려 편성위 이용\" 비판에…박장범 \"사실 아냐\"":
+    - /url: https://n.news.naver.com/article/127/0000039810?cds=news_media_pc&type=editn
+    - strong: "\"사장 선출 늦추려 편성위 이용\" 비판에…박장범 \"사실 아냐\""
+  - list:
+    - listitem:
+      - link "KNN노조, 강병중 회장 자택 앞 집회":
+        - /url: https://n.news.naver.com/article/127/0000039809?cds=news_media_pc&type=editn
+    - listitem:
+      - link "시간 벌었지만 연합TV 사추위 구성 더 험로":
+        - /url: https://n.news.naver.com/article/127/0000039808?cds=news_media_pc&type=editn
+    - listitem:
+      - link "고무줄·정치심의 막는다… 방미심위 새 심의규정 29일 시행":
+        - /url: https://n.news.naver.com/article/127/0000039807?cds=news_media_pc&type=editn
+  - link "미디어오늘 09월 22일 22:36":
+    - /url: https://media.naver.com/press/006
+    - emphasis: 미디어오늘
+    - text: 09월 22일 22:36
+  - button "구독"
+  - link "'HL만도 끼임 사망' 62일만…정몽원 회장, 고 김승모 유족에 사과":
+    - /url: https://n.news.naver.com/article/006/0000137871?cds=news_media_pc&type=editn
+    - strong: "'HL만도 끼임 사망' 62일만…정몽원 회장, 고 김승모 유족에 사과"
+  - list:
+    - listitem:
+      - link "KBS \"대통령 회견 전날 김승원 탄원서 홍익표·李 전달\" 靑 \"확인어려워\"":
+        - /url: https://n.news.naver.com/article/006/0000137870?cds=news_media_pc&type=editn
+    - listitem:
+      - link "유시민 \"재래 언론 유튜브, 거의 뉴이재명에 줄 섰다\"":
+        - /url: https://n.news.naver.com/article/006/0000137869?cds=news_media_pc&type=editn
+    - listitem:
+      - link "유시민이 생각하는 비평가의 책임?":
+        - /url: https://n.news.naver.com/article/006/0000137867?cds=news_media_pc&type=editn
+  - link "한겨레 09월 22일 22:49":
+    - /url: https://media.naver.com/press/028
+    - emphasis: 한겨레
+    - text: 09월 22일 22:49
+  - button "구독"
+  - link "이 대통령 “달리는 차 세워야” 북핵 실용접근…‘핵보유국 인정’ 비칠 우려":
+    - /url: https://n.news.naver.com/article/028/0002824316?cds=news_media_pc&type=editn
+    - strong: 이 대통령 “달리는 차 세워야” 북핵 실용접근…‘핵보유국 인정’ 비칠 우려
+  - list:
+    - listitem:
+      - link "대법관 임명권 우선이냐, 제청권 보장이냐…헌재 권한쟁의심판 받나":
+        - /url: https://n.news.naver.com/article/028/0002824331?cds=news_media_pc&type=editn
+    - listitem:
+      - link "‘대미 투자 1호’ 텍사스 발전소 선정…올해 21.9억달러 송금":
+        - /url: https://n.news.naver.com/article/028/0002824319?cds=news_media_pc&type=editn
+    - listitem:
+      - link "유재석, 고열로 당일 녹화 취소…데뷔 35년 만에 처음":
+        - /url: https://n.news.naver.com/article/028/0002824291?cds=news_media_pc&type=editn
+  - link "경기일보 09월 22일 23:12":
+    - /url: https://media.naver.com/press/666
+    - emphasis: 경기일보
+    - text: 09월 22일 23:12
+  - button "구독"
+  - link "광명 ‘철산자이 더 헤리티지’ 줍줍에 5만4천명…경쟁률 1만 4천94대 1":
+    - /url: https://n.news.naver.com/article/666/0000124657?cds=news_media_pc&type=editn
+    - strong: 광명 ‘철산자이 더 헤리티지’ 줍줍에 5만4천명…경쟁률 1만 4천94대 1
+  - list:
+    - listitem:
+      - link "고속도로서 “거의 다 왔다” 깨우자 택시기사 폭행…30대 입건":
+        - /url: https://n.news.naver.com/article/666/0000124656?cds=news_media_pc&type=editn
+    - listitem:
+      - link "2호선 이대역 두 차례 무정차 끝 정상화…2시간 만에 정상 운행":
+        - /url: https://n.news.naver.com/article/666/0000124655?cds=news_media_pc&type=editn
+    - listitem:
+      - link "백령도 상공 북한 항공기 감지...선박 79척 긴급 피항":
+        - /url: https://n.news.naver.com/article/666/0000124649?cds=news_media_pc&type=editn
+  - link "조선일보 09월 22일 23:34":
+    - /url: https://media.naver.com/press/023
+    - emphasis: 조선일보
+    - text: 09월 22일 23:34
+  - button "구독"
+  - link "[단독] 靑, 조희대 재제청 거부에 헌재 권한쟁의심판 청구 검토":
+    - /url: https://n.news.naver.com/article/023/0003999942?cds=news_media_pc&type=editn
+    - strong: "[단독] 靑, 조희대 재제청 거부에 헌재 권한쟁의심판 청구 검토"
+  - list:
+    - listitem:
+      - link "‘뇌물 혐의’ 문재인 前대통령, 국민참여재판 자청했다":
+        - /url: https://n.news.naver.com/article/023/0003999917?cds=news_media_pc&type=editn
+    - listitem:
+      - link "한국 남녀 탁구, 단체전 8강서 나란히 완승하며 동메달 확보...일본과 준결승서 격돌":
+        - /url: https://n.news.naver.com/article/023/0003999940?cds=news_media_pc&type=editn
+    - listitem:
+      - link "유시민 “李대통령, 검찰개혁 놓고 지금까지 국민 속였다”":
+        - /url: https://n.news.naver.com/article/023/0003999892?cds=news_media_pc&type=editn
+  - link "kbc광주방송 09월 22일 23:44":
+    - /url: https://media.naver.com/press/660
+    - emphasis: kbc광주방송
+    - text: 09월 22일 23:44
+  - button "구독"
+  - link "유시민 \"李, 국민 속였다…수사·기소 분리 원치 않아\"":
+    - /url: https://n.news.naver.com/article/660/0000117729?cds=news_media_pc&type=editn
+    - strong: 유시민 "李, 국민 속였다…수사·기소 분리 원치 않아"
+  - list:
+    - listitem:
+      - link "'800조 반도체' 광주 군공항 63만 평, 내년 첫 삽…2030년 첫 양산":
+        - /url: https://n.news.naver.com/article/660/0000117720?cds=news_media_pc&type=editn
+    - listitem:
+      - link "국토부 \"광주공항 국제선 임시 취항 안 한다\"":
+        - /url: https://n.news.naver.com/article/660/0000117722?cds=news_media_pc&type=editn
+    - listitem:
+      - link "도심 수로 점령 3.5m 상어…닷새째 '부캉이' 보러 3만명 몰렸다":
+        - /url: https://n.news.naver.com/article/660/0000117731?cds=news_media_pc&type=editn
+  - link "헤럴드경제 09월 22일 23:55":
+    - /url: https://media.naver.com/press/016
+    - emphasis: 헤럴드경제
+    - text: 09월 22일 23:55
+  - button "구독"
+  - link "[속보] 트럼프 “선거 직후에 이란과 합의하게 되리라 믿어”":
+    - /url: https://n.news.naver.com/article/016/0002701124?cds=news_media_pc&type=editn
+    - strong: "[속보] 트럼프 “선거 직후에 이란과 합의하게 되리라 믿어”"
+  - list:
+    - listitem:
+      - link "트럼프는 “만남 열려있다”는데…이란 대통령, 출국길부터 “단호히 맞설 것”":
+        - /url: https://n.news.naver.com/article/016/0002701100?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“치매 남편이 ‘로맨스 스캠’에 재산 탕진”…이혼 고민하는 아내":
+        - /url: https://n.news.naver.com/article/016/0002701111?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“남이 쓰던 스마트폰이 300만원?” 새 폰 비싸지더니…중고폰 가격도 ‘난리’, 이 정도일 줄은":
+        - /url: https://n.news.naver.com/article/016/0002701106?cds=news_media_pc&type=editn
+  - link "뉴스1 09월 22일 23:51":
+    - /url: https://media.naver.com/press/421
+    - emphasis: 뉴스1
+    - text: 09월 22일 23:51
+  - button "구독"
+  - link "靑, 대법원에 \"헌법 위배·사실왜곡\" 직격…이례적 2차례 언론공지로 대응":
+    - /url: https://n.news.naver.com/article/421/0009187248?cds=news_media_pc&type=editn
+    - strong: 靑, 대법원에 "헌법 위배·사실왜곡" 직격…이례적 2차례 언론공지로 대응
+  - list:
+    - listitem:
+      - link "[속보] 트럼프 \"이란과 합의할지 궤멸시킬지 결정내려야\"":
+        - /url: https://n.news.naver.com/article/421/0009187573?cds=news_media_pc&type=editn
+    - listitem:
+      - link "송세라, 금빛 찌르고 야구는 사상 첫 팀 '퍼펙트'(종합)[AG]":
+        - /url: https://n.news.naver.com/article/421/0009187553?cds=news_media_pc&type=editn
+    - listitem:
+      - link "李대통령 \"반인권적 성 착취물 대한민국서 발붙이기 어려울 것\"":
+        - /url: https://n.news.naver.com/article/421/0009187571?cds=news_media_pc&type=editn
+  - link "전주MBC 09월 22일 22:10":
+    - /url: https://media.naver.com/press/659
+    - emphasis: 전주MBC
+    - text: 09월 22일 22:10
+  - button "구독"
+  - link "영상 \"3달만 종이팩 보상?\"..상가·주택가에도 수거망 늘려야":
+    - /url: https://n.news.naver.com/article/659/0000047150?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: "\"3달만 종이팩 보상?\"..상가·주택가에도 수거망 늘려야"
+  - list:
+    - listitem:
+      - link "30여 년 된 완주 산단, 미래 모빌리티 거점되나":
+        - /url: https://n.news.naver.com/article/659/0000047149?cds=news_media_pc&type=editn
+    - listitem:
+      - link "추석 연휴 고속도로 주유소 리터당 100원 인하…통행료도 면제":
+        - /url: https://n.news.naver.com/article/659/0000047132?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"죄송합니다\" 메모 남기고 숨진 청년 연구사":
+        - /url: https://n.news.naver.com/article/659/0000047108?cds=news_media_pc&type=editn
+  - link "매일신문 09월 22일 23:00":
+    - /url: https://media.naver.com/press/088
+    - emphasis: 매일신문
+    - text: 09월 22일 23:00
+  - button "구독"
+  - link "백령도 인근서 北 추정 항공기 포착…어선 등 79척 긴급 피항":
+    - /url: https://n.news.naver.com/article/088/0001030163?cds=news_media_pc&type=editn
+    - strong: 백령도 인근서 北 추정 항공기 포착…어선 등 79척 긴급 피항
+  - list:
+    - listitem:
+      - link "\"목적지 다 왔다\" 말에 격분…고속도로서 택시기사 마구때린 30대 취객 입건":
+        - /url: https://n.news.naver.com/article/088/0001030162?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"5살 딸 앞에서\" 이혼소장에 적힌 주소 찾아가 아내 살해한 30대 공무원…구속 기소":
+        - /url: https://n.news.naver.com/article/088/0001030161?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"세상에서 가장 비싼 술\"…SK하이닉스 신입 4명, 연수 중 음주했다가 해고":
+        - /url: https://n.news.naver.com/article/088/0001030125?cds=news_media_pc&type=editn
+  - link "조선비즈 09월 22일 23:29":
+    - /url: https://media.naver.com/press/366
+    - emphasis: 조선비즈
+    - text: 09월 22일 23:29
+  - button "구독"
+  - link "“폭스바겐의 자랑에서 골칫덩이로”… 추락한 포르쉐의 위상":
+    - /url: https://n.news.naver.com/article/366/0001194018?cds=news_media_pc&type=editn
+    - strong: “폭스바겐의 자랑에서 골칫덩이로”… 추락한 포르쉐의 위상
+  - list:
+    - listitem:
+      - link "문재인 前대통령, 내년 1월 ‘뇌물 수수 혐의’ 국민참여재판… 딸·사위 등 15명 증인":
+        - /url: https://n.news.naver.com/article/366/0001194042?cds=news_media_pc&type=editn
+    - listitem:
+      - link "李 기자회견, ‘잘못했다’ 57.7% vs ‘잘했다’ 39.2% [리얼미터]":
+        - /url: https://n.news.naver.com/article/366/0001194009?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[오늘의 운세] 9월 23일 수요일":
+        - /url: https://n.news.naver.com/article/366/0001194050?cds=news_media_pc&type=editn
+  - heading "방송뉴스 방송뉴스 도움말" [level=3]:
+    - text: 방송뉴스
+    - button "방송뉴스 도움말"
+  - tablist:
+    - tab [selected]:
+      - img
+    - tab:
+      - img
+    - tab:
+      - img
+    - tab:
+      - img
+  - tabpanel:
+    - link "LIVE":
+      - /url: https://media.naver.com/press/422/live
+      - text: LIVE
+      - img
+  - link "블로터 09월 22일 17:52":
+    - /url: https://media.naver.com/press/293
+    - emphasis: 블로터
+    - text: 09월 22일 17:52
+  - button "구독"
+  - link "[어바웃 C] 전승호 단독체제 코오롱티슈진, 노문종 업무 '분산 승계'":
+    - /url: https://n.news.naver.com/article/293/0000090799?cds=news_media_pc&type=editn
+    - strong: "[어바웃 C] 전승호 단독체제 코오롱티슈진, 노문종 업무 '분산 승계'"
+  - list:
+    - listitem:
+      - link "[AI 대전환 리딩 전략]삼성D, 고성능·초저전력 OLED 초격차 선도":
+        - /url: https://n.news.naver.com/article/293/0000090798?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'인적분할' 첫 관문 넘은 카카오…합병 주주 반대 2%대 그쳐":
+        - /url: https://n.news.naver.com/article/293/0000090826?cds=news_media_pc&type=editn
+    - listitem:
+      - link "얼라인파트너스, DB손보 밸류업 플랜 긍정 평가":
+        - /url: https://n.news.naver.com/article/293/0000090825?cds=news_media_pc&type=editn
+  - heading "언론사별 심층기획" [level=3]
+  - link "서경 PICK 서울경제":
+    - /url: https://media.naver.com/press/011#SpecialReport
+  - button "구독"
+  - list:
+    - listitem:
+      - link "[단독] 구글, 정부에 TPU 우선 공급 타진":
+        - /url: https://n.news.naver.com/article/011/0004664646?cds=news_media_pc&type=editn
+      - link "서울경제":
+        - /url: https://media.naver.com/press/011
+    - listitem:
+      - link "‘노도강·금관구’까지 300만원…강남 넘어 서울 전역 덮친 고액월세":
+        - /url: https://n.news.naver.com/article/011/0004664638?cds=news_media_pc&type=editn
+      - link "서울경제":
+        - /url: https://media.naver.com/press/011
+  - link "2026 아시안 게임 한국일보":
+    - /url: https://media.naver.com/press/469#SpecialReport
+  - button "구독"
+  - list:
+    - listitem:
+      - link "사흘간 금·은·동 휩쓴 김영범 \"한국신기록 쓴 동메달, 전혀 아쉽지 않아\"":
+        - /url: https://n.news.naver.com/article/469/0000955615?cds=news_media_pc&type=editn
+      - link "한국일보":
+        - /url: https://media.naver.com/press/469
+    - listitem:
+      - link "2회 연속 아시안게임 '노메달'...한국 여자배구, 이제는 ‘아시아 변방’":
+        - /url: https://n.news.naver.com/article/469/0000955603?cds=news_media_pc&type=editn
+      - link "한국일보":
+        - /url: https://media.naver.com/press/469
+  - link "매일경제 09월 22일 23:54":
+    - /url: https://media.naver.com/press/009
+    - emphasis: 매일경제
+    - text: 09월 22일 23:54
+  - button "구독"
+  - link "[속보] 나스닥 장중 ‘사상 최고치’ 찍었다…미·이란 회담 기대에 4개월만":
+    - /url: https://n.news.naver.com/article/009/0005739263?cds=news_media_pc&type=editn
+    - strong: "[속보] 나스닥 장중 ‘사상 최고치’ 찍었다…미·이란 회담 기대에 4개월만"
+  - list:
+    - listitem:
+      - link "[속보] 트럼프 “이란과 합의할지 소멸시킬지 큰 결정할 것”":
+        - /url: https://n.news.naver.com/article/009/0005739269?cds=news_media_pc&type=editn
+    - listitem:
+      - link "‘물에 담근 참치’로 굴욕 맛봤는데…이번엔 확 달라진 CJ제일제당 어떻길래":
+        - /url: https://n.news.naver.com/article/009/0005739087?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“돈 못 벌어 유언비어 퍼뜨렸나?”…여수시, 택시기사 ‘입단속’ 논란":
+        - /url: https://n.news.naver.com/article/009/0005739249?cds=news_media_pc&type=editn
+  - iframe
+  - heading "연재를 구독해보세요" [level=3]
+  - button "도움말"
+  - link "구독 설정":
+    - /url: https://media.naver.com/channel/seriesSetting
+  - list:
+    - listitem:
+      - link "초고수, 삼성전자 대신 삼성전기…MLCC 공급부족에 순매수 1위":
+        - /url: https://n.news.naver.com/mnews/hotissue/article/011/0004664459?cid=1087130&type=series&cds=news_media_pc
+      - link "주식 초고수는 지금":
+        - /url: https://news.naver.com/hotissue/main?sid1=110&cid=1087130&cds=news_media_pc
+      - button "구독"
+    - listitem:
+      - link "美 훈풍에도 엇갈린 반도체 톱2…삼전 1%↑·SK하닉 1.5%↓(종합)":
+        - /url: https://n.news.naver.com/mnews/hotissue/article/421/0009186951?cid=2001274&type=series&cds=news_media_pc
+      - link "핫종목":
+        - /url: https://news.naver.com/hotissue/main?sid1=110&cid=2001274&cds=news_media_pc
+      - button "구독"
+    - listitem:
+      - link "위험선호심리 회복·중동 합의 기대감에 환율 하락 압력":
+        - /url: https://n.news.naver.com/mnews/hotissue/article/018/0006374062?cid=1073583&type=series&cds=news_media_pc
+      - link "외환브리핑":
+        - /url: https://news.naver.com/hotissue/main?sid1=110&cid=1073583&cds=news_media_pc
+      - button "구독"
+    - listitem:
+      - link "잠실주공5단지 20억 이주비에 송파 일대 초긴장":
+        - /url: https://n.news.naver.com/mnews/hotissue/article/011/0004664302?cid=1087127&type=series&cds=news_media_pc
+      - link "집슐랭":
+        - /url: https://news.naver.com/hotissue/main?sid1=110&cid=1087127&cds=news_media_pc
+      - button "구독"
+  - link "연재 모두 보기":
+    - /url: https://news.naver.com/opinion/series
+  - link "한경비즈니스 09월 22일 17:20":
+    - /url: https://media.naver.com/press/050
+    - emphasis: 한경비즈니스
+    - text: 09월 22일 17:20
+  - button "구독"
+  - link "이재명 대통령 “강남불패 과거 이야기 될 것”":
+    - /url: https://n.news.naver.com/article/050/0000111202?cds=news_media_pc&type=editn
+    - strong: 이재명 대통령 “강남불패 과거 이야기 될 것”
+  - list:
+    - listitem:
+      - link "靑 “농지투기만 잡을 것…팔기 싫으면 안 팔면 돼\"":
+        - /url: https://n.news.naver.com/article/050/0000111222?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“빅맥도 케첩도 안 먹는다”…주가 폭락·S&P100 퇴출 [흔들리는 제국-소비재]":
+        - /url: https://n.news.naver.com/article/050/0000111197?cds=news_media_pc&type=editn
+    - listitem:
+      - link "‘꿈의 직장’이라더니...SK하이닉스 신입 4명 연수 중 해고":
+        - /url: https://n.news.naver.com/article/050/0000111226?cds=news_media_pc&type=editn
+  - link "국민일보 09월 22일 22:39":
+    - /url: https://media.naver.com/press/005
+    - emphasis: 국민일보
+    - text: 09월 22일 22:39
+  - button "구독"
+  - link "“트럼프, 조건 맞으면 뉴욕서 이란측과 회담열고 싶어해”":
+    - /url: https://n.news.naver.com/article/005/0001874629?cds=news_media_pc&type=editn
+    - strong: “트럼프, 조건 맞으면 뉴욕서 이란측과 회담열고 싶어해”
+  - list:
+    - listitem:
+      - link "李대통령, 정청래에 위로 전화…유시민은 “대통령, 국민 속여”":
+        - /url: https://n.news.naver.com/article/005/0001874616?cds=news_media_pc&type=editn
+    - listitem:
+      - link "손봉기 제청 살았나, 죽었나… 조희대, 靑에 다시 공 넘겼다":
+        - /url: https://n.news.naver.com/article/005/0001874599?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“응급실서 치료 못받는 아이들 찾아오면 달빛 포기할 수 없어”":
+        - /url: https://n.news.naver.com/article/005/0001874603?cds=news_media_pc&type=editn
+  - link "디지털타임스 09월 22일 23:41":
+    - /url: https://media.naver.com/press/029
+    - emphasis: 디지털타임스
+    - text: 09월 22일 23:41
+  - button "구독"
+  - link "“한동훈 징계 Yes, 복당 No” 민주·조국 지지층서 최다…“보완수사 회복” 52.5%":
+    - /url: https://n.news.naver.com/article/029/0003049605?cds=news_media_pc&type=editn
+    - strong: “한동훈 징계 Yes, 복당 No” 민주·조국 지지층서 최다…“보완수사 회복” 52.5%
+  - list:
+    - listitem:
+      - link "[기획] 내년 봄 ‘금리 쓰나미’ 온다… 좀비기업·취약층 연체 시한폭탄":
+        - /url: https://n.news.naver.com/article/029/0003049582?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[속보] 백령도 부근 상공서 북한 항공기 추정 움직임 감지…선박 70여척 한때 피항":
+        - /url: https://n.news.naver.com/article/029/0003049602?cds=news_media_pc&type=editn
+    - listitem:
+      - link "이낙연 “‘대법관 재제청 요구’ 거부한 조희대 결단…사법권독립 역사에 기록”":
+        - /url: https://n.news.naver.com/article/029/0003049593?cds=news_media_pc&type=editn
+  - link "서울경제 09월 22일 23:44":
+    - /url: https://media.naver.com/press/011
+    - emphasis: 서울경제
+    - text: 09월 22일 23:44
+  - button "구독"
+  - link "[속보] 트럼프 “이란과 합의할지 소멸시킬지 큰 결정할 것”":
+    - /url: https://n.news.naver.com/article/011/0004664732?cds=news_media_pc&type=editn
+    - strong: "[속보] 트럼프 “이란과 합의할지 소멸시킬지 큰 결정할 것”"
+  - list:
+    - listitem:
+      - link "한국은 다들 가고 싶어서 안달인데…‘의대’ 합격해도 안 간다는 中, 대체 왜?":
+        - /url: https://n.news.naver.com/article/011/0004664730?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“비싼 주사 안 맞아도 되겠네”…배 터지게 먹어도 살 빠진다는 ‘이 음식’ [헬시타임]":
+        - /url: https://n.news.naver.com/article/011/0004664548?cds=news_media_pc&type=editn
+    - listitem:
+      - link "아침마다 먹었는데 신장 망치고 있었다…“당장 치워라” 영양사가 경고한 ‘이 음식’ [헬시타임]":
+        - /url: https://n.news.naver.com/article/011/0004664444?cds=news_media_pc&type=editn
+  - link "코메디닷컴 09월 22일 22:53":
+    - /url: https://media.naver.com/press/296
+    - emphasis: 코메디닷컴
+    - text: 09월 22일 22:53
+  - button "구독"
+  - link "성생활 뚝 끊으면 건강에 문제 생길 수 있어⋯그렇다면 성직자는?":
+    - /url: https://n.news.naver.com/article/296/0000105175?cds=news_media_pc&type=editn
+    - strong: 성생활 뚝 끊으면 건강에 문제 생길 수 있어⋯그렇다면 성직자는?
+  - list:
+    - listitem:
+      - link "진서연 “40일 만에 28kg 감량”⋯건강하지 못한 ‘이 방법’으로 뺐다고?":
+        - /url: https://n.news.naver.com/article/296/0000105160?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“멀쩡하던 28세男 갑자기 횡설수설”…정신병인 줄 알았더니 ‘전신 염증질환’?":
+        - /url: https://n.news.naver.com/article/296/0000105180?cds=news_media_pc&type=editn
+    - listitem:
+      - link "췌장 이대로 망가지나? 혈당에 큰 변화… 뭘 먹길래?":
+        - /url: https://n.news.naver.com/article/296/0000105179?cds=news_media_pc&type=editn
+  - link "더팩트 09월 22일 23:22":
+    - /url: https://media.naver.com/press/629
+    - emphasis: 더팩트
+    - text: 09월 22일 23:22
+  - button "구독"
+  - link "조희대 대법원장 '손봉기 제청 유지' 질문에 묵묵부답":
+    - /url: https://n.news.naver.com/article/629/0000536392?cds=news_media_pc&type=editn
+    - strong: 조희대 대법원장 '손봉기 제청 유지' 질문에 묵묵부답
+  - list:
+    - listitem:
+      - link "[아시안게임] 한국 야구, 홍콩에 13-0 콜드게임 승…B조 선두":
+        - /url: https://n.news.naver.com/article/629/0000536401?cds=news_media_pc&type=editn
+    - listitem:
+      - link "對美 투자 1호 텍사스 가스복합화력…2·3호 원전·알래스카 LNG(종합)":
+        - /url: https://n.news.naver.com/article/629/0000536203?cds=news_media_pc&type=editn
+    - listitem:
+      - link "평균 62일→29일 '속전속결'…지선 직전 나온 레버리지 ETF 책임 공방":
+        - /url: https://n.news.naver.com/article/629/0000536140?cds=news_media_pc&type=editn
+  - link "이코노미스트 09월 22일 19:41":
+    - /url: https://media.naver.com/press/243
+    - emphasis: 이코노미스트
+    - text: 09월 22일 19:41
+  - button "구독"
+  - link "[오늘의 삼전닉스] 배당 기대감에 AI 낙관론까지 '호재'만 가득한 하루":
+    - /url: https://n.news.naver.com/article/243/0000103401?cds=news_media_pc&type=editn
+    - strong: "[오늘의 삼전닉스] 배당 기대감에 AI 낙관론까지 '호재'만 가득한 하루"
+  - list:
+    - listitem:
+      - link "한국 원전업계는 왜 '슈퍼갑' 웨스팅하우스 지분에 집착할까":
+        - /url: https://n.news.naver.com/article/243/0000103415?cds=news_media_pc&type=editn
+    - listitem:
+      - link "KT&G, 주주환원 속도 낸다":
+        - /url: https://n.news.naver.com/article/243/0000103437?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'꿈의 직장' 꿈에서 끝나다…SK하닉 신입 4명 연수 중 해고, 왜?":
+        - /url: https://n.news.naver.com/article/243/0000103407?cds=news_media_pc&type=editn
+  - link "동아일보 09월 22일 23:41":
+    - /url: https://media.naver.com/press/020
+    - emphasis: 동아일보
+    - text: 09월 22일 23:41
+  - button "구독"
+  - link "[사설]대미투자 1~3호 국회에 보고… 여야 소통으로 협상 힘 실어야":
+    - /url: https://n.news.naver.com/article/020/0003750178?cds=news_media_pc&type=editn
+    - strong: "[사설]대미투자 1~3호 국회에 보고… 여야 소통으로 협상 힘 실어야"
+  - list:
+    - listitem:
+      - link "[사설]돌연한 대법관 재제청 거부가 던지는 착잡한 질문들":
+        - /url: https://n.news.naver.com/article/020/0003750177?cds=news_media_pc&type=editn
+    - listitem:
+      - link "마사지 받은뒤 “나 미성년자야, 100만원 내놔”…업주 폭행-금품 훔친 10대들":
+        - /url: https://n.news.naver.com/article/020/0003750146?cds=news_media_pc&type=editn
+    - listitem:
+      - link "만취 10대女 집에 데려가 성관계…30대 경찰관 송치":
+        - /url: https://n.news.naver.com/article/020/0003750006?cds=news_media_pc&type=editn
+  - link "시사저널 09월 22일 22:51":
+    - /url: https://media.naver.com/press/586
+    - emphasis: 시사저널
+    - text: 09월 22일 22:51
+  - button "구독"
+  - link "李와 정면충돌한 조희대…與 '탄핵' 만지작, 野 적극 '엄호'":
+    - /url: https://n.news.naver.com/article/586/0000138809?cds=news_media_pc&type=editn
+    - strong: 李와 정면충돌한 조희대…與 '탄핵' 만지작, 野 적극 '엄호'
+  - list:
+    - listitem:
+      - link "진중권 \"李 지지율 더 떨어질 것…조희대와 충돌 계속되면 '사법파동' 갈 수도\"":
+        - /url: https://n.news.naver.com/article/586/0000138808?cds=news_media_pc&type=editn
+    - listitem:
+      - link "靑은 '가십'이라는데…'김승원 경기도당 회계부정 35건' 들여다보니":
+        - /url: https://n.news.naver.com/article/586/0000138807?cds=news_media_pc&type=editn
+    - listitem:
+      - link "李 \"연임 생각 전혀 없다\" 했지만…51.7% \"논란 해소 안 돼\" [리얼미터]":
+        - /url: https://n.news.naver.com/article/586/0000138804?cds=news_media_pc&type=editn
+  - link "아이뉴스24 09월 22일 23:21":
+    - /url: https://media.naver.com/press/031
+    - emphasis: 아이뉴스24
+    - text: 09월 22일 23:21
+  - button "구독"
+  - link "김건희 '매관매직' 2심 징역 5년...'바쉐론 시계' 무죄":
+    - /url: https://n.news.naver.com/article/031/0001060811?cds=news_media_pc&type=editn
+    - strong: 김건희 '매관매직' 2심 징역 5년...'바쉐론 시계' 무죄
+  - list:
+    - listitem:
+      - link "日 관세 한달 반⋯K철강, 일본 물량부터 줄였다":
+        - /url: https://n.news.naver.com/article/031/0001060699?cds=news_media_pc&type=editn
+    - listitem:
+      - link "일감 쌓였는데 생산현장은 '삐걱'…조선업계 임금협상 난항":
+        - /url: https://n.news.naver.com/article/031/0001060753?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'1억 공천헌금' 강선우 보석 석방...\"어떠한 돈도 받은 사실 없다\"":
+        - /url: https://n.news.naver.com/article/031/0001060812?cds=news_media_pc&type=editn
+  - link "경향신문 09월 22일 23:37":
+    - /url: https://media.naver.com/press/032
+    - emphasis: 경향신문
+    - text: 09월 22일 23:37
+  - button "구독"
+  - link "청와대는 비서실장도 사퇴했는데···‘김승원 낙마’ 4일째 묵묵부답인 여당 대표":
+    - /url: https://n.news.naver.com/article/032/0003472066?cds=news_media_pc&type=editn
+    - strong: 청와대는 비서실장도 사퇴했는데···‘김승원 낙마’ 4일째 묵묵부답인 여당 대표
+  - list:
+    - listitem:
+      - link "지식이 모여 대만을 키웠다, 자본이 고여 대만을 가른다":
+        - /url: https://n.news.naver.com/article/032/0003472151?cds=news_media_pc&type=editn
+    - listitem:
+      - link "이 대통령 기자회견, ‘잘못했다’ 57.7%…‘잘했다’ 39.2%[리얼미터]":
+        - /url: https://n.news.naver.com/article/032/0003472045?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[속보]2호선 이대역 무정차 통과 종료···정상 운행 재개":
+        - /url: https://n.news.naver.com/article/032/0003472159?cds=news_media_pc&type=editn
+  - link "코리아중앙데일리 09월 22일 17:50":
+    - /url: https://media.naver.com/press/640
+    - emphasis: 코리아중앙데일리
+    - text: 09월 22일 17:50
+  - button "구독"
+  - link "Lee urges Trump-Kim talks to resume through ‘political decision’ ahead of UN General Assembly":
+    - /url: https://n.news.naver.com/article/640/0000094583?cds=news_media_pc&type=editn
+    - strong: Lee urges Trump-Kim talks to resume through ‘political decision’ ahead of UN General Assembly
+  - list:
+    - listitem:
+      - link "New iPhone 18 Pro hit by ‘panic-full’ reboot reports just days after release":
+        - /url: https://n.news.naver.com/article/640/0000094585?cds=news_media_pc&type=editn
+    - listitem:
+      - link "Clouds, rain forecast for Chuseok holiday":
+        - /url: https://n.news.naver.com/article/640/0000094581?cds=news_media_pc&type=editn
+    - listitem:
+      - link "Incheon Airport prepares for Chuseok travel surge":
+        - /url: https://n.news.naver.com/article/640/0000094586?cds=news_media_pc&type=editn
+  - link "동아사이언스 09월 22일 17:54":
+    - /url: https://media.naver.com/press/584
+    - emphasis: 동아사이언스
+    - text: 09월 22일 17:54
+  - button "구독"
+  - link "전갱이 토할 때까지 쫓아 토사물만 훔쳐 먹는 돌고래":
+    - /url: https://n.news.naver.com/article/584/0000039429?cds=news_media_pc&type=editn
+    - strong: 전갱이 토할 때까지 쫓아 토사물만 훔쳐 먹는 돌고래
+  - list:
+    - listitem:
+      - link "한국 과학자들, 스트론튬 주파수 세계표준 88년만에 재확립":
+        - /url: https://n.news.naver.com/article/584/0000039426?cds=news_media_pc&type=editn
+    - listitem:
+      - link "韓 연구진, 누구나 연결 양자암호통신망 시뮬레이터 세계 첫 개발":
+        - /url: https://n.news.naver.com/article/584/0000039424?cds=news_media_pc&type=editn
+    - listitem:
+      - link "귀성길 터널 '유령정체' 완화…빛 신호로 운전자 유도":
+        - /url: https://n.news.naver.com/article/584/0000039418?cds=news_media_pc&type=editn
+  - link "MBN 09월 22일 23:31":
+    - /url: https://media.naver.com/press/057
+    - emphasis: MBN
+    - text: 09월 22일 23:31
+  - button "구독"
+  - link "영상 청와대, 조희대 거부 40분 만에 '정면 반박'…\"대통령 임명권 무력화\"":
+    - /url: https://n.news.naver.com/article/057/0001970345?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: 청와대, 조희대 거부 40분 만에 '정면 반박'…"대통령 임명권 무력화"
+  - list:
+    - listitem:
+      - link "백령도 부근서 북한 항공기 추정 움직임 감지":
+        - /url: https://n.news.naver.com/article/057/0001970385?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[단독] 아프리카로 뻗은 한국인 대상 납치·사기…'풍선효과' 대응은 미흡":
+        - /url: https://n.news.naver.com/article/057/0001970355?cds=news_media_pc&type=editn
+    - listitem:
+      - link "대미투자 1호는 30조 텍사스 가스발전소…전액 투자해도 미국 5대 5 지분 요구":
+        - /url: https://n.news.naver.com/article/057/0001970377?cds=news_media_pc&type=editn
+  - link "뉴시스 09월 22일 23:54":
+    - /url: https://media.naver.com/press/003
+    - emphasis: 뉴시스
+    - text: 09월 22일 23:54
+  - button "구독"
+  - link "펜싱 에페 송세라, 국제종합대회 개인전 첫 금메달 쾌거[나고야AG]":
+    - /url: https://n.news.naver.com/article/003/0014209057?cds=news_media_pc&type=editn
+    - strong: 펜싱 에페 송세라, 국제종합대회 개인전 첫 금메달 쾌거[나고야AG]
+  - list:
+    - listitem:
+      - link "이 대통령 \"반인권적 성착취물, 이제 대한민국에 발 붙이기 어렵게 될 것\"":
+        - /url: https://n.news.naver.com/article/003/0014209286?cds=news_media_pc&type=editn
+    - listitem:
+      - link "이 대통령, 민주당 의원 전원에 '노무현 평전' 선물":
+        - /url: https://n.news.naver.com/article/003/0014209194?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[속보]트럼프, 유엔서 \"美중간선거 직후 이란과 합의한다 믿어\"":
+        - /url: https://n.news.naver.com/article/003/0014209283?cds=news_media_pc&type=editn
+  - link "시사IN 09월 22일 06:30":
+    - /url: https://media.naver.com/press/308
+    - emphasis: 시사IN
+    - text: 09월 22일 06:30
+  - button "구독"
+  - link "경찰 개혁은 왜 고장 난 레코드인가":
+    - /url: https://n.news.naver.com/article/308/0000038785?cds=news_media_pc&type=editn
+    - strong: 경찰 개혁은 왜 고장 난 레코드인가
+  - list:
+    - listitem:
+      - link "용혜인 의원을 보며 드는 복잡한 마음 [프리스타일]":
+        - /url: https://n.news.naver.com/article/308/0000038786?cds=news_media_pc&type=editn
+    - listitem:
+      - link "당신이 본 기사와 방송은 얼마였을까 [사람IN]":
+        - /url: https://n.news.naver.com/article/308/0000038787?cds=news_media_pc&type=editn
+    - listitem:
+      - link "한국에서 이런 학교가 가능하다고? [취재 뒷담화]":
+        - /url: https://n.news.naver.com/article/308/0000038788?cds=news_media_pc&type=editn
+  - link "강원도민일보 09월 22일 21:54":
+    - /url: https://media.naver.com/press/654
+    - emphasis: 강원도민일보
+    - text: 09월 22일 21:54
+  - button "구독"
+  - link "병원서 우연히 들은 통화…원주 경찰, 5000만원 보이스피싱 피해 막아":
+    - /url: https://n.news.naver.com/article/654/0000202046?cds=news_media_pc&type=editn
+    - strong: 병원서 우연히 들은 통화…원주 경찰, 5000만원 보이스피싱 피해 막아
+  - list:
+    - listitem:
+      - link "설악산 선녀봉 비법정 탐방로서 길 잃은 40대…헬기로 구조":
+        - /url: https://n.news.naver.com/article/654/0000202125?cds=news_media_pc&type=editn
+    - listitem:
+      - link "이 대통령 \"한미, 조건없이 북한과 대화할 용의…두 정상 정치적 결단 필요\"":
+        - /url: https://n.news.naver.com/article/654/0000202117?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"안 갈래\" 닷새째 북항에 눌러앉은 상어 '부캉이'…유관기관 대책회의":
+        - /url: https://n.news.naver.com/article/654/0000202088?cds=news_media_pc&type=editn
+  - link "JTBC 09월 22일 23:39":
+    - /url: https://media.naver.com/press/437
+    - emphasis: JTBC
+    - text: 09월 22일 23:39
+  - button "구독"
+  - link "[속보] 이 대통령, 이소영 중기장관·이정현 대검차장 임명안 재가":
+    - /url: https://n.news.naver.com/article/437/0000512428?cds=news_media_pc&type=editn
+    - strong: "[속보] 이 대통령, 이소영 중기장관·이정현 대검차장 임명안 재가"
+  - list:
+    - listitem:
+      - link "조희대 퇴임까지 대법관 공백? 법원 내부서도 \"최선인가\"":
+        - /url: https://n.news.naver.com/article/437/0000512387?cds=news_media_pc&type=editn
+    - listitem:
+      - link "동맹국엔 '청구서' 흔들더니…시진핑 온다니 \"최상급 예우\"":
+        - /url: https://n.news.naver.com/article/437/0000512390?cds=news_media_pc&type=editn
+    - listitem:
+      - link "잠깐 쉬었다고 \"이 개XX들\"…이주노동자에 '소화기 난사'":
+        - /url: https://n.news.naver.com/article/437/0000512406?cds=news_media_pc&type=editn
+  - link "노컷뉴스 09월 22일 23:52":
+    - /url: https://media.naver.com/press/079
+    - emphasis: 노컷뉴스
+    - text: 09월 22일 23:52
+  - button "구독"
+  - link "[속보]트럼프 \"취임 후 8건의 전쟁 종식시켜 영광\"":
+    - /url: https://n.news.naver.com/article/079/0004192296?cds=news_media_pc&type=editn
+    - strong: "[속보]트럼프 \"취임 후 8건의 전쟁 종식시켜 영광\""
+  - list:
+    - listitem:
+      - link "'단 한 명도 1루를 밟지 못했다'…韓 야구 '0피안타·0볼넷', AG 최초 '팀 퍼펙트'":
+        - /url: https://n.news.naver.com/article/079/0004192290?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"개떡같아\" 미용실 커트 논란…'13살 아들' 머리상태 보니[뉴스럽다]":
+        - /url: https://n.news.naver.com/article/079/0004192044?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"밤 아니고, 병원 갈 수도\"…먹으면 '호흡곤란' 일으키는 '이 열매'[뉴스럽다]":
+        - /url: https://n.news.naver.com/article/079/0004192243?cds=news_media_pc&type=editn
+  - link "주간조선 09월 22일 23:35":
+    - /url: https://media.naver.com/press/053
+    - emphasis: 주간조선
+    - text: 09월 22일 23:35
+  - button "구독"
+  - link "'뇌물 혐의' 문재인 前대통령, 국민참여재판 받는다…딸도 증인 채택":
+    - /url: https://n.news.naver.com/article/053/0000061701?cds=news_media_pc&type=editn
+    - strong: "'뇌물 혐의' 문재인 前대통령, 국민참여재판 받는다…딸도 증인 채택"
+  - list:
+    - listitem:
+      - link "유시민 \"李대통령, 검찰개혁 놓고 국민 속였다…진심 알고 충격\"":
+        - /url: https://n.news.naver.com/article/053/0000061703?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"인생에서 가장 비싼 술\"…SK하이닉스 신입 4명, 연수 중 음주로 해고":
+        - /url: https://n.news.naver.com/article/053/0000061702?cds=news_media_pc&type=editn
+    - listitem:
+      - link "연세대 치대서 반바지 입었다가 '자필 반성문'…강의실서 공개까지":
+        - /url: https://n.news.naver.com/article/053/0000061704?cds=news_media_pc&type=editn
+  - link "TV조선 09월 22일 23:02":
+    - /url: https://media.naver.com/press/448
+    - emphasis: TV조선
+    - text: 09월 22일 23:02
+  - button "구독"
+  - link "영상 조희대, 25일만에 대법관 재제청 거부…\"靑 요청, 헌법적 근거 없어\"":
+    - /url: https://n.news.naver.com/article/448/0000640926?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: 조희대, 25일만에 대법관 재제청 거부…"靑 요청, 헌법적 근거 없어"
+  - list:
+    - listitem:
+      - link "軍 \"北 지뢰지대와 거리\" 선 긋더니…하루 만에 장관은 \"확정 못 해\"":
+        - /url: https://n.news.naver.com/article/448/0000640933?cds=news_media_pc&type=editn
+    - listitem:
+      - link "李, 순방중에 또 \"투기 근절\"…현실은 생애 첫 주택구입이 절반 넘어":
+        - /url: https://n.news.naver.com/article/448/0000640944?cds=news_media_pc&type=editn
+    - listitem:
+      - link "檢 수장에 '대북송금 수사 비판' 이정현…내부 \"공소취소 할듯\"":
+        - /url: https://n.news.naver.com/article/448/0000640939?cds=news_media_pc&type=editn
+  - link "KBS 09월 22일 23:20":
+    - /url: https://media.naver.com/press/056
+    - emphasis: KBS
+    - text: 09월 22일 23:20
+  - button "구독"
+  - link "[속보] 이 대통령, 중기부 장관·검찰총장 대행 대검 차장 임명안 재가":
+    - /url: https://n.news.naver.com/article/056/0012262105?cds=news_media_pc&type=editn
+    - strong: "[속보] 이 대통령, 중기부 장관·검찰총장 대행 대검 차장 임명안 재가"
+  - list:
+    - listitem:
+      - link "대법관 공석 6개월째 제자리…파국 치닫는 대법원-청와대":
+        - /url: https://n.news.naver.com/article/056/0012261937?cds=news_media_pc&type=editn
+    - listitem:
+      - link "‘국적 상실’ 외국인에 연금 오지급…20%는 환수도 못해":
+        - /url: https://n.news.naver.com/article/056/0012261956?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“한가위 보름달 보기 어려워”…추석 당일부터 ‘곳곳 비’":
+        - /url: https://n.news.naver.com/article/056/0012261949?cds=news_media_pc&type=editn
+  - link "주간동아 09월 22일 14:11":
+    - /url: https://media.naver.com/press/037
+    - emphasis: 주간동아
+    - text: 09월 22일 14:11
+  - button "구독"
+  - link "부영 이중근 VS 메리츠 조정호… 법정으로 간 ‘회장님’들의 조망권 분쟁":
+    - /url: https://n.news.naver.com/article/037/0000038878?cds=news_media_pc&type=editn
+    - strong: 부영 이중근 VS 메리츠 조정호… 법정으로 간 ‘회장님’들의 조망권 분쟁
+  - list:
+    - listitem:
+      - link "“서울 거리는 도무지 쓰레기통을 못 찾겠어요” 외국인 관광객들 불만":
+        - /url: https://n.news.naver.com/article/037/0000038875?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“삼성전자, 내년 HBM 시장 점유율 1위 달성” 전망":
+        - /url: https://n.news.naver.com/article/037/0000038877?cds=news_media_pc&type=editn
+    - listitem:
+      - link "최강 무기 갖고도 후티 반군에 쩔쩔매는 사우디군… ‘국방은 돈으로 해결 못해’ 교훈":
+        - /url: https://n.news.naver.com/article/037/0000038873?cds=news_media_pc&type=editn
+  - link "국제신문 09월 22일 22:55":
+    - /url: https://media.naver.com/press/658
+    - emphasis: 국제신문
+    - text: 09월 22일 22:55
+  - button "구독"
+  - link "조희대 재제청 거부에 靑 \"임명권 무력화\" 정면충돌(종합)":
+    - /url: https://n.news.naver.com/article/658/0000156353?cds=news_media_pc&type=editn
+    - strong: 조희대 재제청 거부에 靑 "임명권 무력화" 정면충돌(종합)
+  - list:
+    - listitem:
+      - link "가덕도신공항 건설 한고비 넘었다… 대우건설 기본설계안 정부 심의 통과":
+        - /url: https://n.news.naver.com/article/658/0000156442?cds=news_media_pc&type=editn
+    - listitem:
+      - link "장동혁 “현지 누나 쫓아내야”…추석 전 대여 총공세":
+        - /url: https://n.news.naver.com/article/658/0000156436?cds=news_media_pc&type=editn
+    - listitem:
+      - link "5개월 남았는데…부산대·교대 통합협상 파행":
+        - /url: https://n.news.naver.com/article/658/0000156426?cds=news_media_pc&type=editn
+  - link "프레시안 09월 22일 21:35":
+    - /url: https://media.naver.com/press/002
+    - emphasis: 프레시안
+    - text: 09월 22일 21:35
+  - button "구독"
+  - link "조희대, 靑 대법관 재제청 요구 거부…후보추천위부터 다시 밟나":
+    - /url: https://n.news.naver.com/article/002/0002457924?cds=news_media_pc&type=editn
+    - strong: 조희대, 靑 대법관 재제청 요구 거부…후보추천위부터 다시 밟나
+  - list:
+    - listitem:
+      - link "DMZ서 군 간부 덮친 폭발물, 북한 지뢰? 합참 \"유엔사와 현장 조사\"":
+        - /url: https://n.news.naver.com/article/002/0002458005?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[속보] 李대통령 기자회견, '잘했다' 39% vs '잘못했다' 58%[여론조사 동향]":
+        - /url: https://n.news.naver.com/article/002/0002458018?cds=news_media_pc&type=editn
+    - listitem:
+      - link "추미애 \"경기도 재정 선언, 이재명·김동연 까발리려는 것 아냐…정치적 해석 기가 찬다\"":
+        - /url: https://n.news.naver.com/article/002/0002458053?cds=news_media_pc&type=editn
+  - link "문화일보 09월 22일 23:48":
+    - /url: https://media.naver.com/press/021
+    - emphasis: 문화일보
+    - text: 09월 22일 23:48
+  - button "구독"
+  - link "한동훈 “계엄 청산으로 軍 흔들더니 전방 장병이 대가 치러”":
+    - /url: https://n.news.naver.com/article/021/0002820766?cds=news_media_pc&type=editn
+    - strong: 한동훈 “계엄 청산으로 軍 흔들더니 전방 장병이 대가 치러”
+  - list:
+    - listitem:
+      - link "김동아 “김현지, 대통령 동지이지 비선실세 아냐”":
+        - /url: https://n.news.naver.com/article/021/0002820765?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“대통령 맘에 들 때까지 제청? 계엄해서 왕을 하시라” 한동훈의 말":
+        - /url: https://n.news.naver.com/article/021/0002820760?cds=news_media_pc&type=editn
+    - listitem:
+      - link "보석으로 풀려난 강선우 “어떤 돈도 받은 사실 없다”":
+        - /url: https://n.news.naver.com/article/021/0002820739?cds=news_media_pc&type=editn
+  - iframe
+  - heading "기자를 구독해보세요" [level=3]
+  - button "도움말"
+  - link "구독 설정":
+    - /url: https://media.naver.com/channel/extraSettings
+  - list:
+    - listitem:
+      - link "NCT ‘NEO DIMENSION’ 10년 팬심, 티켓이 먼저 답했다":
+        - /url: https://n.news.naver.com/article/382/0001295435?sid=103&type=journalists&cds=news_media_pc
+      - link "양형모 기자":
+        - /url: https://media.naver.com/j/50872?oid=382&cds=news_media_pc
+      - button "구독"
+    - listitem:
+      - link "송세라, 금빛 찌르고 야구는 사상 첫 팀 '퍼펙트'(종합)":
+        - /url: https://n.news.naver.com/article/421/0009187553?sid=104&type=journalists&cds=news_media_pc
+      - link "이상철 기자":
+        - /url: https://media.naver.com/j/75479?oid=421&cds=news_media_pc
+      - button "구독"
+    - listitem:
+      - link "아시안게임 남자축구 사우디전에 양민혁·이현주 출격":
+        - /url: https://n.news.naver.com/article/658/0000156388?sid=104&type=journalists&cds=news_media_pc
+      - link "이영실 기자":
+        - /url: https://media.naver.com/j/77501?oid=658&cds=news_media_pc
+      - button "구독"
+    - listitem:
+      - link "“내가 먹는 약까지 따져준다”…AI·약사가 영양제 맞춤 관리":
+        - /url: https://n.news.naver.com/article/009/0005739265?sid=103&type=journalists&cds=news_media_pc
+      - link "방영덕 기자":
+        - /url: https://media.naver.com/j/23133?oid=009&cds=news_media_pc
+      - button "구독"
+  - link "기자 모두 보기":
+    - /url: https://media.naver.com/journalistPick
+  - link "고침, 정정, 반론 추후 보도 모음. 언론사의 정정 반론 추후 보도 기사를 모았습니다.":
+    - /url: https://news.naver.com/ombudsman/errorArticleList
+    - img "고침, 정정, 반론 추후 보도 모음. 언론사의 정정 반론 추후 보도 기사를 모았습니다."
+  - link "헬스조선 09월 22일 23:34":
+    - /url: https://media.naver.com/press/346
+    - emphasis: 헬스조선
+    - text: 09월 22일 23:34
+  - button "구독"
+  - link "“비만주사 용량 올리고 뱃속에 구멍 났다”… 40대 여성, 무슨 일?":
+    - /url: https://n.news.naver.com/article/346/0000116401?cds=news_media_pc&type=editn
+    - strong: “비만주사 용량 올리고 뱃속에 구멍 났다”… 40대 여성, 무슨 일?
+  - list:
+    - listitem:
+      - link "“세균이 혈액 타고 온 몸 퍼졌다”… 안 익힌 ‘이것’ 먹고 균혈증 빠진, 84세 한국인":
+        - /url: https://n.news.naver.com/article/346/0000116400?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“식이섬유 풍부” 33kg 감량 풍자가 오리고기 싸 먹은 채소… 뭐야?":
+        - /url: https://n.news.naver.com/article/346/0000116399?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“탄단지 완벽” 8kg 감량 박지윤, 샌드위치 먹던데… 뭐 넣었나?":
+        - /url: https://n.news.naver.com/article/346/0000116398?cds=news_media_pc&type=editn
+  - link "데일리안 09월 22일 23:43":
+    - /url: https://media.naver.com/press/119
+    - emphasis: 데일리안
+    - text: 09월 22일 23:43
+  - button "구독"
+  - link "김장겸 \"한준호, KBS 항의전화 아니라더니 거짓말…사과하고 사퇴하라\"":
+    - /url: https://n.news.naver.com/article/119/0003135774?cds=news_media_pc&type=editn
+    - strong: 김장겸 "한준호, KBS 항의전화 아니라더니 거짓말…사과하고 사퇴하라"
+  - list:
+    - listitem:
+      - link "\"'부캉이' 보러 왔어요\" 인파 몰리자 죠스바·고래밥 매출↑":
+        - /url: https://n.news.naver.com/article/119/0003135634?cds=news_media_pc&type=editn
+    - listitem:
+      - link "오세훈, 英로이터 인터뷰서 \"용산공원, 단 1㎝도 내줄 수 없어\"":
+        - /url: https://n.news.naver.com/article/119/0003135615?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“시진핑, 트럼프 집권기를 ‘대만 통일의 드문 기회’로 판단”":
+        - /url: https://n.news.naver.com/article/119/0003135580?cds=news_media_pc&type=editn
+  - link "연합뉴스TV 09월 22일 23:40":
+    - /url: https://media.naver.com/press/422
+    - emphasis: 연합뉴스TV
+    - text: 09월 22일 23:40
+  - button "구독"
+  - link "영상 [날씨] '추분' 맑고 늦더위 이어져…추석 연휴 날씨는?":
+    - /url: https://n.news.naver.com/article/422/0000908867?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: "[날씨] '추분' 맑고 늦더위 이어져…추석 연휴 날씨는?"
+  - list:
+    - listitem:
+      - link "또 청와대와 정면충돌…'재제청 갈등' 장기화":
+        - /url: https://n.news.naver.com/article/422/0000908841?cds=news_media_pc&type=editn
+    - listitem:
+      - link "SK하이닉스 신입사원 4명 해고…\"인생에서 가장 비싼 술\"":
+        - /url: https://n.news.naver.com/article/422/0000908589?cds=news_media_pc&type=editn
+    - listitem:
+      - link "독일 극우당 대표, 좌파당 선전하자 \"히틀러도 좌파\"":
+        - /url: https://n.news.naver.com/article/422/0000908857?cds=news_media_pc&type=editn
+  - link "강원일보 09월 22일 18:06":
+    - /url: https://media.naver.com/press/087
+    - emphasis: 강원일보
+    - text: 09월 22일 18:06
+  - button "구독"
+  - link "어린 자녀 앞에서 흉기로 아내 찔러 살해한 30대 공무원 구속기소":
+    - /url: https://n.news.naver.com/article/087/0001220035?cds=news_media_pc&type=editn
+    - strong: 어린 자녀 앞에서 흉기로 아내 찔러 살해한 30대 공무원 구속기소
+  - list:
+    - listitem:
+      - link "한동훈 “국민 업신여기는 정권, 국민 무서운 줄 몰라…반성 않고 문제 제기한 사람에 보복”":
+        - /url: https://n.news.naver.com/article/087/0001219922?cds=news_media_pc&type=editn
+    - listitem:
+      - link "오세훈 “용산공원 부지 단 1cm도 아파트 건설에 내줄 수 없어⋯대출 규제와 세금 인상이 주택난 원인”":
+        - /url: https://n.news.naver.com/article/087/0001219969?cds=news_media_pc&type=editn
+    - listitem:
+      - link "조희대 “대법관 재제청 응할 수 없다”…靑 “깊은 유감, 헌법에 위배되는 인식”":
+        - /url: https://n.news.naver.com/article/087/0001219913?cds=news_media_pc&type=editn
+  - link "전자신문 09월 22일 23:00":
+    - /url: https://media.naver.com/press/030
+    - emphasis: 전자신문
+    - text: 09월 22일 23:00
+  - button "구독"
+  - link "“1000주에 460만원, 막차 타자”…역대급 배당 '27만전자' 1조 쓸어담은 외국인":
+    - /url: https://n.news.naver.com/article/030/0003469041?cds=news_media_pc&type=editn
+    - strong: “1000주에 460만원, 막차 타자”…역대급 배당 '27만전자' 1조 쓸어담은 외국인
+  - list:
+    - listitem:
+      - link "“한때 한국보다 컸는데”…男 3㎝·女 5㎝ 뒤처진 日 평균 키, 30년째 제자리 뭔 일?":
+        - /url: https://n.news.naver.com/article/030/0003469378?cds=news_media_pc&type=editn
+    - listitem:
+      - link "5060이 과음할 때…\"이제 그만\" 술잔 내려놓는 Z세대":
+        - /url: https://n.news.naver.com/article/030/0003469550?cds=news_media_pc&type=editn
+    - listitem:
+      - link "LCD TV용 반도체 가격, 메모리 대란에 패널값 처음으로 넘었다":
+        - /url: https://n.news.naver.com/article/030/0003469482?cds=news_media_pc&type=editn
+  - link "월간산 09월 22일 08:48":
+    - /url: https://media.naver.com/press/094
+    - emphasis: 월간산
+    - text: 09월 22일 08:48
+  - button "구독"
+  - link "조선 최고 지성을 낳은 땅, 사색하며 걷는 '선비의 길' [지도 위를 걷다 안동 퇴계예던길]":
+    - /url: https://n.news.naver.com/article/094/0000013820?cds=news_media_pc&type=editn
+    - strong: 조선 최고 지성을 낳은 땅, 사색하며 걷는 '선비의 길' [지도 위를 걷다 안동 퇴계예던길]
+  - list:
+    - listitem:
+      - link "태평양과 별빛이 빚은 '버섯바위'를 찾아서 [괌 투어]":
+        - /url: https://n.news.naver.com/article/094/0000013819?cds=news_media_pc&type=editn
+    - listitem:
+      - link "발목 부상을 '아카디아 앵클'로 부르는 이유는?":
+        - /url: https://n.news.naver.com/article/094/0000013818?cds=news_media_pc&type=editn
+    - listitem:
+      - link "자연 속에 녹아든 '진정한 하이엔드' [하이엔드 휴양시설 특집]":
+        - /url: https://n.news.naver.com/article/094/0000013817?cds=news_media_pc&type=editn
+  - link "세계일보 09월 22일 23:56":
+    - /url: https://media.naver.com/press/022
+    - emphasis: 세계일보
+    - text: 09월 22일 23:56
+  - button "구독"
+  - link "“1000만원 없으면 박탈”… 비자 연장 발목 잡는 ‘잔고 증명’ [심층기획-외국인유학 30만 시대의 그늘]":
+    - /url: https://n.news.naver.com/article/022/0004161155?cds=news_media_pc&type=editn
+    - strong: “1000만원 없으면 박탈”… 비자 연장 발목 잡는 ‘잔고 증명’ [심층기획-외국인유학 30만 시대의 그늘]
+  - list:
+    - listitem:
+      - link "김치에 핀 ‘초록 반점’, 찌개로 끓여도 독소 그대로…통째 버려야":
+        - /url: https://n.news.naver.com/article/022/0004160903?cds=news_media_pc&type=editn
+    - listitem:
+      - link "‘북·미대화’ 원하는 트럼프 운신 폭 넓혀… 북핵 용인 우려도":
+        - /url: https://n.news.naver.com/article/022/0004161133?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“분위기 좋게 차담 해놓고, 뒤통수 때리듯 발표”… ‘曺 발표’에 격앙된 청와대 [靑·대법, 초유의 정면충돌]":
+        - /url: https://n.news.naver.com/article/022/0004161186?cds=news_media_pc&type=editn
+  - link "중앙일보 09월 22일 23:32":
+    - /url: https://media.naver.com/press/025
+    - emphasis: 중앙일보
+    - text: 09월 22일 23:32
+  - button "구독"
+  - link "[속보] 李대통령, 이소영 중기부 장관·이정현 대검 차장 임명안 재가":
+    - /url: https://n.news.naver.com/article/025/0003553284?cds=news_media_pc&type=editn
+    - strong: "[속보] 李대통령, 이소영 중기부 장관·이정현 대검 차장 임명안 재가"
+  - list:
+    - listitem:
+      - link "女 속옷 안에서도 튀어나왔다…비행기 좌석 밑 ‘수상한 흰 가루’ 정체":
+        - /url: https://n.news.naver.com/article/025/0003553170?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“관에서 신음소리”…죽은 줄 알았던 70대女 눈 떴다, 무슨일":
+        - /url: https://n.news.naver.com/article/025/0003553282?cds=news_media_pc&type=editn
+    - listitem:
+      - link "국어 7등급→서울대 합격한 33세 “설악산서 뇌 바뀐 경험”":
+        - /url: https://n.news.naver.com/article/025/0003552816?cds=news_media_pc&type=editn
+  - link "CJB청주방송 09월 22일 22:42":
+    - /url: https://media.naver.com/press/655
+    - emphasis: CJB청주방송
+    - text: 09월 22일 22:42
+  - button "구독"
+  - link "영상 데이터센터·20조 투자 기대...충주시, AI·로봇 생태계 선점 나서":
+    - /url: https://n.news.naver.com/article/655/0000032897?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: 데이터센터·20조 투자 기대...충주시, AI·로봇 생태계 선점 나서
+  - list:
+    - listitem:
+      - link "청주서 70대 여성이 몰던 SUV가 상가로 돌진...인명피해 없어":
+        - /url: https://n.news.naver.com/article/655/0000032898?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[속보] 펜싱 에페 송세라, 국제종합대회 개인전 첫 금메달 쾌거":
+        - /url: https://n.news.naver.com/article/655/0000032895?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“술 마시고 충동적으로” 여장하고 女화장실 머문 60대男 체포":
+        - /url: https://n.news.naver.com/article/655/0000032893?cds=news_media_pc&type=editn
+  - link "코리아헤럴드 09월 22일 17:31":
+    - /url: https://media.naver.com/press/044
+    - emphasis: 코리아헤럴드
+    - text: 09월 22일 17:31
+  - button "구독"
+  - link "Lee appoints finance, defense and land ministers":
+    - /url: https://n.news.naver.com/article/044/0000289998?cds=news_media_pc&type=editn
+    - strong: Lee appoints finance, defense and land ministers
+  - list:
+    - listitem:
+      - link "Former first lady’s prison term cut to 5 years":
+        - /url: https://n.news.naver.com/article/044/0000290012?cds=news_media_pc&type=editn
+    - listitem:
+      - link "Standoff deepens as chief justice rejects request for new nominee":
+        - /url: https://n.news.naver.com/article/044/0000290007?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'Dress like dentistry students' rule sparks backlash":
+        - /url: https://n.news.naver.com/article/044/0000290008?cds=news_media_pc&type=editn
+  - link "한국경제 09월 22일 23:55":
+    - /url: https://media.naver.com/press/015
+    - emphasis: 한국경제
+    - text: 09월 22일 23:55
+  - button "구독"
+  - link "'1만원→10만원'…도수치료 막았더니 '어떻게 이럴 수가'":
+    - /url: https://n.news.naver.com/article/015/0005335376?cds=news_media_pc&type=editn
+    - strong: "'1만원→10만원'…도수치료 막았더니 '어떻게 이럴 수가'"
+  - list:
+    - listitem:
+      - link "[속보] 트럼프 \"다음 대선에 도전 안한다\"…3선 도전 포기":
+        - /url: https://n.news.naver.com/article/015/0005335409?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[속보] 트럼프 \"이란과 합의할지 소멸시킬지 큰 결정할 것\"":
+        - /url: https://n.news.naver.com/article/015/0005335410?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"5500원이나 주고 샀는데…\" 김밥 열어본 직장인 '황당' [이슈+]":
+        - /url: https://n.news.naver.com/article/015/0005335366?cds=news_media_pc&type=editn
+  - link "아시아경제 09월 22일 23:48":
+    - /url: https://media.naver.com/press/277
+    - emphasis: 아시아경제
+    - text: 09월 22일 23:48
+  - button "구독"
+  - link "\"캐나다 살이 하려고 퇴사까지 했는데 한국 돌아갈 판\"…어학원 폐업에 유학생들 '발동동'":
+    - /url: https://n.news.naver.com/article/277/0005820057?cds=news_media_pc&type=editn
+    - strong: "\"캐나다 살이 하려고 퇴사까지 했는데 한국 돌아갈 판\"…어학원 폐업에 유학생들 '발동동'"
+  - list:
+    - listitem:
+      - link "[단독]\"어, 어! 등받이 왜 이래\" 아이오닉9, 전동시트 끼임 위험에 국내 1만5000대 리콜":
+        - /url: https://n.news.naver.com/article/277/0005820055?cds=news_media_pc&type=editn
+    - listitem:
+      - link "집값, 5년간 연 8.2% 오르면…다주택 가구 90% 이상 \"안 파는 게 낫다\"[금융안정상황]":
+        - /url: https://n.news.naver.com/article/277/0005819831?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"뻔한 이탈리아? 이 관광 코스 300%나 잘 팔렸대\"…한국인이 콕 집은 명소":
+        - /url: https://n.news.naver.com/article/277/0005820099?cds=news_media_pc&type=editn
+  - link "채널A 09월 22일 23:00":
+    - /url: https://media.naver.com/press/449
+    - emphasis: 채널A
+    - text: 09월 22일 23:00
+  - button "구독"
+  - link "영상 대통령-대법원장 정면충돌…초유의 인사 중단":
+    - /url: https://n.news.naver.com/article/449/0000361715?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: 대통령-대법원장 정면충돌…초유의 인사 중단
+  - list:
+    - listitem:
+      - link "조희대, 대통령 출국 다음날 147자 문자 거부…“빈집털이”":
+        - /url: https://n.news.naver.com/article/449/0000361724?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[단독]“DMZ 폭발 ‘매설’ 지뢰에 무게”":
+        - /url: https://n.news.naver.com/article/449/0000361730?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“반바지 입어 죄송”…연대 치대생 복장 규정 논란":
+        - /url: https://n.news.naver.com/article/449/0000361738?cds=news_media_pc&type=editn
+  - link "디지털데일리 09월 22일 21:20":
+    - /url: https://media.naver.com/press/138
+    - emphasis: 디지털데일리
+    - text: 09월 22일 21:20
+  - button "구독"
+  - link "현대차그룹 ‘로봇 훈련소’ 문 열었다…아틀라스 제조현장 투입 준비":
+    - /url: https://n.news.naver.com/article/138/0002242298?cds=news_media_pc&type=editn
+    - strong: 현대차그룹 ‘로봇 훈련소’ 문 열었다…아틀라스 제조현장 투입 준비
+  - list:
+    - listitem:
+      - link "“형은 10억 받고 동생은 빚만?”…부모 빚 떠안으면 유류분 더 받을 수도":
+        - /url: https://n.news.naver.com/article/138/0002242411?cds=news_media_pc&type=editn
+    - listitem:
+      - link "코스피, 7171 찍고 7000선 후퇴…힘 빠진 ‘삼전닉스’ 상승분 반납":
+        - /url: https://n.news.naver.com/article/138/0002242433?cds=news_media_pc&type=editn
+    - listitem:
+      - link "삼성전자, 내년 HBM4 세계 1위 전망…범용 D램 공급 줄어 가격 더 오르나":
+        - /url: https://n.news.naver.com/article/138/0002242417?cds=news_media_pc&type=editn
+  - link "대구MBC 09월 22일 22:00":
+    - /url: https://media.naver.com/press/657
+    - emphasis: 대구MBC
+    - text: 09월 22일 22:00
+  - button "구독"
+  - link "영상 추경호 \"'TK 패싱' 엄연한 현실\"···대책은?":
+    - /url: https://n.news.naver.com/article/657/0000055600?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: 추경호 "'TK 패싱' 엄연한 현실"···대책은?
+  - list:
+    - listitem:
+      - link "대구 지방의원 의정비 인상 움직임···\"의정 활동부터 제대로\"":
+        - /url: https://n.news.naver.com/article/657/0000055601?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[단독] ⑥ '자율' 아래서 국비만 '줄줄'···\"책임 규명해야\"":
+        - /url: https://n.news.naver.com/article/657/0000055599?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"고속도로 휴게소 밥값 낮춘다\"···도로공사, '공공 직계약' 시범 도입":
+        - /url: https://n.news.naver.com/article/657/0000055580?cds=news_media_pc&type=editn
+  - link "연합뉴스 09월 22일 23:45":
+    - /url: https://media.naver.com/press/001
+    - emphasis: 연합뉴스
+    - text: 09월 22일 23:45
+  - button "구독"
+  - link "靑-사법부 '대법관 제청' 정면충돌 양상…공석 장기화하나(종합)":
+    - /url: https://n.news.naver.com/article/001/0016331068?cds=news_media_pc&type=editn
+    - strong: 靑-사법부 '대법관 제청' 정면충돌 양상…공석 장기화하나(종합)
+  - list:
+    - listitem:
+      - link "[속보] 李대통령, 이소영 중기장관· 이정현 대검차장 임명안 재가":
+        - /url: https://n.news.naver.com/article/001/0016331161?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[속보] 트럼프 \"이란과 합의할지 소멸시킬지 큰 결정할 것\"":
+        - /url: https://n.news.naver.com/article/001/0016331165?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"내가 만든 AI가 세상 위협하면…연구원들, 병가·사직 잇달아\"":
+        - /url: https://n.news.naver.com/article/001/0016330709?cds=news_media_pc&type=editn
+  - link "부산일보 09월 22일 21:40":
+    - /url: https://media.naver.com/press/082
+    - emphasis: 부산일보
+    - text: 09월 22일 21:40
+  - button "구독"
+  - link "가덕신공항 기본설계도면, 80점 받으며 심사 무난히 통과":
+    - /url: https://n.news.naver.com/article/082/0001399610?cds=news_media_pc&type=editn
+    - strong: 가덕신공항 기본설계도면, 80점 받으며 심사 무난히 통과
+  - list:
+    - listitem:
+      - link "김경수 특보, 차기 총선 서부경남 출마설":
+        - /url: https://n.news.naver.com/article/082/0001399587?cds=news_media_pc&type=editn
+    - listitem:
+      - link "전문가로 뽑은 ‘수사경과’ 경찰, 절반이 ‘중도 이탈’ [새 형사사법체계 대혼란]":
+        - /url: https://n.news.naver.com/article/082/0001399602?cds=news_media_pc&type=editn
+    - listitem:
+      - link "국립공원 금정산·금강공원과 연계해야 해법 보인다 [존폐 기로에 선 금강식물원]":
+        - /url: https://n.news.naver.com/article/082/0001399606?cds=news_media_pc&type=editn
+  - link "MBC 09월 22일 23:30":
+    - /url: https://media.naver.com/press/214
+    - emphasis: MBC
+    - text: 09월 22일 23:30
+  - button "구독"
+  - link "영상 이 대통령 \"북한 더 이상 고립국 아냐\" '현실적 해법' 제시":
+    - /url: https://n.news.naver.com/article/214/0001525416?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: 이 대통령 "북한 더 이상 고립국 아냐" '현실적 해법' 제시
+  - list:
+    - listitem:
+      - link "'재제청 거부' 기습 발표한 조희대‥\"위헌적 상황 초래\"":
+        - /url: https://n.news.naver.com/article/214/0001525397?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[단독] 부사관이 '예쁜(Pretty)' 장교?‥외국인 '헛웃음'":
+        - /url: https://n.news.naver.com/article/214/0001525412?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[단독] '여고생 판타지'였다던 장윤기‥두 달 뒤 낸 반성문엔?":
+        - /url: https://n.news.naver.com/article/214/0001525410?cds=news_media_pc&type=editn
+  - link "농민신문 09월 22일 22:36":
+    - /url: https://media.naver.com/press/662
+    - emphasis: 농민신문
+    - text: 09월 22일 22:36
+  - button "구독"
+  - link "“뇌심혈관질환 산재 인정률 2배 이상”…노동시간 ‘주 52시간’이 분기점":
+    - /url: https://n.news.naver.com/article/662/0000104894?cds=news_media_pc&type=editn
+    - strong: “뇌심혈관질환 산재 인정률 2배 이상”…노동시간 ‘주 52시간’이 분기점
+  - list:
+    - listitem:
+      - link "누구는 별 문제 없이, 누구는 심장이식…한국인 심근병증 예후 ‘특정 유전자 변이’에 달렸다":
+        - /url: https://n.news.naver.com/article/662/0000104892?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[단독] 명절 앞두고 KTX 상담 ‘먹통’... 코레일 본사는 “몰랐다”":
+        - /url: https://n.news.naver.com/article/662/0000104864?cds=news_media_pc&type=editn
+    - listitem:
+      - link "설악산부터 한라산까지 ‘울긋불긋’…전국 ‘단풍절정 지도’ 나왔다":
+        - /url: https://n.news.naver.com/article/662/0000104851?cds=news_media_pc&type=editn
+  - link "지디넷코리아 09월 22일 22:29":
+    - /url: https://media.naver.com/press/092
+    - emphasis: 지디넷코리아
+    - text: 09월 22일 22:29
+  - button "구독"
+  - link "추석 선물 아직 못 샀다면…이커머스 ‘막차 배송’ 경쟁":
+    - /url: https://n.news.naver.com/article/092/0002438542?cds=news_media_pc&type=editn
+    - strong: 추석 선물 아직 못 샀다면…이커머스 ‘막차 배송’ 경쟁
+  - list:
+    - listitem:
+      - link "수입 저가빵 절반서 보존료 검출…54건 중 51건 '중국산'":
+        - /url: https://n.news.naver.com/article/092/0002438520?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"꿀꺽 삼키면 3일간 전력 공급\"…먹을 수 있는 ‘종이 배터리’ 나왔다":
+        - /url: https://n.news.naver.com/article/092/0002438462?cds=news_media_pc&type=editn
+    - listitem:
+      - link "유정훈 도로공사 사장 \"B2G·B2B 넘어 B2C 해야…고객 니즈 업그레이드 해야”":
+        - /url: https://n.news.naver.com/article/092/0002438558?cds=news_media_pc&type=editn
+  - link "뉴스타파 09월 22일 18:05":
+    - /url: https://media.naver.com/press/607
+    - emphasis: 뉴스타파
+    - text: 09월 22일 18:05
+  - button "구독"
+  - link "국민의힘 김민수, 회삿돈으로 건물 매입…15억 시세차익":
+    - /url: https://n.news.naver.com/article/607/0000003503?cds=news_media_pc&type=editn
+    - strong: 국민의힘 김민수, 회삿돈으로 건물 매입…15억 시세차익
+  - list:
+    - listitem:
+      - link "국민의힘 김민수 최고위원, 국회 공인 ‘악덕 고용주’였다":
+        - /url: https://n.news.naver.com/article/607/0000003502?cds=news_media_pc&type=editn
+    - listitem:
+      - link "‘방첩사 리스트’로 운명이 뒤바뀐 장성들 ① 비상계엄 5일 전 맞교대 인사":
+        - /url: https://n.news.naver.com/article/607/0000003501?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'체불왕' 박영우 딸의 거짓말… 국회가 위증 혐의로 고발한다":
+        - /url: https://n.news.naver.com/article/607/0000003500?cds=news_media_pc&type=editn
+  - link "이데일리 09월 22일 23:54":
+    - /url: https://media.naver.com/press/018
+    - emphasis: 이데일리
+    - text: 09월 22일 23:54
+  - button "구독"
+  - link "[속보] 트럼프 “이란 핵무기 보유 절대 허용 안해…협상 거부는 큰 실수”":
+    - /url: https://n.news.naver.com/article/018/0006374634?cds=news_media_pc&type=editn
+    - strong: "[속보] 트럼프 “이란 핵무기 보유 절대 허용 안해…협상 거부는 큰 실수”"
+  - list:
+    - listitem:
+      - link "실적 폭증에 PER 10여년 최저 수준…월가가 본 엔비디아 역설":
+        - /url: https://n.news.naver.com/article/018/0006374626?cds=news_media_pc&type=editn
+    - listitem:
+      - link "법무장관 후보 사퇴 김승원, 이번엔 '성추행 의혹' 피고발":
+        - /url: https://n.news.naver.com/article/018/0006374603?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"살려주세요!\" 파도에 떠밀려간 부녀…서핑보드 들고 뛰어든 시민 [따전소]":
+        - /url: https://n.news.naver.com/article/018/0006374618?cds=news_media_pc&type=editn
+  - link "JIBS 09월 22일 23:19":
+    - /url: https://media.naver.com/press/661
+    - emphasis: JIBS
+    - text: 09월 22일 23:19
+  - button "구독"
+  - link "영상 교육혁신선도지역 도전.. '교육격차·인재양성' 초점":
+    - /url: https://n.news.naver.com/article/661/0000083702?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: 교육혁신선도지역 도전.. '교육격차·인재양성' 초점
+  - list:
+    - listitem:
+      - link "“다시 제청할 헌법적 근거 없다”… 조희대, 靑 요구 25일 만에 거부":
+        - /url: https://n.news.naver.com/article/661/0000083657?cds=news_media_pc&type=editn
+    - listitem:
+      - link "제주 철제 배수로 덮개 절도...용의자 '오리무중'":
+        - /url: https://n.news.naver.com/article/661/0000083676?cds=news_media_pc&type=editn
+    - listitem:
+      - link "“성수만 찾는 줄 알았지”… K패션 제주로, 면세점도 판 다시 짠다":
+        - /url: https://n.news.naver.com/article/661/0000083667?cds=news_media_pc&type=editn
+  - link "더스쿠프 09월 22일 18:16":
+    - /url: https://media.naver.com/press/665
+    - emphasis: 더스쿠프
+    - text: 09월 22일 18:16
+  - button "구독"
+  - link "침실 따로 주방 따로 20평대 공공임대, 정말 어렵나요? [공공주택 심리보고서⑫]":
+    - /url: https://n.news.naver.com/article/665/0000008210?cds=news_media_pc&type=editn
+    - strong: 침실 따로 주방 따로 20평대 공공임대, 정말 어렵나요? [공공주택 심리보고서⑫]
+  - list:
+    - listitem:
+      - link "AI가 인류 멸종시킬까, 인류가 먼저 AI 산업 고사시킬까":
+        - /url: https://n.news.naver.com/article/665/0000008209?cds=news_media_pc&type=editn
+    - listitem:
+      - link "자가용 기름값만 챙긴 추석 할인…버스·기차 이용자는 왜 빼나":
+        - /url: https://n.news.naver.com/article/665/0000008208?cds=news_media_pc&type=editn
+    - listitem:
+      - link "투기용 아니면 농사 안 지어도...농지은행 맡기면 처분유예":
+        - /url: https://n.news.naver.com/article/665/0000008206?cds=news_media_pc&type=editn
+  - link "YTN 09월 22일 22:08":
+    - /url: https://media.naver.com/press/052
+    - emphasis: YTN
+    - text: 09월 22일 22:08
+  - button "구독"
+  - link "영상 이 대통령, 내일 새벽 유엔 연설...\"한반도 평화공존 청사진 제시\"":
+    - /url: https://n.news.naver.com/article/052/0002410344?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: 이 대통령, 내일 새벽 유엔 연설..."한반도 평화공존 청사진 제시"
+  - list:
+    - listitem:
+      - link "군 \"북한 지뢰매설 의심지대에 수색로 만들다 폭발\"":
+        - /url: https://n.news.naver.com/article/052/0002410345?cds=news_media_pc&type=editn
+    - listitem:
+      - link "경찰, '김승원 성추행 의혹' 고발장 접수...수사 착수 검토":
+        - /url: https://n.news.naver.com/article/052/0002410348?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'감독 선임 의혹' 정몽규 불구속 송치...홍명보 무혐의":
+        - /url: https://n.news.naver.com/article/052/0002410349?cds=news_media_pc&type=editn
+  - link "동행미디어 시대 09월 22일 22:07":
+    - /url: https://media.naver.com/press/417
+    - emphasis: 동행미디어 시대
+    - text: 09월 22일 22:07
+  - button "구독"
+  - link "대화와 타협 잃고 '헌법 전쟁'으로 치닫는 대통령과 대법원장":
+    - /url: https://n.news.naver.com/article/417/0001159058?cds=news_media_pc&type=editn
+    - strong: 대화와 타협 잃고 '헌법 전쟁'으로 치닫는 대통령과 대법원장
+  - list:
+    - listitem:
+      - link "AI 감속론 무색…S&P100도 기술주 재편":
+        - /url: https://n.news.naver.com/article/417/0001159067?cds=news_media_pc&type=editn
+    - listitem:
+      - link "'장윤기 부실수사' 책임 두고 검경 전혀 다른 결론…경찰 '셀프 수사' 논란":
+        - /url: https://n.news.naver.com/article/417/0001159061?cds=news_media_pc&type=editn
+    - listitem:
+      - link "[사설]조희대 재제청 거부, 헌법기관 파국 언제까지":
+        - /url: https://n.news.naver.com/article/417/0001159079?cds=news_media_pc&type=editn
+  - link "SBS 09월 22일 22:06":
+    - /url: https://media.naver.com/press/055
+    - emphasis: SBS
+    - text: 09월 22일 22:06
+  - button "구독"
+  - link "영상 [단독] \"비교적 안전한 곳에서 폭발\"…'북 지뢰' 가능성 무게":
+    - /url: https://n.news.naver.com/article/055/0001390418?cds=news_media_pc&type=editn
+    - text: 영상
+    - strong: "[단독] \"비교적 안전한 곳에서 폭발\"…'북 지뢰' 가능성 무게"
+  - list:
+    - listitem:
+      - link "\"제재 완화로 핵 개발 중단\"…잠시 후 UN 총회 연설":
+        - /url: https://n.news.naver.com/article/055/0001390425?cds=news_media_pc&type=editn
+    - listitem:
+      - link "공포 휩싸여 \"나도 당할 것 같다\"…학교들 골머리":
+        - /url: https://n.news.naver.com/article/055/0001390422?cds=news_media_pc&type=editn
+    - listitem:
+      - link "\"아예 없나\" 몽땅 매진…추석 앞두고 '줍줍 전쟁'":
+        - /url: https://n.news.naver.com/article/055/0001390419?cds=news_media_pc&type=editn
+  - heading "언론사별 심층기획" [level=3]
+  - link "시사이슈 kbc광주방송":
+    - /url: https://media.naver.com/press/660#SpecialReport
+  - button "구독"
+  - list:
+    - listitem:
+      - link "재생시간 08:18 \"한동훈, 청문회로 존재감 커졌지만 복당은 별개\"[박영환의 시사1번지]":
+        - /url: https://n.news.naver.com/article/660/0000117721?cds=news_media_pc&type=editn
+      - link "kbc광주방송":
+        - /url: https://media.naver.com/press/660
+    - listitem:
+      - link "재생시간 18:08 \"李정부 인사 실패는 분명...비선 의혹엔 구체적 근거 필요\"[박영환의 시사1번지]":
+        - /url: https://n.news.naver.com/article/660/0000117718?cds=news_media_pc&type=editn
+      - link "kbc광주방송":
+        - /url: https://media.naver.com/press/660
+  - link "김승원 낙마 후폭풍 서울신문":
+    - /url: https://media.naver.com/press/081#SpecialReport
+  - button "구독"
+  - list:
+    - listitem:
+      - link "강훈식, 책임지고 물러난다":
+        - /url: https://n.news.naver.com/article/081/0003682462?cds=news_media_pc&type=editn
+      - link "서울신문":
+        - /url: https://media.naver.com/press/081
+    - listitem:
+      - link "李 결단 땐 3실장 중 2명 공석… 순방 복귀 뒤 ‘원샷 인선’ 전망":
+        - /url: https://n.news.naver.com/article/081/0003682466?cds=news_media_pc&type=editn
+      - link "서울신문":
+        - /url: https://media.naver.com/press/081
+  - heading "구독" [level=3]
+  - iframe
+- contentinfo:
+  - paragraph:
+    - link "로그인":
+      - /url: https://nid.naver.com/nidlogin.login
+    - link "전체서비스":
+      - /url: https://www.naver.com/more.html
+    - link "서비스안내":
+      - /url: https://news.naver.com/ombudsman
+    - link "오류신고":
+      - /url: https://help.naver.com/alias/news/news_001.naver
+    - link "고객센터":
+      - /url: https://help.naver.com/alias/news/news_007.naver
+    - text: "청소년 보호 책임자 : 이정규 각 언론사가 직접 콘텐츠를 편집합니다. 이 콘텐츠의 저작권은 저작권자 또는 제공처에 있으며, 이를 무단 이용하는 경우 저작권법 등에 따라 법적 책임을 질 수 있습니다."
+    - link "NAVER":
+      - /url: https://www.navercorp.com/

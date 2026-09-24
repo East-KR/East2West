@@ -1,0 +1,13 @@
+{
+ "step": "상품 검색창에 검색어 입력",
+ "action": "fill",
+ "page": {
+  "url": "https://www.coupang.com/",
+  "title": "로켓배송으로 빠르게, 로켓와우 멤버십으로 할인과 무료 반품까지 | 쿠팡"
+ },
+ "history": [],
+ "criteria": {
+  "c0": "fill textbox \"쿠팡 상품 검색\"",
+  "abstain": "No candidate matches this step on the current page; do not act."
+ }
+}

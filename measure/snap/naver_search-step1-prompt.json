@@ -1,0 +1,13 @@
+{
+ "step": "검색창에 검색어 입력",
+ "action": "fill",
+ "page": {
+  "url": "https://www.naver.com/",
+  "title": "NAVER"
+ },
+ "history": [],
+ "criteria": {
+  "c0": "fill combobox \"검색어를 입력해 주세요.\"",
+  "abstain": "No candidate matches this step on the current page; do not act."
+ }
+}

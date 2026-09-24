@@ -1,0 +1,67 @@
+- banner:
+  - link:
+    - /url: https://demoqa.com
+    - img
+- img
+- text: Elements
+- img
+- img
+- text: Forms
+- img
+- list:
+  - listitem:
+    - link "Practice Form":
+      - /url: /automation-practice-form
+      - img
+      - text: Practice Form
+- img
+- text: Alerts, Frame & Windows
+- img
+- img
+- text: Widgets
+- img
+- img
+- text: Interactions
+- img
+- img
+- text: Book Store Application
+- img
+- heading "Practice Form" [level=1]
+- heading "Student Registration Form" [level=5]
+- text: Name
+- textbox "First Name": Gildong
+- textbox "Last Name": Hong
+- text: Email
+- textbox "name@example.com"
+- text: Gender
+- radio "Male"
+- text: Male
+- radio "Female"
+- text: Female
+- radio "Other"
+- text: Other Mobile(10 Digits)
+- textbox "Mobile Number"
+- text: Date of Birth
+- textbox: 22 Sep 2026
+- text: Subjects
+- log
+- combobox
+- text: Hobbies
+- checkbox "Sports"
+- text: Sports
+- checkbox "Reading"
+- text: Reading
+- checkbox "Music"
+- text: Music Picture
+- button "Choose File"
+- text: Current Address
+- textbox "Current Address"
+- text: State and City
+- log
+- text: Select State
+- combobox
+- log
+- text: Select City
+- button "Submit"
+- iframe
+- contentinfo: © 2013-2026 TOOLSQA.COM | ALL RIGHTS RESERVED.

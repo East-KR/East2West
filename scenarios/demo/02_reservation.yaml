@@ -1,0 +1,19 @@
+name: "데모앱 예약 - 이름, 캘린더, 숙박일수, 조식, 제출 후 금액 검증"
+steps:
+  - goto: http://127.0.0.1:8787/
+  - expect: { title_contains: "객실 예약" }
+  - do: 투숙객 이름 입력
+    fill: 홍길동
+  - do: 캘린더에서 2026년 10월 15일 선택
+  - expect: { field: "선택한 체크인", value: "2026-10-15" }
+  - do: 숙박 일수를 2박으로 선택
+  - do: 조식 포함 체크
+  - expect: { snapshot_contains: 'checkbox "조식 포함" [checked]' }
+  - do: 예약하기 버튼 누르기
+  - expect: { text: "예약 내용을 확정하시겠습니까?" }
+  - do: 확인 모달에서 확정 버튼 누르기
+  - expect: { url_contains: "/reservations/" }
+  - expect: { url_contains: "nights=2" }
+  - expect: { text: "홍길동" }
+  - expect: { text: "2026-10-15" }
+  - expect: { text: "총 금액 240,000원" }

@@ -1,0 +1,7 @@
+name: 네이버 로그인 페이지에서 비밀번호 찾기
+steps:
+  - goto: https://www.naver.com/
+  - do: 로그인하기
+  - expect: { url_contains: "nid.naver.com" }
+  - do: 비밀번호를 잊어버렸을 때 찾는 화면으로 이동
+  - expect: { url_contains: "nid.naver.com", text: "비밀번호" }

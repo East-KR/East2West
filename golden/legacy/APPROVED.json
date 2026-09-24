@@ -1,0 +1,172 @@
+{
+ "approved_by": "east",
+ "approved_at": "2026-09-24 18:10:42",
+ "note": "",
+ "files": {
+  "name_map.tobe-renamed.json": "eff8849059af161e8bb9f1fa42be2f06c1072385bc3cf32c00cfee714dfd8287",
+  "oracle.json": "e16a1e268a4283fa41618ebd0fde2fddbe59ca418f487d75b3d9cbdcc1fd8eb8",
+  "shots/test_order_calc_each_item_mouse_/00.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_order_calc_each_item_mouse_/01.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_order_calc_each_item_mouse_/02.jpg": "d28fe781f0ec9e019211c78fbaa35e64d180a61ef3fb11c9d14a1117b6cc9c48",
+  "shots/test_order_calc_each_item_mouse_/03.jpg": "922e9f93abf46fe55d9bfb057a33135f4a65d48cd9cd6c0948f6b08842900063",
+  "shots/test_order_calc_each_item_mouse_/04.jpg": "628cd6f583c9598bd5499792eb1425e9db19fc7fe2c2aa86e02554f7d6270783",
+  "shots/test_order_calc_each_item_notebook_/00.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_order_calc_each_item_notebook_/01.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_order_calc_each_item_notebook_/02.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_order_calc_each_item_notebook_/03.jpg": "e30fca07b0f9c324479f81beb449cc0f7b395aed7fde41f2aaf3c188035e1c70",
+  "shots/test_order_calc_each_item_notebook_/04.jpg": "64bce351e179ee728a217498cc017887706f5ee222a4c0ecd3f6cc43ba8fe775",
+  "shots/test_order_save/00.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_order_save/01.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_order_save/02.jpg": "ebd309582c01d12cc80bae6ab7891098af3fbab509eb434bba4c57eafcd9099e",
+  "shots/test_order_save/03.jpg": "4b82b4fede070324271289d3be37da2e0133d2fbf9bb27a1382050054bcc8c57",
+  "shots/test_order_save/04.jpg": "cafd6f08cbe7c323f33665e16e44811df4e2ce3a3f2feaa25228df26ab503d60",
+  "shots/test_order_save/05.jpg": "246c86ab955a90372dc02440eb5deebf531b629e461fb1556a376042028a6e6c",
+  "shots/test_qty_required_alert/00.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_qty_required_alert/01.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_qty_required_alert/02.jpg": "d28fe781f0ec9e019211c78fbaa35e64d180a61ef3fb11c9d14a1117b6cc9c48",
+  "shots/test_qty_required_alert/03.jpg": "3082fe135d8326c62bed5080939d4388117a0ea8c227942af12b1cc77a83acd6",
+  "shots/test_qty_zero_saved/00.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_qty_zero_saved/01.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_qty_zero_saved/02.jpg": "93a05261a1f5e6d85c38abad4e04b235ba587e6130c335bbce22ab44038df49c",
+  "shots/test_qty_zero_saved/03.jpg": "1373f914f4ae7f74c4ccbd059e9d4014f509a785f053d5a85d658505fd3526e4",
+  "shots/test_save_cancel/00.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_save_cancel/01.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_save_cancel/02.jpg": "1764b356f494bae8e695c4aeafb22606589e0f41b5afe093cdc44b7359f8c022",
+  "shots/test_save_cancel/03.jpg": "e30fca07b0f9c324479f81beb449cc0f7b395aed7fde41f2aaf3c188035e1c70",
+  "shots/test_save_cancel/04.jpg": "91d22bf87abe87a90a2a1d380a981c26b2d283c73ee96d1c826cd3d2fb528dcb",
+  "test_order_calc_each_item[mouse].json": "7d0668a5a80c5ea24bed4ccce96b19f16779264514a781aeba8ecddfecf8444d",
+  "test_order_calc_each_item[notebook].json": "b651fd61a721739d493292fec874a5bea5b15c0180fc3bbeb320417e47010d4b",
+  "test_order_save.json": "bf63c7dbdcdf7279def737074ce69892095dae76e723c7fd2cb45c3c1dd990c9",
+  "test_qty_required_alert.json": "408555aa4144599f00dcff038e3c1c1ed91d7d09e829b3a3b029e66a02e0c3a6",
+  "test_qty_zero_saved.json": "069adb46f608c1e8ddbd4a8197865e318b43ae90c0b9806cfb7e6e78c0518fe4",
+  "test_save_cancel.json": "81be5ae940b3c15a074627d5acea051fb29e69ad7cd083eb0263003fd59b4947"
+ },
+ "assertions": {
+  "test_order_calc_each_item[mouse]": [
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "공급가액",
+    "value": "99,000"
+   },
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "부가세",
+    "value": "9,900"
+   },
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "합계",
+    "value": "108,900"
+   }
+  ],
+  "test_order_calc_each_item[notebook]": [
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "공급가액",
+    "value": "2,500,000"
+   },
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "부가세",
+    "value": "250,000"
+   },
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "합계",
+    "value": "2,750,000"
+   }
+  ],
+  "test_order_save": [
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "부가세",
+    "value": "120"
+   },
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "합계",
+    "value": "1,355"
+   },
+   {
+    "step": 6,
+    "kind": "dialog",
+    "target": "저장하시겠습니까?",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "주문이 저장되었습니다",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "합계 1,355원",
+    "value": null
+   }
+  ],
+  "test_qty_required_alert": [
+   {
+    "step": 4,
+    "kind": "dialog",
+    "target": "수량을 입력하세요.",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "field",
+    "target": "수량",
+    "value": ""
+   }
+  ],
+  "test_qty_zero_saved": [
+   {
+    "step": 4,
+    "kind": "dialog",
+    "target": "저장하시겠습니까?",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "노트북 0개",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "합계 0원",
+    "value": null
+   }
+  ],
+  "test_save_cancel": [
+   {
+    "step": 5,
+    "kind": "dialog",
+    "target": "저장하시겠습니까?",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "수량",
+    "value": "2"
+   },
+   {
+    "step": 5,
+    "kind": "field",
+    "target": "품목",
+    "value": "노트북"
+   }
+  ]
+ }
+}

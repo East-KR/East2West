@@ -1,0 +1,27 @@
+{
+ "step": "비밀번호를 잊어버렸을 때 찾는 화면으로 이동",
+ "action": "click",
+ "page": {
+  "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com/",
+  "title": "NAVER 로그인"
+ },
+ "history": [
+  "click link NAVER 로그인"
+ ],
+ "criteria": {
+  "c0": "click link \"본문 바로가기\"",
+  "c1": "click link \"네이버\"",
+  "c2": "click textbox \"아이디 또는 전화번호\" in \"아이디 또는 전화번호\"",
+  "c3": "click textbox \"비밀번호\" in \"비밀번호\"",
+  "c4": "click checkbox \"로그인 상태 유지\"",
+  "c5": "click button \"로그인\" in \"\"ON\"\"",
+  "c6": "click link \"QR 코드 로그인\"",
+  "c7": "click link \"일회용 번호 로그인\"",
+  "c8": "click link \"아이디 찾기\"",
+  "c9": "click link \"비밀번호 찾기\"",
+  "c10": "click link \"회원가입\"",
+  "c11": "click link \"스마트봇 상담\"",
+  "c12": "click link \"고객센터\"",
+  "abstain": "No candidate matches this step on the current page; do not act."
+ }
+}

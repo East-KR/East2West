@@ -1,0 +1,16 @@
+name: 네이버 항공권 - 도착지 입력, 캘린더 날짜 선택, 검색
+steps:
+  - goto: https://flight.naver.com/
+  - do: 광고 팝업을 7일간 보지 않기로 닫기
+  - do: 도착지 검색 열기
+  - do: 도착지 검색창에 도시 이름 입력
+    fill: 제주
+  - do: 검색 결과에서 제주 공항 선택
+  - expect: { text: "CJU" }
+  - do: 가는 날 선택 열기
+  - do: 캘린더에서 2026년 10월 15일 선택
+  - do: 캘린더에서 2026년 10월 20일 선택
+  - expect: { text: "10.15" }
+  - expect: { text: "10.20" }
+  - do: 항공권 검색 실행
+  - expect: { url_contains: "flight.naver.com/flights" }

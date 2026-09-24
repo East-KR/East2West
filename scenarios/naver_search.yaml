@@ -1,0 +1,9 @@
+name: 네이버 검색 후 쇼핑 탭 이동
+steps:
+  - goto: https://www.naver.com/
+  - do: 검색창에 검색어 입력
+    fill: 아이폰 17
+  - press: Enter
+  - expect: { url_contains: "search.naver.com", text: "아이폰 17" }
+  - do: 검색 결과 상단의 쇼핑 탭으로 이동
+  - expect: { url_contains: "shop" }

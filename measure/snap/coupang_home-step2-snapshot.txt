@@ -1,0 +1,294 @@
+- link:
+  - /url: /np/campaigns/82?adType=DA&eventId=EmZxngZg4PD5tgSa
+- link:
+  - /url: https://shop.coupang.com/paldofood/488179?source=brandstore_display_ads&adType=DA&eventId=Czr7E3QwJJVosHt6
+- list:
+  - listitem:
+    - link "판매자 가입":
+      - /url: https://wing.coupang.com/tenants/vendor-signup/signup?utm_source=button_pc_coupang_top_right_cta&utm_medium=non_paid&utm_campaign=seller_registration
+  - listitem:
+    - link "고객센터":
+      - /url: https://mc.coupang.com/ssr/desktop/contact/faq
+  - listitem:
+    - link "회원가입":
+      - /url: https://login.coupang.com/login/memberJoinFrm.pang
+  - listitem:
+    - link "로그인":
+      - /url: https://login.coupang.com/login/login.pang?rtnUrl=https%3A%2F%2Fwww.coupang.com%2Fnp%2Fpost%2Flogin%3Fr%3Dhttp%253A%252F%252Fwww.coupang.com%252F
+- list:
+  - listitem: 즐겨찾기
+  - listitem: 입점신청
+- text: 카테고리
+- link "Coupang":
+  - /url: https://www.coupang.com
+  - img "Coupang"
+- link "전체":
+  - /url: "#"
+- textbox "쿠팡 상품 검색":
+  - /placeholder: 찾고 싶은 상품을 검색해보세요!
+- button "검색"
+- list:
+  - listitem:
+    - link "마이쿠팡":
+      - /url: https://mc.coupang.com/ssr/desktop/order/list
+  - listitem:
+    - link "0 장바구니":
+      - /url: //cart.coupang.com/cartView.pang
+      - emphasis: "0"
+      - text: 장바구니
+- list:
+  - listitem:
+    - link "쿠팡플레이 쿠팡플레이":
+      - /url: https://www.coupangplay.com/catalog
+      - img "쿠팡플레이"
+      - text: 쿠팡플레이
+  - listitem:
+    - link "로켓배송 로켓배송":
+      - /url: https://www.coupang.com/np/campaigns/82
+      - img "로켓배송"
+      - text: 로켓배송
+  - listitem:
+    - link "로켓프레시 로켓프레시":
+      - /url: https://www.coupang.com/np/categories/393760
+      - img "로켓프레시"
+      - text: 로켓프레시
+  - listitem:
+    - link "2026 추석 2026 추석":
+      - /url: https://www.coupang.com/mlp/web/mlp-landing-page?landingId=4800
+      - img "2026 추석"
+      - text: 2026 추석
+  - listitem:
+    - link "다시 구매 다시 구매":
+      - /url: https://www.coupang.com/np/fbi?sourceType=home_section_fbi
+      - img "다시 구매"
+      - text: 다시 구매
+  - listitem:
+    - link "쿠팡비즈 쿠팡비즈":
+      - /url: https://login.coupang.com/corporation/member/landing-page
+      - img "쿠팡비즈"
+      - text: 쿠팡비즈
+  - listitem:
+    - link "로켓직구 로켓직구":
+      - /url: https://www.coupang.com/np/coupangglobal
+      - img "로켓직구"
+      - text: 로켓직구
+  - listitem:
+    - link "골드박스 골드박스":
+      - /url: https://www.coupang.com/mlp/web/mlp-landing-page?landingId=3712&sourceType=gm_crm_goldbox&subSourceType=gm_crm_gwsrtcut
+      - img "골드박스"
+      - text: 골드박스
+  - listitem:
+    - link "이달의신상 이달의신상":
+      - /url: https://pages.coupang.com/p/136938
+      - img "이달의신상"
+      - text: 이달의신상
+  - listitem:
+    - link "입점신청 입점신청":
+      - /url: https://wing.coupang.com/tenants/vendor-signup/signup?utm_source=button_pc_coupang_shortcut_1&utm_medium=non_paid&utm_id=onsite_ca&utm_content=202411
+      - img "입점신청"
+      - text: 입점신청
+  - listitem:
+    - link "판매자특가 판매자특가":
+      - /url: https://www.coupang.com/np/omp
+      - img "판매자특가"
+      - text: 판매자특가
+  - listitem:
+    - link "와우회원할인 와우회원할인":
+      - /url: https://www.coupang.com/np/campaigns/83
+      - img "와우회원할인"
+      - text: 와우회원할인
+  - listitem:
+    - link "반품마켓 반품마켓":
+      - /url: https://pages.coupang.com/p/54908
+      - img "반품마켓"
+      - text: 반품마켓
+  - listitem:
+    - link "착한상점 착한상점":
+      - /url: https://pages.coupang.com/p/63240
+      - img "착한상점"
+      - text: 착한상점
+  - listitem:
+    - link "기획전 기획전":
+      - /url: https://pages.coupang.com/p/bep?sourceType=gm_crm_oms&subSourceType=gm_crm_gwsrtcut
+      - img "기획전"
+      - text: 기획전
+  - listitem:
+    - link "쿠팡트래블 쿠팡트래블":
+      - /url: https://trip.coupang.com/?channel=gnb
+      - img "쿠팡트래블"
+      - text: 쿠팡트래블
+- article:
+  - list:
+    - listitem:
+      - link:
+        - /url: https://shop.coupang.com/A00077176/273682?source=brandstore_display_ads&adType=DA&eventId=JnBNM059uczrFLSC
+    - listitem:
+      - link:
+        - /url: https://shop.coupang.com/A00003619/529022?source=brandstore_display_ads&adType=DA&eventId=yl2t8AMSuFycd9b7
+    - listitem:
+      - link:
+        - /url: https://www.coupang.com/np/campaigns/1440
+    - listitem:
+      - link:
+        - /url: https://pages.coupang.com/p/176028
+    - listitem:
+      - link:
+        - /url: https://pages.coupang.com/p/164807
+    - listitem:
+      - link:
+        - /url: https://pages.coupang.com/p/68594
+    - listitem:
+      - link:
+        - /url: https://wing.coupang.com/tenants/vendor-signup/signup?utm_source=button_pc_coupang_web_rignt_wing&utm_medium=non_paid&utm_id=onsite_ca&utm_content=20240516
+  - link "장바구니 0":
+    - /url: //cart.coupang.com/cartView.pang
+    - text: 장바구니
+    - emphasis: "0"
+  - text: 최근본상품
+  - emphasis: "0"
+  - list
+  - paragraph:
+    - strong
+    - text: /
+    - emphasis
+    - link "prev":
+      - /url: 이전 페이지 보기
+    - link "next":
+      - /url: 다음 페이지 보기
+- link:
+  - /url: https://shop.coupang.com/kd1961/487606?source=brandstore_display_ads&adType=DA&eventId=ANCfzCS5FD4QJCPO&from=home_C1&traid=home_C1&trcid=11772186
+- list:
+  - listitem:
+    - link:
+      - /url: https://shop.coupang.com/kd1961/487606?source=brandstore_display_ads&adType=DA&eventId=ANCfzCS5FD4QJCPO&from=home_C1&traid=home_C1&trcid=11772186
+      - img
+  - listitem:
+    - link:
+      - /url: https://shop.coupang.com/maeil/266419?source=brandstore_display_ads&adType=DA&eventId=2HcUDLmOvi946MFO&from=home_C1&traid=home_C1&trcid=11771548
+      - img
+  - listitem:
+    - link:
+      - /url: https://pages.coupang.com/p/166847?subSourceType=gm_crm_gwc1mainbnr_p3885_b1008484_c669308&sourceType=gm_crm_oms&from=home_C1&traid=home_C1&trcid=812431289925
+      - img
+  - listitem:
+    - link:
+      - /url: https://shop.coupang.com/ottogi/531756?source=brandstore_display_ads&adType=DA&eventId=ZJGxbnvBq3WChECK&from=home_C1&traid=home_C1&trcid=11765889
+      - img
+  - listitem:
+    - link:
+      - /url: https://www.coupang.com/mlp/web/mlp-landing-page?landingId=4800&subSourceType=gm_crm_gwc1mainbnr_p4615_b1008318_c666558&sourceType=gm_crm_mlp&from=home_C1&traid=home_C1&trcid=812431286493
+      - img
+  - listitem:
+    - link:
+      - /url: https://login.coupang.com/login/login.pang?rtnUrl=https%3A%2Fmc.coupang.com%2Fssr&from=home_C1&traid=home_C1&trcid=812431286219
+      - img
+- heading "오늘의 발견" [level=2]
+- heading "오늘 쿠팡이 엄선한 가장 HOT한 상품!" [level=3]
+- list:
+  - listitem:
+    - link:
+      - /url: https://pages.coupang.com/p/176570?adType=DA&eventId=KytvdxUkdlXEqXm3&from=home_C2&traid=home_C2&trcid=11771543
+      - img
+  - listitem:
+    - link "구매하기":
+      - /url: https://shop.coupang.com/lionkoreaofficial/293771?source=brandstore_display_ads&adType=DA&eventId=1aIEEdiROtyl73d3&from=home_C2&traid=home_C2&trcid=11765052
+      - paragraph: 구매하기
+      - img
+  - listitem:
+    - link:
+      - /url: https://shop.coupang.com/A00126071/270771?source=brandstore_display_ads&adType=DA&eventId=HLBWzbPUIhgfeyZd&from=home_C2&traid=home_C2&trcid=11767695
+      - img
+  - listitem:
+    - link:
+      - /url: https://shop.coupang.com/maeil/242185?source=brandstore_display_ads&adType=DA&eventId=CytYonyw5tCjnPX0&from=home_C2&traid=home_C2&trcid=11760834
+      - img
+  - listitem:
+    - link:
+      - /url: https://shop.coupang.com/A00036657/301334?source=brandstore_display_ads&adType=DA&eventId=4aESlrMy36BBOX3l&from=home_C2&traid=home_C2&trcid=11767669
+      - img
+  - listitem:
+    - link:
+      - /url: https://pages.coupang.com/p/175966?adType=DA&eventId=3xhKvlKWp1xcBIeJ&from=home_C2&traid=home_C2&trcid=11766655
+      - img
+  - listitem:
+    - link:
+      - /url: https://shop.coupang.com/A00119021/263325?source=brandstore_display_ads&adType=DA&eventId=mK92fKnCApH0rB1Y&from=home_C2&traid=home_C2&trcid=11771126
+      - img
+  - listitem:
+    - link:
+      - /url: https://pages.coupang.com/p/175824?adType=DA&eventId=XTkzNMRl65pzWrwJ&from=home_C2&traid=home_C2&trcid=11765265
+      - img
+  - listitem:
+    - link:
+      - /url: https://shop.coupang.com/vendict/341179?source=brandstore_display_ads&adType=DA&eventId=h6liMFxiBu2OM9ZT&from=home_C2&traid=home_C2&trcid=11768818
+      - img
+- link:
+  - /url: https://shop.coupang.com/A00126071/270771?source=brandstore_display_ads&adType=DA&eventId=Vl16mycNFDIx9atk&from=home_event_banner&traid=home_event_banner
+- link:
+  - /url: https://shop.coupang.com/denps/67619?source=brandstore_display_ads&adType=DA&eventId=3GzfHuN9WknNUJKR&from=home_event_banner&traid=home_event_banner
+- link:
+  - /url: https://pages.coupang.com/p/176396?adType=DA&eventId=eIny2tcchn8GxK3h&from=home_event_banner&traid=home_event_banner
+- link:
+  - /url: https://shop.coupang.com/kd1961/487606?source=brandstore_display_ads&adType=DA&eventId=u1e1xkucCpBrfxm7&from=home_event_banner&traid=home_event_banner
+- link:
+  - /url: https://shop.coupang.com/A00187900/324722?source=brandstore_display_ads&adType=DA&eventId=Z7SEku0DCEeXcQER&from=home_event_banner&traid=home_event_banner
+- link:
+  - /url: https://shop.coupang.com/woongjinfoods/430348?source=brandstore_display_ads&adType=DA&eventId=Hpyk1Uufuhto4RTr&from=home_event_banner&traid=home_event_banner
+- paragraph: Loading...
+- contentinfo:
+  - link "회사소개":
+    - /url: https://news.coupang.com/
+  - link "Investor Relations":
+    - /url: https://ir.aboutcoupang.com/overview/default.aspx
+  - link "인재채용":
+    - /url: https://rocketyourcareer.kr.coupang.com
+  - link "입점/제휴문의":
+    - /url: https://marketplace.coupangcorp.com/s/?utm_source=button_pc&utm_medium=non_paid&utm_campaign=onsite_ca&utm_id=coupang_app?inflow=WEB_FOOTER_B
+  - link "공지사항":
+    - /url: https://mc.coupang.com/ssr/desktop/contact/notice
+  - link "고객의 소리":
+    - /url: https://mc.coupang.com/ssr/desktop/contact/voc
+  - link "이용약관":
+    - /url: https://www.coupang.com/np/policies/terms
+  - link "개인정보 처리방침":
+    - /url: https://privacy.coupang.com/ko/center/coupang
+    - strong: 개인정보 처리방침
+  - link "정보보호/개인정보보호 인증":
+    - /url: https://privacy.coupang.com/ko/security/status
+  - link "쿠팡페이 이용약관":
+    - /url: https://rocketpay.coupang.com/rocketpay/operationTerms/coupangPcFooter
+  - link "신뢰관리센터":
+    - /url: https://www.coupang.com/np/safety
+  - link "제휴마케팅":
+    - /url: https://partners.coupang.com/
+  - link "광고안내":
+    - /url: https://ads.coupang.com
+  - paragraph: Global Site
+  - link "COUPANG":
+    - /url: https://www.coupang.com/
+  - text: "상호명 및 호스팅 서비스 제공 : 쿠팡(주) 대표이사 : 로저스 해롤드 린(Rogers Harold Lynn) (05050) 서울시 광진구 아차산로 412, 2층 사업자 등록번호 : 120-88-00767 통신판매업신고 : 2026-서울광진-1253"
+  - link "사업자정보 확인 >":
+    - /url: http://www.ftc.go.kr/info/bizinfo/communicationViewPopup.jsp?wrkr_no=1208800767
+  - 'link "365고객센터 | 전자금융거래분쟁처리담당 1577-7011 (유료) (05050) 서울시 광진구 아차산로 412, 2층 email : help@coupang.com"':
+    - /url: https://mc.coupang.com/ssr/desktop/contact/inquiry
+    - strong: 365고객센터
+    - text: "| 전자금융거래분쟁처리담당"
+    - emphasis: 1577-7011 (유료)
+    - text: "(05050) 서울시 광진구 아차산로 412, 2층 email : help@coupang.com"
+  - paragraph:
+    - strong: 채무지급보증 안내
+    - text: 당사는 고객님이 현금 결제한 금액에 대해 채무지급보증 계약을 체결하여 안전거래를 보장하고 있습니다.
+    - link "서비스 가입사실 확인 >":
+      - /url: https://www.coupang.com/np/etc/popWooriService
+  - paragraph: 사이버몰 내 판매되는 상품 중에는 쿠팡에 등록한 개별 판매자가 판매하는 마켓플레이스(오픈마켓) 상품이 포함되어 있습니다. 마켓플레이스(오픈마켓) 상품의 경우 쿠팡은 통신판매중개자이며 통신판매의 당사자가 아닙니다. 쿠팡은 마켓플레이스(오픈마켓) 상품, 거래정보 및 거래 등에 대하여 책임을 지지 않습니다. 쿠팡은 소비자 보호와 안전거래를 위해 신뢰관리센터(CM112@coupang.com)를 운영하고 있으며, 관련 분쟁이 발생할 경우 별도의 분쟁 처리절차에 의거 분쟁이 처리됩니다. Copyright © Coupang Corp. 2010-2025 All Rights Reserved.
+  - list:
+    - listitem:
+      - link:
+        - /url: https://www.facebook.com/Coupang.korea
+    - listitem:
+      - link:
+        - /url: https://news.coupang.com/
+    - listitem:
+      - link:
+        - /url: https://www.instagram.com/coupang
+- alert

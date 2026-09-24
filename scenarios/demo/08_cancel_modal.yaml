@@ -1,0 +1,12 @@
+name: "내비게이션 - 확인 모달에서 취소하면 입력값이 유지된 채 폼에 남는다"
+steps:
+  - goto: http://127.0.0.1:8787/
+  - do: 투숙객 이름 입력
+    fill: 이취소
+  - do: 캘린더에서 2026년 10월 3일 선택
+  - do: 예약하기 버튼 누르기
+  - expect: { snapshot_contains: 'dialog "예약 내용을 확정하시겠습니까?"' }
+  - do: 확인 모달에서 취소 버튼 누르기
+  - expect: { title_contains: "객실 예약" }
+  - expect: { field: "투숙객 이름", value: "이취소" }
+  - expect: { field: "선택한 체크인", value: "2026-10-03" }

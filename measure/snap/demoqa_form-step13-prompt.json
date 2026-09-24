@@ -1,0 +1,43 @@
+{
+ "step": "자동차 셀렉트에서 Audi 선택",
+ "action": "click",
+ "page": {
+  "url": "https://demoqa.com/select-menu",
+  "title": "demosite"
+ },
+ "history": [
+  "fill textbox name@example.com",
+  "click radio Male",
+  "fill textbox Mobile Number",
+  "click checkbox Music",
+  "click checkbox Reading",
+  "click option Green"
+ ],
+ "criteria": {
+  "c0": "click link \"Accordian\"",
+  "c1": "click link \"Auto Complete\"",
+  "c2": "click link \"Date Picker\"",
+  "c3": "click link \"Slider\"",
+  "c4": "click link \"Progress Bar\"",
+  "c5": "click link \"Tabs\"",
+  "c6": "click link \"Tool Tips\"",
+  "c7": "click link \"Menu\"",
+  "c8": "click link \"Select Menu\"",
+  "c9": "click option \"Red\" in \"Old Style Select Menu\"",
+  "c10": "click option \"Blue\" in \"Old Style Select Menu\"",
+  "c11": "click option \"Green\" in \"Old Style Select Menu\"",
+  "c12": "click option \"Yellow\" in \"Old Style Select Menu\"",
+  "c13": "click option \"Purple\" in \"Old Style Select Menu\"",
+  "c14": "click option \"Black\" in \"Old Style Select Menu\"",
+  "c15": "click option \"White\" in \"Old Style Select Menu\"",
+  "c16": "click option \"Voilet\" in \"Old Style Select Menu\"",
+  "c17": "click option \"Indigo\" in \"Old Style Select Menu\"",
+  "c18": "click option \"Magenta\" in \"Old Style Select Menu\"",
+  "c19": "click option \"Aqua\" in \"Old Style Select Menu\"",
+  "c20": "click option \"Volvo\" in \"Standard multi select\"",
+  "c21": "click option \"Saab\" in \"Standard multi select\"",
+  "c22": "click option \"Opel\" in \"Standard multi select\"",
+  "c23": "click option \"Audi\" in \"Standard multi select\"",
+  "abstain": "No candidate matches this step on the current page; do not act."
+ }
+}

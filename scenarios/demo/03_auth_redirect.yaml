@@ -1,0 +1,6 @@
+name: "인증 - 세션 없이 예약 페이지 접근하면 로그인으로 이동"
+storage_state: none   # 세션 없는 상태가 필요 (--storage-state를 줘도 무시)
+steps:
+  - goto: http://127.0.0.1:8787/
+  - expect: { url_contains: "/login", title_contains: "로그인" }
+  - expect: { snapshot_contains: 'textbox "아이디"' }

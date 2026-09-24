@@ -1,0 +1,10 @@
+name: 데모앱 로그인 후 세션 저장
+steps:
+  - goto: http://127.0.0.1:8787/login
+  - do: 아이디 입력
+    fill: tester
+  - do: 비밀번호 입력
+    fill: pass1234
+  - do: 로그인 버튼 누르기
+  - expect: { url_contains: "127.0.0.1:8787/", title_contains: "객실 예약" }
+  - save_storage_state: .auth/demo.json
