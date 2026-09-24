@@ -84,7 +84,8 @@ steps:
   - expect: { snapshot_contains: 'option "Green" [selected]' }
 ```
 
-`expect` 키: `url_contains`, `text`, `title_contains`, `field`+`value` (입력값), `snapshot_contains` (aria 스냅샷 부분 문자열),
+`expect` 키: `url_contains`, `url_path` (경로 정확히 일치), `text`, `text_matches` (정규식, 매번 바뀌는 숫자는 `\d+`), `no_text` (문구가 사라짐),
+`title_contains`, `field`+`value` (입력값), `snapshot_contains` (aria 스냅샷 부분 문자열),
 `dialog` (가장 최근 alert/confirm/prompt 메시지). `text`, `field`, `snapshot_contains`는 모든 프레임을 본다.
 그 밖의 스텝:
 - `save_storage_state: .auth/demo.json` (로그인 후 쿠키·스토리지 저장 → 다음 시나리오에서 `--storage-state`로 재사용).

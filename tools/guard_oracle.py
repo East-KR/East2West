@@ -16,6 +16,7 @@ REASON = ("golden/ is the approved oracle: agents do not edit it or approve it. 
           "Propose the change to the user (what and why); a person edits oracle.json / name maps and runs "
           "`uv run jev-e2e approve golden/<app> --by <name>` in a terminal.")
 ALLOWED_FLAGS = re.compile(r"--(?:record|compare|oracle|name-map)[ =]\S*golden/\S*")
+PY_WRITE = re.compile(r"\b(?:write_text|write_bytes|open\(|json\.dump\b|shutil\.|os\.(?:remove|unlink|rename|replace|rmdir)|\.unlink\(|\.rename\(|\.replace\(|rmtree|\.touch\(|\.mkdir\()")
 WRITE_VERBS = re.compile(r"(^|[\s;&|(])(rm|mv|cp|tee|truncate|ln|chmod|sed\s+-i|perl\s+-[pi]|dd)\b"  # golden/ 인자가 있는 쓰기 명령
                          r"|(?<![<\w-])>>?\s*['\"]?\S*golden/"                                      # golden/ 으로 향하는 리다이렉트
                          r"|\bopen\([^)]*golden/[^)]*['\"][wa]")                                     # 스크립트에서 golden/ 파일 쓰기
@@ -43,6 +44,9 @@ def main() -> None:
         rest = ALLOWED_FLAGS.sub("", cmd)
         if "golden/" in rest and WRITE_VERBS.search(rest):
             block("shell command that writes into golden/")
+        # 인라인 파이썬(heredoc, -c)이 golden/을 언급하면서 파일 쓰기 API를 쓰면 막는다. 변수로 경로를 돌려도 API 이름은 남는다.
+        if "golden/" in rest and re.search(r"\bpython[0-9.]*\b", rest) and PY_WRITE.search(rest):
+            block("inline python that names golden/ and writes files (read it with jev-e2e oracle-status / review)")
 
 
 if __name__ == "__main__":

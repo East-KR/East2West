@@ -46,7 +46,8 @@ class UI:
         self._golden_assertions: list[dict[str, Any]] = []
         if compare_dir:
             g = compare_dir / f"{test_id}.json"
-            assert g.exists(), f"no golden {g} (record on as-is first)"
+            if not g.exists():
+                raise AssertionError(f"no golden {g} (record on as-is first)")
             data = json.loads(g.read_text(encoding="utf-8"))
             if not self_compare and data.get("base_url", "").rstrip("/") == base_url.rstrip("/"):
                 raise AssertionError(f"golden {g} was recorded on {base_url} itself; compare needs the as-is recording")
@@ -217,6 +218,8 @@ class UI:
                 name_ = self.name_map.get(name, name)
                 hits = [f.get_by_role(role, name=name_, exact=True) for f in self.frames()]
                 hits = [l for l in hits if l.count()]
+                if len(hits) > 1 or (hits and hits[0].count() > 1):
+                    return f"<ambiguous: {role} {name_!r} matches more than one element>"
                 if hits:
                     el = hits[0].first
                     tag = el.evaluate("e => e.tagName")
@@ -229,14 +232,16 @@ class UI:
         self._poll(lambda: (lambda v: (v == value, v))(current()), f'field "{name}" == {value!r}')
 
     def expect_text(self, text: str) -> None:
+        """문구가 화면에 보인다. 숨겨진 요소(display:none)에만 있는 문구는 인정하지 않는다."""
         self._assert("text", text)
-        self._poll(lambda: (any(f.get_by_text(text).count() for f in self.frames()), None), f"text {text!r} visible")
+        self._poll(lambda: (any(f.get_by_text(text).locator("visible=true").count() for f in self.frames()), None), f"text {text!r} visible")
 
     def expect_dialog(self, message: str) -> None:
+        """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다). 평범한 assert는 -O에서 사라지므로 쓰지 않는다."""
         self._assert("dialog", message)
-        """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다)."""
         last = self.dialogs[-1]["message"] if self.dialogs else None
-        assert last == message, f"last dialog {last!r} != {message!r}"
+        if last != message:
+            raise AssertionError(f"last dialog {last!r} != {message!r}")
 
     def expect_url_path(self, path: str) -> None:
         """URL 경로가 정확히 이것 (접두어가 우연히 같은 다른 화면을 통과시키지 않는다)."""
@@ -261,6 +266,12 @@ class UI:
             except Exception:
                 continue
         return out
+
+    def expect_text_matches(self, pattern: str) -> None:
+        """형식이 맞는 문구가 보인다. 매번 바뀌는 숫자는 \\d+ 로 (총 \\d+건, 주문번호 \\d+)."""
+        import re as _re
+        self._assert("text_matches", pattern)
+        self._poll(lambda: (any(_re.search(pattern, t) for t in self._texts()), None), f"text matching {pattern!r} visible")
 
     def expect_no_text(self, text: str) -> None:
         """이전 화면의 문구가 사라졌다 (화면이 실제로 바뀌었다)."""

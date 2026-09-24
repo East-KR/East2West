@@ -4,7 +4,7 @@ step 종류
   goto: <url>                          결정론
   do: <자연어>  [fill: <값>]           Jev가 대상 요소를 고른다. fill이 있으면 입력 가능한 요소만 후보.
   press: <키>                          결정론 (예: Enter)
-  expect: {url_contains, url_path, text, no_text, title_contains, field+value, snapshot_contains, dialog}   결정론 assert (모든 프레임 대상)
+  expect: {url_contains, url_path, text, text_matches, no_text, title_contains, field+value, snapshot_contains, dialog}   결정론 assert (모든 프레임 대상)
   dialog: accept | dismiss | {accept: <prompt 입력값>}   다음에 뜨는 alert/confirm/prompt 하나의 처리 (기본 accept)
   save_storage_state: <path>
 
@@ -324,6 +324,9 @@ class Runner:
                 failures.append(f"url {page.url!r} lacks {cond['url_contains']!r}")
             if "url_path" in cond and urlparse(page.url).path != cond["url_path"]:  # 정확히 이 경로 (접두어 우연 일치 방지)
                 failures.append(f"url path {urlparse(page.url).path!r} != {cond['url_path']!r}")
+            if "text_matches" in cond:  # 형식이 맞는 문구가 보인다 (총 \d+건: 건수는 몰라도 결과가 나왔다)
+                if not any(re.search(cond["text_matches"], t) for t in self._visible_texts(page)):
+                    failures.append(f"no visible text matches {cond['text_matches']!r}")
             if "no_text" in cond:  # 이전 화면의 문구가 사라졌다 (화면이 실제로 바뀌었다)
                 if any(cond["no_text"] in t for t in self._visible_texts(page)):
                     failures.append(f"text {cond['no_text']!r} still visible")

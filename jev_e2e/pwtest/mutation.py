@@ -152,6 +152,7 @@ def install(ctx, *, test: str, capture: Capture | None, mutant: dict[str, Any] |
         path = urlparse(resp.url).path  # 최종 응답 경로
         target = mutant is not None and path == mutant["path"]
         if target and mutant["op"] == "http500" and req.resource_type == "document":
+            _mark(mutant)
             return route.fulfill(status=500, content_type="text/html; charset=utf-8", body="<h1>500 Internal Server Error</h1>")
         ctype = resp.headers.get("content-type", "")
         if not any(t in ctype for t in TEXTUAL):
@@ -161,10 +162,22 @@ def install(ctx, *, test: str, capture: Capture | None, mutant: dict[str, Any] |
             capture.add(test, path, req.resource_type, text)
         if target and mutant["op"] != "http500":
             headers = {k: v for k, v in resp.headers.items() if k.lower() not in ("content-length", "content-encoding")}
-            return route.fulfill(status=resp.status, headers=headers, body=apply(text, mutant["op"], mutant["site"], req.resource_type))
+            mutated = apply(text, mutant["op"], mutant["site"], req.resource_type)
+            if mutated != text:  # 자리가 없으면(응답 본문이 발견 때와 달라짐) 결함이 안 들어간 것: 생존으로 세면 안 된다
+                _mark(mutant)
+            return route.fulfill(status=resp.status, headers=headers, body=mutated)
         return route.fulfill(response=resp)
 
     ctx.route("**/*", handler)
+
+
+def _mark(mutant: dict[str, Any]) -> None:
+    """결함이 실제로 응답에 들어갔다는 표식 (mutate 쪽이 이 파일로 '적용 안 됨'을 가려낸다)."""
+    if mutant.get("marker"):
+        try:
+            Path(mutant["marker"]).touch()
+        except OSError:
+            pass
 
 
 # -- 실행 ---------------------------------------------------------------------------
@@ -235,11 +248,15 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
         sel = [t for t, paths in tests.items() if m["path"] in paths]
         junit = work / f"{m['id']}.xml"
         # 탐지 = 테스트가 실제로 실패했다. pytest가 테스트를 못 찾거나 설정 오류로 끝난 것(종료 코드 2 이상)은 탐지가 아니라 실행 오류다.
+        marker = work / f"{m['id']}.applied"
         try:
-            res = _pytest([*sel, *common, "--jev-mutant", json.dumps({k: m[k] for k in ("path", "op", "site")}), "--junitxml", str(junit)])
+            res = _pytest([*sel, *common, "--jev-mutant", json.dumps({**{k: m[k] for k in ("path", "op", "site")}, "marker": str(marker)}),
+                           "--junitxml", str(junit)])
             by = _failed(junit)
             status = "killed" if res.returncode == 1 and by else ("survived" if res.returncode == 0 else "error")
             err = "" if status != "error" else (res.stdout.strip().splitlines() or ["?"])[-1][:200]
+            if status != "error" and not marker.exists():
+                status, err = "error", "mutant was never applied (response body differs from discovery run)"
         except subprocess.TimeoutExpired:
             by, status, err = [], "error", "timeout"
         return {**m, "tests": [t.split("::")[-1] for t in sel], "status": status, "killed": status == "killed", "killed_by": by, "error": err}
@@ -255,6 +272,7 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
     kills = {t: sum(t in r["killed_by"] for r in results) for t in test_names}
     report = {"generated_at": time.strftime("%Y-%m-%d %H:%M:%S"), "targets": targets, "base_url": base_url,
               "oracle_approved": bool(compare) and oracle.status(compare)["ok"],
+              "oracle_approved_at": oracle.status(compare).get("approved_at") if compare else None,
               "mode": "expects+golden" if compare else "expects-only", "compare": str(compare) if compare else None,
               "total": len(results), "killed": killed, "errors": len(errors), "score": round(killed / len(results), 3) if results else None,
               "by_op": by_op, "test_kills": kills, "mutants": results}

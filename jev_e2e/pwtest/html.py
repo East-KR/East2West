@@ -164,7 +164,7 @@ CHECK_SVG = ("<svg width='14' height='14' viewBox='0 0 14 14' aria-hidden='true'
              "stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>")
 
 KIND = {"field": "칸", "dialog": "알림창", "text": "화면 문구", "snapshot": "화면 구조", "url_path": "주소", "url_contains": "주소에 포함",
-        "title": "제목", "no_text": "사라진 문구"}
+        "title": "제목", "no_text": "사라진 문구", "text_matches": "문구 형식"}
 
 
 def _e(s: Any) -> str:

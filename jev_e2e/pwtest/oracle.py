@@ -26,7 +26,7 @@ CONFIG = "oracle.json"
 def oracle_files(d: Path) -> dict[str, str]:
     """승인 대상 전부: 골든 JSON, 규칙, 이름 매핑, 그리고 사람이 보고 승인한 단계별 화면(shots/)."""
     return {p.relative_to(d).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in sorted(d.rglob("*")) if p.is_file() and p.name != MANIFEST}
+            for p in sorted(d.rglob("*")) if p.is_file() and p.name not in (MANIFEST, ".DS_Store")}
 
 
 def load_config(d: Path) -> dict[str, Any]:
@@ -106,6 +106,7 @@ def approve(d: Path, by: str, note: str = "", tests_dir: Path | None = None) -> 
     if not sys.stdin.isatty():
         sys.exit("approve needs an interactive terminal: a person reviews and types the confirmation (agents cannot approve).")
     from . import html
+    reviewed = oracle_files(d)  # 사람이 화면에서 보는 상태. 확인 입력 뒤에 다시 재서 그 사이에 바뀌었으면 승인하지 않는다
     page = html.write_review(d, tests_dir=tests_dir)
     st = status(d)
     ts = tests(d)
@@ -119,7 +120,9 @@ def approve(d: Path, by: str, note: str = "", tests_dir: Path | None = None) -> 
     answer = input(f"\n브라우저에서 검토했으면, 승인하려면 '{d.name}'을(를) 입력하세요: ")
     if answer.strip() != d.name:
         sys.exit("승인하지 않았습니다")
+    if oracle_files(d) != reviewed:
+        sys.exit("검토하는 동안 기준 파일이 바뀌었습니다. 승인하지 않았습니다. 다시 실행해서 바뀐 내용을 검토하세요.")
     (d / MANIFEST).write_text(json.dumps({"approved_by": by, "approved_at": time.strftime("%Y-%m-%d %H:%M:%S"), "note": note,
-                                          "files": oracle_files(d), "assertions": {t["name"]: t["assertions"] for t in ts}},
+                                          "files": reviewed, "assertions": {t["name"]: t["assertions"] for t in ts}},
                                          ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"승인됨: {by} · {time.strftime('%Y-%m-%d %H:%M:%S')}")

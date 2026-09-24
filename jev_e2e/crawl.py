@@ -512,6 +512,7 @@ class Crawler:
 
         - URL: 경로가 바뀌었으면 정확한 경로(url_path). 숫자 id가 든 경로는 id 앞까지를 url_contains로, 이전 경로에도 맞으면 생략.
         - 새 화면에만 있는 문구 하나 (모달 > alert > 제목 > 본문 순). 이전 화면 스냅샷에 들어 있지 않아야 한다.
+          숫자가 든 문구는 숫자 자리만 \d+ 인 패턴(text_matches): 건수·번호가 바뀌어도 통과, 문구가 바뀌면 실패.
         - 이전 화면에만 있던 문구 하나가 사라졌는지 (no_text). 새 화면 스냅샷에 들어 있지 않아야 한다.
         """
         out: list[dict[str, Any]] = []
@@ -522,22 +523,28 @@ class Crawler:
             elif (stable := stable_path(dst.url)) not in ("", "/") and not sp_.startswith(stable):
                 out.append({"expect": {"url_contains": stable}})
 
-        def stable(c: str) -> str | None:
-            """숫자가 든 문구(주문번호 420, 총 2건)는 실행마다 바뀐다. 숫자 없는 가장 긴 부분만, 4자 미만이면 쓰지 않는다."""
+        def check(c: str) -> tuple[str, str] | None:
+            """문구 → (검증 종류, 값). 숫자가 든 문구(총 2건, 주문번호 420)는 실행마다 바뀌므로 숫자 자리만 \\d+ 인 패턴으로.
+            숫자를 빼면 글자가 2자도 안 남는 문구(2026-08, 1,235)는 형식이 없어서 쓰지 않는다."""
             if not DIGITS.search(c):
-                return c
-            seg = max(re.split(r"\S*\d\S*", c), key=len).strip()
-            return seg if len(seg) >= 4 else None
+                return ("text", c)
+            if len(re.findall(r"[^\W\d_]", c)) < 2:
+                return None
+            pattern = r"\d+".join(re.escape(part) for part in DIGITS.split(c))
+            return ("text_matches", pattern.replace(r"\ ", r"\s+"))
 
-        def cands(n: Node) -> list[str]:
+        def found(chk: tuple[str, str], snapshot: str) -> bool:
+            return chk[1] in snapshot if chk[0] == "text" else re.search(chk[1], snapshot) is not None
+
+        def cands(n: Node) -> list[tuple[str, str]]:
             raw = ([n.modal] if n.modal else []) + n.alerts + n.headings + n.texts
-            return [s for c in raw if c and c.strip() and (s := stable(c))]
-        new = next((c for c in cands(dst) if c not in src.snapshot), None)
-        gone = next((c for c in cands(src) if c not in dst.snapshot), None)
+            return [chk for c in raw if c and c.strip() and (chk := check(c))]
+        new = next((c for c in cands(dst) if not found(c, src.snapshot)), None)
+        gone = next((c for c in cands(src) if c[0] == "text" and not found(c, dst.snapshot)), None)  # 사라진 문구는 숫자 없는 것만
         if new:
-            out.append({"expect": {"text": new}})
+            out.append({"expect": {new[0]: new[1]}})
         if gone:
-            out.append({"expect": {"no_text": gone}})
+            out.append({"expect": {"no_text": gone[1]}})
         return out
 
     def preview(self) -> dict[str, Any]:
@@ -585,8 +592,8 @@ class Crawler:
                         L.append(f"    ui.expect_field({exp['field']!r}, {exp['value']!r})")
                         continue
                     k, v = next(iter(exp.items()))
-                    call = {"title_contains": "expect_title", "text": "expect_text", "no_text": "expect_no_text", "url_path": "expect_url_path",
-                            "url_contains": "expect_url_contains", "dialog": "expect_dialog"}[k]
+                    call = {"title_contains": "expect_title", "text": "expect_text", "text_matches": "expect_text_matches", "no_text": "expect_no_text",
+                            "url_path": "expect_url_path", "url_contains": "expect_url_contains", "dialog": "expect_dialog"}[k]
                     L.append(f"    ui.{call}({v!r})")
         return "\n".join(L) + "\n"
 

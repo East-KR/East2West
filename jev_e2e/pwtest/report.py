@@ -54,11 +54,15 @@ def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: P
     checks: list[tuple[str, bool, str]] = []
 
     checks.append(("기준이 승인됨", st["ok"], f"{st.get('approved_by')} · {st.get('approved_at')}" if st["ok"] else "; ".join(st["problems"])))
+    recorded = {g.stem for g in oracle_dir.glob("*.json")
+                if g.name not in (oracle.MANIFEST, oracle.CONFIG) and not g.name.startswith("name_map")}
     for r in runs:
         approved_run = r["props"].get("oracle_approved") == "true"
         checks.append(("승인된 기준으로 비교함", approved_run, "" if approved_run else "승인 없이 실행 (--allow-unapproved)"))
-        recorded = {g.stem for g in oracle_dir.glob("*.json")
-                    if g.name not in (oracle.MANIFEST, oracle.CONFIG) and not g.name.startswith("name_map")}
+        same = st["ok"] and r["props"].get("oracle_approved_at") == st.get("approved_at")
+        checks.append(("비교 결과가 현재 승인본으로 만들어짐", same,
+                       "" if same else f"실행 당시 승인 {r['props'].get('oracle_approved_at') or '없음'} ≠ 현재 {st.get('approved_at')}"))
+        checks.append(("결함 주입 실행이 아닌 실제 비교 결과", not r["props"].get("mutant"), r["props"].get("mutant") or ""))
         ran = {c["name"] for c in r["cases"] if c["status"] != "skip"}
         missing = sorted(recorded - ran)
         checks.append(("기록된 테스트를 빠짐없이 실행", not missing, ("빠짐: " + ", ".join(missing)) if missing else f"{len(recorded)}개"))
@@ -67,8 +71,14 @@ def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: P
     gold = [m for m in muts if m["mode"] == "expects+golden"]
     for m in gold:
         checks.append(("결함 탐지 측정도 승인된 기준으로", bool(m.get("oracle_approved")), m["generated_at"]))
+        same = st["ok"] and m.get("oracle_approved_at") == st.get("approved_at")
+        checks.append(("결함 탐지 측정이 현재 승인본으로 만들어짐", same,
+                       "" if same else f"측정 당시 승인 {m.get('oracle_approved_at') or '없음'} ≠ 현재 {st.get('approved_at')}"))
         checks.append(("결함 탐지 측정이 오류 없이 실행됨", m.get("errors", 0) == 0, f"실행 오류 {m.get('errors', 0)}건" if m.get("errors") else ""))
-        checks.append((f"테스트가 결함을 {MIN_SCORE:.0%} 이상 잡음", m["score"] >= MIN_SCORE, f"{m['killed']}/{m['total']} = {m['score']:.0%}"))
+        untested = sorted(recorded - set(m.get("test_kills", {})))
+        checks.append(("기록된 테스트 전부가 결함 탐지 측정에 참여", not untested, ("빠짐: " + ", ".join(untested)) if untested else f"{len(recorded)}개"))
+        score = m["score"] or 0
+        checks.append((f"테스트가 결함을 {MIN_SCORE:.0%} 이상 잡음", score >= MIN_SCORE, f"{m['killed']}/{m['total']} = {score:.0%}"))
     trusted = all(ok for _, ok, _ in checks) and bool(runs) and bool(gold)
 
     L = [f"# 검증 보고서: {oracle_dir.name}", "",
