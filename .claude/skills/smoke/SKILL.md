@@ -3,7 +3,7 @@ name: smoke
 description: Smoke-sweep many similar screens with one natural-language YAML scenario (`parity run`) run over a screen list (matrix), Jev picking each screen's buttons. Use to check that every menu/screen of an app — typically a legacy or migrated system — opens, queries and opens a detail, without per-screen scripts.
 ---
 
-# Smoke sweep (parity matrix)
+# Smoke sweep (Jev runner matrix)
 
 One YAML scenario, one screen list. Jev decides per screen which element a step means ("조회" / "검색" / "목록 불러오기" / icon), once; the choice is cached and later runs replay it with no Jev call. Format, expect keys and a worked example with results: [docs/SMOKE.md](../../../docs/SMOKE.md). Template: [scenarios/smoke/screen_smoke.yaml](../../../scenarios/smoke/screen_smoke.yaml).
 

@@ -8,7 +8,7 @@ as-is에 버그가 있으면 그 버그가 곧 기대값이다. Claude Code에�
 | 무엇 | 도구 |
 | :--- | :--- |
 | 핵심 업무 화면의 동등성 (값, 메시지, 버그까지) | Playwright + `ui` fixture (`e2e/<app>/`), 이 문서 |
-| 전체 화면을 넓게 훑는 스모크 (열림, 조회, 상세) | parity matrix, [SMOKE.md](SMOKE.md) (`smoke` 스킬) |
+| 전체 화면을 넓게 훑는 스모크 (열림, 조회, 상세) | Jev 러너 matrix, [SMOKE.md](SMOKE.md) (`smoke` 스킬) |
 
 근거: [JEV_VS_PLAYWRIGHT.md](JEV_VS_PLAYWRIGHT.md), [SMOKE.md](SMOKE.md).
 
@@ -125,7 +125,7 @@ uv run pytest e2e/legacy --base-url http://127.0.0.1:8802 --compare golden/legac
 | `tobe-fixed` | 3/4 실패, 차이는 바뀐 값만: `textbox "부가세": 120 → 124`, `alert: 수량을 입력하세요. → 수량은 1 이상이어야 합니다.`, 수량 0 저장 → alert |
 | `tobe-renamed` + name-map 2줄 | 4개 모두 끝까지 실행, 라벨 변경은 차이로 보고, 라벨 뒤 부가세 변경도 탐지 |
 
-자연어 YAML로 같은 일을 하는 parity 버전(`--record`/`--compare`)은 `examples/yaml-migration/`에 있다.
+자연어 YAML로 같은 일을 하는 Jev 러너 버전(`parity run --record`/`--compare`)은 `examples/yaml-migration/`에 있다.
 
 ## 아직 안 되는 것
 

@@ -6,7 +6,7 @@
 ```bash
 uv run pytest e2e/legacy --base-url http://127.0.0.1:8801 --record golden/legacy     # as-is
 uv run pytest e2e/legacy --base-url http://127.0.0.1:8803 --compare golden/legacy    # to-be
-uv run pytest e2e/legacy --base-url http://127.0.0.1:8804 --compare golden/legacy --name-map e2e/legacy/name_map_renamed.json
+uv run pytest e2e/legacy --base-url http://127.0.0.1:8804 --compare golden/legacy --name-map golden/legacy/name_map.tobe-renamed.json
 ```
 
 | to-be | Jev 러너 (`parity run`) | Playwright (`pytest`) |
