@@ -84,6 +84,40 @@ steps:
 7. 성공한 선택은 `.parity-cache/<시나리오>.json`에 **스텝 문장을 키로** 저장. 다음 실행은 캐시된 요소가 있으면 **Jev 없이 재생**, 없으면 Jev로 다시 골라 캐시를 고치고 `⚠ HEALED`로 표시한다. `--replay-only`에서는 캐시 미스가 곧 실패다.
 8. `reports/<시나리오>-<시각>.json`에 스텝별 결과, Jev 확률 top3, 보낸 후보 표를 기록. 실패 스크린샷과 최종 스크린샷을 남긴다.
 
+## 실패 원인 분류 (`--triage`, `parity triage`)
+
+실패하거나 골든과 다른 스텝의 근거를 Jev Choice에 보내 **정해진 분류표 안에서** 원인을 고른다 (`parity/triage.py`). 근거는 러너가 이미 남기는 것뿐이다:
+실패 사유 문구, 직전 스텝 이력(6개), 골든 diff(40줄), 마지막 동작 이후 HTTP/JS 오류, 대화상자, Jev 확률 top3, 화면 스냅샷 앞 1,500자.
+텍스트 생성은 없고, 확률 분포가 나오므로 margin이 낮은 것만 사람이 본다. 스텝당 200~300ms, 입력 1천 토큰 안팎.
+
+| 분류 | 뜻 | 후속 조치 |
+| :--- | :--- | :--- |
+| `ui_changed` | 라벨·구조가 바뀜, 기능은 정상 | 이름 매핑을 제안하고 의도된 변경인지 사람이 확인 (자동 복구는 권하지 않는다) |
+| `real_defect` | to-be가 as-is와 다르게 동작 (값·문구·행 수·오류) | diff·실패 스크린샷과 함께 개발자 확인 |
+| `environment` | 서버 다운, 세션 만료, 봇 차단, 5xx | 서버·세션·네트워크 확인 후 재실행 |
+| `timing` | 로딩 중 조작, settle 부족 | `--settle-ms` 늘려 재실행 |
+| `test_bug` | 문장 모호, 단계 누락, 약한 expect, 변수 미설정, 캐시 미준비 | 시나리오 문장·단계·expect 검토 |
+| `abstain` | 근거 부족 (Jev 호출 실패 포함) | 사람 검토 |
+
+분류는 제안이다. 조치 문구도 "…으로 보임"으로 쓰고, 최종 판정은 골든 승인처럼 사람이 한다.
+
+같은 요청에 Noul 두 개가 붙는다: `retry_may_pass` (그대로 재실행하면 통과할 가능성), `likely_widespread` (같은 원인이 다른 화면에도 퍼져 있을 가능성).
+
+```bash
+uv run parity run scenarios/<app>/*.yaml --base-url $TOBE --compare golden/<app> --triage --junit reports/junit.xml   # 실행 중 분류
+uv run parity triage reports/<stem>-<시각>.json                                                                       # 리포트 JSON만으로 사후 분류
+```
+
+- 실행 중 분류는 스텝 줄 아래 `⚑ triage ui_changed p=0.77 margin=0.65 | retry 0.12 | widespread 0.70 | <조치>`로 찍히고, 리포트 JSON의 스텝에 `triage`, 시나리오에 분류별 건수가 들어간다. JUnit 실패 메시지 앞에도 `[triage <분류> p=…]`가 붙는다.
+- `parity triage`는 브라우저 없이 리포트 JSON만 쓴다. 스냅샷·오류 이벤트가 없어 근거가 적으므로, 실행 중 `--triage`가 더 정확하다. 결과는 `<리포트>-triage.json`.
+- Jev 호출이 실패해도 테스트 실행은 깨지지 않는다 (`abstain` + `error`로 기록).
+- 같은 원인이 퍼진 경우: 요약에서 한 분류가 4건 이상이면 앞 3줄만 보이고 나머지는 "외 N건"으로 묶는다. 서버가 죽어 같은 사유로 화면마다
+  실패하면 처음 한 번만 Jev에 묻고(`environment`, widespread ≥ 0.7) 나머지는 그 결과를 재사용한다 (`reused: true`).
+- `--replay-only`(API 키 없는 CI)와는 같이 못 쓴다.
+
+**한계**: Jev는 화면을 다시 열어 보지 않고 diff와 문구로 고른다. `real_defect`와 `ui_changed`의 구분은 diff에 값 변화가 보일 때만 정확하다.
+첫 스텝이 실패하면 뒤 스텝은 skip이라 분류 대상이 아니다. 최종 판정은 골든 승인처럼 사람이 한다. 데모 앱 3종(결함 주입, 라벨 변경, 죽은 포트)에서 확인한 결과이며 통계적 근거는 아니다.
+
 ## 2026-09-22 실행 기록 (7개 시나리오, 총 37 Jev 스텝)
 
 | 시나리오 | 입력 종류 | Jev 매 스텝 | 캐시 재생 |

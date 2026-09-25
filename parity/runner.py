@@ -31,6 +31,7 @@ from urllib.parse import urljoin, urlparse
 import yaml
 from playwright.sync_api import Frame, Page, sync_playwright
 
+from . import triage as _triage
 from .jev import Decision, JevClient
 from .observe import CompareOptions, compare, observation
 
@@ -53,6 +54,7 @@ class StepResult:
     healed: bool = False  # 캐시가 있었지만 Jev로 다시 골랐다 (UI 변경 신호)
     dialogs: list[dict[str, Any]] = field(default_factory=list)  # 이 스텝에서 뜬 alert/confirm/prompt
     diff: list[str] = field(default_factory=list)  # --compare: 골든과 다른 점
+    triage: dict[str, Any] | None = None  # --triage: Jev가 고른 실패 원인 (triage.py)
 
 
 @dataclass
@@ -65,6 +67,7 @@ class RunResult:
     elapsed_ms: float = 0.0
     healed_steps: int = 0
     diff_steps: int = 0
+    triage: dict[str, int] = field(default_factory=dict)  # 분류별 건수
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -74,7 +77,8 @@ class Runner:
     def __init__(self, *, headed: bool = False, use_cache: bool = True, min_margin: float = 0.1, max_candidates: int = 60,
                  settle_ms: int = 1500, expect_timeout_s: float = 10, report_dir: Path = Path("reports"), cache_dir: Path = Path(".parity-cache"),
                  storage_state: Path | None = None, replay_only: bool = False, base_url: str | None = None,
-                 record_dir: Path | None = None, compare_dir: Path | None = None, compare_opts: CompareOptions | None = None):
+                 record_dir: Path | None = None, compare_dir: Path | None = None, compare_opts: CompareOptions | None = None,
+                 triage: bool = False):
         self.headed, self.use_cache, self.min_margin, self.max_candidates = headed, use_cache, min_margin, max_candidates
         self.settle_ms, self.expect_timeout_s = settle_ms, expect_timeout_s
         self.report_dir, self.cache_dir = report_dir, cache_dir
@@ -82,6 +86,8 @@ class Runner:
         self.base_url = base_url
         self.record_dir, self.compare_dir = record_dir, compare_dir
         self.compare_opts = compare_opts or CompareOptions()
+        self.triage = triage  # 실패·diff 스텝의 원인을 Jev로 분류 (API 키 필요)
+        self._triage_env: dict[str, dict[str, Any]] = {}  # 환경 문제로 분류된 실패 사유 → 결과. 같은 사유가 화면마다 반복되면 다시 묻지 않는다
         self._jev: JevClient | None = None
         self._dialog_plan: list[dict[str, Any]] = []
         self._step_dialogs: list[dict[str, Any]] = []
@@ -226,6 +232,49 @@ class Runner:
         return page
 
     # -- step 실행 ---------------------------------------------------------------------
+    def _do_target(self, page: Page, idx: int, text: str, target: dict[str, Any], value: str | None) -> tuple[StepResult, Page]:
+        """명시된 대상 {role, name[, nth]} 또는 {role, row: N}(N번째 데이터 행 안의 첫 요소)을 결정론적으로 실행한다.
+        못 찾거나 여러 개면 실패한다. 다른 요소로 대신하지 않는다 (Jev 복구 없음)."""
+        t0 = time.perf_counter()
+        role, name = target.get("role", "button"), target.get("name")
+        label = f"{role} " + (f'"{name}"' if name is not None else f"in data row {target.get('row')}")
+        fail = lambda why: (StepResult(idx, "do", text, "fail", _ms(t0), "target", label, reason=why), page)
+        if "row" in target:
+            hits = []
+            for _, f in self._frames(page):
+                rows = f.get_by_role("row").filter(has=f.get_by_role("cell"))
+                if rows.count() >= int(target["row"]):
+                    loc = rows.nth(int(target["row"]) - 1).get_by_role(role)
+                    if loc.count():
+                        hits.append(loc.first)
+            if not hits:
+                return fail(f"no {role} in data row {target['row']}")
+            loc = hits[0]
+        else:
+            if not name:
+                return fail("target name is empty (a screen marked by: review needs its name filled in)")
+            hits = [(f, f.get_by_role(role, name=name, exact=True, disabled=False)) for _, f in self._frames(page)]
+            hits = [(f, l) for f, l in hits if l.count()]
+            total = sum(l.count() for _, l in hits)
+            if not total:
+                return fail(f'target not found: {role} "{name}"')
+            if total > 1 and "nth" not in target:
+                return fail(f'target is ambiguous: {total} × {role} "{name}" (add nth)')
+            loc = hits[0][1].nth(int(target.get("nth", 0)))
+        try:
+            if value is not None:
+                loc.fill(value, timeout=10000)
+            elif role == "option":
+                loc.locator("xpath=ancestor::select").first.select_option(label=name, timeout=10000)
+            elif role in ("checkbox", "radio"):
+                loc.check(timeout=10000)
+            else:
+                loc.click(timeout=10000)
+        except Exception as e:
+            return fail(f"action failed: {str(e).splitlines()[0]}")
+        page = self._settle(page)
+        return StepResult(idx, "do", text, "pass", _ms(t0), "target", label, url_after=page.url), page
+
     def _act(self, page: Page, el: Element, action: str, value: str | None, *, timeout: float = 10000) -> None:
         loc = self._locator(page, el)
         if loc is None or loc.count() < 1:
@@ -405,6 +454,20 @@ class Runner:
         except Exception:
             pass
 
+    def _triage_step(self, sr: StepResult, result: RunResult, page: Page, scenario: str) -> _triage.Triage:
+        """실패·diff 스텝의 근거를 모아 Jev에 원인을 묻는다. 페이지 읽기가 실패해도 남은 근거로 진행한다."""
+        page_info: dict[str, Any] | None = None
+        snapshot = ""
+        try:
+            page_info = self._page_info(page)
+            snapshot = self._snapshot_text(page)
+        except Exception:
+            pass
+        state = _triage.evidence(asdict(sr), scenario=scenario, history=[asdict(s) for s in result.steps[:-1]],
+                                 events=self._events, page=page_info, snapshot=snapshot,
+                                 mode={"replay_only": self.replay_only, "compare": self.compare_dir is not None, "record": self.record_dir is not None})
+        return _triage.classify(self.jev, state)
+
     def _url(self, target: str) -> str:
         if urlparse(target).scheme:
             return target
@@ -504,6 +567,8 @@ class Runner:
                             sr = StepResult(idx, "goto", step["goto"], "pass", _ms(t0), "-", url_after=page.url)
                         except Exception as e:
                             sr = StepResult(idx, "goto", step["goto"], "fail", _ms(t0), "-", reason=str(e).splitlines()[0])
+                    elif "do" in step and "target" in step:  # 대상이 명시된 스텝: Jev도 캐시도 쓰지 않는다
+                        sr, page = self._do_target(page, idx, step["do"], step["target"], step.get("fill"))
                     elif "do" in step:
                         seen_keys[raw_step["do"]] = seen_keys.get(raw_step["do"], 0) + 1
                         key = raw_step["do"] if seen_keys[raw_step["do"]] == 1 else f'{raw_step["do"]} #{seen_keys[raw_step["do"]]}'
@@ -556,6 +621,16 @@ class Runner:
                             page.screenshot(path=str(shot), full_page=False)
                         except Exception:
                             pass
+                    if self.triage and _triage.needs_triage(asdict(sr)):
+                        env_key = re.sub(r"https?://\S+", "<url>", sr.reason or "")  # 서버가 죽으면 화면 수백 개가 같은 사유로 실패한다
+                        if sr.status == "fail" and env_key in self._triage_env:
+                            sr.triage = {**self._triage_env[env_key], "reused": True}
+                        else:
+                            sr.triage = self._triage_step(sr, result, page, name).to_dict()
+                            if sr.status == "fail" and sr.triage["category"] == "environment" and sr.triage.get("likely_widespread", 0) >= 0.7:
+                                self._triage_env[env_key] = sr.triage
+                        result.triage[sr.triage["category"]] = result.triage.get(sr.triage["category"], 0) + 1
+                        print(f"     {_triage.format_line(sr.triage)}")
                 try:
                     page.screenshot(path=str(self.report_dir / f"{stem}-final.png"), full_page=False)
                 except Exception:
@@ -582,7 +657,8 @@ class Runner:
         report.write_text(json.dumps(result.to_dict(), ensure_ascii=False, indent=1), encoding="utf-8")
         healed = f" | ⚠ healed steps {result.healed_steps} (cache changed, review the diff)" if result.healed_steps else ""
         diffs = f" | ≠ {result.diff_steps} steps differ from golden" if result.diff_steps else ""
-        print(f"== {name}: {result.status.upper()} | {result.elapsed_ms / 1000:.1f}s | Jev calls {result.jev_calls} ({result.jev_ms_total:.0f}ms){healed}{diffs}{recorded} | report {report}")
+        triaged = (" | ⚑ " + ", ".join(f"{k} {v}" for k, v in result.triage.items())) if result.triage else ""
+        print(f"== {name}: {result.status.upper()} | {result.elapsed_ms / 1000:.1f}s | Jev calls {result.jev_calls} ({result.jev_ms_total:.0f}ms){healed}{diffs}{triaged}{recorded} | report {report}")
         return result
 
 
@@ -615,6 +691,8 @@ def _print_step(s: StepResult) -> None:
         extra = f" [jev {s.jev['candidates']}/{s.jev['of_elements']} cands, conf {s.jev['confidence']}, margin {s.jev['margin']}, {s.jev['ms']:.0f}ms]" + (" ⚠ HEALED" if s.healed else "")
     elif s.source == "cache":
         extra = " [cache]"
+    elif s.source == "target":
+        extra = " [target]"
     tgt = f" -> {s.target}" if s.target else ""
     why = f"  !! {s.reason}" if s.reason else ""
     dlg = "".join(f'  [{d["type"]} "{d["message"]}" → {d["action"]}]' for d in s.dialogs)

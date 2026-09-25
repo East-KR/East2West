@@ -43,6 +43,9 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--compare-url", action="store_true", help="URL 경로·쿼리와 제목도 비교")
     run.add_argument("--compare-unordered", action="store_true", help="화면 내용 줄 순서를 무시하고 비교")
     run.add_argument("--junit", type=Path, default=None, metavar="PATH", help="JUnit XML 결과 파일 (CI 리포트용)")
+    run.add_argument("--triage", action="store_true", help="실패·diff 스텝의 원인을 Jev로 분류 (ui_changed|real_defect|environment|timing|test_bug). API 키 필요, --replay-only와 같이 못 씀")
+    tr = sub.add_parser("triage", help="이미 만들어진 리포트 JSON의 실패·diff 스텝 원인을 Jev로 분류 (브라우저 없이). <리포트>-triage.json에 저장")
+    tr.add_argument("reports", nargs="+", type=Path, help="parity run이 남긴 reports/<stem>-<시각>.json")
     ap_approve = sub.add_parser("approve", help="(사람) 오라클 디렉터리를 검토하고 승인한다. 터미널에서만 동작")
     ap_approve.add_argument("oracle_dir", type=Path)
     ap_approve.add_argument("--by", required=True, help="승인자 이름")
@@ -81,7 +84,30 @@ def main(argv: list[str] | None = None) -> int:
     cr.add_argument("--storage-state", type=Path, default=None)
     cr.add_argument("--headed", action="store_true")
     cr.add_argument("--dry-run", action="store_true", help="아무것도 누르지 않고 시작 화면에서 누를 것·안 누를 것·채울 입력칸만 보여 준다")
+    tg = sub.add_parser("targets", help="스모크 대상 정하기: 화면별 조회 버튼을 규칙으로 확정하고, 애매한 화면은 검토 대상으로 표시 (누르지 않음)")
+    tg.add_argument("screens", type=Path, help="화면 목록 YAML ([{SCREEN, URL}, …])")
+    tg.add_argument("--out", type=Path, required=True, help="대상이 적힌 화면 목록 (QUERY, by: rule|review)")
+    tg.add_argument("--base-url", default=os.environ.get("PARITY_BASE_URL"))
+    tg.add_argument("--names", default=None, help="조회 버튼으로 인정할 이름, | 로 구분 (기본: 조회|검색|찾기|조회하기|검색하기|Search|Find)")
+    tg.add_argument("--storage-state", type=Path, default=None)
+    mp = sub.add_parser("map", help="화면 지도: 골든에 기록된 동작을 화면 네트워크로 그린 HTML (비교 결과를 겹칠 수 있음)")
+    mp.add_argument("oracle_dir", type=Path)
+    mp.add_argument("--junit", type=Path, default=None, help="to-be 비교 결과를 겹친다 (다른 화면을 빨갛게)")
+    mp.add_argument("--tests", type=Path, default=None, help="테스트 디렉터리 (제목용, 기본 e2e/<오라클 이름>)")
+    mp.add_argument("--out", type=Path, default=None)
+    mp.add_argument("--no-open", action="store_true")
     args = ap.parse_args(argv)
+    if args.cmd == "map":
+        from .pwtest import html as _html, map as _map
+        suffix = ("-" + args.junit.stem.removeprefix("junit-").removeprefix(f"{args.oracle_dir.name}-")) if args.junit else ""
+        out = args.out or Path("reports") / f"map-{args.oracle_dir.name}{suffix}.html"
+        page = _map.write(args.oracle_dir, out, args.junit, args.tests)
+        if not args.no_open:
+            _html.open_in_browser(page)
+        return 0
+    if args.cmd == "targets":
+        from . import targets
+        return targets.main(args.screens, args.out, args.base_url, args.names.split("|") if args.names else None, args.storage_state)
     if args.cmd == "crawl":
         from .crawl import Crawler, load_fixtures
         inputs, deny = load_fixtures(args.fixtures)
@@ -138,6 +164,10 @@ def main(argv: list[str] | None = None) -> int:
         from .pwtest import report
         report.write(oracle_dir=args.oracle, junits=args.junit, mutations=args.mutation, out=args.out)
         return 0
+    if args.cmd == "triage":
+        return triage_reports(args.reports)
+    if args.triage and args.replay_only:
+        ap.error("--triage needs Jev (TYPESAFE_API_KEY); it cannot run with --replay-only")
     if args.record and args.compare:
         ap.error("--record and --compare are exclusive (record on as-is, compare on to-be)")
 
@@ -145,7 +175,8 @@ def main(argv: list[str] | None = None) -> int:
                     max_candidates=args.max_candidates, settle_ms=args.settle_ms,
                     storage_state=args.storage_state, replay_only=args.replay_only, cache_dir=args.cache_dir,
                     base_url=args.base_url, record_dir=args.record, compare_dir=args.compare,
-                    compare_opts=CompareOptions(ignore=args.compare_ignore, url=args.compare_url, unordered=args.compare_unordered))
+                    compare_opts=CompareOptions(ignore=args.compare_ignore, url=args.compare_url, unordered=args.compare_unordered),
+                    triage=args.triage)
     results: list[tuple[Path, RunResult]] = []
     try:
         for path in args.scenarios:
@@ -157,9 +188,46 @@ def main(argv: list[str] | None = None) -> int:
     failed = sum(1 for _, r in results if r.status != "pass")
     diffs = sum(1 for _, r in results if r.status == "diff")
     print(f"\n{len(results) - failed}/{len(results)} scenarios passed" + (f" ({diffs} differ from golden)" if diffs else ""))
+    if args.triage:
+        from . import triage as _triage
+        print(_triage.format_summary(*_triage.summarize([r.to_dict() for _, r in results])))
     if args.junit:
         write_junit(args.junit, results)
     return 1 if failed else 0
+
+
+def triage_reports(paths: list[Path]) -> int:
+    """리포트 JSON의 실패·diff 스텝을 사후 분류한다. 페이지 스냅샷·오류 이벤트는 없고 사유·diff·Jev 확률·이력만 근거로 쓴다."""
+    import json
+
+    from . import triage as _triage
+    from .jev import JevClient
+
+    client = JevClient()
+    outs: list[dict] = []
+    try:
+        for path in paths:
+            report = json.loads(path.read_text(encoding="utf-8"))
+            steps = report.get("steps", [])
+            counts: dict[str, int] = {}
+            print(f"\n## {path}  ({report.get('scenario')}: {report.get('status')})")
+            for i, s in enumerate(steps):
+                if not _triage.needs_triage(s):
+                    continue
+                state = _triage.evidence(s, scenario=str(report.get("scenario")), history=steps[:i], mode={"post_hoc": True})
+                s["triage"] = _triage.classify(client, state).to_dict()
+                counts[s["triage"]["category"]] = counts.get(s["triage"]["category"], 0) + 1
+                print(f"  ✘ {s['index']:2d} {s['kind']:6s} {s['text']}  !! {s.get('reason') or 'differs from golden'}\n     {_triage.format_line(s['triage'])}")
+            report["triage"] = counts
+            out = path.with_name(path.stem + "-triage.json")
+            out.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
+            outs.append(report)
+            print(f"  -> {out}" if counts else "  (nothing to classify)")
+    finally:
+        client.close()
+    print()
+    print(_triage.format_summary(*_triage.summarize(outs)))
+    return 0
 
 
 def write_junit(path: Path, results: list[tuple[Path, RunResult]]) -> None:
@@ -168,7 +236,8 @@ def write_junit(path: Path, results: list[tuple[Path, RunResult]]) -> None:
         body = ""
         if r.status != "pass":
             bad = [s for s in r.steps if s.status == "fail" or s.diff]
-            msg = "; ".join(f"step {s.index} {s.kind} {s.text}: {s.reason or 'differs from golden'}" for s in bad) or r.status
+            msg = "; ".join((f"[triage {s.triage['category']} p={s.triage['probabilities'].get(s.triage['category'], 0):.2f}] " if s.triage and not s.triage.get("error") else "")
+                            + f"step {s.index} {s.kind} {s.text}: {s.reason or 'differs from golden'}" for s in bad) or r.status
             detail = "\n".join(line for s in bad for line in s.diff)
             body = f'<failure type="{r.status}" message="{escape(msg, {chr(34): "&quot;"})}">{escape(detail)}</failure>'
         cases.append(f'  <testcase classname="{escape(str(src.parent))}" name="{escape(r.scenario, {chr(34): "&quot;"})}" time="{r.elapsed_ms / 1000:.2f}">{body}</testcase>')

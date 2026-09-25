@@ -1,0 +1,31 @@
+# parity targets가 만든 스모크 대상 목록.
+#   by: rule   이름 규칙으로 확정
+#   by: review 사람이나 Claude Code가 candidates에서 조회 버튼을 골라 QUERY를 채우고 by: picked로 바꾼다
+# QUERY가 빈 행은 스모크에서 '대상 없음'으로 실패한다 (다른 버튼으로 대신 누르지 않는다).
+- {SCREEN: 사원 조회, URL: /emp, QUERY: 조회, by: rule}
+- {SCREEN: 부서 목록, URL: /dept, QUERY: 검색, by: rule}
+- {SCREEN: 거래처 관리, URL: /vendor, QUERY: 찾기, by: rule}
+- {SCREEN: 품목 마스터, URL: /item, QUERY: 조회하기, by: rule}
+- {SCREEN: 재고 현황, URL: /stock, QUERY: Search, by: rule}
+- SCREEN: 주문 내역
+  URL: /order
+  QUERY: 목록 불러오기
+  by: picked
+  candidates: [목록 불러오기, 상세 검색 열기]
+  note: 'picked by Claude Code: 상세 검색 열기는 조건 패널을 여는 버튼'
+- SCREEN: 매출 집계
+  URL: /sales
+  QUERY: 집계 실행
+  by: picked
+  candidates: [집계 실행, 인쇄]
+  note: 'picked by Claude Code: 인쇄는 조회가 아님'
+- {SCREEN: 입고 관리, URL: /inbound, QUERY: 검색, by: rule}
+- {SCREEN: 출고 관리, URL: /outbound, QUERY: 조회, by: rule}
+- {SCREEN: 급여 명세, URL: /pay, QUERY: 검색하기, by: rule}
+- SCREEN: 결재 문서함
+  URL: /approval
+  QUERY: 문서 조회
+  by: picked
+  candidates: [문서 조회, 새 문서 작성]
+  note: 'picked by Claude Code: 새 문서 작성은 등록 화면으로 가는 버튼'
+- {SCREEN: 공지사항, URL: /notice, QUERY: 검색, by: rule}

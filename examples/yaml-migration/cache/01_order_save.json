@@ -19,12 +19,11 @@
  },
  "수량 입력": {
   "role": "textbox",
-  "name": "수량",
+  "name": "주문 수량",
   "nth": 0,
   "dup": 1,
-  "scope": "",
-  "step": "수량 입력",
-  "frame": "main"
+  "scope": "주문 수량",
+  "step": "수량 입력"
  },
  "계산 버튼 누르기": {
   "role": "button",

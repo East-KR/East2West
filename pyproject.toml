@@ -23,7 +23,7 @@ build-backend = "hatchling.build"
 packages = ["parity"]
 
 [tool.pytest.ini_options]
-testpaths = ["e2e"]
+testpaths = ["e2e", "tests"]
 addopts = "-p no:cacheprovider"
 
 [dependency-groups]

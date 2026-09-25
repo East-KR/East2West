@@ -41,6 +41,12 @@ class JevClient:
     def close(self) -> None:
         self.client.close()
 
+    def ask(self, *, state: dict[str, Any], questions: dict[str, Any]) -> tuple[Any, float]:
+        """Choice/Noul/Score 질문 묶음 하나를 보낸다 (triage 등 요소 선택 이외의 용도). (응답, 지연 ms)."""
+        t0 = time.perf_counter()
+        response = self.client.system_one(state=state, questions=questions, model=self.model, timeout=self.timeout_s)
+        return response, (time.perf_counter() - t0) * 1000
+
     def choose(self, *, goal: str, action: str, elements: list[Element], page: dict[str, Any], history: list[str]) -> Decision:
         from typesafe_sdk import Choice
 

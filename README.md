@@ -10,17 +10,18 @@ as-is 앱의 실제 동작을 기준으로 to-be 앱이 **버그까지 똑같이
 | 도구 | 하는 일 | 쓰는 곳 |
 | :--- | :--- | :--- |
 | **Playwright `ui` fixture** (`parity/pwtest`, pytest 플러그인) | 프레임 무관 요소 찾기, 대화상자, 위젯 어댑터, as-is 골든 기록/비교, 사람 승인, 결함 주입, 검증 보고서 | 핵심 업무 흐름의 as-is/to-be 동등성 |
-| **Jev 러너** (`parity run`) | 자연어 YAML 스텝. TypeSafe Jev가 요소를 고르고 캐시로 재생 | 화면 수백 개를 넓게 훑는 스모크 |
+| **YAML 러너** (`parity run`) + `parity targets` | 시나리오 하나를 화면 목록에 돌림. 화면별 조회 버튼은 실행 전에 규칙으로 정하고 애매한 것만 사람이 고름 | 화면 수백 개를 넓게 훑는 스모크 |
+| **실패 분류** (`parity run --triage`, `parity triage`) | 실패·diff 스텝의 원인을 Jev가 분류표(ui_changed·real_defect·environment·timing·test_bug) 안에서 고른다. 낮은 margin만 사람 검토 | 스모크 결과 정리, 재실행 여부 판단 |
 | **탐색기** (`parity crawl`) | 화면의 동작을 모두 눌러 흐름 그래프, 시나리오, Playwright 테스트 초안 생성. LLM 호출 없음 | 흐름 지도, 스모크·테스트 초안 |
 
-텍스트 생성 LLM은 쓰지 않는다. 입력값은 테스트에 고정하고, 검증은 결정론적이다. 테스트 작성은 Claude Code 스킬이 맡는다: `e2e-tests`(동등성 검증), `smoke`(전체 화면 스모크).
+API 키 없이 모든 흐름이 돈다. Jev(요소 선택 모델)는 선택 사항이다 ([docs/YAML_RUNNER.md](docs/YAML_RUNNER.md)). 텍스트 생성 LLM은 쓰지 않는다. 입력값은 테스트에 고정하고, 검증은 결정론적이다. 테스트 작성은 Claude Code 스킬이 맡는다: `e2e-tests`(동등성 검증), `smoke`(전체 화면 스모크).
 
 ## 시작
 
 ```bash
 uv sync
 uv run playwright install chromium
-cp .env.example .env   # TYPESAFE_API_KEY (Jev 러너가 캐시 없는 스텝에서 요소를 고를 때만 필요)
+# 선택: cp .env.example .env 후 TYPESAFE_API_KEY (자연어 스텝을 Jev가 고르게 할 때만. 기본 흐름에는 필요 없음)
 ```
 
 ## 전환 검증 흐름
@@ -35,6 +36,7 @@ uv run parity approve golden/<app> --by <이름>                        # 사람
 uv run parity mutate e2e/<app> --base-url $ASIS --compare golden/<app>   # 테스트가 결함을 잡는지 측정
 uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
 uv run parity report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
+uv run parity map golden/<app> --junit reports/junit-<app>.xml     # 화면 지도: 화면 네트워크 + 대표 캡처, 다른 화면은 빨갛게
 ```
 
 절차, 신뢰 장치, 데모 결과: [docs/MIGRATION.md](docs/MIGRATION.md).
@@ -42,8 +44,8 @@ uv run parity report --oracle golden/<app> --junit reports/junit-<app>.xml --mut
 ## 스모크와 탐색
 
 ```bash
-uv run parity run scenarios/<app>/screen_smoke.yaml --base-url $ASIS --cache-dir .parity-cache/<app>      # Jev가 화면별 요소 결정 → 캐시
-uv run parity run scenarios/<app>/screen_smoke.yaml --base-url $TOBE --cache-dir .parity-cache/<app> --replay-only --junit reports/junit-smoke.xml
+uv run parity targets scenarios/<app>/screens.yaml --base-url $ASIS --out scenarios/<app>/screens.targets.yaml   # 조회 버튼 정하기 (누르지 않음)
+uv run parity run scenarios/<app>/screen_smoke_targets.yaml --base-url $TOBE --junit reports/junit-smoke.xml
 uv run parity crawl <시작 URL> --fixtures f.yaml --out crawl/<app> --dry-run   # 누를 버튼 확인 (저장·확정도 실제로 누른다)
 ```
 
