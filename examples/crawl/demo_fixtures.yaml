@@ -1,0 +1,7 @@
+# jev-e2e crawl 픽스처: "채워서" 경로에 넣을 값. 이름은 aria 이름 (tools/explore.py 출력 그대로).
+inputs:
+  아이디: tester
+  비밀번호: pass1234
+  투숙객 이름: 홍길동
+  숙박 일수: 2박      # 콤보박스 → 옵션 이름
+  조식 포함: true     # 체크박스 → 체크
