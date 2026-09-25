@@ -2,6 +2,8 @@
 
 as-is 동작 보존: 부가세 10원 절사, 이미 취소된 주문도 다시 취소(이력에 두 번). to-be(tobe 모드)는 둘 다 "고쳐서" 비교에서 잡혀야 한다.
 """
+import pytest
+
 from parity.runner import _expand
 
 
@@ -321,3 +323,31 @@ def test_portal_cancel_twice(ui):
     ui.expect_dialog('이 주문을 취소할까요?')
     ui.act('tab', '이력')
     ui.expect_text('3. 취소')
+
+
+@pytest.mark.parametrize("status,shown", [("접수", "ORD-1 노트북"), ("배송중", "ORD-2 볼펜"), ("완료", "0건"), ("취소", "ORD-3 마우스")])
+def test_portal_filter_by_status(ui, status, shown):
+    """필터 드로워에서 상태를 골라 적용하면 그 상태의 주문만 남는다 (상태 라벨 네 개 모두 선택해 본다)"""
+    ui.goto('/orders')
+    ui.act('button', '필터')
+    ui.select('상태', status)
+    ui.act('button', '적용')
+    ui.expect_url_contains('status=')
+    ui.expect_text(f'상태 {status}')
+    ui.expect_text(shown)
+
+
+def test_portal_new_order_other_customer(ui):
+    """신규 주문 팝업에서 이영희·마우스 2개 저장 → 상세에 고객 이영희, 공급가액 66,000원, 부가세 6,600원"""
+    ui.goto('/orders')
+    ui.act('button', '신규 주문')
+    ui.select('고객', '이영희')
+    ui.select('품목', '마우스')
+    ui.fill('수량', '2')
+    ui.act('button', '저장')
+    ui.expect_url_contains('/orders/')
+    ui.expect_text('이영희')
+    ui.expect_text('마우스')
+    ui.expect_text('66,000원')
+    ui.expect_text('6,600원')
+    ui.expect_text('72,600원')

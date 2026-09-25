@@ -1,7 +1,7 @@
 {
- "test": "test_portal_vat_truncation",
+ "test": "test_portal_new_order_other_customer",
  "base_url": "http://127.0.0.1:8820",
- "recorded_at": "2026-09-25 22:36:15",
+ "recorded_at": "2026-09-25 22:36:30",
  "assertions": [
   {
    "step": 6,
@@ -12,25 +12,31 @@
   {
    "step": 6,
    "kind": "text",
-   "target": "공급가액",
+   "target": "이영희",
    "value": null
   },
   {
    "step": 6,
    "kind": "text",
-   "target": "3,675원",
+   "target": "마우스",
    "value": null
   },
   {
    "step": 6,
    "kind": "text",
-   "target": "360원",
+   "target": "66,000원",
    "value": null
   },
   {
    "step": 6,
    "kind": "text",
-   "target": "4,035원",
+   "target": "6,600원",
+   "value": null
+  },
+  {
+   "step": 6,
+   "kind": "text",
+   "target": "72,600원",
    "value": null
   }
  ],
@@ -74,7 +80,7 @@
    ],
    "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"",
    "dialogs": [],
-   "shot": "shots/test_portal_vat_truncation/00.jpg"
+   "shot": "shots/test_portal_new_order_other_customer/00.jpg"
   },
   {
    "index": 1,
@@ -124,12 +130,12 @@
    ],
    "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - dialog \"신규 주문\":\n    - heading \"신규 주문\" [level=2]\n    - text: 고객\n    - combobox \"고객\":\n      - option \"김철수\" [selected]\n      - option \"이영희\"\n    - text: 품목\n    - combobox \"품목\":\n      - option \"노트북\" [selected]\n      - option \"마우스\"\n      - option \"볼펜\"\n    - text: 수량\n    - textbox \"수량\": \"1\"\n    - button \"저장\"\n    - button \"닫기\"",
    "dialogs": [],
-   "shot": "shots/test_portal_vat_truncation/01.jpg"
+   "shot": "shots/test_portal_new_order_other_customer/01.jpg"
   },
   {
    "index": 2,
    "kind": "select",
-   "text": "combobox \"고객\" = 김철수",
+   "text": "combobox \"고객\" = 이영희",
    "url": "/orders",
    "title": "주문 목록",
    "content": [
@@ -164,7 +170,7 @@
     "text: 취소",
     "text: 신규 주문",
     "text: 고객",
-    "combobox \"고객\": 김철수",
+    "combobox \"고객\": 이영희",
     "text: 품목",
     "combobox \"품목\": 노트북",
     "text: 수량",
@@ -172,14 +178,14 @@
     "button \"저장\"",
     "button \"닫기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - dialog \"신규 주문\":\n    - heading \"신규 주문\" [level=2]\n    - text: 고객\n    - combobox \"고객\":\n      - option \"김철수\" [selected]\n      - option \"이영희\"\n    - text: 품목\n    - combobox \"품목\":\n      - option \"노트북\" [selected]\n      - option \"마우스\"\n      - option \"볼펜\"\n    - text: 수량\n    - textbox \"수량\": \"1\"\n    - button \"저장\"\n    - button \"닫기\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - dialog \"신규 주문\":\n    - heading \"신규 주문\" [level=2]\n    - text: 고객\n    - combobox \"고객\":\n      - option \"김철수\"\n      - option \"이영희\" [selected]\n    - text: 품목\n    - combobox \"품목\":\n      - option \"노트북\" [selected]\n      - option \"마우스\"\n      - option \"볼펜\"\n    - text: 수량\n    - textbox \"수량\": \"1\"\n    - button \"저장\"\n    - button \"닫기\"",
    "dialogs": [],
-   "shot": "shots/test_portal_vat_truncation/02.jpg"
+   "shot": "shots/test_portal_new_order_other_customer/02.jpg"
   },
   {
    "index": 3,
    "kind": "select",
-   "text": "combobox \"품목\" = 볼펜",
+   "text": "combobox \"품목\" = 마우스",
    "url": "/orders",
    "title": "주문 목록",
    "content": [
@@ -214,22 +220,22 @@
     "text: 취소",
     "text: 신규 주문",
     "text: 고객",
-    "combobox \"고객\": 김철수",
+    "combobox \"고객\": 이영희",
     "text: 품목",
-    "combobox \"품목\": 볼펜",
+    "combobox \"품목\": 마우스",
     "text: 수량",
     "textbox \"수량\": 1",
     "button \"저장\"",
     "button \"닫기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - dialog \"신규 주문\":\n    - heading \"신규 주문\" [level=2]\n    - text: 고객\n    - combobox \"고객\":\n      - option \"김철수\" [selected]\n      - option \"이영희\"\n    - text: 품목\n    - combobox \"품목\":\n      - option \"노트북\"\n      - option \"마우스\"\n      - option \"볼펜\" [selected]\n    - text: 수량\n    - textbox \"수량\": \"1\"\n    - button \"저장\"\n    - button \"닫기\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - dialog \"신규 주문\":\n    - heading \"신규 주문\" [level=2]\n    - text: 고객\n    - combobox \"고객\":\n      - option \"김철수\"\n      - option \"이영희\" [selected]\n    - text: 품목\n    - combobox \"품목\":\n      - option \"노트북\"\n      - option \"마우스\" [selected]\n      - option \"볼펜\"\n    - text: 수량\n    - textbox \"수량\": \"1\"\n    - button \"저장\"\n    - button \"닫기\"",
    "dialogs": [],
-   "shot": "shots/test_portal_vat_truncation/03.jpg"
+   "shot": "shots/test_portal_new_order_other_customer/03.jpg"
   },
   {
    "index": 4,
    "kind": "fill",
-   "text": "textbox \"수량\" = 3",
+   "text": "textbox \"수량\" = 2",
    "url": "/orders",
    "title": "주문 목록",
    "content": [
@@ -264,17 +270,17 @@
     "text: 취소",
     "text: 신규 주문",
     "text: 고객",
-    "combobox \"고객\": 김철수",
+    "combobox \"고객\": 이영희",
     "text: 품목",
-    "combobox \"품목\": 볼펜",
+    "combobox \"품목\": 마우스",
     "text: 수량",
-    "textbox \"수량\": 3",
+    "textbox \"수량\": 2",
     "button \"저장\"",
     "button \"닫기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - dialog \"신규 주문\":\n    - heading \"신규 주문\" [level=2]\n    - text: 고객\n    - combobox \"고객\":\n      - option \"김철수\" [selected]\n      - option \"이영희\"\n    - text: 품목\n    - combobox \"품목\":\n      - option \"노트북\"\n      - option \"마우스\"\n      - option \"볼펜\" [selected]\n    - text: 수량\n    - textbox \"수량\": \"3\"\n    - button \"저장\"\n    - button \"닫기\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - dialog \"신규 주문\":\n    - heading \"신규 주문\" [level=2]\n    - text: 고객\n    - combobox \"고객\":\n      - option \"김철수\"\n      - option \"이영희\" [selected]\n    - text: 품목\n    - combobox \"품목\":\n      - option \"노트북\"\n      - option \"마우스\" [selected]\n      - option \"볼펜\"\n    - text: 수량\n    - textbox \"수량\": \"2\"\n    - button \"저장\"\n    - button \"닫기\"",
    "dialogs": [],
-   "shot": "shots/test_portal_vat_truncation/04.jpg"
+   "shot": "shots/test_portal_new_order_other_customer/04.jpg"
   },
   {
    "index": 5,
@@ -294,23 +300,23 @@
     "tab \"기본 정보\" [selected]",
     "tab \"이력\"",
     "text: 고객",
-    "link \"김철수\"",
+    "link \"이영희\"",
     "text: 품목",
-    "text: 볼펜",
+    "text: 마우스",
     "text: 수량",
-    "text: 3",
+    "text: 2",
     "text: 공급가액",
-    "text: 3,675원",
+    "text: 66,000원",
     "text: 부가세",
-    "text: 360원",
+    "text: 6,600원",
     "text: 합계",
-    "text: 4,035원",
+    "text: 72,600원",
     "button \"주문 취소\"",
     "link \"목록으로\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 상세 ORD-4\" [level=1]\n  - paragraph:\n    - text: \"상태:\"\n    - strong: 접수\n  - tablist:\n    - tab \"기본 정보\" [selected]\n    - tab \"이력\"\n  - tabpanel \"기본 정보\":\n    - table:\n      - rowgroup:\n        - row \"고객 김철수\":\n          - rowheader \"고객\"\n          - cell \"김철수\":\n            - link \"김철수\":\n              - /url: /customers/1\n        - row \"품목 볼펜\":\n          - rowheader \"품목\"\n          - cell \"볼펜\"\n        - row \"수량 3\":\n          - rowheader \"수량\"\n          - cell \"3\"\n        - row \"공급가액 3,675원\":\n          - rowheader \"공급가액\"\n          - cell \"3,675원\"\n        - row \"부가세 360원\":\n          - rowheader \"부가세\"\n          - cell \"360원\"\n        - row \"합계 4,035원\":\n          - rowheader \"합계\"\n          - cell \"4,035원\"\n  - button \"주문 취소\"\n  - link \"목록으로\":\n    - /url: /orders",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 상세 ORD-4\" [level=1]\n  - paragraph:\n    - text: \"상태:\"\n    - strong: 접수\n  - tablist:\n    - tab \"기본 정보\" [selected]\n    - tab \"이력\"\n  - tabpanel \"기본 정보\":\n    - table:\n      - rowgroup:\n        - row \"고객 이영희\":\n          - rowheader \"고객\"\n          - cell \"이영희\":\n            - link \"이영희\":\n              - /url: /customers/2\n        - row \"품목 마우스\":\n          - rowheader \"품목\"\n          - cell \"마우스\"\n        - row \"수량 2\":\n          - rowheader \"수량\"\n          - cell \"2\"\n        - row \"공급가액 66,000원\":\n          - rowheader \"공급가액\"\n          - cell \"66,000원\"\n        - row \"부가세 6,600원\":\n          - rowheader \"부가세\"\n          - cell \"6,600원\"\n        - row \"합계 72,600원\":\n          - rowheader \"합계\"\n          - cell \"72,600원\"\n  - button \"주문 취소\"\n  - link \"목록으로\":\n    - /url: /orders",
    "dialogs": [],
-   "shot": "shots/test_portal_vat_truncation/05.jpg"
+   "shot": "shots/test_portal_new_order_other_customer/05.jpg"
   }
  ]
 }
