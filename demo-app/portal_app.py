@@ -5,6 +5,8 @@ python demo-app/portal_app.py <port> tobe          to-be. as-is 동작을 버그
 python demo-app/portal_app.py <port> tobe-fixed    as-is 버그 두 개를 "고쳐버린" to-be (비교에서 잡혀야 하는 것)
 python demo-app/portal_app.py <port> tobe-renamed  라벨 변경("신규 주문"→"주문 등록", "수량"→"주문 수량") + 부가세 반올림. 라벨 뒤에 숨은 동작 차이까지 도달하는지
 python demo-app/portal_app.py <port> tobe-custom   tobe와 같은 동작, 신규 주문 팝업의 품목만 커스텀 드롭다운 (div role=combobox + listbox, React/MUI 방식)
+python demo-app/portal_app.py <port> tobe-modern   tobe와 같은 동작·같은 글자·같은 역할, 겉모습만 새로 만든 to-be: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭,
+                                                   아이콘(aria-hidden). 실제 전환처럼 "화면은 달라 보여도 동작은 같다"를 보여 준다 → 비교 25개 모두 같음
 
 라우트
   /                  홈 (요약 카드, 메뉴)
@@ -65,9 +67,40 @@ def L(label: str) -> str:
     return {"신규 주문": "주문 등록", "수량": "주문 수량"}.get(label, label) if VARIANT == "tobe-renamed" else label
 
 
+# tobe-modern: 겉모습만 다른 to-be. 스냅샷 비교에 들어가는 것(글자, 요소 이름·역할·순서, 주소, 제목, 대화상자)은 그대로 두고 CSS와 aria-hidden 아이콘만 다르다
+CSS_MODERN = ("[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;font-family:'Pretendard','Inter',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;"
+              "color:#1c1b2e;background:#f3f2fa;display:flex;min-height:100vh}"
+              "header{width:224px;flex:none;background:linear-gradient(180deg,#3b2fa8,#5b46d6);color:#fff;padding:22px 16px;display:flex;flex-direction:column;gap:6px}"
+              "header b{font-size:18px;letter-spacing:-.01em;margin:0 8px 18px;display:block}header a{color:#fff;text-decoration:none;padding:9px 12px;border-radius:10px;display:flex;gap:9px;align-items:center;font-size:14.5px;opacity:.86}"
+              "header a:hover{background:rgba(255,255,255,.14);opacity:1}header a i{font-style:normal;width:18px;text-align:center;opacity:.9}"
+              "main{flex:1;padding:30px 36px;max-width:1100px}h1{font-size:26px;font-weight:700;margin:0 0 18px;letter-spacing:-.02em}h2{font-size:17px;margin:0 0 12px}"
+              "table{border-collapse:separate;border-spacing:0;width:100%;background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(28,27,46,.08);overflow:hidden}"
+              "th{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:#6f6c8c;background:#f8f7fd;padding:11px 16px;text-align:left;border-bottom:1px solid #e6e4f2}"
+              "td{padding:12px 16px;border-bottom:1px solid #eeecf6;text-align:left}tr:last-child td{border-bottom:0}tbody tr:hover td{background:#faf9ff}td a{color:#4a3bc9;font-weight:600;text-decoration:none}"
+              ".cards{display:grid;grid-template-columns:repeat(3,minmax(140px,220px));gap:14px;margin-bottom:26px}"
+              ".card{background:linear-gradient(135deg,#fff,#f1eefc);border:1px solid #e3dff5;border-radius:16px;padding:16px 18px;color:#6f6c8c;font-size:13px;box-shadow:0 1px 3px rgba(28,27,46,.06)}"
+              ".card b{display:block;font-size:30px;color:#2d2470;margin-top:6px;letter-spacing:-.02em}"
+              "ul{padding-left:0;list-style:none;display:flex;gap:10px;flex-wrap:wrap}main>ul a,li>a{display:inline-block;background:#fff;border:1px solid #e3dff5;border-radius:999px;padding:8px 16px;color:#4a3bc9;text-decoration:none;font-weight:600}"
+              "button{font:inherit;font-size:14px;border:1px solid #d9d5ee;background:#fff;color:#2d2470;padding:8px 16px;border-radius:999px;cursor:pointer;font-weight:600}"
+              "button:hover{border-color:#5b46d6}.toolbar{display:flex;gap:8px;margin-bottom:16px;align-items:center}.toolbar button:last-child,button[type=submit]{background:#4a3bc9;color:#fff;border-color:#4a3bc9}"
+              "p{color:#6f6c8c;margin:0 0 12px}strong{color:#4a3bc9}"
+              "[role=dialog]{position:fixed;inset:0;background:rgba(28,27,46,.45);backdrop-filter:blur(3px);display:grid;place-items:center}"
+              "[role=dialog]>div{background:#fff;padding:24px 28px;border-radius:18px;min-width:360px;box-shadow:0 30px 80px rgba(28,27,46,.35)}"
+              "aside{position:fixed;right:0;top:0;bottom:0;width:320px;background:#fff;box-shadow:-12px 0 40px rgba(28,27,46,.18);padding:24px 26px;border-left:0}"
+              "[role=tablist]{display:flex;gap:18px;margin:14px 0 0;border-bottom:2px solid #e6e4f2}[role=tab]{border:0;background:none;border-radius:0;padding:8px 2px 10px;margin-bottom:-2px;color:#6f6c8c;border-bottom:2px solid transparent}"
+              "[role=tab][aria-selected=true]{color:#4a3bc9;border-bottom-color:#4a3bc9}[role=tabpanel]{background:#fff;border-radius:0 0 14px 14px;padding:16px 18px;box-shadow:0 1px 3px rgba(28,27,46,.08);margin-bottom:16px}"
+              "[role=tabpanel] table{box-shadow:none;border-radius:0}label{display:block;margin:10px 0;font-size:14px;color:#3d3a5c}"
+              "input,select,textarea{font:inherit;padding:8px 10px;border:1px solid #d9d5ee;border-radius:10px;background:#fbfbfe;min-width:180px}form>a{margin-left:10px;color:#6f6c8c}")
+ICONS = {"홈": "⌂", "주문 관리": "▤", "고객 관리": "◉", "설정": "⚙"}
+
+
 def page(title: str, body: str) -> bytes:
-    nav = "<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a></header>"
-    return (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>{title}</title><style>{CSS}</style><script>{JS}</script></head>"
+    if VARIANT == "tobe-modern":  # 사이드바: 같은 글자·같은 순서의 링크. 아이콘은 aria-hidden이라 접근성 이름에 들어가지 않는다
+        links = "".join(f"<a href='{h}'><i aria-hidden='true'>{ICONS[t]}</i>{t}</a>" for h, t in (("/", "홈"), ("/orders", "주문 관리"), ("/customers", "고객 관리"), ("/settings", "설정")))
+        nav, css = f"<header><b>업무 포털</b>{links}</header>", CSS_MODERN
+    else:
+        nav, css = "<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a></header>", CSS
+    return (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>{title}</title><style>{css}</style><script>{JS}</script></head>"
             f"<body>{nav}<main>{body}</main></body></html>").encode()
 
 
@@ -255,6 +288,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8820
     VARIANT = sys.argv[2] if len(sys.argv) > 2 else "asis"
-    assert VARIANT in ("asis", "tobe", "tobe-fixed", "tobe-renamed", "tobe-custom"), VARIANT
+    assert VARIANT in ("asis", "tobe", "tobe-fixed", "tobe-renamed", "tobe-custom", "tobe-modern"), VARIANT
     print(f"portal demo ({VARIANT}) on http://127.0.0.1:{port}/")
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()

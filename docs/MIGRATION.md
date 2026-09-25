@@ -184,6 +184,7 @@ python demo-app/portal_app.py 8821 tobe &          # 버그까지 그대로 옮�
 python demo-app/portal_app.py 8822 tobe-fixed &    # 버그 2개를 "고쳐버림"
 python demo-app/portal_app.py 8823 tobe-renamed &  # "신규 주문"→"주문 등록", "수량"→"주문 수량" + 부가세 반올림
 python demo-app/portal_app.py 8824 tobe-custom &   # 신규 주문 팝업의 품목이 커스텀 드롭다운 (React/MUI 방식)
+python demo-app/portal_app.py 8825 tobe-modern &   # 새 룩: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭. 글자·역할·동작은 같음 (프로젝트의 to-be 주소)
 uv run pytest e2e/portal --base-url http://127.0.0.1:8820 --record golden/portal
 uv run parity approve golden/portal --by <이름>                                  # 사람
 uv run parity mutate e2e/portal --base-url http://127.0.0.1:8820 --compare golden/portal --max-per-op 100
@@ -198,7 +199,8 @@ uv run parity ui
 | `tobe-fixed` | 25개 중 2개 다름 — `test_portal_vat_truncation`: 부가세 360원 → 368원, 합계 4,035원 → 4,043원. `test_portal_cancel_twice`: confirm 뒤 alert "이미 취소된 주문입니다." 가 새로 뜸 | golden_diff 2 |
 | `tobe-renamed` (이름 매핑 없이) | 25개 중 19개 다름 — 라벨 "신규 주문"·"수량"이 바뀐 화면(`/orders` 목록·팝업)을 지나는 테스트 전부. `golden/portal/name_map.tobe-renamed.json` (`{"신규 주문": "주문 등록", "수량": "주문 수량"}`)을 두고 재승인하면 라벨 차이는 흡수되고 부가세 반올림 1건만 남는다 | golden_diff 19 |
 | `tobe-custom` | 25개 모두 같음. 테스트 수정 없음 (`ui.select` 어댑터가 커스텀 드롭다운을 연다) | same 25 |
-| `tobe` | 25개 모두 같음 | same 25 |
+| `tobe` | 25개 모두 같음 (겉모습까지 as-is와 같은 변형) | same 25 |
+| `tobe-modern` (프로젝트 설정의 to-be) | 25개 모두 같음. 화면은 전혀 다르게 생겼지만(사이드바·보라색·카드) 글자·요소 이름·순서·주소·대화상자가 같아서 비교는 겉모습을 보지 않는다 — 실제 전환에 가장 가까운 경우. 캡처 `docs/samples/portal-tobe-modern.png` | same 25 |
 
 결함 주입(승인본 기준, 25분 소요): 148개 중 144개 탐지 = **97%** (`runs/portal/mutations/20260925-230916.json`). 생존 4개는 전부 탭이 없는 화면(`/`, `/customers`, `/customers/{id}`, `/orders`)의 탭 선택 코드 `===→!==` — 그 화면에서는 실행되지 않는 코드라 화면이 달라질 수 없는 **동등 결함**이다. `golden/portal/oracle.json`의 `equivalent_mutants`에 네 개를 적고 재승인하면 100%로 집계된다 (골든이라 사람이 적는다).
 

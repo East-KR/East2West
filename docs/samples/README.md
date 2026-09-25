@@ -35,7 +35,7 @@ HTML은 파일로 바로 열린다(서버 없음). 단계 번호는 [MIGRATION.m
 ## 이 샘플이 보여주는 상황
 
 - **메인 데모 = 포털** (`demo-app/portal_app.py`, 8820~8824): 시나리오 25개(crawl 초안 18 + 업무 값 7)를 as-is에서 기록해 사람이 승인(east, 2026-09-25 22:43).
-  비교 4회가 `runs/portal/`에 이력으로 있다: `tobe-fixed` 2 다름(부가세 절사→반올림, 취소된 주문 재취소 차단) → `tobe-renamed` 19 다름(라벨 변경, 이름 매핑 없이) → `tobe-custom` 모두 같음 → `tobe` 모두 같음.
+  비교 5회가 `runs/portal/`에 이력으로 있다: `tobe-fixed` 2 다름(부가세 절사→반올림, 취소된 주문 재취소 차단) → `tobe-renamed` 19 다름(라벨 변경, 이름 매핑 없이) → `tobe-custom` 모두 같음 → `tobe` 모두 같음 → `tobe-modern`(8825, 사이드바·보라색의 새 룩 [portal-tobe-modern.png](portal-tobe-modern.png)) 모두 같음 — 겉모습이 달라도 글자·동작이 같으면 통과한다.
   결함 주입은 승인본 기준 148개 중 144개 탐지(97%), 생존 4개는 탭 없는 화면의 탭 코드(동등 결함) — [mutation-sample.json](mutation-sample.json). 검증 보고서 [verification-sample.html](verification-sample.html)은 `tobe-fixed` 실행으로 만든 것: 판정 **신뢰 가능**, 다른 점 2건.
   실행 원장·JUnit·실패 화면 샘플도 같은 실행(2026-09-25 22:45, 8822)에서 왔다.
 - **신뢰 가능 ≠ 같음**: 보고서의 판정은 승인본·전수 실행·탐지율이 모두 ✅라는 뜻이다. 포털 `tobe-fixed`처럼 다른 점 2건이 있어도 "그 결과를 믿어도 된다"고 말할 뿐이다.
