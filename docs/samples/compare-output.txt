@@ -1,0 +1,127 @@
+FEFE.FE..                                                                [100%]
+==================================== ERRORS ====================================
+_____________________ ERROR at teardown of test_order_save _____________________
+step 4 button "계산": differs from golden
+    --- as-is(golden)
+    +++ actual
+    @@ -10,5 +10,5 @@
+     text: 부가세
+    -textbox "부가세": 120
+    +textbox "부가세": 124
+     text: 합계
+    -textbox "합계": 1,355
+    +textbox "합계": 1,359
+     button "계산"
+_________________ ERROR at teardown of test_qty_required_alert _________________
+step 3 button "저장": differs from golden
+    dialogs: ['alert: 수량을 입력하세요.'] → ['alert: 수량은 1 이상이어야 합니다.']
+___________________ ERROR at teardown of test_qty_zero_saved ___________________
+step 3 button "저장": differs from golden
+    dialogs: ['confirm: 저장하시겠습니까?'] → ['alert: 수량은 1 이상이어야 합니다.']
+    --- as-is(golden)
+    +++ actual
+    @@ -2,3 +2,14 @@
+     link "주문 조회"
+    -text: 주문이 저장되었습니다. <masked>
+    -text: 노트북 0개, 공급가액 0원, 부가세 0원, 합계 0원
+    +text: 주문 등록
+    +text: 품목
+    +combobox "품목": 노트북
+    +text: 수량
+    +textbox "수량": 0
+=================================== FAILURES ===================================
+_______________________________ test_order_save ________________________________
+
+ui = <parity.pwtest.ui.UI object at 0x10adf9b80>
+
+    def test_order_save(ui):
+        """볼펜 1개 계산 후 저장 (부가세 10원 절사 동작 보존)"""
+        open_order_form(ui)
+        ui.select("품목", "볼펜")
+        ui.fill("수량", "1")
+        ui.click("button", "계산")
+>       ui.expect_field("부가세", "120")  # as-is: 123.5원 → 10원 단위 절사
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+e2e/legacy/test_orders.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+parity/pwtest/ui.py:232: in expect_field
+    self._poll(lambda: (lambda v: (v == value, v))(current()), f'field "{name}" == {value!r}')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <parity.pwtest.ui.UI object at 0x10adf9b80>
+check = <function UI.expect_field.<locals>.<lambda> at 0x10b0668e0>
+what = 'field "부가세" == \'120\''
+
+    def _poll(self, check, what: str) -> None:
+        deadline = time.monotonic() + self.timeout_ms / 1000
+        last = None
+        while time.monotonic() < deadline:
+            ok, last = check()
+            if ok:
+                return
+            self.page.wait_for_timeout(200)
+>       raise AssertionError(f"{what}: got {last!r}")
+E       AssertionError: field "부가세" == '120': got '124'
+
+parity/pwtest/ui.py:193: AssertionError
+___________________________ test_qty_required_alert ____________________________
+
+ui = <parity.pwtest.ui.UI object at 0x10ad6d010>
+
+    def test_qty_required_alert(ui):
+        """수량 없이 저장하면 alert, 저장 안 됨"""
+        open_order_form(ui)
+        ui.select("품목", "마우스")
+        ui.click("button", "저장")
+>       ui.expect_dialog("수량을 입력하세요.")
+
+e2e/legacy/test_orders.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <parity.pwtest.ui.UI object at 0x10ad6d010>, message = '수량을 입력하세요.'
+
+    def expect_dialog(self, message: str) -> None:
+        """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다). 평범한 assert는 -O에서 사라지므로 쓰지 않는다."""
+        self._assert("dialog", message)
+        last = self.dialogs[-1]["message"] if self.dialogs else None
+        if last != message:
+>           raise AssertionError(f"last dialog {last!r} != {message!r}")
+E           AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '수량을 입력하세요.'
+
+parity/pwtest/ui.py:244: AssertionError
+_____________________________ test_qty_zero_saved ______________________________
+
+ui = <parity.pwtest.ui.UI object at 0x10b125820>
+
+    def test_qty_zero_saved(ui):
+        """수량 0은 막지 않고 합계 0원으로 저장된다 (as-is 버그 보존)"""
+        open_order_form(ui)
+        ui.fill("수량", "0")
+        ui.click("button", "저장")
+>       ui.expect_dialog("저장하시겠습니까?")
+
+e2e/legacy/test_orders.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <parity.pwtest.ui.UI object at 0x10b125820>, message = '저장하시겠습니까?'
+
+    def expect_dialog(self, message: str) -> None:
+        """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다). 평범한 assert는 -O에서 사라지므로 쓰지 않는다."""
+        self._assert("dialog", message)
+        last = self.dialogs[-1]["message"] if self.dialogs else None
+        if last != message:
+>           raise AssertionError(f"last dialog {last!r} != {message!r}")
+E           AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '저장하시겠습니까?'
+
+parity/pwtest/ui.py:244: AssertionError
+
+실행 원장: runs/legacy/20260925-182127.json  (parity status golden/legacy)
+=========================== short test summary info ============================
+FAILED e2e/legacy/test_orders.py::test_order_save - AssertionError: field "부...
+FAILED e2e/legacy/test_orders.py::test_qty_required_alert - AssertionError: l...
+FAILED e2e/legacy/test_orders.py::test_qty_zero_saved - AssertionError: last ...
+ERROR e2e/legacy/test_orders.py::test_order_save - Failed: step 4 button "계...
+ERROR e2e/legacy/test_orders.py::test_qty_required_alert - Failed: step 3 but...
+ERROR e2e/legacy/test_orders.py::test_qty_zero_saved - Failed: step 3 button ...
+3 failed, 3 passed, 3 errors in 20.55s

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="parity" tests="12" failures="5">
+  <testcase classname="scenarios/smoke" name="스모크 - 사원 조회: 열기, 기본 조회, 첫 항목 상세" time="4.86"></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 부서 목록: 열기, 기본 조회, 첫 항목 상세" time="4.86"></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 거래처 관리: 열기, 기본 조회, 첫 항목 상세" time="12.57"><failure type="fail" message="[triage real_defect p=0.95] step 1 expect {&quot;http_ok&quot;: true, &quot;no_js_error&quot;: true}: HTTP error: ['500 http://127.0.0.1:8812/vendor']"></failure></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 품목 마스터: 열기, 기본 조회, 첫 항목 상세" time="4.82"></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 재고 현황: 열기, 기본 조회, 첫 항목 상세" time="13.99"><failure type="fail" message="[triage real_defect p=0.98] step 3 expect {&quot;no_dialog&quot;: true, &quot;no_js_error&quot;: true, &quot;rows_at_least&quot;: 1}: JS error: ['undefinedFn is not defined']; data rows 0 &lt; 1"></failure></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 주문 내역: 열기, 기본 조회, 첫 항목 상세" time="4.87"></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 매출 집계: 열기, 기본 조회, 첫 항목 상세" time="14.06"><failure type="fail" message="[triage real_defect p=0.75] step 3 expect {&quot;no_dialog&quot;: true, &quot;no_js_error&quot;: true, &quot;rows_at_least&quot;: 1}: data rows 0 &lt; 1"></failure></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 입고 관리: 열기, 기본 조회, 첫 항목 상세" time="4.86"></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 출고 관리: 열기, 기본 조회, 첫 항목 상세" time="4.86"></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 급여 명세: 열기, 기본 조회, 첫 항목 상세" time="4.84"></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 결재 문서함: 열기, 기본 조회, 첫 항목 상세" time="14.00"><failure type="fail" message="[triage real_defect p=0.98] step 3 expect {&quot;no_dialog&quot;: true, &quot;no_js_error&quot;: true, &quot;rows_at_least&quot;: 1}: unexpected dialog: ['alert: 시스템 오류가 발생했습니다.']; data rows 0 &lt; 1"></failure></testcase>
+  <testcase classname="scenarios/smoke" name="스모크 - 공지사항: 열기, 기본 조회, 첫 항목 상세" time="15.57"><failure type="fail" message="[triage real_defect p=0.92] step 5 expect {&quot;http_ok&quot;: true, &quot;title_contains&quot;: &quot;상세&quot;}: title '없음' lacks '상세'; HTTP error: ['404 http://127.0.0.1:8812/notice/detail/0']"></failure></testcase>
+</testsuite>

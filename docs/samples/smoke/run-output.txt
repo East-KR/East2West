@@ -1,0 +1,111 @@
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '사원 조회', 'URL': '/emp', 'QUERY': '조회', 'by': 'rule'}
+  ✔  0 goto   /emp
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "조회" [target]
+  ✔  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}
+  ✔  4 do     결과 첫 행의 항목 열기 -> link in data row 1 [target]
+  ✔  5 expect {"http_ok": true, "title_contains": "상세"}
+== 스모크 - 사원 조회: 열기, 기본 조회, 첫 항목 상세: PASS | 4.9s | Jev calls 0 (0ms) | report reports/screen_smoke_targets--00-20260925-182139.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '부서 목록', 'URL': '/dept', 'QUERY': '검색', 'by': 'rule'}
+  ✔  0 goto   /dept
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "검색" [target]
+  ✔  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}
+  ✔  4 do     결과 첫 행의 항목 열기 -> link in data row 1 [target]
+  ✔  5 expect {"http_ok": true, "title_contains": "상세"}
+== 스모크 - 부서 목록: 열기, 기본 조회, 첫 항목 상세: PASS | 4.9s | Jev calls 0 (0ms) | report reports/screen_smoke_targets--01-20260925-182144.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '거래처 관리', 'URL': '/vendor', 'QUERY': '찾기', 'by': 'rule'}
+  ✔  0 goto   /vendor
+  ✘  1 expect {"http_ok": true, "no_js_error": true}  !! HTTP error: ['500 http://127.0.0.1:8812/vendor']
+     ⚑ triage real_defect p=0.95 margin=0.90 | retry 0.25 | widespread 0.63 | as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+== 스모크 - 거래처 관리: 열기, 기본 조회, 첫 항목 상세: FAIL | 12.6s | Jev calls 0 (0ms) | ⚑ real_defect 1 | report reports/screen_smoke_targets--02-20260925-182157.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '품목 마스터', 'URL': '/item', 'QUERY': '조회하기', 'by': 'rule'}
+  ✔  0 goto   /item
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "조회하기" [target]
+  ✔  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}
+  ✔  4 do     결과 첫 행의 항목 열기 -> link in data row 1 [target]
+  ✔  5 expect {"http_ok": true, "title_contains": "상세"}
+== 스모크 - 품목 마스터: 열기, 기본 조회, 첫 항목 상세: PASS | 4.8s | Jev calls 0 (0ms) | report reports/screen_smoke_targets--03-20260925-182202.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '재고 현황', 'URL': '/stock', 'QUERY': 'Search', 'by': 'rule'}
+  ✔  0 goto   /stock
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "Search" [target]
+  ✘  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}  !! JS error: ['undefinedFn is not defined']; data rows 0 < 1
+     ⚑ triage real_defect p=0.98 margin=0.96 | retry 0.17 | widespread 0.55 | as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+== 스모크 - 재고 현황: 열기, 기본 조회, 첫 항목 상세: FAIL | 14.0s | Jev calls 0 (0ms) | ⚑ real_defect 1 | report reports/screen_smoke_targets--04-20260925-182215.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '주문 내역', 'URL': '/order', 'QUERY': '목록 불러오기', 'by': 'picked', 'candidates': "['목록 불러오기', '상세 검색 열기']", 'note': 'picked by Claude Code: 상세 검색 열기는 조건 패널을 여는 버튼'}
+  ✔  0 goto   /order
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "목록 불러오기" [target]
+  ✔  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}
+  ✔  4 do     결과 첫 행의 항목 열기 -> link in data row 1 [target]
+  ✔  5 expect {"http_ok": true, "title_contains": "상세"}
+== 스모크 - 주문 내역: 열기, 기본 조회, 첫 항목 상세: PASS | 4.9s | Jev calls 0 (0ms) | report reports/screen_smoke_targets--05-20260925-182220.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '매출 집계', 'URL': '/sales', 'QUERY': '집계 실행', 'by': 'picked', 'candidates': "['집계 실행', '인쇄']", 'note': 'picked by Claude Code: 인쇄는 조회가 아님'}
+  ✔  0 goto   /sales
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "집계 실행" [target]
+  ✘  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}  !! data rows 0 < 1
+     ⚑ triage real_defect p=0.75 margin=0.53 | retry 0.18 | widespread 0.33 | as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+== 스모크 - 매출 집계: 열기, 기본 조회, 첫 항목 상세: FAIL | 14.1s | Jev calls 0 (0ms) | ⚑ real_defect 1 | report reports/screen_smoke_targets--06-20260925-182234.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '입고 관리', 'URL': '/inbound', 'QUERY': '검색', 'by': 'rule'}
+  ✔  0 goto   /inbound
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "검색" [target]
+  ✔  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}
+  ✔  4 do     결과 첫 행의 항목 열기 -> link in data row 1 [target]
+  ✔  5 expect {"http_ok": true, "title_contains": "상세"}
+== 스모크 - 입고 관리: 열기, 기본 조회, 첫 항목 상세: PASS | 4.9s | Jev calls 0 (0ms) | report reports/screen_smoke_targets--07-20260925-182239.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '출고 관리', 'URL': '/outbound', 'QUERY': '조회', 'by': 'rule'}
+  ✔  0 goto   /outbound
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "조회" [target]
+  ✔  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}
+  ✔  4 do     결과 첫 행의 항목 열기 -> link in data row 1 [target]
+  ✔  5 expect {"http_ok": true, "title_contains": "상세"}
+== 스모크 - 출고 관리: 열기, 기본 조회, 첫 항목 상세: PASS | 4.9s | Jev calls 0 (0ms) | report reports/screen_smoke_targets--08-20260925-182244.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '급여 명세', 'URL': '/pay', 'QUERY': '검색하기', 'by': 'rule'}
+  ✔  0 goto   /pay
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "검색하기" [target]
+  ✔  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}
+  ✔  4 do     결과 첫 행의 항목 열기 -> link in data row 1 [target]
+  ✔  5 expect {"http_ok": true, "title_contains": "상세"}
+== 스모크 - 급여 명세: 열기, 기본 조회, 첫 항목 상세: PASS | 4.8s | Jev calls 0 (0ms) | report reports/screen_smoke_targets--09-20260925-182249.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '결재 문서함', 'URL': '/approval', 'QUERY': '문서 조회', 'by': 'picked', 'candidates': "['문서 조회', '새 문서 작성']", 'note': 'picked by Claude Code: 새 문서 작성은 등록 화면으로 가는 버튼'}
+  ✔  0 goto   /approval
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "문서 조회" [target]  [alert "시스템 오류가 발생했습니다." → accept]
+  ✘  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}  !! unexpected dialog: ['alert: 시스템 오류가 발생했습니다.']; data rows 0 < 1
+     ⚑ triage real_defect p=0.98 margin=0.96 | retry 0.30 | widespread 0.52 | as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+== 스모크 - 결재 문서함: 열기, 기본 조회, 첫 항목 상세: FAIL | 14.0s | Jev calls 0 (0ms) | ⚑ real_defect 1 | report reports/screen_smoke_targets--10-20260925-182303.json
+
+## scenarios/smoke/screen_smoke_targets.yaml  {'SCREEN': '공지사항', 'URL': '/notice', 'QUERY': '검색', 'by': 'rule'}
+  ✔  0 goto   /notice
+  ✔  1 expect {"http_ok": true, "no_js_error": true}
+  ✔  2 do     목록 조회 실행 -> button "검색" [target]
+  ✔  3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}
+  ✔  4 do     결과 첫 행의 항목 열기 -> link in data row 1 [target]
+  ✘  5 expect {"http_ok": true, "title_contains": "상세"}  !! title '없음' lacks '상세'; HTTP error: ['404 http://127.0.0.1:8812/notice/detail/0']
+     ⚑ triage real_defect p=0.92 margin=0.87 | retry 0.16 | widespread 0.42 | as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+== 스모크 - 공지사항: 열기, 기본 조회, 첫 항목 상세: FAIL | 15.6s | Jev calls 0 (0ms) | ⚑ real_defect 1 | report reports/screen_smoke_targets--11-20260925-182319.json
+
+7/12 scenarios passed
+triage: real_defect 5
+  real_defect 5건 (같은 원인으로 보이면 한 번에 처리): as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+    스모크 - 거래처 관리: 열기, 기본 조회, 첫 항목 상세 / step 1 expect {"http_ok": true, "no_js_error": true}: ⚑ triage real_defect p=0.95 margin=0.90 | retry 0.25 | widespread 0.63 | as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+    스모크 - 재고 현황: 열기, 기본 조회, 첫 항목 상세 / step 3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}: ⚑ triage real_defect p=0.98 margin=0.96 | retry 0.17 | widespread 0.55 | as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+    스모크 - 매출 집계: 열기, 기본 조회, 첫 항목 상세 / step 3 expect {"no_dialog": true, "no_js_error": true, "rows_at_least": 1}: ⚑ triage real_defect p=0.75 margin=0.53 | retry 0.18 | widespread 0.33 | as-is와 다른 동작으로 보임 → diff·실패 스크린샷과 함께 개발자 확인
+    … 외 2건

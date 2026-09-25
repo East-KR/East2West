@@ -1,0 +1,39 @@
+# parity crawl이 만든 시나리오. 현재 동작의 기록이므로 맞는 동작인지 검토한 뒤 쓴다.
+# 이 폴더는 crawl을 다시 돌리면 덮어쓴다. 검토한 파일은 scenarios/<app>/로 옮겨서 고친다.
+name: '[탐색] 로그인 → 객실 예약 → 예약 내용을 확정하시겠습니까? → 예약자 이름과 체크인 날짜는 필수입니다. → 예약 내용을 확정하시겠습니까? (입력 후)'
+steps:
+- goto: http://127.0.0.1:8787/login
+- expect:
+    title_contains: 로그인
+- do: 입력칸 "아이디"에 값 입력
+  fill: tester
+- do: 입력칸 "비밀번호"에 값 입력
+  fill: pass1234
+- do: 버튼 "로그인" 누르기
+- expect:
+    url_path: /
+- expect:
+    text: 객실 예약
+- expect:
+    no_text: 로그인
+- do: 버튼 "예약 완료하기" 누르기
+- expect:
+    text: 예약 내용을 확정하시겠습니까?
+- do: 버튼 "확정" 누르기
+- expect:
+    url_path: /reserve
+- expect:
+    text: 예약자 이름과 체크인 날짜는 필수입니다.
+- expect:
+    no_text: 예약 내용을 확정하시겠습니까?
+- do: 입력칸 "투숙객 이름"에 값 입력
+  fill: 홍길동
+- do: '"2026.10." 영역의 버튼 "1" 누르기'
+- do: 옵션 "2박" 선택
+- do: 체크박스 "조식 포함" 체크
+- expect:
+    field: 선택한 체크인
+    value: '2026-10-01'
+- do: 버튼 "예약 완료하기" 누르기
+- expect:
+    text: 예약 내용을 확정하시겠습니까?

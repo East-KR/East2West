@@ -1,0 +1,125 @@
+"""parity crawl이 만든 테스트. 현재 동작의 기록이다. 검토하고 업무상 중요한 값(금액 등) 확인을 더한 뒤 e2e/<app>/로 옮겨 쓴다.
+
+시작: http://127.0.0.1:8787/login
+"""
+from parity.runner import _expand
+
+
+def test_crawl_01(ui):
+    """로그인 → 아이디 또는 비밀번호가 올바르지 않습니다. → 객실 예약"""
+    ui.goto('http://127.0.0.1:8787/login')
+    ui.expect_title('로그인')
+    ui.act('button', '로그인')
+    ui.expect_text('아이디 또는 비밀번호가 올바르지 않습니다.')
+    ui.fill('아이디', 'tester', role='textbox')
+    ui.fill('비밀번호', 'pass1234', role='textbox')
+    ui.act('button', '로그인')
+    ui.expect_url_path('/')
+    ui.expect_text('객실 예약')
+    ui.expect_no_text('아이디 또는 비밀번호가 올바르지 않습니다.')
+
+def test_crawl_02(ui):
+    """로그인 → 객실 예약 → 예약 내용을 확정하시겠습니까? → 예약자 이름과 체크인 날짜는 필수입니다. → 예약 내용을 확정하시겠습니까?"""
+    ui.goto('http://127.0.0.1:8787/login')
+    ui.expect_title('로그인')
+    ui.fill('아이디', 'tester', role='textbox')
+    ui.fill('비밀번호', 'pass1234', role='textbox')
+    ui.act('button', '로그인')
+    ui.expect_url_path('/')
+    ui.expect_text('객실 예약')
+    ui.expect_no_text('로그인')
+    ui.act('button', '예약 완료하기')
+    ui.expect_text('예약 내용을 확정하시겠습니까?')
+    ui.act('button', '확정')
+    ui.expect_url_path('/reserve')
+    ui.expect_text('예약자 이름과 체크인 날짜는 필수입니다.')
+    ui.expect_no_text('예약 내용을 확정하시겠습니까?')
+    ui.act('button', '예약 완료하기')
+    ui.expect_text('예약 내용을 확정하시겠습니까?')
+
+def test_crawl_03(ui):
+    """로그인 → 객실 예약 → 예약 내용을 확정하시겠습니까? → 예약자 이름과 체크인 날짜는 필수입니다. → 예약 내용을 확정하시겠습니까? (입력 후)"""
+    ui.goto('http://127.0.0.1:8787/login')
+    ui.expect_title('로그인')
+    ui.fill('아이디', 'tester', role='textbox')
+    ui.fill('비밀번호', 'pass1234', role='textbox')
+    ui.act('button', '로그인')
+    ui.expect_url_path('/')
+    ui.expect_text('객실 예약')
+    ui.expect_no_text('로그인')
+    ui.act('button', '예약 완료하기')
+    ui.expect_text('예약 내용을 확정하시겠습니까?')
+    ui.act('button', '확정')
+    ui.expect_url_path('/reserve')
+    ui.expect_text('예약자 이름과 체크인 날짜는 필수입니다.')
+    ui.expect_no_text('예약 내용을 확정하시겠습니까?')
+    ui.fill('투숙객 이름', '홍길동', role='textbox')
+    ui.act('button', '1', nth=0)
+    ui.act('option', '2박')
+    ui.act('checkbox', '조식 포함')
+    ui.expect_field('선택한 체크인', '2026-10-01')
+    ui.act('button', '예약 완료하기')
+    ui.expect_text('예약 내용을 확정하시겠습니까?')
+
+def test_crawl_04(ui):
+    """로그인 → 객실 예약 → 예약 내용을 확정하시겠습니까? → 객실 예약"""
+    ui.goto('http://127.0.0.1:8787/login')
+    ui.expect_title('로그인')
+    ui.fill('아이디', 'tester', role='textbox')
+    ui.fill('비밀번호', 'pass1234', role='textbox')
+    ui.act('button', '로그인')
+    ui.expect_url_path('/')
+    ui.expect_text('객실 예약')
+    ui.expect_no_text('로그인')
+    ui.act('button', '예약 완료하기')
+    ui.expect_text('예약 내용을 확정하시겠습니까?')
+    ui.act('button', '취소')
+    ui.expect_no_text('예약 내용을 확정하시겠습니까?')
+
+def test_crawl_05(ui):
+    """로그인 → 객실 예약 → 예약 내용을 확정하시겠습니까? (입력 후) → 예약 완료 → 객실 예약"""
+    ui.goto('http://127.0.0.1:8787/login')
+    ui.expect_title('로그인')
+    ui.fill('아이디', 'tester', role='textbox')
+    ui.fill('비밀번호', 'pass1234', role='textbox')
+    ui.act('button', '로그인')
+    ui.expect_url_path('/')
+    ui.expect_text('객실 예약')
+    ui.expect_no_text('로그인')
+    ui.fill('투숙객 이름', '홍길동', role='textbox')
+    ui.act('button', '1', nth=0)
+    ui.act('option', '2박')
+    ui.act('checkbox', '조식 포함')
+    ui.expect_field('선택한 체크인', '2026-10-01')
+    ui.act('button', '예약 완료하기')
+    ui.expect_text('예약 내용을 확정하시겠습니까?')
+    ui.act('button', '확정')
+    ui.expect_url_contains('/reservations/')
+    ui.expect_text_matches('총\\s+금액\\s+\\d+,\\d+원')
+    ui.expect_no_text('예약 내용을 확정하시겠습니까?')
+    ui.act('link', '다른 예약 하기')
+    ui.expect_url_path('/')
+    ui.expect_text('객실 예약')
+    ui.expect_no_text('홍길동')
+
+def test_crawl_06(ui):
+    """로그인 → 객실 예약 → 예약 내용을 확정하시겠습니까? (입력 후) → 객실 예약 (입력 후) → 예약 내용을 확정하시겠습니까? (입력 후)"""
+    ui.goto('http://127.0.0.1:8787/login')
+    ui.expect_title('로그인')
+    ui.fill('아이디', 'tester', role='textbox')
+    ui.fill('비밀번호', 'pass1234', role='textbox')
+    ui.act('button', '로그인')
+    ui.expect_url_path('/')
+    ui.expect_text('객실 예약')
+    ui.expect_no_text('로그인')
+    ui.fill('투숙객 이름', '홍길동', role='textbox')
+    ui.act('button', '1', nth=0)
+    ui.act('option', '2박')
+    ui.act('checkbox', '조식 포함')
+    ui.expect_field('선택한 체크인', '2026-10-01')
+    ui.act('button', '예약 완료하기')
+    ui.expect_text('예약 내용을 확정하시겠습니까?')
+    ui.act('button', '취소')
+    ui.expect_no_text('예약 내용을 확정하시겠습니까?')
+    ui.act('button', '예약 완료하기')
+    ui.expect_text('예약 내용을 확정하시겠습니까?')

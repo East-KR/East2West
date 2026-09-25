@@ -1,0 +1,14 @@
+  rule   사원 조회: 조회
+  rule   부서 목록: 검색
+  rule   거래처 관리: 찾기
+  rule   품목 마스터: 조회하기
+  rule   재고 현황: Search
+  review 주문 내역: ['목록 불러오기', '상세 검색 열기']
+  review 매출 집계: ['집계 실행', '인쇄']
+  rule   입고 관리: 검색
+  rule   출고 관리: 조회
+  rule   급여 명세: 검색하기
+  review 결재 문서함: ['문서 조회', '새 문서 작성']
+  rule   공지사항: 검색
+
+9/12 settled by rule, 3 need review → scenarios/erp/screens.targets.yaml

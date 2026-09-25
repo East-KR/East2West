@@ -1,0 +1,7 @@
+legacy · 마지막 비교 2026-09-25 18:21:27 · 대상 http://127.0.0.1:8803 · 승인본 2026-09-24 18:10:42
+  통과 3 · 남은 실패 3 (전체 6)
+  지난 실행(2026-09-25 18:05:39) 대비: 통과로 바뀜 0, 새로 실패 3, 계속 실패 0
+  as-is와 다름 3:
+    - test_order_save (새로): AssertionError: field "부가세" == '120': got '124'
+    - test_qty_required_alert (새로): AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '수량을 입력하세요.'
+    - test_qty_zero_saved (새로): AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '저장하시겠습니까?'
