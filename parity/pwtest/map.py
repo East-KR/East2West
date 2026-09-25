@@ -4,7 +4,7 @@ parity map golden/<app> [--junit reports/junit-<target>.xml] --out reports/map-<
 
 두 층
   라우트  주소가 같은 화면 (/orders, /orders/{id} …). 지도의 노드. 홈(/)이 있으면 홈이 시작이고 맨 왼쪽.
-  상태    한 라우트 안에서 구조가 다른 화면: 기본, 팝업(dialog), 드로워(complementary), 탭, 알림. 라우트의 상세 페이지에 작은 그래프로 나온다.
+  상태    한 라우트 안에서 구조가 다른 화면: 기본, 팝업(dialog), 드로워(complementary), 탭, 알림. 라우트의 상세 페이지에 작은 그래프로 나오고, 상태를 누르면 팝업(캡처·오는 동작·가는 상태·지나는 테스트).
 
 화면 두 장
   지도  왼쪽 라우트 목록 (검색, 상태 점, 이름·주소, 안의 상태 수) + 지도: 왼쪽에서 오른쪽으로 한 방향. 열 = 시작에서 몇 번 눌러 가는지, 열 안 순서는 무게중심(Sugiyama 방식)으로 선 교차를 줄인다.
@@ -22,6 +22,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
+from html import unescape as _unescape
 from urllib.parse import urlparse
 
 from ..crawl import landmarks, signature
@@ -99,9 +100,10 @@ def _fail_steps(messages: list[str], assertions: list[dict[str, Any]]) -> set[in
 
 
 def _plain(action_html: str) -> str:
+    """동작 HTML → 글자만 (화면에 넣을 때 다시 이스케이프하므로 엔티티는 푼다)."""
     t = re.sub("<[^>]+>", " ", action_html)
     t = re.sub(r"\s+", " ", t).strip()
-    return t
+    return _unescape(t)
 
 
 def _word(action: str) -> str:
@@ -460,6 +462,13 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .modal .mh{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
 .modal .mh b{font-size:16px}.modal .mh small{display:block;font:12px var(--mono);color:var(--faint)}
 .modal .mb{overflow:auto;padding:0 18px 18px}
+.modal .sb{display:flex;flex-direction:column;gap:16px;padding-top:16px}
+.modal .sb .prev{flex:none;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;cursor:zoom-in;position:relative;max-height:52vh}
+.modal .sb .sec,.modal .sb .sgrid{flex:none}
+.modal .sb .prev img{width:100%;display:block;max-height:52vh;object-fit:contain;object-position:top}
+.modal .sb .prev .cap{position:absolute;left:10px;bottom:10px;font:600 12.5px var(--sans);background:rgba(15,20,19,.75);color:#fff;border-radius:5px;padding:3px 9px}
+.modal .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.modal .sgrid{grid-template-columns:1fr}}
 .film{display:flex;gap:6px;overflow-x:auto;padding:14px 0 10px;scroll-snap-type:x proximity}
 .film button{flex:none;width:96px;border:2px solid var(--line);border-radius:6px;padding:0;background:#fff;cursor:pointer;position:relative;scroll-snap-align:start;overflow:hidden}
 .film button img{width:100%;height:60px;object-fit:cover;object-position:top left;display:block}
@@ -495,7 +504,7 @@ let current = null, currentState = null;
 function rstatus(r){ if(!G.compared) return ''; if(r.failed) return 'bad'; return r.tests.some(t => (testByName[t] || {}).status) ? 'ok' : ''; }
 function openLb(src, cap){ if(!src) return; lb.querySelector('img').src = src; lb.querySelector('.cap').textContent = cap || ''; lb.classList.add('on'); }
 lb.addEventListener('click', () => lb.classList.remove('on'));
-function closeModal(){ modal.classList.remove('on'); }
+function closeModal(){ modal.classList.remove('on'); currentState = null; }
 modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
 addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else if(modal.classList.contains('on')) closeModal(); else if(!detail.hidden) back(); });
 
@@ -568,7 +577,7 @@ function show(rid, sid){
   detail.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', () => go(a.dataset.go)));
   detail.querySelectorAll('[data-lb]').forEach(a => a.addEventListener('click', () => openLb(shot(a.dataset.lb), a.dataset.cap || r.name)));
   detail.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, rid)));
-  detail.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => go(rid, b.dataset.state === currentState ? null : b.dataset.state)));
+  detail.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => openState(rid, b.dataset.state)));
   scrollTo({top: 0});
 }
 function back(){ if(location.hash && location.hash !== '#') location.hash = ''; else showOverview(); }
@@ -584,6 +593,28 @@ function route(){
   else showOverview();
 }
 /* 시나리오 팝업: 필름스트립 + 단계 + (다르면) 무엇이 달랐는지 */
+/* 상태 팝업: 화면 안의 상태 하나 (팝업·드로워·탭·알림). 큰 캡처, 여기로 오는 동작, 여기서 가는 상태, 지나는 테스트(누르면 시나리오 팝업으로 바뀐다) */
+function openState(rid, sid){
+  const n = G.nodes[sid], r = G.routes[rid]; if(!n || !r) return;
+  currentState = sid;  // 시나리오 팝업에서 이 상태의 단계를 강조하기 위해
+  const ins = G.sedges.filter(e => e.dst === sid && e.src !== sid), outs = G.sedges.filter(e => e.src === sid && e.dst !== sid);
+  const names = n.tests.slice().sort((a, b) => ((testByName[b].status === 'fail') - (testByName[a].status === 'fail')));
+  const failedIn = t => n.visits.some(v => v.test === t && v.failed);
+  const kindPill = n.kind === 'base' ? '<span class="kd">기본</span>' : `<span class="kd ${n.kind}">${G.kind_ko[n.kind]}</span>`;
+  const link = (e, other) => `<a class="route" data-state-go="${other}"><span class="act">${esc(e.actions.join(' · '))}</span><span class="nm">${stateName(other)}</span><span class="path">${esc(G.nodes[other].kind === 'base' ? '기본' : G.kind_ko[G.nodes[other].kind])}</span></a>`;
+  let h = `<div class="mh"><div><b>${routeName(rid)} › ${stateName(sid)}</b><small>${esc(r.path)} · ${G.unit} ${n.tests.length}개${n.failed && G.compared ? ' · as-is와 다름' : ''}</small></div>${kindPill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb sb">`;
+  h += n.shot ? `<div class="prev" title="크게 보기" data-lb="${n.shot}" data-cap="${stateName(sid)}"><img src="${shot(n.shot)}" alt="${stateName(sid)}"><span class="cap">${stateName(sid)}</span></div>` : `<div class="empty">캡처 없음</div>`;
+  h += `<div class="sgrid"><div class="sec"><h4>이 상태로 오는 동작 <span>${ins.length}</span></h4><div class="routes">${ins.map(e => link(e, e.src)).join('') || '<span class="tid">기록에 없음 (이 상태로 바로 들어감)</span>'}</div></div>`
+     + `<div class="sec"><h4>여기서 가는 상태 <span>${outs.length}</span></h4><div class="routes">${outs.map(e => link(e, e.dst)).join('') || '<span class="tid">없음</span>'}</div></div></div>`;
+  h += `<div class="sec"><h4>이 상태를 지나는 ${G.unit} <span>${names.length}개 · 누르면 단계</span></h4>${testRows(names, failedIn)}</div></div>`;
+  modal.querySelector('.box').innerHTML = h;
+  modal.classList.add('on');
+  modal.querySelector('#closeModal').addEventListener('click', closeModal);
+  modal.querySelectorAll('[data-lb]').forEach(b => b.addEventListener('click', () => openLb(shot(b.dataset.lb), b.dataset.cap)));
+  modal.querySelectorAll('[data-state-go]').forEach(a => a.addEventListener('click', () => openState(rid, a.dataset.stateGo)));
+  modal.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, rid)));
+  modal.querySelector('.mb').scrollTop = 0;
+}
 function openTest(name, hereRid){
   const test = testByName[name]; if(!test) return;
   const hereSteps = new Set(test.seq.filter(s => currentState ? s.node === currentState : s.route === hereRid).map(s => s.index));

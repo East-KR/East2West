@@ -23,7 +23,7 @@ HTML은 파일로 바로 열린다(서버 없음). 단계 번호는 [MIGRATION.m
 | | | 실패 시점 스크린샷 | 사람 | [test_portal_vat_truncation-fail.png](test_portal_vat_truncation-fail.png), [test_portal_cancel_twice-fail.png](test_portal_cancel_twice-fail.png) |
 | | | 실행 원장 (`runs/<app>/<시각>.json`) | 상태 명령·관리 화면 입력 | [run-ledger-sample.json](run-ledger-sample.json) |
 | | `parity report` | 검증 보고서 (신뢰 확인 → 판정 → 다른 점 → 탐지율) | **사람** (최종) | [verification-sample.html](verification-sample.html), [.md](verification-sample.md) |
-| | `parity map --junit` | 화면 지도 (골든 시나리오 비교): 라우트 네트워크 → 화면을 누르면 상세 페이지(큰 캡처, 안의 팝업·드로워·탭 그래프, 오는 길·가는 길, 테스트). 다른 화면은 빨갛게. 상세 캡처 [ui-map-detail.png](ui-map-detail.png) | 사람 |
+| | `parity map --junit` | 화면 지도 (골든 시나리오 비교): 라우트 네트워크 → 화면을 누르면 상세 페이지(큰 캡처, 안의 팝업·드로워·탭 그래프, 오는 길·가는 길, 테스트). 다른 화면은 빨갛게. 상세 캡처 [ui-map-detail.png](ui-map-detail.png), 상태 팝업 [ui-map-state.png](ui-map-state.png) | 사람 |
 | | `parity map --crawl` | 화면 지도 (as-is 탐색 / to-be 탐색): crawl 결과를 그대로 이은 지도. 통합 화면에서는 출처 바로 셋을 오간다 [ui-map-asis.png](ui-map-asis.png), [ui-map-tobe.png](ui-map-tobe.png), 탐색 전 [ui-map-tobe-explore.png](ui-map-tobe-explore.png) | 사람 | [map-portal-asis.html](map-portal-asis.html) | [map-portal.html](map-portal.html), [map-reservation.html](map-reservation.html), [map-legacy-tobe-fixed.html](map-legacy-tobe-fixed.html), 통합 화면 캡처 [ui-map.png](ui-map.png) |
 | 0 등록 | `parity ui` 첫 화면 | 프로젝트 목록 (as-is/to-be 소스 위치·주소, 다음 단계 안내) → `parity.json` | **사람** | [ui-projects.png](ui-projects.png), 추가 창 [ui-add-project.png](ui-add-project.png), [parity.json](../../parity.json) |
 | 7 루프 | `parity ui` | 프로젝트 화면 (화면 지도가 첫 탭 · 개요·이력·승인 검토·보고서, 지난 실행 선택). 골든이 없으면 "화면 지도 만들기"(탐색 → 초안 → 기록) [ui-init.png](ui-init.png) | **사람** | [ui-history.png](ui-history.png), [ui-overview.png](ui-overview.png) |
