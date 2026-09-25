@@ -133,3 +133,67 @@ def test_hub_projects_http(ws):
     finally:
         srv.shutdown()
         srv.server_close()
+
+
+def test_init_plan_and_rules(ws):
+    """화면 지도 초기화: 골든 없음 + as-is 주소 있을 때만. 시나리오가 없으면 탐색→초안→기록, 있으면 기록만. 골든이 있으면 거부."""
+    h = hub.Hub(ws["golden"], ws["tests"], ws["file"])
+    h.add_project("shop", {**spec(ws), "asis": {"src": str(ws["old"]), "url": ""}})
+    with pytest.raises(ValueError, match="as-is 실행 주소"):
+        h.init_plan("shop")
+    h.update_project("shop", spec(ws))
+    plan = h.init_plan("shop", depth=9)
+    assert [s["step"] for s in plan] == ["crawl", "tests", "record"]
+    assert plan[0]["cmd"][-6:] == ["crawl", "http://127.0.0.1:8001", "--out", "crawl/shop", "--depth", "5"]  # 깊이는 5까지
+    assert plan[2]["cmd"][-8:-4] == [str(ws["tests"] / "shop"), "--base-url", "http://127.0.0.1:8001", "--record"] and plan[2]["cmd"][-4] == str(ws["golden"] / "shop")
+    (ws["tests"] / "shop" / "test_x.py").write_text("def test_a(): pass\n", encoding="utf-8")
+    plan = h.init_plan("shop")
+    assert [s["step"] for s in plan] == ["crawl", "record"] and plan[0]["skip"] and "cmd" not in plan[0]
+    (ws["golden"] / "shop").mkdir(parents=True)
+    (ws["golden"] / "shop" / "test_a.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="이미"):
+        h.init_plan("shop")
+    assert h.init_status("shop") == {"running": False}
+    with pytest.raises(KeyError):
+        h.init_plan("nope")
+
+
+def test_init_job_runs_steps(ws):
+    """작업 실행기: 명령 단계는 하위 프로세스로, 복사 단계는 파일 복사로. 실패하면 error에 남고 running이 풀린다."""
+    import sys
+    import time
+    h = hub.Hub(ws["golden"], ws["tests"], ws["file"])
+    h.add_project("shop", spec(ws))
+    fake = [{"step": "crawl", "label": "탐색", "cmd": [sys.executable, "-c", "print('crawled')"]},
+            {"step": "tests", "label": "초안", "copy": [str(ws["old"] / "app.py"), str(ws["tests"] / "shop" / "test_crawl.py")]},
+            {"step": "record", "label": "기록", "cmd": [sys.executable, "-c", "import sys; print('boom'); sys.exit(2)"]}]
+    h.init_plan = lambda app, depth=3: fake  # 실제 탐색·기록 대신
+    st = h.init_project("shop")
+    assert st["running"]
+    for _ in range(100):
+        if not h.init_status("shop")["running"]:
+            break
+        time.sleep(0.1)
+    st = h.init_status("shop")
+    assert not st["running"] and not st["ok"] and "record 실패" in st["error"]
+    assert [s["state"] for s in st["steps"]] == ["done", "done", "fail"]
+    assert (ws["tests"] / "shop" / "test_crawl.py").exists() and "crawled" in "\n".join(st["log"]) and "boom" in "\n".join(st["log"])
+
+
+def test_init_http(ws):
+    handler = type("H", (hub.Handler,), {"hub": hub.Hub(ws["golden"], ws["tests"], ws["file"])})
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        urlopen(Request(base + "/api/projects", data=json.dumps({"name": "shop", **spec(ws), "asis": {"src": str(ws["old"]), "url": ""}}).encode(), headers={"Content-Type": "application/json"}, method="POST"))
+        assert json.loads(urlopen(base + "/api/app/shop/init").read()) == {"running": False}
+        with pytest.raises(HTTPError) as ex:
+            urlopen(Request(base + "/api/app/shop/init", data=b"{}", headers={"Content-Type": "application/json"}, method="POST"))
+        assert ex.value.code == 409 and "as-is" in json.loads(ex.value.read())["error"]
+        with pytest.raises(HTTPError) as ex:
+            urlopen(base + "/api/app/nope/init")
+        assert ex.value.code == 404
+    finally:
+        srv.shutdown()
+        srv.server_close()

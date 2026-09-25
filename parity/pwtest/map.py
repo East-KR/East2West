@@ -4,14 +4,13 @@ parity map golden/<app> [--junit reports/junit-<target>.xml] --out reports/map-<
 
 두 층
   라우트  주소가 같은 화면 (/orders, /orders/{id} …). 지도의 노드. 홈(/)이 있으면 홈이 시작이고 맨 왼쪽.
-  상태    한 라우트 안에서 구조가 다른 화면: 기본, 팝업(dialog), 드로워(complementary), 탭, 알림. 라우트를 누르면 오른쪽 패널에 작은 그래프로 나온다.
+  상태    한 라우트 안에서 구조가 다른 화면: 기본, 팝업(dialog), 드로워(complementary), 탭, 알림. 라우트의 상세 페이지에 작은 그래프로 나온다.
 
-화면: 세 칸 (Playwright Trace Viewer의 구성을 따랐다)
-  왼쪽  라우트 목록 (검색, 상태 점, 이름·주소, 안의 상태 수)
-  가운데 지도: 왼쪽에서 오른쪽으로 한 방향. 열 = 시작에서 몇 번 눌러 가는지, 열 안 순서는 무게중심(Sugiyama 방식)으로 선 교차를 줄인다.
+화면 두 장
+  지도  왼쪽 라우트 목록 (검색, 상태 점, 이름·주소, 안의 상태 수) + 지도: 왼쪽에서 오른쪽으로 한 방향. 열 = 시작에서 몇 번 눌러 가는지, 열 안 순서는 무게중심(Sugiyama 방식)으로 선 교차를 줄인다.
         노드 = 화면 프레임(대표 캡처, 이름, 안의 팝업·드로워·탭, 상태 띠). 화살표 = 동작 이름 알약. 되돌아가는 길은 아래 차선으로 회색.
-  오른쪽 선택한 라우트: 큰 캡처, 이 화면 안의 상태 그래프(누르면 그 상태의 캡처·테스트), 시작에서 오는 길, 나가는 길, 지나는 테스트(누르면 시나리오 팝업).
-  --junit이 있으면 to-be에서 다른 화면은 빨간 띠, 패널에 무엇이 달랐는지.
+  상세  라우트를 누르면 넘어가는 페이지 (#<라우트>[/<상태>], 뒤로가기로 지도에 복귀): 큰 캡처와 이 화면 안의 상태 그래프(누르면 그 상태의 캡처·테스트) | 시작에서 오는 길, 나가는 길, 지나는 테스트(누르면 시나리오 팝업).
+  --junit이 있으면 to-be에서 다른 화면은 빨간 띠, 상세에 무엇이 달랐는지.
 
 같은 상태인지는 화면 구조(제목·입력칸·버튼)로 가리고 글자 내용(주문번호, 품목명)은 보지 않는다. 주소의 숫자 조각은 {id}로 합친다. 그 밖에는 기록된 산출물만 읽는다.
 """
@@ -309,10 +308,11 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .zoom button{border:0;background:var(--surface);color:var(--ink);font:600 14px var(--sans);padding:7px 13px;cursor:pointer}
 .zoom button+button{border-left:1px solid var(--line)}.zoom button:hover{background:var(--sunk)}
 
-/* 세 칸: 왼쪽 목록(접힘 가능) · 지도 · 상세(선택했을 때만) */
-.stage{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px;align-items:stretch;height:calc(100vh - 230px);min-height:560px;transition:grid-template-columns .2s}
-.stage.open{grid-template-columns:260px minmax(0,1fr) 460px}
-.stage.nol{grid-template-columns:48px minmax(0,1fr)}.stage.nol.open{grid-template-columns:48px minmax(0,1fr) 460px}
+[hidden]{display:none!important}
+/* 지도 화면: 왼쪽 목록(접힘 가능) · 지도. 화면을 누르면 상세 페이지로 넘어간다 */
+#overview{display:flex;flex-direction:column;gap:20px}
+.stage{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px;align-items:stretch;height:calc(100vh - 230px);min-height:560px}
+.stage.nol{grid-template-columns:48px minmax(0,1fr)}
 .pane{background:var(--surface);border:1px solid var(--line);border-radius:12px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .pane>h2{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:600;letter-spacing:.06em;color:var(--muted);padding:10px 10px 8px 14px;border-bottom:1px solid var(--line);margin:0}
 .ib{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:6px;width:26px;height:26px;cursor:pointer;font:600 14px var(--sans);display:grid;place-items:center;flex:none}
@@ -355,18 +355,20 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .node .tag{position:absolute;top:12px;left:10px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--accent);color:#fff;border-radius:4px;padding:1px 7px}
 .node.bad .tag{background:var(--bad)}
 
-/* 상세 패널 */
-.detail{display:block;overflow:auto;padding:0 18px 18px}
-.stage:not(.open) .pane.side{display:none}  /* 선택한 화면이 있을 때만 */
-.detail .dh{position:sticky;top:0;background:var(--surface);padding:14px 0 10px;border-bottom:1px solid var(--line);z-index:1;display:grid;grid-template-columns:1fr auto;gap:4px 10px}
-.detail h3{font-size:19px;font-weight:700;line-height:1.3;grid-column:1}
-.detail .dh .ib{grid-column:2;grid-row:1}
-.detail .sub{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font:12.5px var(--mono);color:var(--muted)}
-.detail .prev{margin-top:14px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;cursor:zoom-in;position:relative}
+/* 상세 페이지: 화면 하나. 지도로 돌아가는 링크, 큰 캡처 + 화면 안의 상태 그래프 | 오는 길·가는 길·테스트 */
+.detail{padding:0 0 30px}
+.detail .dh{display:flex;align-items:flex-start;gap:18px;padding:4px 0 16px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.detail .back{font-size:13.5px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:7px 13px;white-space:nowrap;background:var(--surface);margin-top:4px}
+.detail .back:hover{border-color:var(--accent);background:var(--accent-soft)}
+.detail h3{font-size:24px;font-weight:700;line-height:1.25;margin:0}
+.detail .sub{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font:13px var(--mono);color:var(--muted);margin-top:6px}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.9fr);gap:26px;align-items:start}
+.dgrid .col{display:flex;flex-direction:column;gap:20px;min-width:0}
+.detail .prev{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;cursor:zoom-in;position:relative}
 .detail .prev img{width:100%;display:block}
-.detail .prev .cap{position:absolute;left:8px;bottom:8px;font:600 12px var(--sans);background:rgba(15,20,19,.75);color:#fff;border-radius:5px;padding:2px 8px}
-.detail .empty{padding:40px 0;color:var(--faint);text-align:center}
-.sec{margin-top:16px}.sec h4{margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.06em;color:var(--muted);display:flex;justify-content:space-between}
+.detail .prev .cap{position:absolute;left:10px;bottom:10px;font:600 12.5px var(--sans);background:rgba(15,20,19,.75);color:#fff;border-radius:5px;padding:3px 9px}
+.detail .empty{padding:60px 0;color:var(--faint);text-align:center;border:1px dashed var(--line);border-radius:12px}
+.sec h4{margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.06em;color:var(--muted);display:flex;justify-content:space-between}
 .sec h4 span{font-weight:400;letter-spacing:0}
 /* 화면 안의 상태: 작은 그래프 */
 .mini{position:relative;overflow:auto;border:1px solid var(--line);border-radius:10px;background:radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/16px 16px, var(--bg)}
@@ -419,9 +421,9 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .lb{position:fixed;inset:0;background:rgba(15,20,19,.82);display:none;place-items:center;z-index:50;padding:24px;cursor:zoom-out}
 .lb.on{display:grid}.lb img{max-width:min(96vw,1280px);max-height:80vh;border-radius:8px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .lb .cap{color:#fff;margin-top:12px;font-size:14px;text-align:center}
-@media (max-width:1180px){.stage,.stage.open,.stage.nol,.stage.nol.open{grid-template-columns:220px minmax(0,1fr);height:auto}
- .stage.open .side{grid-column:1/-1;max-height:70vh}.canvas{height:60vh}}
-@media (max-width:760px){.stage,.stage.open,.stage.nol,.stage.nol.open{grid-template-columns:1fr}.pane.left{max-height:40vh}}
+@media (max-width:1180px){.stage,.stage.nol{grid-template-columns:220px minmax(0,1fr);height:auto}.canvas{height:60vh}}
+@media (max-width:1000px){.dgrid{grid-template-columns:1fr}}
+@media (max-width:760px){.stage,.stage.nol{grid-template-columns:1fr}.pane.left{max-height:40vh}.detail .dh{flex-direction:column;gap:10px}}
 """.replace("__CW__", str(CARD_W)).replace("__CH__", str(CARD_H)).replace("__TH__", str(THUMB_H)).replace("__MW__", "150").replace("__MH__", "116").replace("__MT__", "72")
 
 MAP_JS = r"""<script>
@@ -430,7 +432,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const shot = id => G.shots[id] || '';
 const routeName = rid => esc(G.routes[rid].name);
 const stateName = sid => { const n = G.nodes[sid]; const base = n.kind === 'base' ? (n.label || '기본') : `${G.kind_ko[n.kind]} · ${n.label}`; return esc(base) + (n.variant ? ` ${n.variant}` : ''); };
-const stage = document.getElementById('stage'), side = document.getElementById('side'), lb = document.getElementById('lb'), modal = document.getElementById('modal');
+const stage = document.getElementById('stage'), overview = document.getElementById('overview'), detail = document.getElementById('detail'), lb = document.getElementById('lb'), modal = document.getElementById('modal');
 const testByName = Object.fromEntries(G.tests.map(t => [t.name, t]));
 const redgeBetween = (a, b) => G.redges.find(e => e.src === a && e.dst === b);
 let current = null, currentState = null;
@@ -440,7 +442,7 @@ function openLb(src, cap){ if(!src) return; lb.querySelector('img').src = src; l
 lb.addEventListener('click', () => lb.classList.remove('on'));
 function closeModal(){ modal.classList.remove('on'); }
 modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
-addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else if(modal.classList.contains('on')) closeModal(); else closeSide(); });
+addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else if(modal.classList.contains('on')) closeModal(); else if(!detail.hidden) back(); });
 
 const routeRow = (rid, act, here) => `<a class="route ${here ? 'here' : ''}" ${here ? '' : `data-go="${rid}"`}><span class="act">${esc(act)}</span><span class="nm">${routeName(rid)}</span><span class="path">${esc(G.routes[rid].path)}</span></a>`;
 
@@ -472,7 +474,7 @@ function miniGraph(rid){
   const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs><marker id="marr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker><marker id="marrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--faint)"/></marker></defs>${paths}</svg>`;
   const cards = ids.map(s => { const n = G.nodes[s], [x, y] = pos[s];
     return `<button type="button" class="mnode ${n.failed && G.compared ? 'bad' : ''} ${s === currentState ? 'sel' : ''}" data-state="${s}" style="left:${x}px;top:${y}px" title="${stateName(s)}"><div class="th">${n.shot ? `<img src="${shot(n.shot)}" alt="">` : ''}</div><div class="lab"><b>${stateName(s)}</b><small>테스트 ${n.tests.length}${n.failed && G.compared ? ' · 다름' : ''}</small></div></button>`; }).join('');
-  return `<div class="mini" style="height:${Math.min(H, 420)}px"><div style="position:relative;width:${W}px;height:${H}px">${svg}${cards}</div></div>`;
+  return `<div class="mini" style="height:${Math.min(H, 520)}px"><div style="position:relative;width:${W}px;height:${H}px">${svg}${cards}</div></div>`;
 }
 
 function testRows(names, failedIn){
@@ -481,22 +483,21 @@ function testRows(names, failedIn){
     return `<button type="button" class="trow ${failedHere ? 'fail' : ''}" data-test="${esc(t)}"><span><b>${esc(test.title)}</b><small>${esc(t)}</small></span>${pill}<span class="chev">›</span></button>`; }).join('') + `</div>`;
 }
 
+/* 상세 페이지: 화면 하나를 통째로 본다. 주소는 #<라우트>[/<상태>] — 브라우저 뒤로가기로 지도에 돌아간다 */
 function show(rid, sid){
   const r = G.routes[rid]; if(!r) return;
   current = rid; currentState = sid && r.states.includes(sid) ? sid : null;
-  stage.classList.add('open'); fit();
-  document.querySelectorAll('.node').forEach(el => el.classList.toggle('sel', el.dataset.id === rid));
-  document.querySelectorAll('.row').forEach(el => el.classList.toggle('sel', el.dataset.id === rid));
-  document.querySelectorAll('.edge').forEach(el => el.classList.toggle('hot', el.dataset.src === rid || el.dataset.dst === rid));
+  overview.hidden = true; detail.hidden = false;
   const st = rstatus(r), path = G.paths[rid] || [rid], outs = G.redges.filter(e => e.src === rid);
   const focus = currentState ? G.nodes[currentState] : G.nodes[r.base];
   const kinds = Object.entries(r.kinds).map(([k, n]) => `<span class="kd ${k}">${G.kind_ko[k]} ${n}</span>`).join('');
-  let h = `<div class="dh"><h3>${routeName(rid)}</h3><button class="ib" id="closeSide" type="button" aria-label="닫기">×</button><div class="sub"><span>${esc(r.path)}</span>`
+  let h = `<div class="dh"><a class="back" href="#" data-back>← 지도</a><div><h3>${routeName(rid)}${currentState ? ` <span style="color:var(--muted);font-weight:500">› ${stateName(currentState)}</span>` : ''}</h3><div class="sub"><span>${esc(r.path)}</span>`
     + (st === 'bad' ? '<span class="pill bad">as-is와 다름</span>' : st === 'ok' ? '<span class="pill ok">as-is와 같음</span>' : '')
-    + `<span>테스트 ${r.tests.length}개</span><span>상태 ${r.states.length}</span>${kinds}</div></div>`;
+    + `<span>테스트 ${r.tests.length}개</span><span>상태 ${r.states.length}</span>${kinds}</div></div></div><div class="dgrid"><div class="col">`;
   h += focus.shot ? `<div class="prev" title="크게 보기" data-lb="${focus.shot}" data-cap="${stateName(focus.id)}"><img src="${shot(focus.shot)}" alt="${routeName(rid)} 화면"><span class="cap">${stateName(focus.id)}</span></div>` : `<div class="empty">캡처 없음</div>`;
   if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개 · 누르면 그 상태의 캡처와 테스트</span></h4>${miniGraph(rid)}</div>`;
   else h += `<div class="sec"><h4>이 화면 안의 상태</h4><div class="tid">기본 상태뿐 (팝업·드로워·탭 없음)</div></div>`;
+  h += `</div><div class="col">`;
   if(G.paths[rid]) h += `<div class="sec"><h4>시작에서 오는 길 <span>${path.length - 1}번 이동</span></h4><div class="routes">`
     + path.map((p, i) => { const e = i ? redgeBetween(path[i - 1], p) : null; return routeRow(p, i ? (e ? e.actions[0] : '…') : '시작', p === rid); }).join('') + `</div></div>`;
   else h += `<div class="sec"><h4>시작에서 오는 길</h4><div class="tid">시작 화면에서 이어지는 길이 기록에 없음 (테스트가 이 주소로 바로 들어감)</div></div>`;
@@ -506,21 +507,26 @@ function show(rid, sid){
   const names = (scope ? scope.tests : r.tests).slice().sort((a, b) => ((testByName[b].status === 'fail') - (testByName[a].status === 'fail')));
   const failedIn = t => (scope ? scope.visits : r.states.flatMap(s => G.nodes[s].visits)).some(v => v.test === t && v.failed);
   h += `<div class="sec"><h4>${scope ? `이 상태를 지나는 테스트` : `이 화면을 지나는 테스트`} <span>${names.length}개 · 누르면 시나리오</span></h4>${testRows(names, failedIn)}</div>`;
-  side.innerHTML = h;
-  side.scrollTop = 0;
-  side.querySelector('#closeSide').addEventListener('click', closeSide);
-  side.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', () => go(a.dataset.go)));
-  side.querySelectorAll('[data-lb]').forEach(a => a.addEventListener('click', () => openLb(shot(a.dataset.lb), a.dataset.cap || r.name)));
-  side.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, rid)));
-  side.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => { const keep = side.querySelector('.mini') ? side.querySelector('.mini').scrollLeft : 0; show(rid, b.dataset.state === currentState ? null : b.dataset.state); const m = side.querySelector('.mini'); if(m) m.scrollLeft = keep; }));
-  try { history.replaceState(null, '', '#' + rid + (currentState ? '/' + currentState : '')); } catch(e) {}
+  h += `</div></div>`;
+  detail.innerHTML = h;
+  detail.querySelector('[data-back]').addEventListener('click', e => { e.preventDefault(); back(); });
+  detail.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', () => go(a.dataset.go)));
+  detail.querySelectorAll('[data-lb]').forEach(a => a.addEventListener('click', () => openLb(shot(a.dataset.lb), a.dataset.cap || r.name)));
+  detail.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, rid)));
+  detail.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => go(rid, b.dataset.state === currentState ? null : b.dataset.state)));
+  scrollTo({top: 0});
 }
-function closeSide(){
-  stage.classList.remove('open'); current = null; currentState = null;
+function back(){ if(location.hash && location.hash !== '#') location.hash = ''; else showOverview(); }
+function showOverview(){
+  current = null; currentState = null;
+  detail.hidden = true; overview.hidden = false;
   document.querySelectorAll('.node.sel, .row.sel').forEach(el => el.classList.remove('sel'));
-  document.querySelectorAll('.edge.hot').forEach(el => el.classList.remove('hot'));
-  try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
   fit();
+}
+function route(){
+  const [h0, h1] = (location.hash || '').slice(1).split('/').map(x => { try { return decodeURIComponent(x); } catch(e) { return x; } });  // 라우트 id에 /가 있어 먼저 나누고 푼다
+  if(G.routes[h0]){ const keep = detail.querySelector('.mini') ? detail.querySelector('.mini').scrollLeft : 0; show(h0, h1 || null); const m = detail.querySelector('.mini'); if(m) m.scrollLeft = keep; }
+  else showOverview();
 }
 /* 시나리오 팝업: 필름스트립 + 단계 + (다르면) 무엇이 달랐는지 */
 function openTest(name, hereRid){
@@ -544,7 +550,7 @@ function openTest(name, hereRid){
   modal.querySelector('#closeModal').addEventListener('click', closeModal);
   modal.querySelectorAll('[data-lb]').forEach(b => b.addEventListener('click', () => openLb(shot(b.dataset.lb), b.dataset.cap)));
 }
-function go(rid, sid){ show(rid, sid); const el = document.querySelector(`.node[data-id="${rid}"]`); if(el) el.scrollIntoView({block: 'nearest', inline: 'center', behavior: 'smooth'}); }
+function go(rid, sid){ const h = encodeURIComponent(rid) + (sid ? '/' + encodeURIComponent(sid) : ''); if(location.hash === '#' + h) route(); else location.hash = h; }
 document.querySelectorAll('.node, .row').forEach(el => el.addEventListener('click', () => go(el.dataset.id)));
 document.querySelectorAll('.node').forEach(el => {
   el.addEventListener('mouseenter', () => document.querySelectorAll('.edge').forEach(e => e.classList.toggle('dim', e.dataset.src !== el.dataset.id && e.dataset.dst !== el.dataset.id)));
@@ -577,8 +583,8 @@ addEventListener('mousemove', e => { if(!drag) return; cv.scrollLeft = drag.l - 
 addEventListener('mouseup', () => { drag = null; cv.classList.remove('drag'); });
 cv.addEventListener('wheel', e => { if(!e.ctrlKey && !e.metaKey) return; e.preventDefault(); zoom(z - Math.sign(e.deltaY) * 0.1); }, {passive: false});
 fit(); addEventListener('resize', fit);
-const [h0, h1] = (location.hash || '').slice(1).split('/');
-if(G.routes[h0]) go(h0, h1);
+addEventListener('hashchange', route);
+route();
 </script>"""
 
 
@@ -647,7 +653,7 @@ def render(g: dict[str, Any]) -> str:
     failed = sum(r["failed"] for r in g["routes"].values())
     n_states = len(g["nodes"])
     if not g["compared"]:
-        stamp, lede = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}"), "골든에 기록된 as-is 동작을 화면(주소) 단위로 이은 지도입니다. 화면을 누르면 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 테스트가 나옵니다."
+        stamp, lede = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}"), "골든에 기록된 as-is 동작을 화면(주소) 단위로 이은 지도입니다. 화면을 누르면 상세 페이지로 넘어가 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 테스트를 봅니다."
     elif failed:
         stamp, lede = ("bad", f"다른 화면 {failed}", f"전체 {len(g['routes'])}개 중"), "빨간 화면에서 to-be가 as-is와 다르게 동작했습니다. 누르면 어느 상태에서 무엇이 달랐는지 나옵니다."
     else:
@@ -661,14 +667,14 @@ def render(g: dict[str, Any]) -> str:
             f"<h1>{html._e(g['app'])}</h1><p class='lede'>{lede}</p>"
             f"<div class='prov'><span><b>기준</b> golden/{html._e(g['app'])}</span>"
             + (f"<span><b>비교 대상</b> {html._e(g['target'])}</span>" if g["target"] else "")
-            + f"<span><b>테스트</b> {len(g['tests'])}개</span><span><b>상태</b> {n_states}개</span></div></header>{legend}"
+            + f"<span><b>테스트</b> {len(g['tests'])}개</span><span><b>상태</b> {n_states}개</span></div></header><div id='overview'>{legend}"
             f"<div class='toolbar'><input id='q' type='search' placeholder='화면 이름·주소·팝업 이름으로 찾기' aria-label='화면 찾기'>"
             f"<select id='f' aria-label='테스트로 거르기'><option value=''>모든 테스트</option>{opts}</select>"
             f"<span class='zoom'><button type='button' id='zo' aria-label='축소'>－</button><button type='button' id='zf'>맞춤</button><button type='button' id='zi' aria-label='확대'>＋</button></span></div>"
             f"<div class='stage' id='stage'><div class='pane left'><h2><span>화면 {len(g['routes'])}개</span><button class='ib' id='tl' type='button' aria-label='목록 접기'>‹</button></h2><div class='list'>{''.join(rows)}</div></div>"
             f"<div class='pane canvas' id='canvas'><div id='holder' style='position:relative;width:{w}px;height:{hgt}px'>"
             f"<div id='inner' data-w='{w}' data-h='{hgt}' style='position:absolute;left:0;top:0;width:{w}px;height:{hgt}px;transform-origin:0 0'>{svg}{''.join(cards)}</div></div></div>"
-            f"<aside class='pane side detail' id='side' aria-live='polite'></aside></div>"
+            f"</div></div><section class='detail' id='detail' aria-live='polite' hidden></section>"
             f"<div class='modal' id='modal' role='dialog' aria-label='시나리오 상세'><div class='box'></div></div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
     data = json.dumps(g, ensure_ascii=False).replace("</", "<\\/")

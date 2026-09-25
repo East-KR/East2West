@@ -42,7 +42,7 @@ uv run parity map golden/<app> --junit reports/junit-<app>.xml     # 화면 지�
 수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다):
 
 ```bash
-uv run parity ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 개요·실행 이력·승인 검토·화면 지도·검증 보고서, 지난 실행도 골라 본다
+uv run parity ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 화면 지도(첫 탭. 골든이 없으면 버튼 하나로 as-is 탐색·기록)·개요·실행 이력·승인 검토·검증 보고서, 지난 실행도 골라 본다
 uv run parity status golden/<app>     # 터미널용: 남은 실패, 종류, 지난 실행 대비 변화 (통과로 바뀜 / 새로 실패)
 uv run parity catalog golden/<app>    # 파일로 남길 때: 골든 관리 화면 한 장 (통합 화면의 개요 탭과 같음)
 ```

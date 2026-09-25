@@ -12,6 +12,7 @@ uv run parity ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
   /api/apps                         프로젝트별 등록 정보·승인 상태·실행 수·마지막 결과
   /api/app/<app>                    시나리오, 실행 이력(지난 실행 대비 변화 포함), 결함 주입 결과
   POST /api/app/<app>/approve       웹 승인 {by, code, fingerprint}. 사람이 터미널에서 띄운 서버만 코드를 만들고 그 터미널에 찍는다 (에이전트 서버는 403)
+  GET|POST /api/app/<app>/init      화면 지도 초기화: 골든이 없는 프로젝트를 as-is에서 탐색(crawl) → 시나리오 초안 → 기록. POST {depth}로 시작, GET으로 진행 (승인은 하지 않는다)
   POST /api/projects                프로젝트 추가 {name, asis:{src,url}, tobe:{src,url}, note}
   POST /api/projects/<app>          프로젝트 설정 변경 (같은 본문)
   POST /api/projects/<app>/delete   등록 해제 (산출물은 남긴다)
@@ -26,9 +27,13 @@ from __future__ import annotations
 import hmac
 import json
 import mimetypes
+import os
 import secrets
+import shutil
+import subprocess
 import sys
 import threading
+import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -50,6 +55,7 @@ class Hub:
         self._lock = threading.Lock()
         self.approval_code: str | None = None  # 웹 승인 일회용 코드. 사람이 터미널에서 띄웠을 때만 만들어지고 그 터미널에만 찍힌다
         self.attempts = 0
+        self.jobs: dict[str, dict[str, Any]] = {}  # 화면 지도 초기화 작업 (앱별 하나)
 
     # ---- 웹 승인 ----
     def new_code(self) -> str:
@@ -113,6 +119,95 @@ class Hub:
         self._check(name)
         projects.remove(name, path=self.projects_file)
         return {"ok": True, "app": name, "kept": [str(p) for p in (self.tests_root / name, self.golden_root / name, ledger.run_dir(name)) if p.exists()]}
+
+    # ---- 화면 지도 초기화: 골든이 없는 프로젝트를 as-is에서 탐색·기록해 지도가 그려지는 상태로 ----
+    def _has_golden(self, app: str) -> bool:
+        d = self.golden_root / app
+        return d.is_dir() and any(d.glob("*.json"))
+
+    def init_plan(self, app: str, depth: int = 3) -> list[dict[str, Any]]:
+        """초기화 단계 목록 (실행하지 않는다). 시나리오가 없으면 탐색 → 초안 옮기기 → 기록, 있으면 기록만. 승인은 여기 없다 — 사람이 한다."""
+        self._check(app)
+        if self._has_golden(app):
+            raise ValueError("골든이 이미 있어 지도를 그릴 수 있습니다. 다시 기록하려면 터미널에서 (골든은 사람 승인물이라 여기서 덮어쓰지 않습니다)")
+        spec = projects.load(self.projects_file).get(app) or {}
+        url = (spec.get("asis") or {}).get("url") or ""
+        if not url.startswith(("http://", "https://")):
+            raise ValueError("as-is 실행 주소가 없습니다. 프로젝트 설정에서 적으세요")
+        depth = max(1, min(int(depth or 3), 5))
+        out = Path("crawl") / app
+        steps: list[dict[str, Any]] = []
+        if not self._scenarios(app):
+            steps.append({"step": "crawl", "label": f"as-is 화면 탐색 (깊이 {depth}) → {out}",
+                          "cmd": [sys.executable, "-m", "parity.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]})
+            steps.append({"step": "tests", "label": f"시나리오 초안을 {self.tests_root / app}/ 로", "copy": [str(out / "test_crawl.py"), str(self.tests_root / app / "test_crawl.py")]})
+        else:
+            steps.append({"step": "crawl", "label": f"탐색 건너뜀 — {self.tests_root / app}/ 에 시나리오 {self._scenarios(app)}개", "skip": True})
+        steps.append({"step": "record", "label": f"as-is({url})에서 골든 기록 → {self.golden_root / app}",
+                      "cmd": [sys.executable, "-m", "pytest", str(self.tests_root / app), "--base-url", url, "--record", str(self.golden_root / app), "-q", "-p", "no:cacheprovider"]})
+        return steps
+
+    def init_status(self, app: str) -> dict[str, Any]:
+        job = self.jobs.get(app)
+        if not job:
+            return {"running": False}
+        return {k: v for k, v in job.items() if k != "log"} | {"log": job["log"][-80:]}
+
+    def init_project(self, app: str, depth: int = 3) -> dict[str, Any]:
+        """초기화를 백그라운드로 시작한다. 진행은 init_status로 본다."""
+        job = self.jobs.get(app)
+        if job and job["running"]:
+            raise ValueError("이미 실행 중입니다")
+        steps = self.init_plan(app, depth)
+        job = {"running": True, "ok": False, "error": "", "steps": [{"step": s["step"], "label": s["label"], "state": "skip" if s.get("skip") else "wait"} for s in steps],
+               "log": [], "started": time.strftime("%Y-%m-%d %H:%M:%S"), "finished": None}
+        self.jobs[app] = job
+
+        def log(line: str) -> None:
+            job["log"].append(line.rstrip("\n"))
+            del job["log"][:-400]
+
+        def run() -> None:
+            try:
+                for i, s in enumerate(steps):
+                    st = job["steps"][i]
+                    if s.get("skip"):
+                        continue
+                    st["state"] = "run"
+                    log(f"== {s['label']}")
+                    if "copy" in s:
+                        src, dst = (Path(p) for p in s["copy"])
+                        if not src.exists():
+                            raise RuntimeError(f"탐색이 시나리오 초안을 만들지 못했습니다: {src}")
+                        dst.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy(src, dst)
+                        log(f"{src} → {dst}")
+                    else:
+                        log("$ " + " ".join(s["cmd"]))
+                        proc = subprocess.Popen(s["cmd"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env={**os.environ, "PYTHONUNBUFFERED": "1"})
+                        for line in proc.stdout or []:
+                            log(line)
+                        if proc.wait() != 0:
+                            raise RuntimeError(f"{s['step']} 실패 (exit {proc.returncode})")
+                    st["state"] = "done"
+                if not self._has_golden(app):
+                    raise RuntimeError("기록이 끝났지만 골든 파일이 없습니다 (시나리오가 하나도 통과하지 못했는지 로그를 보세요)")
+                job["ok"] = True
+                log("== 끝. 화면 지도를 그립니다. 승인은 승인 검토 탭에서 (사람)")
+            except Exception as e:  # noqa: BLE001
+                job["error"] = str(e)
+                for st in job["steps"]:
+                    if st["state"] == "run":
+                        st["state"] = "fail"
+                log(f"!! {e}")
+            finally:
+                job["running"] = False
+                job["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
+                with self._lock:
+                    self._cache.clear()
+
+        threading.Thread(target=run, daemon=True).start()
+        return self.init_status(app)
 
     # ---- 산출물 읽기 ----
     def _sig(self, app: str) -> float:
@@ -248,6 +343,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(self.hub.apps())
             if parts == ["api", "fs"]:
                 return self._json(projects.listdir((q.get("path") or [None])[0]))
+            if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "init":
+                return self._json(self.hub.init_status(self.hub._check(parts[2])))
             if len(parts) == 3 and parts[:2] == ["api", "app"]:
                 return self._json(self.hub.app(parts[2]))
             if len(parts) == 3 and parts[0] == "page":
@@ -270,6 +367,8 @@ class Handler(BaseHTTPRequestHandler):
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "approve":
                 return self._json(self.hub.approve(parts[2], by=str(body.get("by", "")), code=str(body.get("code", "")),
                                                    fingerprint=str(body.get("fingerprint", "")), note=str(body.get("note", ""))))
+            if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "init":
+                return self._json(self.hub.init_project(parts[2], depth=int(body.get("depth") or 3)))
             if parts == ["api", "projects"]:
                 return self._json(self.hub.add_project(str(body.get("name", "")).strip(), body))
             if len(parts) == 3 and parts[:2] == ["api", "projects"]:
@@ -356,7 +455,24 @@ body.hub{display:flex;flex-direction:column;overflow:hidden}
 .notice{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:10px 14px;font-size:13.5px}
 .empty{color:var(--muted);padding:40px;text-align:center}
 .btn{font:inherit;font-size:13.5px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{filter:brightness(1.08)}.btn:disabled{opacity:.5;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{filter:brightness(1.08)}.btn:disabled{opacity:.5;cursor:default}.btn.sm{font-size:12.5px;padding:4px 10px}
+/* 화면 지도 초기화 */
+.init{max-width:820px;margin:0 auto;padding:0 24px;width:100%;box-sizing:border-box}
+.init .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px 28px;display:flex;flex-direction:column;gap:16px}
+.init h1{font-size:22px;font-weight:700;margin:0}.init .lede{margin:0;color:var(--muted);font-size:14px}
+.isteps{display:flex;flex-direction:column;gap:8px}
+.istep{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13.5px}
+.istep .no{width:24px;height:24px;border-radius:50%;background:var(--sunk);color:var(--muted);font:600 12px/24px var(--mono);text-align:center}
+.istep .st{font-size:12px;font-weight:600;color:var(--muted)}
+.istep.run{border-color:var(--accent);background:var(--accent-soft)}.istep.run .no{background:var(--accent);color:#fff}.istep.run .st{color:var(--accent)}
+.istep.done{border-color:var(--ok)}.istep.done .no{background:var(--ok);color:#fff}.istep.done .st{color:var(--ok)}
+.istep.fail{border-color:var(--bad)}.istep.fail .no{background:var(--bad);color:#fff}.istep.fail .st{color:var(--bad)}
+.istep.skip{opacity:.55}
+.irow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px}.irow label{font-weight:600;color:var(--muted);font-size:12.5px}
+.irow select{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+.init .err{color:var(--bad);font-size:13px;background:var(--bad-soft);border-radius:8px;padding:8px 12px}.init .err:empty{display:none}
+pre.log{margin:0;background:var(--sunk);border-radius:10px;padding:12px 14px;font:12px/1.5 var(--mono);max-height:340px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.proj .next .nx{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 /* 프로젝트 목록 */
 .plist{display:flex;flex-direction:column;gap:22px;max-width:1180px;margin:0 auto;padding:0 24px}
 .plist .bar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -402,11 +518,11 @@ body.hub{display:flex;flex-direction:column;overflow:hidden}
 HUB_JS = r"""
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const TABS = [['overview','개요'],['history','이력'],['review','승인 검토'],['map','화면 지도'],['report','검증 보고서']];
+const TABS = [['map','화면 지도'],['overview','개요'],['history','이력'],['review','승인 검토'],['report','검증 보고서']];
 const KIND = {golden_diff:'as-is와 다름', assert:'확인 값 실패', drift:'기대값 변경', error:'실행 못 함', same:'같음'};
-let apps = [], state = {app:null, tab:'overview', run:null}, data = null;
+let apps = [], state = {app:null, tab:'map', run:null}, data = null, initTimer = null;
 
-function parseHash(){ const [app, tab, run] = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent); return {app: app||null, tab: tab||'overview', run: run||null}; }
+function parseHash(){ const [app, tab, run] = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent); return {app: app||null, tab: tab||'map', run: run||null}; }
 function setHash(){ location.hash = [state.app, state.tab, state.run].filter(x => x).map(encodeURIComponent).join('/'); }
 function runLabel(r){ return `${r.finished.slice(5,16)} · ${r.target.replace(/^https?:\/\//,'')} · ${r.totals.fail ? r.totals.fail + ' 다름' : '모두 같음'}`; }
 async function api(path, body){
@@ -437,8 +553,8 @@ function projCard(a){
   const last = a.last ? `${a.last.totals.fail ? `<b style="color:var(--bad)">${a.last.totals.fail} 다름</b>` : '<b style="color:var(--ok)">모두 같음</b>'} <span>${esc(a.last.finished.slice(5,16))}</span>` : '<b>—</b>';
   let next = '';
   const asis = (a.asis||{}).url || '<as-is 주소>', tobe = (a.tobe||{}).url || '<to-be 주소>';
-  if (!a.scenarios) next = `<div class="next">다음: as-is 화면을 훑어 시나리오 초안 만들기<code>uv run parity crawl ${esc(asis)} --out crawl/${esc(a.app)}</code></div>`;
-  else if (!a.golden) next = `<div class="next">다음: as-is에서 골든 기록<code>uv run pytest e2e/${esc(a.app)} --base-url ${esc(asis)} --record golden/${esc(a.app)}</code></div>`;
+  if (!a.golden) next = `<div class="next"><div class="nx"><span>다음: 화면 지도 만들기 — as-is를 ${a.scenarios ? '기록' : '탐색해 시나리오 초안을 만들고 기록'}합니다</span><button class="btn primary sm" data-init>화면 지도 만들기</button></div>`
+    + `<code>${a.scenarios ? '' : `uv run parity crawl ${esc(asis)} --out crawl/${esc(a.app)}\n`}uv run pytest e2e/${esc(a.app)} --base-url ${esc(asis)} --record golden/${esc(a.app)}</code></div>`;
   else if (!a.ok) next = `<div class="next">다음: 승인 검토 탭에서 확인 후 승인 (터미널 코드 필요)</div>`;
   else if (!a.runs) next = `<div class="next">다음: to-be 비교<code>uv run pytest e2e/${esc(a.app)} --base-url ${esc(tobe)} --compare golden/${esc(a.app)} --junitxml reports/junit-${esc(a.app)}.xml</code></div>`;
   return `<div class="proj" data-app="${esc(a.app)}"><div class="hd"><b data-open>${esc(a.app)}</b>${pill}<span class="sp"></span>${a.registered ? '' : '<span class="pill warn" title="parity.json에 없음. golden/ 또는 e2e/ 에서 발견">미등록</span>'}</div>
@@ -456,7 +572,7 @@ function renderList(v){
   $('#add').onclick = () => openEditor(null);
   for (const card of v.querySelectorAll('.proj')){
     const name = card.dataset.app, a = apps.find(x => x.app === name);
-    for (const el of card.querySelectorAll('[data-open]')) el.onclick = () => { state.app = name; state.tab = 'overview'; state.run = null; setHash(); };
+    for (const el of card.querySelectorAll('[data-open], [data-init]')) el.onclick = () => { state.app = name; state.tab = 'map'; state.run = null; setHash(); };
     card.querySelector('[data-edit]').onclick = () => openEditor(a);
     const del = card.querySelector('[data-del]');
     if (del) del.onclick = () => { card.querySelector('.confirm').hidden = false; };
@@ -541,11 +657,49 @@ async function loadApp(){
 
 function render(){
   const v = $('#view');
+  clearTimeout(initTimer);
   if (!state.app){ renderList(v); return; }
+  if (state.tab === 'map' && !data.golden){ renderInit(v); return; }
   const q = state.run ? '?run=' + encodeURIComponent(state.run) : '';
   const page = {overview:'catalog', review:'review', map:'map', report:'report'}[state.tab];
   if (page){ v.innerHTML = `<iframe title="${state.tab}" src="/page/${encodeURIComponent(state.app)}/${page}${q}"></iframe>`; return; }
   renderHistory(v);
+}
+
+// ---- 화면 지도 초기화: 골든이 없으면 지도 대신 이 화면. 탐색 → 초안 → 기록을 서버가 순서대로 돌리고 로그를 보여준다 ----
+async function renderInit(v){
+  const p = data.project || {}, asis = (p.asis||{}).url || '';
+  let job = await api('/api/app/' + encodeURIComponent(state.app) + '/init');
+  const stepsHtml = steps => `<div class="isteps">${steps.map((s, i) => `<div class="istep ${s.state}"><span class="no">${i+1}</span><span>${esc(s.label)}</span><span class="st">${{wait:'대기', run:'실행 중…', done:'완료', fail:'실패', skip:'건너뜀'}[s.state]}</span></div>`).join('')}</div>`;
+  const plan = [
+    {state: data.scenarios ? 'skip' : 'wait', label: data.scenarios ? `탐색 건너뜀 — e2e/${state.app}/ 에 시나리오 ${data.scenarios}개` : `as-is 화면 탐색 (crawl) → crawl/${state.app}/`},
+    {state: data.scenarios ? 'skip' : 'wait', label: `시나리오 초안을 e2e/${state.app}/ 로`},
+    {state: 'wait', label: `as-is(${asis || '주소 없음'})에서 골든 기록 → golden/${state.app}/`}];
+  v.innerHTML = `<main class="init"><div class="card"><div class="eyebrow">화면 지도</div><h1>아직 화면 지도가 없습니다</h1>
+    <p class="lede">지도는 as-is에서 기록한 골든으로 그립니다. 아래 순서를 서버가 대신 돌립니다. 기록이 끝나면 지도가 바로 보이고, <b>승인</b>은 그 뒤 사람이 승인 검토 탭에서 합니다.</p>
+    <div id="isteps">${stepsHtml(job.steps || plan)}</div>
+    <div class="irow"><label>as-is 주소</label>${asis ? `<b class="mono">${esc(asis)}</b>` : `<span class="pill warn">없음 — 프로젝트 설정에서 적으세요</span> <button class="btn sm" id="goset">설정</button>`}
+      <label>탐색 깊이</label><select id="depth" ${data.scenarios ? 'disabled' : ''}><option value="2">2 (빠름)</option><option value="3" selected>3 (기본)</option><option value="4">4 (넓게)</option></select></div>
+    ${data.scenarios ? '' : '<div class="notice"><b>주의</b> 탐색은 저장·확정 버튼도 실제로 누릅니다. 테스트 DB·테스트 계정의 as-is에서만 돌리세요. 삭제·결제·발송 같은 버튼은 기본 금지 목록으로 누르지 않습니다.</div>'}
+    <div class="irow"><button class="btn primary" id="doinit" ${!asis || job.running ? 'disabled' : ''}>${job.running ? '실행 중…' : '화면 지도 만들기'}</button><span id="imsg" class="tid">${job.error ? '' : ''}</span></div>
+    <div id="ierr" class="err">${esc(job.error || '')}</div>
+    <pre class="log" id="ilog" ${(job.log||[]).length ? '' : 'hidden'}>${esc((job.log||[]).join('\n'))}</pre></div></main>`;
+  const goset = $('#goset'); if (goset) goset.onclick = () => openEditor(apps.find(a => a.app === state.app));
+  $('#doinit').onclick = async () => {
+    $('#ierr').textContent = ''; $('#doinit').disabled = true; $('#doinit').textContent = '실행 중…';
+    try { await api('/api/app/' + encodeURIComponent(state.app) + '/init', {depth: +$('#depth').value}); poll(); }
+    catch (e) { $('#ierr').textContent = e.message; $('#doinit').disabled = false; $('#doinit').textContent = '화면 지도 만들기'; }
+  };
+  async function poll(){
+    const j = await api('/api/app/' + encodeURIComponent(state.app) + '/init');
+    if (j.steps){ $('#isteps').innerHTML = stepsHtml(j.steps); }
+    const log = $('#ilog'); log.hidden = !(j.log||[]).length; log.textContent = (j.log||[]).join('\n'); log.scrollTop = log.scrollHeight;
+    $('#ierr').textContent = j.error || '';
+    if (j.running){ initTimer = setTimeout(poll, 2000); return; }
+    if (j.ok){ await loadApps(); await loadApp(); render(); return; }  // 골든이 생겼으니 지도를 그린다
+    $('#doinit').disabled = false; $('#doinit').textContent = '다시 시도';
+  }
+  if (job.running) poll();
 }
 
 function renderHistory(v){

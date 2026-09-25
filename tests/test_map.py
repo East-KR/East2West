@@ -54,3 +54,11 @@ def test_route_key_shared_with_mutation():
     from parity.pwtest.mutation import route_key
     assert route_key("/orders/9") == "/orders/{id}" == screen_map._route("http://x/orders/4")
     assert route_key("/") == "/" and route_key("/orders") == "/orders"
+
+
+@pytest.mark.skipif(not (GOLDEN / "portal").is_dir(), reason="portal 골든 없음")
+def test_map_has_detail_page():
+    """화면을 누르면 옆 패널이 아니라 상세 페이지(#<라우트>)로 넘어간다: 지도와 상세가 따로 있고, 옆 패널은 없다."""
+    page = screen_map.render(screen_map.build(GOLDEN / "portal", None, Path("e2e/portal")))
+    assert "id='overview'" in page and "id='detail'" in page and "hidden></section>" in page
+    assert "id='side'" not in page and "closeSide" not in page and "hashchange" in page
