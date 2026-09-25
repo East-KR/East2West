@@ -10,6 +10,7 @@ uv run parity ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
   /                                 통합 화면 (앱 목록, 탭, 실행 선택)
   /api/apps                         앱별 승인 상태·실행 수·마지막 결과
   /api/app/<app>                    시나리오, 실행 이력(지난 실행 대비 변화 포함), 결함 주입 결과
+  POST /api/app/<app>/approve       웹 승인 {by, code, fingerprint}. 사람이 터미널에서 띄운 서버만 코드를 만들고 그 터미널에 찍는다 (에이전트 서버는 403)
   /page/<app>/catalog|review        개요(골든 관리), 승인 검토
   /page/<app>/map?run=<시각>         화면 지도 (실행을 고르면 그 실행의 다른 화면을 빨갛게)
   /page/<app>/report?run=<시각>      검증 보고서 (그 실행의 JUnit + 현재 승인본의 결함 주입 결과)
@@ -17,8 +18,11 @@ uv run parity ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
 """
 from __future__ import annotations
 
+import hmac
 import json
 import mimetypes
+import secrets
+import sys
 import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -38,6 +42,31 @@ class Hub:
         self.tests_root = tests_root
         self._cache: dict[tuple, tuple[float, str]] = {}
         self._lock = threading.Lock()
+        self.approval_code: str | None = None  # 웹 승인 일회용 코드. 사람이 터미널에서 띄웠을 때만 만들어지고 그 터미널에만 찍힌다
+        self.attempts = 0
+
+    # ---- 웹 승인 ----
+    def new_code(self) -> str:
+        self.approval_code = "-".join(secrets.token_hex(2).upper() for _ in range(2))  # 예: 3F9A-C21B
+        self.attempts = 0
+        return self.approval_code
+
+    def approve(self, app: str, *, by: str, code: str, fingerprint: str, note: str = "") -> dict[str, Any]:
+        """검토 화면의 승인 폼. 코드는 터미널에 찍힌 것과 같아야 하고(5번 틀리면 잠김), 지문은 검토 화면을 만들 때의 기준과 같아야 한다."""
+        d = self._dir(app)
+        if not self.approval_code:
+            raise PermissionError("웹 승인이 꺼져 있습니다. 사람이 자기 터미널에서 `uv run parity ui`를 띄우면 터미널에 승인 코드가 찍힙니다. 또는 `uv run parity approve` (터미널)")
+        if self.attempts >= 5:
+            raise PermissionError("승인 코드를 5번 틀려 잠겼습니다. parity ui를 다시 띄우세요")
+        if not hmac.compare_digest((code or "").strip().upper(), self.approval_code):
+            self.attempts += 1
+            raise PermissionError(f"승인 코드가 다릅니다 (남은 시도 {5 - self.attempts})")
+        rec = oracle.approve_from_review(d, by, note, fingerprint)
+        self.new_code()
+        print(f"\n승인됨: {app} · {rec['approved_by']} · {rec['approved_at']}\n다음 승인 코드: {self.approval_code}")
+        with self._lock:
+            self._cache.clear()
+        return {"ok": True, "approved_by": rec["approved_by"], "approved_at": rec["approved_at"]}
 
     # ---- 산출물 읽기 ----
     def app_dirs(self) -> list[Path]:
@@ -114,7 +143,7 @@ class Hub:
         if kind == "catalog":
             page = catalog.render(catalog.build(d, tests_dir), embed=True)
         elif kind == "review":
-            page = review.render(review.build(d, tests_dir))
+            page = review.render(review.build(d, tests_dir), approve=self.approval_code is not None)
         elif kind == "map":
             page = screen_map.render(screen_map.build(d, junit, tests_dir))
         else:
@@ -176,6 +205,20 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(f"unknown: {e}".encode(), "text/plain; charset=utf-8", 404)
         return self._send(b"not found", "text/plain", 404)
 
+    def do_POST(self):  # noqa: N802
+        parts = [unquote(x) for x in urlsplit(self.path).path.strip("/").split("/") if x]
+        if len(parts) != 4 or parts[:2] != ["api", "app"] or parts[3] != "approve":
+            return self._send(b"not found", "text/plain", 404)
+        try:
+            body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0)) or 0) or b"{}")
+            res = self.hub.approve(parts[2], by=str(body.get("by", "")), code=str(body.get("code", "")),
+                                   fingerprint=str(body.get("fingerprint", "")), note=str(body.get("note", "")))
+            return self._json(res)
+        except PermissionError as e:
+            return self._send(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8", 403)
+        except (ValueError, KeyError) as e:
+            return self._send(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8", 409)
+
 
 def serve(golden_root: Path, *, port: int = 8790, tests_root: Path = Path("e2e"), open_browser: bool = True) -> None:
     hub = Hub(golden_root, tests_root)
@@ -185,6 +228,11 @@ def serve(golden_root: Path, *, port: int = 8790, tests_root: Path = Path("e2e")
     srv = ThreadingHTTPServer(("127.0.0.1", port), handler)
     url = f"http://127.0.0.1:{srv.server_address[1]}/"
     print(f"parity ui · {url}  (앱 {len(hub.app_dirs())}개: {', '.join(d.name for d in hub.app_dirs())}) — Ctrl+C로 종료")
+    # 웹 승인은 사람이 터미널에서 띄웠을 때만. 에이전트 도구는 터미널이 없으므로 코드가 만들어지지 않고, 승인 요청은 403이다
+    if sys.stdin.isatty() and sys.stdout.isatty():
+        print(f"승인 코드: {hub.new_code()}   (검토 화면에서 모든 시나리오를 확인한 뒤 이름과 함께 입력. 이 터미널에만 보인다)")
+    else:
+        print("웹 승인 꺼짐: 터미널에서 띄운 것이 아닙니다. 승인은 사람이 자기 터미널에서 `parity ui` 또는 `parity approve`로.")
     if open_browser:
         threading.Timer(0.4, lambda: webbrowser.open(url)).start()
     try:
@@ -371,6 +419,7 @@ async function route(){
   if (!location.hash && state.app) setHash();
 }
 $('#run').addEventListener('change', e => { state.run = e.target.value || null; setHash(); });
+window.addEventListener('message', e => { if (e.data && e.data.parity === 'approved') loadApps().then(route); });  // 검토 화면에서 승인되면 상태 점·카드 갱신
 window.addEventListener('hashchange', route);
 loadApps().then(route);
 """

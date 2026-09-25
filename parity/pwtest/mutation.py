@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 # -- 결함 후보 자리 -------------------------------------------------------------------
 OPS = {
@@ -120,8 +120,16 @@ def apply(text: str, op: str, site: int, kind: str) -> str:
 TEXTUAL = ("html", "javascript", "json", "text/plain")
 
 
+ID_SEG = re.compile(r"^(?:\d+|[0-9a-f]{8,}|[0-9a-fA-F-]{20,})$")
+
+
+def route_key(path: str) -> str:
+    """응답 경로 → 결함 자리의 열쇠. 숫자·해시 조각은 {id}: 주문 4번과 9번의 상세는 같은 화면이라 같은 결함이 들어가야 한다."""
+    return "/" + "/".join("{id}" if ID_SEG.match(seg) else seg for seg in path.split("/") if seg)
+
+
 class Capture:
-    """발견 실행: 경로별 첫 응답 본문과 테스트별 경로."""
+    """발견 실행: 경로(route_key)별 첫 응답 본문과 테스트별 경로."""
 
     def __init__(self) -> None:
         self.bodies: dict[str, dict[str, str]] = {}
@@ -145,11 +153,20 @@ def install(ctx, *, test: str, capture: Capture | None, mutant: dict[str, Any] |
         if req.resource_type not in ("document", "script", "xhr", "fetch"):
             return route.continue_()
         try:
-            # 리다이렉트는 여기서 따라간다: 브라우저가 따라가는 리다이렉트 뒤 요청은 route에 다시 걸리지 않는다 (저장 → 완료 화면)
-            resp = route.fetch()
+            # 리다이렉트는 브라우저가 따라가게 둔다 (max_redirects=0). 여기서 따라가 버리면 저장 → 완료 화면의 주소가 바뀌지 않아
+            # url 확인이 깨지고, 완료 화면 응답이 원래 주소로 잡힌다. 리다이렉트 뒤 요청은 새 내비게이션이라 route에 다시 걸린다
+            resp = route.fetch(max_redirects=0)
         except Exception:
             return route.continue_()
-        path = urlparse(resp.url).path  # 최종 응답 경로
+        if 300 <= resp.status < 400:
+            loc = resp.headers.get("location")
+            if req.resource_type == "document" and loc:
+                # 브라우저가 따라가는 리다이렉트는 route에 다시 걸리지 않아 완료 화면을 잡거나 결함을 넣을 수 없다.
+                # 대신 location.replace로 이동시키면 새 내비게이션이라 route를 다시 지난다 (주소·이력은 리다이렉트와 같다)
+                target = json.dumps(urljoin(resp.url, loc))
+                return route.fulfill(status=200, content_type="text/html; charset=utf-8", body=f"<script>location.replace({target})</script>")
+            return route.fulfill(response=resp)
+        path = route_key(urlparse(resp.url).path)
         target = mutant is not None and path == mutant["path"]
         if target and mutant["op"] == "http500" and req.resource_type == "document":
             _mark(mutant)

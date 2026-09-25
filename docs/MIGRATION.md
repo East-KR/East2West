@@ -47,7 +47,7 @@ uv run parity status golden/<app>                                               
 | 기대값을 틀리게 쓰거나, to-be에 맞춰 고침 | 기대값은 as-is에서 통과해야 기록되고, 기록 이후 바뀌면 `expectation changed since as-is recording`으로 실패 | `ui.py` `assertion_drift` |
 | 골든을 to-be에서 다시 기록 | 골든의 기록 URL과 비교 대상 URL이 같으면 거부 | `ui.py` |
 | 골든·마스킹 규칙·이름 매핑을 몰래 수정 | `golden/<app>/` 전체의 sha256을 사람이 승인 (`APPROVED.json`). 승인 후 바뀌면 비교 자체를 거부 | `oracle.py`, `plugin.py` |
-| 에이전트가 스스로 승인 | 승인은 터미널에서 디렉터리 이름을 직접 입력해야 한다. 에이전트 도구에는 터미널이 없다 | `parity approve` |
+| 에이전트가 스스로 승인 | 승인은 두 길뿐이고 둘 다 사람의 터미널이 필요하다. ① `parity approve`: 터미널에서 디렉터리 이름을 직접 입력. ② 통합 화면의 승인 버튼: 사람이 자기 터미널에서 띄운 `parity ui`만 승인 코드를 만들어 그 터미널에 찍고, 검토 화면에서 이름 + 코드를 넣어야 한다 (일회용, 5번 틀리면 잠김, 검토 중 기준이 바뀌면 거부). 에이전트 도구에는 터미널이 없어 코드를 못 보고, 에이전트가 띄운 서버는 코드 자체를 만들지 않는다. hook은 승인 주소 호출도 막는다 | `parity approve`, `hub.py`, `oracle.approve_from_review` |
 | 에이전트가 오라클 파일을 직접 편집 | Claude Code hook이 golden/ 쓰기와 승인 명령을 차단 | `.claude/settings.json`, `tools/guard_oracle.py` |
 | 마스킹 규칙이 진짜 값을 가림 | 규칙마다 실제로 가린 값을 승인 화면과 보고서에 표시 | `oracle.mask_audit` |
 | 아무것도 못 잡는 약한 테스트 | 결함 주입: as-is 응답을 바꿔 결함 하나씩 넣고 탐지율 측정. 생존 결함은 테스트 보강 또는 사람이 판정한 동등 결함 | `parity mutate` |
@@ -73,7 +73,10 @@ uv run parity ui            # http://127.0.0.1:8790 (골든 루트 golden/, 테�
 
 이력 탭: 승인·실행 수·마지막 결과·결함 탐지율 카드, 실행 목록(대상, 어느 승인본으로, 결과, 지난 실행 대비 +통과로/−새로 실패/계속 실패, 지도·보고서 버튼),
 시나리오 × 실행 격자(초록/빨강, 열을 누르면 그 실행 선택), 선택한 실행의 테스트별 상세(종류, 첫 오류 줄, 무엇이·as-is·to-be 표, 실패 순간 화면), 결함 탐지 측정 목록(현재 승인본인지).
-새로 판단하는 것은 없고 승인은 여전히 터미널에서만 한다. 서버는 127.0.0.1에만 열리고 `runs/`·골든 루트 밖의 파일은 주지 않는다.
+새로 판단하는 것은 없다. 서버는 127.0.0.1에만 열리고 `runs/`·골든 루트 밖의 파일은 주지 않는다.
+
+**웹 승인**: 사람이 자기 터미널에서 `parity ui`를 띄우면 터미널에 `승인 코드: 3F9A-C21B` 같은 일회용 코드가 찍힌다. 승인 검토 탭에서 모든 시나리오를 확인하면
+이름·코드 입력란이 나오고, 맞으면 `APPROVED.json`이 생기며 다음 코드가 터미널에 찍힌다. 터미널 없이 띄운 서버(에이전트가 백그라운드로 띄운 것)는 코드가 없어 승인 요청을 403으로 거부한다.
 
 ### 화면 네 장 (파일로도 남길 수 있다)
 
@@ -156,7 +159,29 @@ to-be 코드를 보는 목적은 조작 방법(`ui.py`)뿐이다. 기대값은 a
 
 데모(2026-09-25): `tobe-fixed`(8803) 비교 → 6개 중 3개 `golden_diff` → 원장 기록 → `tobe`(8802)로 재실행 → `parity status`: "통과 6 · 남은 실패 0 · 통과로 바뀜 3".
 
-## 데모 (`demo-app/legacy_app.py`, `e2e/legacy/`)
+## 데모 1: 포털 (`demo-app/portal_app.py`, `e2e/portal/`) — 메인 데모
+
+홈에서 시작해 라우트 6개(주문 목록·상세, 고객 목록·상세, 설정)로 갈라지고 화면 안에 팝업·드로워·탭·confirm·alert가 있는 업무 포털. 테스트 20개(crawl 초안 18 + 업무 값 2).
+as-is 버그 두 개: 부가세 10원 절사, 이미 취소된 주문을 다시 취소해도 막지 않음(이력에 취소가 두 번).
+
+```bash
+python demo-app/portal_app.py 8820 asis &          # as-is
+python demo-app/portal_app.py 8821 tobe &          # 버그까지 그대로 옮긴 to-be
+python demo-app/portal_app.py 8822 tobe-fixed &    # 버그 2개를 "고쳐버림"
+python demo-app/portal_app.py 8823 tobe-renamed &  # "신규 주문"→"주문 등록", "수량"→"주문 수량" + 부가세 반올림
+python demo-app/portal_app.py 8824 tobe-custom &   # 신규 주문 팝업의 품목이 커스텀 드롭다운 (React/MUI 방식)
+uv run pytest e2e/portal --base-url http://127.0.0.1:8820 --record golden/portal
+uv run parity approve golden/portal --by <이름>                                  # 사람
+uv run parity mutate e2e/portal --base-url http://127.0.0.1:8820 --compare golden/portal --max-per-op 100
+uv run pytest e2e/portal --base-url http://127.0.0.1:8822 --compare golden/portal --junitxml reports/junit-portal.xml
+uv run parity ui
+```
+
+__PORTAL_RESULTS__
+
+## 데모 2: 레거시 주문 (`demo-app/legacy_app.py`, `e2e/legacy/`) — frameset 특수 케이스
+
+주소가 항상 `/`인 frameset, table 레이아웃, title 속성 라벨, alert/confirm. 라우트 지도는 제목으로 가른 화면 2개뿐이지만, 옛날 방식의 as-is를 단일 페이지 to-be와 비교하는 본보기.
 
 ```bash
 python demo-app/legacy_app.py 8801 asis &          # frameset, table, title 속성 라벨, alert/confirm, 버그 2개 (부가세 10원 절사, 수량 0 허용)

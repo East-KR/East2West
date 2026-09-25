@@ -48,3 +48,9 @@ def test_reservation_map_starts_where_tests_enter():
     g = screen_map.build(GOLDEN / "reservation", tests_dir=Path("e2e/reservation"))
     assert g["start"] == "/login"
     assert "/reservations/{id}" in g["routes"]
+
+
+def test_route_key_shared_with_mutation():
+    from parity.pwtest.mutation import route_key
+    assert route_key("/orders/9") == "/orders/{id}" == screen_map._route("http://x/orders/4")
+    assert route_key("/") == "/" and route_key("/orders") == "/orders"

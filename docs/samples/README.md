@@ -15,7 +15,7 @@ HTML은 파일로 바로 열린다(서버 없음). 단계 번호는 [MIGRATION.m
 | 3 기록 | `pytest --record golden/<app>` | 골든: 단계별 화면·입력값·대화상자·캡처 | 도구 (비교 기준) | [golden/legacy/test_order_save.json](../../golden/legacy/test_order_save.json), [shots/](../../golden/legacy/shots/test_order_save/) |
 | | | 마스킹 규칙, 이름 매핑 | 사람이 편집 | [golden/legacy/oracle.json](../../golden/legacy/oracle.json), [name_map.tobe-renamed.json](../../golden/legacy/name_map.tobe-renamed.json) |
 | | | 승인 검토 화면 | **사람** | [review-sample.html](review-sample.html) |
-| 4 승인 | `parity approve` (터미널) | 승인 도장: 파일 해시 + 확인한 기대값 | 도구 (비교 전 대조) | [golden/legacy/APPROVED.json](../../golden/legacy/APPROVED.json) |
+| 4 승인 | `parity approve` (터미널) 또는 `parity ui` 승인 검토 탭(터미널에 찍힌 코드) | 승인 도장: 파일 해시 + 확인한 기대값. 웹 승인 화면 [ui-approve.png](ui-approve.png) | 도구 (비교 전 대조) | [golden/legacy/APPROVED.json](../../golden/legacy/APPROVED.json) |
 | | `parity oracle-status` | 승인 상태, 마스킹이 실제로 가린 값 | 사람 | [oracle-status.txt](oracle-status.txt) |
 | 5 결함 주입 | `parity mutate` | 탐지율 (연산자별, 테스트별, 생존 결함) | 보고서 입력 | [mutation-sample.json](mutation-sample.json) |
 | 6 to-be 비교 | `pytest --compare golden/<app>` | 터미널 출력: 다른 점 diff | 에이전트 | [compare-output.txt](compare-output.txt) |

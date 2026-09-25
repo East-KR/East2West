@@ -158,8 +158,8 @@ def main(argv: list[str] | None = None) -> int:
         counts = {k: sum(1 for e in crawler.edges if e.kind == k) for k in ("transition", "local", "external", "error", "denied")}
         print(f"\n== states {len(crawler.nodes)}, actions {counts} | {args.out / 'graph.md'} | {len(written)} scenarios")
         if written:
-            print(f"   uv run parity run {args.out}/crawl_*.yaml --cache-dir {cache_dir} --replay-only"
-                  + (f" --base-url {args.base_url}" if args.base_url else "") + (f" --storage-state {args.storage_state}" if args.storage_state else ""))
+            print(f"   uv run parity run {args.out}/crawl_*.yaml --cache-dir {cache_dir} --replay-only --base-url {crawler.origin}"
+                  + (f" --storage-state {args.storage_state}" if args.storage_state else "") + "   (goto는 상대 경로: to-be는 --base-url만 바꾼다)")
             print(f"   Playwright 테스트: {args.out / 'test_crawl.py'} (검토 후 e2e/<app>/로 옮기면 승인·결함 주입 흐름에 올라간다)")
         return 0
     if args.cmd == "approve":

@@ -27,6 +27,7 @@ from urllib.parse import urlparse
 
 from ..crawl import landmarks, signature
 from . import html, oracle
+from .mutation import route_key
 from .report import _junit
 
 STEP_DIFF = re.compile(r"step (\d+) ")
@@ -34,7 +35,6 @@ SNAP_LINE = re.compile(r'^(?P<indent>\s*)-\s+(?P<role>[a-z]+)\b')
 # 데이터에 따라 글자가 바뀌는 역할: "같은 화면" 판단에서는 역할만 남긴다 (주문번호·품목명이 달라도 같은 완료 화면)
 DATA_ROLES = {"text", "paragraph", "definition", "term", "strong", "emphasis", "code", "cell", "gridcell", "listitem", "status", "log", "time"}
 NUMBERY = re.compile(r"\S*\d\S*")
-ID_SEG = re.compile(r"^(?:\d+|[0-9a-f]{8,}|[0-9a-fA-F-]{20,})$")
 DIALOG = re.compile(r'^\s*-\s+(?:dialog|alertdialog)\s+"(?P<name>(?:\\.|[^"\\])*)"')
 DRAWER = re.compile(r'^\s*-\s+complementary\s+"(?P<name>(?:\\.|[^"\\])*)"')
 TAB_SEL = re.compile(r'^\s*-\s+tab\s+"(?P<name>(?:\\.|[^"\\])*)"\s+\[selected\]')
@@ -62,10 +62,8 @@ def _clean_text(s: str) -> str:
 
 
 def _route(url: str) -> str:
-    """주소 → 라우트. 숫자·해시 조각은 {id}. 쿼리는 뺀다."""
-    path = urlparse(url).path or "/"
-    segs = ["{id}" if ID_SEG.match(s) else s for s in path.split("/") if s]
-    return "/" + "/".join(segs)
+    """주소 → 라우트. 숫자·해시 조각은 {id}, 쿼리는 뺀다 (결함 주입과 같은 규칙: mutation.route_key)."""
+    return route_key(urlparse(url).path or "/")
 
 
 def _state(snapshot: str, base_tab: str = "") -> tuple[str, str, str]:

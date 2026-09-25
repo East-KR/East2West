@@ -39,7 +39,7 @@ def main() -> None:
         # 명령으로 실행하는 경우만 (명령 줄 맨 앞, 또는 ; && || | 뒤). 문서·코드 편집 안의 문구는 막지 않는다.
         # 파이썬에서 approve()를 직접 부르는 경로는 approve() 자신의 터미널(TTY) 검사가 막는다.
         if re.search(r"(^|[;&|]\s*|\n\s*)(uv\s+run\s+)?(parity|python3?\s+-m\s+parity\.cli)\s+approve\b", cmd) \
-                or re.search(r"\S*APPROVED\.json", cmd):
+                or re.search(r"\S*APPROVED\.json", cmd) or re.search(r"/approve\b", cmd):  # parity ui 의 웹 승인 주소도 부르지 않는다
             block("approving or touching APPROVED.json")
         rest = ALLOWED_FLAGS.sub("", cmd)
         if "golden/" in rest and WRITE_VERBS.search(rest):

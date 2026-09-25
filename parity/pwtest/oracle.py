@@ -102,6 +102,30 @@ def summary(d: Path) -> list[str]:
     return lines
 
 
+def fingerprint(d: Path) -> str:
+    """승인 대상 전체의 짧은 지문. 검토 화면이 만들어질 때와 승인 순간이 같은 기준인지 대조한다."""
+    return hashlib.sha256(json.dumps(sorted(oracle_files(d).items())).encode()).hexdigest()[:12]
+
+
+def stamp(d: Path, by: str, note: str, reviewed: dict[str, str]) -> dict[str, Any]:
+    """승인 도장: 검토한 파일 해시와 확인한 기대값을 APPROVED.json에 쓴다. 호출자가 '사람이 검토했다'를 보장한다 (approve, approve_from_review)."""
+    rec = {"approved_by": by, "approved_at": time.strftime("%Y-%m-%d %H:%M:%S"), "note": note,
+           "files": reviewed, "assertions": {t["name"]: t["assertions"] for t in tests(d)}}
+    (d / MANIFEST).write_text(json.dumps(rec, ensure_ascii=False, indent=1), encoding="utf-8")
+    return rec
+
+
+def approve_from_review(d: Path, by: str, note: str, reviewed_fingerprint: str) -> dict[str, Any]:
+    """웹 승인 (parity ui). 사람이 터미널에서 띄운 서버가 일회용 코드를 확인한 뒤에만 부른다.
+    검토 화면을 만들 때의 지문과 지금 지문이 다르면 (검토 중 기준이 바뀜) 승인하지 않는다."""
+    by = by.strip()
+    if not by:
+        raise ValueError("승인자 이름이 없습니다")
+    if fingerprint(d) != reviewed_fingerprint:
+        raise ValueError("검토하는 동안 기준 파일이 바뀌었습니다. 검토 화면을 새로 열어 바뀐 내용을 다시 보세요")
+    return stamp(d, by, note, oracle_files(d))
+
+
 def approve(d: Path, by: str, note: str = "", tests_dir: Path | None = None) -> None:
     if not sys.stdin.isatty():
         sys.exit("approve needs an interactive terminal: a person reviews and types the confirmation (agents cannot approve).")
@@ -122,7 +146,5 @@ def approve(d: Path, by: str, note: str = "", tests_dir: Path | None = None) -> 
         sys.exit("승인하지 않았습니다")
     if oracle_files(d) != reviewed:
         sys.exit("검토하는 동안 기준 파일이 바뀌었습니다. 승인하지 않았습니다. 다시 실행해서 바뀐 내용을 검토하세요.")
-    (d / MANIFEST).write_text(json.dumps({"approved_by": by, "approved_at": time.strftime("%Y-%m-%d %H:%M:%S"), "note": note,
-                                          "files": reviewed, "assertions": {t["name"]: t["assertions"] for t in ts}},
-                                         ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"승인됨: {by} · {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    rec = stamp(d, by, note, reviewed)
+    print(f"승인됨: {by} · {rec['approved_at']}")

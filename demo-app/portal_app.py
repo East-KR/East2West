@@ -1,7 +1,10 @@
 """화면 지도 데모: 홈에서 시작해 라우트 여러 개로 갈라지고, 화면 안에 팝업·드로워·탭이 있는 업무 포털. 표준 라이브러리만 사용.
 
-python demo-app/portal_app.py <port> asis     as-is (버그 포함)
-python demo-app/portal_app.py <port> tobe     as-is 버그 두 개를 "고쳐버린" to-be (비교에서 잡혀야 하는 것)
+python demo-app/portal_app.py <port> asis          as-is (버그 포함)
+python demo-app/portal_app.py <port> tobe          to-be. as-is 동작을 버그까지 그대로 옮김
+python demo-app/portal_app.py <port> tobe-fixed    as-is 버그 두 개를 "고쳐버린" to-be (비교에서 잡혀야 하는 것)
+python demo-app/portal_app.py <port> tobe-renamed  라벨 변경("신규 주문"→"주문 등록", "수량"→"주문 수량") + 부가세 반올림. 라벨 뒤에 숨은 동작 차이까지 도달하는지
+python demo-app/portal_app.py <port> tobe-custom   tobe와 같은 동작, 신규 주문 팝업의 품목만 커스텀 드롭다운 (div role=combobox + listbox, React/MUI 방식)
 
 라우트
   /                  홈 (요약 카드, 메뉴)
@@ -17,17 +20,29 @@ as-is 동작 (버그 포함)
 """
 from __future__ import annotations
 
+import copy
 import sys
+import threading
+import uuid
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 VARIANT = "asis"
 ITEMS = {"notebook": ("노트북", 1_250_000), "mouse": ("마우스", 33_000), "pen": ("볼펜", 1_225)}
-CUSTOMERS: list[dict] = [{"id": 1, "name": "김철수", "grade": "VIP", "memo": ""}, {"id": 2, "name": "이영희", "grade": "일반", "memo": "전화 선호"}]
-ORDERS: list[dict] = [{"id": 1, "customer": 1, "item": "notebook", "qty": 1, "status": "접수", "log": ["접수"]},
-                      {"id": 2, "customer": 2, "item": "pen", "qty": 4, "status": "배송중", "log": ["접수", "배송중"]},
-                      {"id": 3, "customer": 1, "item": "mouse", "qty": 2, "status": "취소", "log": ["접수", "취소"]}]
+# 세션(쿠키 psid)마다 SEED의 복사본 = 세션별 테스트 DB. 브라우저 컨텍스트가 새로 뜰 때마다 초기 데이터로 시작해서
+# 테스트 순서·병렬 실행·반복 실행에 상관없이 같은 결과가 나온다 (실제 프로젝트에서는 DB 스냅샷 복원이 이 역할)
+SEED = {"customers": [{"id": 1, "name": "김철수", "grade": "VIP", "memo": ""}, {"id": 2, "name": "이영희", "grade": "일반", "memo": "전화 선호"}],
+        "orders": [{"id": 1, "customer": 1, "item": "notebook", "qty": 1, "status": "접수", "log": ["접수"]},
+                   {"id": 2, "customer": 2, "item": "pen", "qty": 4, "status": "배송중", "log": ["접수", "배송중"]},
+                   {"id": 3, "customer": 1, "item": "mouse", "qty": 2, "status": "취소", "log": ["접수", "취소"]}]}
+SESSIONS: dict[str, dict] = {}
+_L = threading.local()
+
+
+def DB() -> dict:
+    return _L.db
+
 
 CSS = ("[hidden]{display:none!important}body{font-family:sans-serif;margin:0;color:#222}header{background:#20413c;color:#fff;padding:10px 20px;display:flex;gap:18px;align-items:center}"
        "header a{color:#fff}main{padding:18px 20px}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:5px 10px;text-align:left}"
@@ -42,7 +57,12 @@ JS = ("function openBox(id){document.getElementById(id).hidden=false}function cl
 
 
 def vat(supply: int) -> int:
-    return int(supply * 0.1 + 0.5) if VARIANT == "tobe" else int(supply * 0.1 // 10 * 10)  # to-be: 반올림, as-is: 10원 절사
+    return int(supply * 0.1 + 0.5) if VARIANT in ("tobe-fixed", "tobe-renamed") else int(supply * 0.1 // 10 * 10)  # 고친 변형: 반올림, as-is: 10원 절사
+
+
+def L(label: str) -> str:
+    """tobe-renamed 변형의 라벨. 나머지 변형은 as-is 라벨 그대로."""
+    return {"신규 주문": "주문 등록", "수량": "주문 수량"}.get(label, label) if VARIANT == "tobe-renamed" else label
 
 
 def page(title: str, body: str) -> bytes:
@@ -56,7 +76,7 @@ def won(n: int) -> str:
 
 
 def customer(cid: int) -> dict:
-    return next(c for c in CUSTOMERS if c["id"] == cid)
+    return next(c for c in DB()["customers"] if c["id"] == cid)
 
 
 def order_total(o: dict) -> tuple[int, int, int]:
@@ -66,29 +86,40 @@ def order_total(o: dict) -> tuple[int, int, int]:
 
 
 def home() -> bytes:
-    open_n = sum(o["status"] not in ("취소", "완료") for o in ORDERS)
+    open_n = sum(o["status"] not in ("취소", "완료") for o in DB()["orders"])
     return page("홈", "<h1>포털 홈</h1><div class='cards'>"
-                f"<div class='card'>주문<b>{len(ORDERS)}건</b></div><div class='card'>미처리 주문<b>{open_n}건</b></div><div class='card'>고객<b>{len(CUSTOMERS)}명</b></div></div>"
+                f"<div class='card'>주문<b>{len(DB()["orders"])}건</b></div><div class='card'>미처리 주문<b>{open_n}건</b></div><div class='card'>고객<b>{len(DB()["customers"])}명</b></div></div>"
                 "<h2>바로 가기</h2><ul><li><a href='/orders'>주문 목록 열기</a></li><li><a href='/customers'>고객 목록 열기</a></li><li><a href='/settings'>설정 열기</a></li></ul>")
 
 
 def orders_list(q: dict) -> bytes:
     status = (q.get("status") or [""])[0]
     cust = (q.get("customer") or [""])[0]
-    rows = [o for o in ORDERS if (not status or o["status"] == status) and (not cust or str(o["customer"]) == cust)]
+    rows = [o for o in DB()["orders"] if (not status or o["status"] == status) and (not cust or str(o["customer"]) == cust)]
     trs = "".join(f"<tr><td><a href='/orders/{o['id']}'>ORD-{o['id']} {ITEMS[o['item']][0]}</a></td><td>{customer(o['customer'])['name']}</td>"
                   f"<td>{o['qty']}</td><td>{won(order_total(o)[2])}</td><td>{o['status']}</td></tr>" for o in rows)
     opts = "".join(f"<option value='{s}' {'selected' if s == status else ''}>{s or '전체'}</option>" for s in ("", "접수", "배송중", "완료", "취소"))
-    cust_opts = "".join(f"<option value='{c['id']}'>{c['name']}</option>" for c in CUSTOMERS)
+    cust_opts = "".join(f"<option value='{c['id']}'>{c['name']}</option>" for c in DB()["customers"])
     item_opts = "".join(f"<option value='{k}'>{v[0]}</option>" for k, v in ITEMS.items())
-    body = (f"<h1>주문 목록</h1><div class='toolbar'><button type='button' onclick=\"openBox('filter')\">필터</button><button type='button' onclick=\"openBox('new')\">신규 주문</button></div>"
+    if VARIANT == "tobe-custom":
+        lis = "".join(f"<li role='option' data-v='{k}' aria-selected='{str(i == 0).lower()}'>{v[0]}</li>" for i, (k, v) in enumerate(ITEMS.items()))
+        item_field = (f"<div><span id='lbl-item'>품목</span> <div role='combobox' id='cb' tabindex='0' aria-labelledby='lbl-item' aria-expanded='false' aria-controls='lb'>노트북</div>"
+                      f"<ul role='listbox' id='lb' hidden>{lis}</ul><input type='hidden' name='item' value='notebook'></div>"
+                      "<script>var cb=document.getElementById('cb'),lb=document.getElementById('lb');"
+                      "cb.onclick=function(){lb.hidden=!lb.hidden;cb.setAttribute('aria-expanded',String(!lb.hidden));};"
+                      "lb.querySelectorAll('li').forEach(function(li){li.onclick=function(){cb.textContent=li.textContent;"
+                      "cb.parentElement.querySelector('input[name=item]').value=li.dataset.v;lb.querySelectorAll('li').forEach(function(x){x.setAttribute('aria-selected','false');});"
+                      "li.setAttribute('aria-selected','true');lb.hidden=true;cb.setAttribute('aria-expanded','false');};});</script>")
+    else:
+        item_field = f"<label>품목 <select name='item'>{item_opts}</select></label>"
+    body = (f"<h1>주문 목록</h1><div class='toolbar'><button type='button' onclick=\"openBox('filter')\">필터</button><button type='button' onclick=\"openBox('new')\">{L('신규 주문')}</button></div>"
             f"<p>{len(rows)}건" + (f" · 상태 {status}" if status else "") + (f" · 고객 {customer(int(cust))['name']}" if cust else "") + "</p>"
             f"<table><tr><th>주문</th><th>고객</th><th>수량</th><th>합계</th><th>상태</th></tr>{trs}</table>"
             f"<aside id='filter' aria-label='필터' hidden><h2>필터</h2><form method='get' action='/orders'><label>상태 <select name='status'>{opts}</select></label>"
             "<button type='submit'>적용</button> <button type='button' onclick=\"closeBox('filter')\">닫기</button></form></aside>"
-            f"<div id='new' role='dialog' aria-label='신규 주문' hidden><div><h2>신규 주문</h2><form method='post' action='/orders'>"
-            f"<label>고객 <select name='customer'>{cust_opts}</select></label><label>품목 <select name='item'>{item_opts}</select></label>"
-            "<label>수량 <input name='qty' value='1'></label><button type='submit'>저장</button> <button type='button' onclick=\"closeBox('new')\">닫기</button></form></div></div>")
+            f"<div id='new' role='dialog' aria-label='{L('신규 주문')}' hidden><div><h2>{L('신규 주문')}</h2><form method='post' action='/orders'>"
+            f"<label>고객 <select name='customer'>{cust_opts}</select></label>{item_field}"
+            f"<label>{L('수량')} <input name='qty' value='1'></label><button type='submit'>저장</button> <button type='button' onclick=\"closeBox('new')\">닫기</button></form></div></div>")
     return page("주문 목록", body)
 
 
@@ -108,7 +139,7 @@ def order_detail(o: dict) -> bytes:
 
 
 def customers_list() -> bytes:
-    trs = "".join(f"<tr><td><a href='/customers/{c['id']}'>{c['name']}</a></td><td>{c['grade']}</td><td>{sum(o['customer'] == c['id'] for o in ORDERS)}</td></tr>" for c in CUSTOMERS)
+    trs = "".join(f"<tr><td><a href='/customers/{c['id']}'>{c['name']}</a></td><td>{c['grade']}</td><td>{sum(o['customer'] == c['id'] for o in DB()["orders"])}</td></tr>" for c in DB()["customers"])
     body = ("<h1>고객 목록</h1><div class='toolbar'><button type='button' onclick=\"openBox('reg')\">고객 등록</button></div>"
             f"<table><tr><th>이름</th><th>등급</th><th>주문 수</th></tr>{trs}</table>"
             "<div id='reg' role='dialog' aria-label='고객 등록' hidden><div><h2>고객 등록</h2><form method='post' action='/customers'>"
@@ -138,16 +169,35 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *_):
         pass
 
+    def _begin(self) -> None:
+        """쿠키의 세션을 찾거나 새로 만든다. 새 세션이면 응답에 Set-Cookie."""
+        cookies = dict(kv.strip().split("=", 1) for kv in self.headers.get("Cookie", "").split(";") if "=" in kv)
+        sid = cookies.get("psid")
+        _L.new_sid = None
+        if not sid or sid not in SESSIONS:
+            sid = uuid.uuid4().hex
+            if len(SESSIONS) > 500:
+                SESSIONS.pop(next(iter(SESSIONS)))
+            SESSIONS[sid] = copy.deepcopy(SEED)
+            _L.new_sid = sid
+        _L.db = SESSIONS[sid]
+
+    def _cookie(self) -> None:
+        if _L.new_sid:
+            self.send_header("Set-Cookie", f"psid={_L.new_sid}; Path=/")
+
     def _send(self, body: bytes, status=HTTPStatus.OK) -> None:
         self.send_response(status)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        self._cookie()
         self.end_headers()
         self.wfile.write(body)
 
     def _redirect(self, to: str) -> None:
         self.send_response(HTTPStatus.SEE_OTHER)
         self.send_header("Location", to)
+        self._cookie()
         self.end_headers()
 
     def _form(self) -> dict[str, str]:
@@ -155,6 +205,7 @@ class Handler(BaseHTTPRequestHandler):
         return {k: v[0] for k, v in parse_qs(raw, keep_blank_values=True).items()}
 
     def do_GET(self):
+        self._begin()
         u = urlparse(self.path)
         parts = [p for p in u.path.split("/") if p]
         if not parts:
@@ -162,36 +213,37 @@ class Handler(BaseHTTPRequestHandler):
         if parts == ["orders"]:
             return self._send(orders_list(parse_qs(u.query)))
         if parts[0] == "orders" and len(parts) == 2 and parts[1].isdigit():
-            o = next((x for x in ORDERS if x["id"] == int(parts[1])), None)
+            o = next((x for x in DB()["orders"] if x["id"] == int(parts[1])), None)
             return self._send(order_detail(o)) if o else self._send(page("없음", "<h1>주문이 없습니다</h1>"), HTTPStatus.NOT_FOUND)
         if parts == ["customers"]:
             return self._send(customers_list())
         if parts[0] == "customers" and len(parts) == 2 and parts[1].isdigit():
-            c = next((x for x in CUSTOMERS if x["id"] == int(parts[1])), None)
+            c = next((x for x in DB()["customers"] if x["id"] == int(parts[1])), None)
             return self._send(customer_detail(c)) if c else self._send(page("없음", "<h1>고객이 없습니다</h1>"), HTTPStatus.NOT_FOUND)
         if parts == ["settings"]:
             return self._send(settings())
         self._send(page("없음", "<h1>페이지가 없습니다</h1>"), HTTPStatus.NOT_FOUND)
 
     def do_POST(self):
+        self._begin()
         u = urlparse(self.path)
         parts = [p for p in u.path.split("/") if p]
         f = self._form()
         if parts == ["orders"]:
             qty = int(f.get("qty") or 0)
-            o = {"id": max(x["id"] for x in ORDERS) + 1, "customer": int(f.get("customer") or 1), "item": f.get("item") or "pen", "qty": qty, "status": "접수", "log": ["접수"]}
-            ORDERS.append(o)
+            o = {"id": max(x["id"] for x in DB()["orders"]) + 1, "customer": int(f.get("customer") or 1), "item": f.get("item") or "pen", "qty": qty, "status": "접수", "log": ["접수"]}
+            DB()["orders"].append(o)
             return self._redirect(f"/orders/{o['id']}")
         if parts[0] == "orders" and len(parts) == 3 and parts[2] == "cancel":
-            o = next(x for x in ORDERS if x["id"] == int(parts[1]))
-            if VARIANT == "tobe" and o["status"] == "취소":
+            o = next(x for x in DB()["orders"] if x["id"] == int(parts[1]))
+            if VARIANT == "tobe-fixed" and o["status"] == "취소":
                 return self._send(page("주문 상세", f"<script>alert('이미 취소된 주문입니다.');location.href='/orders/{o['id']}'</script>"))
             o["status"] = "취소"
             o["log"].append("취소")  # as-is: 중복 취소도 이력에 쌓인다
             return self._redirect(f"/orders/{o['id']}")
         if parts == ["customers"]:
-            c = {"id": max(x["id"] for x in CUSTOMERS) + 1, "name": f.get("name") or "(이름 없음)", "grade": f.get("grade") or "일반", "memo": ""}
-            CUSTOMERS.append(c)
+            c = {"id": max(x["id"] for x in DB()["customers"]) + 1, "name": f.get("name") or "(이름 없음)", "grade": f.get("grade") or "일반", "memo": ""}
+            DB()["customers"].append(c)
             return self._redirect(f"/customers/{c['id']}")
         if parts[0] == "customers" and len(parts) == 3 and parts[2] == "memo":
             c = customer(int(parts[1]))
@@ -203,5 +255,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8820
     VARIANT = sys.argv[2] if len(sys.argv) > 2 else "asis"
+    assert VARIANT in ("asis", "tobe", "tobe-fixed", "tobe-renamed", "tobe-custom"), VARIANT
     print(f"portal demo ({VARIANT}) on http://127.0.0.1:{port}/")
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()

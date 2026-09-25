@@ -184,8 +184,11 @@ class Crawler:
     def __init__(self, start: str, *, base_url: str | None = None, inputs: dict[str, Any] | None = None, deny: str = DEFAULT_DENY,
                  max_depth: int = 3, max_states: int = 30, max_actions: int = 40, group_min: int = 3, settle_ms: int = 400,
                  action_timeout_ms: int = 3000, storage_state: Path | None = None, headed: bool = False):
-        self.start = start  # 시나리오 goto에 그대로 쓴다 (상대 경로면 --base-url로 as-is/to-be 전환)
         self.start_url = start if urlparse(start).scheme else urljoin((base_url or "").rstrip("/") + "/", start.lstrip("/"))
+        # 시나리오·테스트의 goto는 항상 상대 경로: 절대 주소를 박아 두면 to-be 비교가 조용히 as-is를 치게 된다. 실행 때 --base-url로 as-is/to-be를 고른다
+        u = urlparse(self.start_url)
+        self.start = (u.path or "/") + (f"?{u.query}" if u.query else "")
+        self.origin = f"{u.scheme}://{u.netloc}"
         if not urlparse(self.start_url).scheme:
             raise ValueError(f"relative start {start!r} needs --base-url or PARITY_BASE_URL")
         self.inputs = inputs or {}

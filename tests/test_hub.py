@@ -69,6 +69,35 @@ def test_hub_api_and_pages(runs):
 
 
 @pytest.mark.skipif(not (GOLDEN / "legacy").is_dir(), reason="golden/legacy 없음")
+def test_web_approval_rules(tmp_path, runs):
+    """웹 승인: 코드가 없으면(에이전트가 띄운 서버) 거부, 코드가 틀리면 거부, 지문이 다르면 거부, 맞으면 APPROVED.json이 생긴다."""
+    from parity.pwtest import oracle
+    root = tmp_path / "g"
+    shutil.copytree(GOLDEN / "legacy", root / "legacy")
+    (root / "legacy" / oracle.MANIFEST).unlink()
+    h = hub.Hub(root, Path("e2e"))
+    fp = oracle.fingerprint(root / "legacy")
+    with pytest.raises(PermissionError):
+        h.approve("legacy", by="east", code="X", fingerprint=fp)  # 터미널 없이 띄운 서버: 코드 없음
+    code = h.new_code()
+    page = h.page("legacy", "review")
+    assert code not in page and 'name="code"' in page  # 코드는 터미널에만, 화면에는 입력란만
+    with pytest.raises(PermissionError):
+        h.approve("legacy", by="east", code="0000-0000", fingerprint=fp)
+    with pytest.raises(ValueError):
+        h.approve("legacy", by="east", code=code, fingerprint="stale")
+    with pytest.raises(ValueError):
+        h.approve("legacy", by="  ", code=code, fingerprint=fp)
+    res = h.approve("legacy", by="east", code=code, fingerprint=fp)
+    assert res["ok"] and oracle.status(root / "legacy")["ok"] and h.approval_code != code  # 코드는 일회용
+    for _ in range(5):
+        with pytest.raises(PermissionError):
+            h.approve("legacy", by="east", code="bad", fingerprint=fp)
+    with pytest.raises(PermissionError, match="잠겼"):
+        h.approve("legacy", by="east", code=h.approval_code, fingerprint=fp)
+
+
+@pytest.mark.skipif(not (GOLDEN / "legacy").is_dir(), reason="golden/legacy 없음")
 def test_hub_http(runs):
     handler = type("H", (hub.Handler,), {"hub": hub.Hub(GOLDEN, Path("e2e"))})
     srv = ThreadingHTTPServer(("127.0.0.1", 0), handler)
@@ -84,6 +113,12 @@ def test_hub_http(runs):
             urlopen(base + "/page/legacy/nope")
         with pytest.raises(Exception):
             urlopen(base + "/file?p=.env")
+        from urllib.request import Request
+        from urllib.error import HTTPError
+        req = Request(base + "/api/app/legacy/approve", data=json.dumps({"by": "x", "code": "x", "fingerprint": "x"}).encode(), headers={"Content-Type": "application/json"}, method="POST")
+        with pytest.raises(HTTPError) as ex:
+            urlopen(req)
+        assert ex.value.code == 403  # 터미널 없이 띄운 서버는 웹 승인 거부
     finally:
         srv.shutdown()
         srv.server_close()

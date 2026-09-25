@@ -80,7 +80,7 @@ uv run pytest e2e/<app> --base-url <as-is>                  # second green run: 
 uv run pytest e2e/<app> --base-url <as-is> --record golden/<app>
 ```
 
-Then stop for approval: tell the user to run `uv run parity approve golden/<app> --by <name>` in their own terminal; recording already wrote the review page `reports/review-<app>.html` (per test: each step's screenshot, action, what appeared, dialogs, checked values) — give the user that path so they review before approving; `approve` opens it again. Mask rules, name maps and equivalent-mutant entries are proposals you write in your message; the user puts them in `golden/<app>/`.
+Then stop for approval: tell the user to run `uv run parity approve golden/<app> --by <name>` in their own terminal, or to start `uv run parity ui` in their own terminal and approve in the 승인 검토 tab with the code printed there (a server you start has no terminal, so it prints no code and refuses approval); recording already wrote the review page `reports/review-<app>.html` (per test: each step's screenshot, action, what appeared, dialogs, checked values) — give the user that path so they review before approving; `approve` opens it again. Mask rules, name maps and equivalent-mutant entries are proposals you write in your message; the user puts them in `golden/<app>/`.
 
 Next, prove the tests catch defects:
 

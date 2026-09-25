@@ -6,11 +6,14 @@ Jev도 텍스트 생성 LLM도 부르지 않는다. 시나리오와 함께 재�
 ```bash
 uv run parity crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --dry-run   # 누르기 전에 확인
 uv run parity crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --depth 4
-uv run parity run crawl/demo/crawl_*.yaml --cache-dir crawl/demo/cache --replay-only
+uv run parity run crawl/demo/crawl_*.yaml --cache-dir crawl/demo/cache --replay-only --base-url http://127.0.0.1:8787
 ```
 
 산출물 (`--out`): `graph.md` (mermaid 흐름도, 동작 표, 픽스처가 없는 입력칸), `graph.json`, `screens/n<id>.png`, `crawl_NN.yaml`, `cache/`,
 `test_crawl.py` (같은 경로의 Playwright 테스트).
+
+시나리오와 테스트의 `goto`는 시작 주소를 절대 주소로 줬더라도 **상대 경로**(`/login`)로 적힌다. 실행 때 `--base-url`로 as-is/to-be를 고르기 위해서다.
+절대 주소가 박혀 있으면 to-be 비교가 조용히 as-is를 치게 된다 (2026-09-25 포털 데모에서 실제로 생긴 일: 20개 전부 "통과"로 나와서 잡혔다).
 
 ## 어디에 쓰나
 
