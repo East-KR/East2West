@@ -36,7 +36,7 @@ uv run parity approve golden/<app> --by <이름>                        # 사람
 uv run parity mutate e2e/<app> --base-url $ASIS --compare golden/<app>   # 테스트가 결함을 잡는지 측정
 uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
 uv run parity report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
-uv run parity map golden/<app> --junit reports/junit-<app>.xml     # 화면 지도: 화면 네트워크 + 대표 캡처, 다른 화면은 빨갛게
+uv run parity map golden/<app> --junit reports/junit-<app>.xml     # 화면 지도: 라우트 네트워크(홈부터) + 라우트 안의 팝업·드로워·탭 그래프, 다른 화면은 빨갛게
 ```
 
 수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다):
@@ -75,7 +75,7 @@ parity/            패키지. pwtest/ (Playwright 검증), runner.py·snapshot.p
 e2e/<app>/         Playwright 테스트            golden/<app>/   승인된 오라클 (골든, 스크린샷, 규칙, APPROVED.json)
 runs/<app>/        to-be 비교 실행 원장 (실행마다 JSON + JUnit·스크린샷 사본, mutations/ 결함 주입 결과) → parity ui / status / catalog
 scenarios/         YAML 시나리오 (스모크, 데모)  examples/       YAML 전환 예제, 비교 실험 코드, crawl 픽스처
-demo-app/          데모 서버 (예약, 레거시 주문 as-is/to-be 변형, ERP 화면 12개)
+demo-app/          데모 서버 (예약, 레거시 주문 as-is/to-be 변형, ERP 화면 12개, 포털: 라우트 6개 + 팝업·드로워·탭 — 화면 지도 데모)
 tools/             explore.py (요소 이름 탐색), guard_oracle.py (Claude Code hook: golden/ 편집·승인 차단)
 .claude/skills/    e2e-tests, smoke
 ```

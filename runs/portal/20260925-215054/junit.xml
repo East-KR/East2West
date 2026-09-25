@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="2" failures="2" skipped="0" tests="22" time="58.039" timestamp="2026-09-25T21:49:56.412906+09:00" hostname="85348.local"><properties><property name="base_url" value="http://127.0.0.1:8821" /><property name="oracle_approved" value="false" /><property name="oracle_approved_by" value="" /><property name="oracle_approved_at" value="" /></properties><testcase classname="e2e.portal.test_portal" name="test_portal_01" time="1.864" /><testcase classname="e2e.portal.test_portal" name="test_portal_02" time="2.213" /><testcase classname="e2e.portal.test_portal" name="test_portal_03" time="2.190" /><testcase classname="e2e.portal.test_portal" name="test_portal_04" time="2.715" /><testcase classname="e2e.portal.test_portal" name="test_portal_05" time="2.754" /><testcase classname="e2e.portal.test_portal" name="test_portal_06" time="3.248" /><testcase classname="e2e.portal.test_portal" name="test_portal_07" time="2.204" /><testcase classname="e2e.portal.test_portal" name="test_portal_08" time="2.224" /><testcase classname="e2e.portal.test_portal" name="test_portal_09" time="2.704" /><testcase classname="e2e.portal.test_portal" name="test_portal_10" time="2.802" /><testcase classname="e2e.portal.test_portal" name="test_portal_11" time="2.183" /><testcase classname="e2e.portal.test_portal" name="test_portal_12" time="3.788" /><testcase classname="e2e.portal.test_portal" name="test_portal_13" time="3.783" /><testcase classname="e2e.portal.test_portal" name="test_portal_14" time="2.727" /><testcase classname="e2e.portal.test_portal" name="test_portal_15" time="2.789" /><testcase classname="e2e.portal.test_portal" name="test_portal_16" time="2.807" /><testcase classname="e2e.portal.test_portal" name="test_portal_17" time="2.177" /><testcase classname="e2e.portal.test_portal" name="test_portal_18" time="2.716" /><testcase classname="e2e.portal.test_portal" name="test_portal_vat_truncation" time="8.370"><failure message="AssertionError: text '360원' visible: got None">ui = &lt;parity.pwtest.ui.UI object at 0x10bb6a330&gt;
+
+    def test_portal_vat_truncation(ui):
+        """신규 주문 팝업에서 볼펜 3개 저장 → 상세의 부가세는 10원 절사 (as-is 동작 보존: 3,675원의 10%는 367.5원 → 360원)"""
+        ui.goto('/orders')
+        ui.act('button', '신규 주문')
+        ui.select('고객', '김철수')
+        ui.select('품목', '볼펜')
+        ui.fill('수량', '3')
+        ui.act('button', '저장')
+        ui.expect_url_contains('/orders/')
+        ui.expect_text('공급가액')
+        ui.expect_text('3,675원')
+&gt;       ui.expect_text('360원')
+
+e2e/portal/test_portal.py:311: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+parity/pwtest/ui.py:237: in expect_text
+    self._poll(lambda: (any(f.get_by_text(text).locator("visible=true").count() for f in self.frames()), None), f"text {text!r} visible")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;parity.pwtest.ui.UI object at 0x10bb6a330&gt;
+check = &lt;function UI.expect_text.&lt;locals&gt;.&lt;lambda&gt; at 0x10bceb4c0&gt;
+what = "text '360원' visible"
+
+    def _poll(self, check, what: str) -&gt; None:
+        deadline = time.monotonic() + self.timeout_ms / 1000
+        last = None
+        while time.monotonic() &lt; deadline:
+            ok, last = check()
+            if ok:
+                return
+            self.page.wait_for_timeout(200)
+&gt;       raise AssertionError(f"{what}: got {last!r}")
+E       AssertionError: text '360원' visible: got None
+
+parity/pwtest/ui.py:193: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_vat_truncation" time="0.017"><error message="failed on teardown with &quot;Failed: step 5 button &quot;저장&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -19,5 +19,5 @@&#10;     text: 부가세&#10;    -text: 360원&#10;    +text: 368원&#10;     text: 합계&#10;    -text: 4,035원&#10;    +text: 4,043원&#10;     button &quot;주문 취소&quot;&quot;">step 5 button "저장": differs from golden
+    --- as-is(golden)
+    +++ actual
+    @@ -19,5 +19,5 @@
+     text: 부가세
+    -text: 360원
+    +text: 368원
+     text: 합계
+    -text: 4,035원
+    +text: 4,043원
+     button "주문 취소"</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_cancel_twice" time="1.659"><failure message="AssertionError: last dialog '이미 취소된 주문입니다.' != '이 주문을 취소할까요?'">ui = &lt;parity.pwtest.ui.UI object at 0x10bca1be0&gt;
+
+    def test_portal_cancel_twice(ui):
+        """이미 취소된 주문을 다시 취소해도 막지 않고 이력에 취소가 한 번 더 쌓인다 (as-is 버그 보존)"""
+        ui.goto('/orders')
+        ui.act('link', 'ORD-3 마우스')
+        ui.expect_text('취소')
+        ui.act('button', '주문 취소')
+&gt;       ui.expect_dialog('이 주문을 취소할까요?')
+
+e2e/portal/test_portal.py:321: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;parity.pwtest.ui.UI object at 0x10bca1be0&gt;, message = '이 주문을 취소할까요?'
+
+    def expect_dialog(self, message: str) -&gt; None:
+        """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다). 평범한 assert는 -O에서 사라지므로 쓰지 않는다."""
+        self._assert("dialog", message)
+        last = self.dialogs[-1]["message"] if self.dialogs else None
+        if last != message:
+&gt;           raise AssertionError(f"last dialog {last!r} != {message!r}")
+E           AssertionError: last dialog '이미 취소된 주문입니다.' != '이 주문을 취소할까요?'
+
+parity/pwtest/ui.py:244: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_cancel_twice" time="0.051"><error message="failed on teardown with &quot;Failed: step 0 /orders: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -37,3 +37,3 @@&#10;     text: 3&#10;    -text: 4,035원&#10;    +text: 4,043원&#10;     text: 접수&#10;step 2 button &quot;주문 취소&quot;: differs from golden&#10;    dialogs: ['confirm: 이 주문을 취소할까요?'] → ['confirm: 이 주문을 취소할까요?', 'alert: 이미 취소된 주문입니다.']&quot;">step 0 /orders: differs from golden
+    --- as-is(golden)
+    +++ actual
+    @@ -37,3 +37,3 @@
+     text: 3
+    -text: 4,035원
+    +text: 4,043원
+     text: 접수
+step 2 button "주문 취소": differs from golden
+    dialogs: ['confirm: 이 주문을 취소할까요?'] → ['confirm: 이 주문을 취소할까요?', 'alert: 이미 취소된 주문입니다.']</error></testcase></testsuite></testsuites>

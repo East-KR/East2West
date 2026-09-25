@@ -1,15 +1,19 @@
-"""화면 지도: 골든에 기록된 as-is 동작을 화면 단위로 합쳐 네트워크로 그린다. 파일 하나짜리 HTML.
+"""화면 지도: 골든에 기록된 as-is 동작을 라우트(주소) 단위로 합쳐 네트워크로 그린다. 파일 하나짜리 HTML.
 
 parity map golden/<app> [--junit reports/junit-<target>.xml] --out reports/map-<app>.html
 
+두 층
+  라우트  주소가 같은 화면 (/orders, /orders/{id} …). 지도의 노드. 홈(/)이 있으면 홈이 시작이고 맨 왼쪽.
+  상태    한 라우트 안에서 구조가 다른 화면: 기본, 팝업(dialog), 드로워(complementary), 탭, 알림. 라우트를 누르면 오른쪽 패널에 작은 그래프로 나온다.
+
 화면: 세 칸 (Playwright Trace Viewer의 구성을 따랐다)
-  왼쪽  화면 목록 (검색, 상태 점, 이름, 지나간 테스트 수)
-  가운데 지도: 왼쪽에서 오른쪽으로 한 방향. 열 = 시작 화면에서 몇 번 눌러 가는지, 열 안 순서는 무게중심(Sugiyama 방식)으로 선 교차를 줄인다.
-        노드 = 화면 프레임(대표 캡처, 이름, 구별 문구, 상태 띠). 화살표 = 동작 이름 알약. 되돌아가는 길은 아래 차선으로 회색.
-  오른쪽 선택한 화면: 큰 캡처, 시작에서 오는 길, 나가는 길, 이 화면을 지나는 테스트마다 필름스트립(단계 캡처, 이 화면 단계는 강조)과 동작·확인 값.
+  왼쪽  라우트 목록 (검색, 상태 점, 이름·주소, 안의 상태 수)
+  가운데 지도: 왼쪽에서 오른쪽으로 한 방향. 열 = 시작에서 몇 번 눌러 가는지, 열 안 순서는 무게중심(Sugiyama 방식)으로 선 교차를 줄인다.
+        노드 = 화면 프레임(대표 캡처, 이름, 안의 팝업·드로워·탭, 상태 띠). 화살표 = 동작 이름 알약. 되돌아가는 길은 아래 차선으로 회색.
+  오른쪽 선택한 라우트: 큰 캡처, 이 화면 안의 상태 그래프(누르면 그 상태의 캡처·테스트), 시작에서 오는 길, 나가는 길, 지나는 테스트(누르면 시나리오 팝업).
   --junit이 있으면 to-be에서 다른 화면은 빨간 띠, 패널에 무엇이 달랐는지.
 
-같은 화면인지는 화면 구조(제목·입력칸·버튼)로 가리고 글자 내용(주문번호, 품목명)은 보지 않는다. 그 밖에는 기록된 산출물만 읽는다.
+같은 상태인지는 화면 구조(제목·입력칸·버튼)로 가리고 글자 내용(주문번호, 품목명)은 보지 않는다. 주소의 숫자 조각은 {id}로 합친다. 그 밖에는 기록된 산출물만 읽는다.
 """
 from __future__ import annotations
 
@@ -30,6 +34,11 @@ SNAP_LINE = re.compile(r'^(?P<indent>\s*)-\s+(?P<role>[a-z]+)\b')
 # 데이터에 따라 글자가 바뀌는 역할: "같은 화면" 판단에서는 역할만 남긴다 (주문번호·품목명이 달라도 같은 완료 화면)
 DATA_ROLES = {"text", "paragraph", "definition", "term", "strong", "emphasis", "code", "cell", "gridcell", "listitem", "status", "log", "time"}
 NUMBERY = re.compile(r"\S*\d\S*")
+ID_SEG = re.compile(r"^(?:\d+|[0-9a-f]{8,}|[0-9a-fA-F-]{20,})$")
+DIALOG = re.compile(r'^\s*-\s+(?:dialog|alertdialog)\s+"(?P<name>(?:\\.|[^"\\])*)"')
+DRAWER = re.compile(r'^\s*-\s+complementary\s+"(?P<name>(?:\\.|[^"\\])*)"')
+TAB_SEL = re.compile(r'^\s*-\s+tab\s+"(?P<name>(?:\\.|[^"\\])*)"\s+\[selected\]')
+KIND_KO = {"base": "기본", "dialog": "팝업", "drawer": "드로워", "tab": "탭", "alert": "알림"}
 
 
 def _screen_sig(snapshot: str) -> str:
@@ -52,16 +61,34 @@ def _clean_text(s: str) -> str:
     return re.sub(r"\s+", " ", NUMBERY.sub("", s)).strip()
 
 
-def _names(snapshot: str, url: str, title: str) -> tuple[str, str]:
-    """(이름, 구별 문구). 이름은 제목·모달, 구별 문구는 alert나 안내문처럼 같은 이름의 화면을 갈라 주는 것."""
-    heads, alerts, modal, texts = landmarks(snapshot)
-    name = _clean_text(modal or (heads[0] if heads else "") or title or urlparse(url).path or "/")[:36] or "/"
-    hint = ""
-    if modal and heads:
-        hint = _clean_text(heads[0])[:40]
-    elif alerts:
-        hint = _clean_text(alerts[0])[:40]
-    return name, hint
+def _route(url: str) -> str:
+    """주소 → 라우트. 숫자·해시 조각은 {id}. 쿼리는 뺀다."""
+    path = urlparse(url).path or "/"
+    segs = ["{id}" if ID_SEG.match(s) else s for s in path.split("/") if s]
+    return "/" + "/".join(segs)
+
+
+def _state(snapshot: str, base_tab: str = "") -> tuple[str, str, str]:
+    """(종류, 이름, 선택된 탭): 열린 팝업 > 드로워 > 알림 > 기본과 다른 탭 > 기본. base_tab은 그 라우트 기본 상태의 탭."""
+    tab = ""
+    for line in snapshot.splitlines():
+        if m := DIALOG.match(line):
+            return "dialog", _clean_text(m["name"])[:40], tab
+        if m := DRAWER.match(line):
+            return "drawer", _clean_text(m["name"])[:40], tab
+        if not tab and (m := TAB_SEL.match(line)):
+            tab = _clean_text(m["name"])[:40]
+    _, alerts, _, _ = landmarks(snapshot)
+    if alerts:
+        return "alert", _clean_text(alerts[0])[:40], tab
+    if tab and tab != base_tab:
+        return "tab", tab, tab
+    return "base", "", tab
+
+
+def _heading(snapshot: str, url: str, title: str) -> str:
+    heads, _, _, _ = landmarks(snapshot)
+    return _clean_text((heads[0] if heads else "") or title or urlparse(url).path or "/")[:36] or "/"
 
 
 def _fail_steps(messages: list[str], assertions: list[dict[str, Any]]) -> set[int]:
@@ -80,13 +107,21 @@ def _plain(action_html: str) -> str:
     return t
 
 
+def _word(action: str) -> str:
+    w = _plain(action)
+    return w.replace("열기", "").replace("누르기", "").replace("선택", "").replace("입력", "").strip() or w
+
+
 def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> dict[str, Any]:
     docs = html.docstrings(tests_dir or Path("e2e") / d.name)
     run = _junit(junit) if junit else None
     cases = {c["name"]: c for c in run["cases"]} if run else {}
-    nodes: dict[str, dict[str, Any]] = {}
-    edges: dict[tuple[str, str], dict[str, Any]] = {}
+    nodes: dict[str, dict[str, Any]] = {}          # 상태 (구조 서명 기준)
+    routes: dict[str, dict[str, Any]] = {}         # 라우트 (주소 기준)
+    sedges: dict[tuple[str, str], dict[str, Any]] = {}
+    redges: dict[tuple[str, str], dict[str, Any]] = {}
     order: list[str] = []
+    rorder: list[str] = []
     shots: dict[str, str] = {}
     tests = []
     for t in oracle.tests(d):
@@ -101,73 +136,111 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> 
         status = None if case is None else case["status"]
         seq, prev = [], None
         for o in steps:
-            sig = _screen_sig(o.get("snapshot", ""))
+            snap = o.get("snapshot", "")
+            sig = _screen_sig(snap)
             shot_id = ""
             if o.get("shot"):
                 shot_id = f"{t['name']}#{o['index']}"
                 shots[shot_id] = _img(d / o["shot"])
+            rid = _route(o["url"])
+            if rid not in routes:
+                routes[rid] = {"id": rid, "path": rid, "name": _heading(snap, o["url"], o.get("title", "")), "base": sig, "states": [],
+                               "shot": "", "tests": [], "failed": False, "kinds": {}, "tab": _state(snap)[2]}
+                rorder.append(rid)
+            r = routes[rid]
             if sig not in nodes:
-                name, hint = _names(o.get("snapshot", ""), o["url"], o.get("title", ""))
-                nodes[sig] = {"id": sig, "name": name, "hint": hint, "url": urlparse(o["url"]).path or "/", "shot": shot_id,
-                              "visits": [], "local": 0, "failed": False, "tests": []}
+                kind, label, _ = _state(snap, r["tab"])
+                head = _heading(snap, o["url"], o.get("title", ""))
+                if kind == "base" and head != r["name"]:
+                    label = head
+                nodes[sig] = {"id": sig, "route": rid, "kind": kind, "label": label, "name": head, "url": urlparse(o["url"]).path or "/",
+                              "shot": shot_id, "visits": [], "local": 0, "failed": False, "tests": []}
                 order.append(sig)
+                r["states"].append(sig)
             n = nodes[sig]
             if not n["shot"] and shot_id:
                 n["shot"] = shot_id
+            if not r["shot"] and shot_id and sig == r["base"]:
+                r["shot"] = shot_id
             action = html._action(o["kind"], o["text"])
             visit = {"test": t["name"], "index": o["index"], "action": action, "dialogs": o.get("dialogs", []),
                      "checks": [html._val(a) for a in by_step.get(o["index"], [])], "shot": shot_id, "failed": o["index"] in failed}
             n["visits"].append(visit)
-            if t["name"] not in n["tests"]:
-                n["tests"].append(t["name"])
+            for coll in (n["tests"], r["tests"]):
+                if t["name"] not in coll:
+                    coll.append(t["name"])
             if o["index"] in failed:
-                n["failed"] = True
+                n["failed"] = r["failed"] = True
             if prev is not None:
                 if prev == sig:
                     n["local"] += 1
                 else:
-                    e = edges.setdefault((prev, sig), {"src": prev, "dst": sig, "actions": [], "tests": []})
-                    word = _plain(action).replace("열기", "").replace("누르기", "").replace("선택", "").replace("입력", "").strip() or _plain(action)
-                    if word not in e["actions"]:
-                        e["actions"].append(word)
+                    e = sedges.setdefault((prev, sig), {"src": prev, "dst": sig, "actions": [], "tests": []})
+                    if (w := _word(action)) not in e["actions"]:
+                        e["actions"].append(w)
                     if t["name"] not in e["tests"]:
                         e["tests"].append(t["name"])
-            seq.append({"index": o["index"], "node": sig, "shot": shot_id, "action": _plain(action), "failed": o["index"] in failed})
+                    pr = nodes[prev]["route"]
+                    if pr != rid:
+                        re_ = redges.setdefault((pr, rid), {"src": pr, "dst": rid, "actions": [], "tests": [], "from": []})
+                        if (w := _word(action)) not in re_["actions"]:
+                            re_["actions"].append(w)
+                        if t["name"] not in re_["tests"]:
+                            re_["tests"].append(t["name"])
+                        if prev not in re_["from"]:
+                            re_["from"].append(prev)
+            seq.append({"index": o["index"], "node": sig, "route": rid, "shot": shot_id, "action": _plain(action), "failed": o["index"] in failed})
             prev = sig
         tests.append({"name": t["name"], "title": html._title(t["name"], docs), "status": status, "rows": rows, "seq": seq})
-    # 같은 이름의 화면에 번호를 붙인다 (구별 문구가 없을 때)
-    by_name: dict[str, list[str]] = defaultdict(list)
-    for sid in order:
-        by_name[nodes[sid]["name"]].append(sid)
-    for name, ids in by_name.items():
-        if len(ids) > 1:
-            for i, sid in enumerate(ids, 1):
-                nodes[sid]["variant"] = i
-    return {"app": d.name, "start": order[0] if order else None, "order": order, "nodes": nodes, "shots": shots,
-            "edges": list(edges.values()), "tests": tests, "target": (run["props"].get("base_url") if run else None),
-            "compared": run is not None}
+    # 라우트 안 상태 이름: 같은 이름이 여럿이면 번호, 종류별 개수
+    for r in routes.values():
+        seen: dict[str, int] = defaultdict(int)
+        for sid in r["states"]:
+            n = nodes[sid]
+            if sid == r["base"]:
+                n["kind"], n["label"] = "base", ""
+            key = f"{n['kind']}:{n['label']}"
+            seen[key] += 1
+            n["variant"] = seen[key]
+            if sid != r["base"]:
+                r["kinds"][n["kind"]] = r["kinds"].get(n["kind"], 0) + 1
+        if not r["shot"]:
+            r["shot"] = next((nodes[s]["shot"] for s in r["states"] if nodes[s]["shot"]), "")
+        counts: dict[str, int] = defaultdict(int)
+        for sid in r["states"]:
+            counts[f"{nodes[sid]['kind']}:{nodes[sid]['label']}"] += 1
+        for sid in r["states"]:
+            n = nodes[sid]
+            if counts[f"{n['kind']}:{n['label']}"] == 1:
+                n["variant"] = 0
+    # 시작 = 테스트가 실제로 들어가는 첫 화면. 홈(/)으로 들어가는 테스트가 하나라도 있으면 홈이 맨 앞
+    entries = [t["seq"][0]["route"] for t in tests if t["seq"]]
+    start = "/" if "/" in entries else (entries[0] if entries else (rorder[0] if rorder else None))
+    return {"app": d.name, "start": start, "order": order, "rorder": rorder, "nodes": nodes, "routes": routes, "shots": shots,
+            "sedges": list(sedges.values()), "redges": list(redges.values()), "tests": tests,
+            "target": (run["props"].get("base_url") if run else None), "compared": run is not None, "kind_ko": KIND_KO}
 
 
 # -- 배치: 열 = 시작에서의 거리, 열 안 순서 = 무게중심 (선 교차 최소화) --------------------------------
-def layout(g: dict[str, Any]) -> tuple[dict[str, tuple[int, int]], dict[str, list[str]]]:
+def layout(order: list[str], edges: list[dict[str, Any]], start: str | None) -> tuple[dict[str, tuple[int, int]], dict[str, list[str]]]:
     out, inn = defaultdict(list), defaultdict(list)
-    for e in g["edges"]:
+    for e in edges:
         out[e["src"]].append(e["dst"])
         inn[e["dst"]].append(e["src"])
     depth: dict[str, int] = {}
-    if g["start"]:
-        depth[g["start"]] = 0
-        queue = [g["start"]]
+    if start:
+        depth[start] = 0
+        queue = [start]
         while queue:
             cur = queue.pop(0)
             for nxt in out[cur]:
                 if nxt not in depth:
                     depth[nxt] = depth[cur] + 1
                     queue.append(nxt)
-    for n in g["order"]:
+    for n in order:
         depth.setdefault(n, (max(depth.values()) + 1) if depth else 0)
     cols: dict[int, list[str]] = defaultdict(list)
-    for n in g["order"]:
+    for n in order:
         cols[depth[n]].append(n)
     ncol = max(cols) + 1 if cols else 0
     row = {n: i for c in range(ncol) for i, n in enumerate(cols[c])}
@@ -181,9 +254,9 @@ def layout(g: dict[str, Any]) -> tuple[dict[str, tuple[int, int]], dict[str, lis
                 row[n] = i
     pos = {n: (c, row[n]) for c in cols for n in cols[c]}
     paths = {}
-    if g["start"]:  # 시작에서 각 화면까지 최단 경로 (패널의 '오는 길')
-        prevs = {g["start"]: None}
-        queue = [g["start"]]
+    if start:  # 시작에서 각 노드까지 최단 경로 (패널의 '오는 길')
+        prevs = {start: None}
+        queue = [start]
         while queue:
             cur = queue.pop(0)
             for nxt in out[cur]:
@@ -199,7 +272,7 @@ def layout(g: dict[str, Any]) -> tuple[dict[str, tuple[int, int]], dict[str, lis
     return pos, paths
 
 
-CARD_W, THUMB_H, CARD_H, GAP_X, GAP_Y, PAD = 264, 160, 250, 150, 48, 36
+CARD_W, THUMB_H, CARD_H, GAP_X, GAP_Y, PAD = 264, 160, 256, 150, 48, 36
 LANE = 34  # 되돌아가는 선 차선 간격
 
 
@@ -215,6 +288,7 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px}
 .legend i.ok{background:var(--ok)}.legend i.bad{background:var(--bad)}.legend i.st{background:var(--accent)}
 .legend .ln{width:26px;height:0;border-top:2px solid var(--accent)}.legend .ln.back{border-top:2px dashed var(--faint)}
+.legend .kd{font:600 11px var(--sans);padding:1px 7px;border-radius:4px;background:var(--sunk);color:var(--muted)}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .toolbar input,.toolbar select{font:inherit;font-size:14px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
 .toolbar input{min-width:240px}
@@ -224,8 +298,8 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 
 /* 세 칸: 왼쪽 목록(접힘 가능) · 지도 · 상세(선택했을 때만) */
 .stage{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px;align-items:stretch;height:calc(100vh - 230px);min-height:560px;transition:grid-template-columns .2s}
-.stage.open{grid-template-columns:260px minmax(0,1fr) 440px}
-.stage.nol{grid-template-columns:48px minmax(0,1fr)}.stage.nol.open{grid-template-columns:48px minmax(0,1fr) 440px}
+.stage.open{grid-template-columns:260px minmax(0,1fr) 460px}
+.stage.nol{grid-template-columns:48px minmax(0,1fr)}.stage.nol.open{grid-template-columns:48px minmax(0,1fr) 460px}
 .pane{background:var(--surface);border:1px solid var(--line);border-radius:12px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .pane>h2{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:600;letter-spacing:.06em;color:var(--muted);padding:10px 10px 8px 14px;border-bottom:1px solid var(--line);margin:0}
 .ib{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:6px;width:26px;height:26px;cursor:pointer;font:600 14px var(--sans);display:grid;place-items:center;flex:none}
@@ -235,8 +309,8 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .row{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer;border:0;background:none;text-align:left;font:inherit;color:inherit;width:100%}
 .row:hover{background:var(--sunk)}.row.sel{background:var(--accent-soft)}
 .row .dot{width:10px;height:10px;border-radius:50%;background:var(--line)}.row .dot.ok{background:var(--ok)}.row .dot.bad{background:var(--bad)}
-.row .nm{font-size:14px;font-weight:600;line-height:1.25}.row .nm small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:1px}
-.row .ct{font:12px var(--mono);color:var(--faint)}.row.dim{opacity:.35}
+.row .nm{font-size:14px;font-weight:600;line-height:1.25;min-width:0}.row .nm small{display:block;font:400 12px var(--mono);color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .ct{font:12px var(--mono);color:var(--faint);text-align:right;line-height:1.3}.row.dim{opacity:.35}
 
 /* 지도 */
 .canvas{position:relative;overflow:auto;cursor:grab;background:radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/24px 24px, var(--bg)}
@@ -257,10 +331,12 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .node .th{margin:5px 8px 0;height:__TH__px;border-radius:6px;overflow:hidden;background:#fff;border:1px solid var(--line);position:relative}
 .node .th img{width:150%;max-width:none;display:block}
 .node .th .no{position:absolute;inset:0;display:grid;place-items:center;color:var(--faint);font-size:12px}
-.node .body{padding:8px 10px 0;display:flex;flex-direction:column;gap:2px;min-height:0}
+.node .body{padding:8px 10px 0;display:flex;flex-direction:column;gap:3px;min-height:0}
 .node .nm{font-size:15px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .node .nm em{font-style:normal;font-weight:500;color:var(--muted);font-size:12.5px;margin-left:4px}
-.node .hint{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:18px}
+.node .kinds{display:flex;gap:4px;flex-wrap:nowrap;overflow:hidden;min-height:18px}
+.kd{font:600 11px var(--sans);padding:1px 7px;border-radius:4px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.kd.dialog{background:var(--accent-soft);color:var(--accent)}.kd.drawer{background:var(--warn-soft);color:var(--warn)}.kd.tab{background:var(--sunk);color:var(--ink)}.kd.alert{background:var(--bad-soft);color:var(--bad)}
 .node .meta{margin-top:auto;display:flex;justify-content:space-between;align-items:center;padding:0 10px 8px;font:11.5px var(--mono);color:var(--faint)}
 .node .meta b{font-family:var(--sans);font-weight:600;color:var(--muted)}
 .node .tag{position:absolute;top:12px;left:10px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--accent);color:#fff;border-radius:4px;padding:1px 7px}
@@ -273,18 +349,30 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .detail h3{font-size:19px;font-weight:700;line-height:1.3;grid-column:1}
 .detail .dh .ib{grid-column:2;grid-row:1}
 .detail .sub{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font:12.5px var(--mono);color:var(--muted)}
-.detail .prev{margin-top:14px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;cursor:zoom-in}
+.detail .prev{margin-top:14px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;cursor:zoom-in;position:relative}
 .detail .prev img{width:100%;display:block}
+.detail .prev .cap{position:absolute;left:8px;bottom:8px;font:600 12px var(--sans);background:rgba(15,20,19,.75);color:#fff;border-radius:5px;padding:2px 8px}
 .detail .empty{padding:40px 0;color:var(--faint);text-align:center}
 .sec{margin-top:16px}.sec h4{margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.06em;color:var(--muted);display:flex;justify-content:space-between}
 .sec h4 span{font-weight:400;letter-spacing:0}
+/* 화면 안의 상태: 작은 그래프 */
+.mini{position:relative;overflow:auto;border:1px solid var(--line);border-radius:10px;background:radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/16px 16px, var(--bg)}
+.mini svg{position:absolute;left:0;top:0;overflow:visible}
+.mini .medge path{fill:none;stroke:var(--accent);stroke-width:1.5}.mini .medge.back path{stroke:var(--faint);stroke-dasharray:4 4}
+.mini .medge rect{fill:var(--surface);stroke:var(--line)}.mini .medge text{font-size:10.5px;font-weight:600;fill:var(--ink)}
+.mnode{position:absolute;width:__MW__px;height:__MH__px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;padding:0;text-align:left;font:inherit;color:inherit;overflow:hidden;display:flex;flex-direction:column}
+.mnode:hover{border-color:var(--accent)}.mnode.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}.mnode.bad{border-color:var(--bad)}
+.mnode .th{height:__MT__px;background:#fff;overflow:hidden;border-bottom:1px solid var(--line)}.mnode .th img{width:140%;max-width:none;display:block}
+.mnode .lab{padding:4px 7px;display:flex;flex-direction:column;gap:1px;min-width:0}
+.mnode .lab b{font-size:12px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mnode .lab small{font:11px var(--mono);color:var(--faint)}
 /* 오는 길·가는 길: 같은 모양의 한 줄 — [동작] 화면 이름 · 경로 */
 .routes{display:flex;flex-direction:column;gap:4px}
 .route{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 10px;border:1px solid var(--line);border-radius:8px;
  color:var(--ink);text-decoration:none;cursor:pointer;font-size:13.5px;background:var(--surface)}
 .route:hover{border-color:var(--accent);background:var(--accent-soft)}
 .route.here{border-color:var(--accent);background:var(--accent-soft);cursor:default}
-.route .act{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:1px 8px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.route .act{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:1px 8px;white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis}
 .route.here .act{background:var(--accent);color:#fff}
 .route .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.route .nm em{font-style:normal;font-weight:500;color:var(--muted);font-size:12px;margin-left:3px}
 .route .path{font:11.5px var(--mono);color:var(--faint);white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis}
@@ -321,80 +409,118 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 @media (max-width:1180px){.stage,.stage.open,.stage.nol,.stage.nol.open{grid-template-columns:220px minmax(0,1fr);height:auto}
  .stage.open .side{grid-column:1/-1;max-height:70vh}.canvas{height:60vh}}
 @media (max-width:760px){.stage,.stage.open,.stage.nol,.stage.nol.open{grid-template-columns:1fr}.pane.left{max-height:40vh}}
-""".replace("__CW__", str(CARD_W)).replace("__CH__", str(CARD_H)).replace("__TH__", str(THUMB_H))
+""".replace("__CW__", str(CARD_W)).replace("__CH__", str(CARD_H)).replace("__TH__", str(THUMB_H)).replace("__MW__", "150").replace("__MH__", "116").replace("__MT__", "72")
 
 MAP_JS = r"""<script>
 const G = JSON.parse(document.getElementById('g').textContent);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shot = id => G.shots[id] || '';
-const nodeName = id => { const n = G.nodes[id]; return esc(n.name) + (n.variant ? ` <em>${n.variant}</em>` : ''); };
+const routeName = rid => esc(G.routes[rid].name);
+const stateName = sid => { const n = G.nodes[sid]; const base = n.kind === 'base' ? (n.label || '기본') : `${G.kind_ko[n.kind]} · ${n.label}`; return esc(base) + (n.variant ? ` ${n.variant}` : ''); };
 const stage = document.getElementById('stage'), side = document.getElementById('side'), lb = document.getElementById('lb'), modal = document.getElementById('modal');
 const testByName = Object.fromEntries(G.tests.map(t => [t.name, t]));
-const edgeBetween = (a, b) => G.edges.find(e => e.src === a && e.dst === b);
-let current = null;
+const redgeBetween = (a, b) => G.redges.find(e => e.src === a && e.dst === b);
+let current = null, currentState = null;
 
-function status(n){ if(!G.compared) return ''; if(n.failed) return 'bad'; return n.tests.some(t => (testByName[t] || {}).status) ? 'ok' : ''; }
+function rstatus(r){ if(!G.compared) return ''; if(r.failed) return 'bad'; return r.tests.some(t => (testByName[t] || {}).status) ? 'ok' : ''; }
 function openLb(src, cap){ if(!src) return; lb.querySelector('img').src = src; lb.querySelector('.cap').textContent = cap || ''; lb.classList.add('on'); }
 lb.addEventListener('click', () => lb.classList.remove('on'));
 function closeModal(){ modal.classList.remove('on'); }
 modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
 addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else if(modal.classList.contains('on')) closeModal(); else closeSide(); });
 
-const routeRow = (id, act, here) => `<a class="route ${here ? 'here' : ''}" ${here ? '' : `data-go="${id}"`}><span class="act">${esc(act)}</span><span class="nm">${nodeName(id)}</span><span class="path">${esc(G.nodes[id].url)}</span></a>`;
+const routeRow = (rid, act, here) => `<a class="route ${here ? 'here' : ''}" ${here ? '' : `data-go="${rid}"`}><span class="act">${esc(act)}</span><span class="nm">${routeName(rid)}</span><span class="path">${esc(G.routes[rid].path)}</span></a>`;
 
-function show(id){
-  const n = G.nodes[id]; if(!n) return;
-  current = id;
+/* 화면 안의 상태 그래프: 열 = 기본 상태에서 몇 번 눌러 가는지 */
+const MW = 150, MH = 116, MGX = 64, MGY = 14, MP = 12;
+function miniGraph(rid){
+  const r = G.routes[rid], ids = r.states, set = new Set(ids);
+  const es = G.sedges.filter(e => set.has(e.src) && set.has(e.dst) && e.src !== e.dst);
+  const out = {}; es.forEach(e => (out[e.src] = out[e.src] || []).push(e.dst));
+  const depth = {[r.base]: 0}, q = [r.base];
+  while(q.length){ const c = q.shift(); for(const n of (out[c] || [])) if(!(n in depth)){ depth[n] = depth[c] + 1; q.push(n); } }
+  ids.forEach(s => { if(!(s in depth)) depth[s] = Math.max(0, ...Object.values(depth)) + 1; });
+  const cols = {}; ids.forEach(s => (cols[depth[s]] = cols[depth[s]] || []).push(s));
+  const pos = {}; Object.keys(cols).forEach(c => cols[c].forEach((s, i) => pos[s] = [MP + c * (MW + MGX), MP + i * (MH + MGY)]));
+  const ncol = Object.keys(cols).length, nrow = Math.max(...Object.values(cols).map(a => a.length));
+  const backs = es.filter(e => depth[e.dst] <= depth[e.src]);
+  const bodyH = MP + nrow * MH + (nrow - 1) * MGY;
+  const W = MP * 2 + ncol * MW + (ncol - 1) * MGX, H = bodyH + MP + backs.length * 22;
+  let lane = 0;
+  const paths = es.map(e => {
+    const [x1, y1] = pos[e.src], [x2, y2] = pos[e.dst];
+    const label = e.actions[0].slice(0, 14) + (e.actions.length > 1 ? ` +${e.actions.length - 1}` : '');
+    let d, mx, my, cls = '';
+    if(depth[e.dst] > depth[e.src]){ const sx = x1 + MW, sy = y1 + MH / 2, tx = x2, ty = y2 + MH / 2; d = `M${sx},${sy} C${sx + MGX * .5},${sy} ${tx - MGX * .5},${ty} ${tx},${ty}`; mx = (sx + tx) / 2; my = (sy + ty) / 2; }
+    else { lane++; const ly = bodyH + lane * 22 - 8, sx = x1 + MW * .5, tx = x2 + MW * .5; d = `M${sx},${y1 + MH} L${sx},${ly} L${tx},${ly} L${tx},${y2 + MH + 4}`; mx = (sx + tx) / 2; my = ly; cls = 'back'; }
+    const tw = label.length * 7 + 14;
+    return `<g class="medge ${cls}"><path d="${d}" marker-end="url(#${cls ? 'marrb' : 'marr'})"/><rect x="${mx - tw / 2}" y="${my - 9}" width="${tw}" height="18" rx="9"/><text x="${mx}" y="${my + 4}" text-anchor="middle">${esc(label)}</text></g>`;
+  }).join('');
+  const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs><marker id="marr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker><marker id="marrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--faint)"/></marker></defs>${paths}</svg>`;
+  const cards = ids.map(s => { const n = G.nodes[s], [x, y] = pos[s];
+    return `<button type="button" class="mnode ${n.failed && G.compared ? 'bad' : ''} ${s === currentState ? 'sel' : ''}" data-state="${s}" style="left:${x}px;top:${y}px" title="${stateName(s)}"><div class="th">${n.shot ? `<img src="${shot(n.shot)}" alt="">` : ''}</div><div class="lab"><b>${stateName(s)}</b><small>테스트 ${n.tests.length}${n.failed && G.compared ? ' · 다름' : ''}</small></div></button>`; }).join('');
+  return `<div class="mini" style="height:${Math.min(H, 420)}px"><div style="position:relative;width:${W}px;height:${H}px">${svg}${cards}</div></div>`;
+}
+
+function testRows(names, failedIn){
+  return `<div class="trows">` + names.map(t => { const test = testByName[t], failedHere = failedIn(t);
+    const pill = test.status === 'fail' ? '<span class="pill bad">다름</span>' : test.status === 'pass' ? '<span class="pill ok">같음</span>' : '<span class="pill">기록</span>';
+    return `<button type="button" class="trow ${failedHere ? 'fail' : ''}" data-test="${esc(t)}"><span><b>${esc(test.title)}</b><small>${esc(t)}</small></span>${pill}<span class="chev">›</span></button>`; }).join('') + `</div>`;
+}
+
+function show(rid, sid){
+  const r = G.routes[rid]; if(!r) return;
+  current = rid; currentState = sid && r.states.includes(sid) ? sid : null;
   stage.classList.add('open'); fit();
-  document.querySelectorAll('.node').forEach(el => el.classList.toggle('sel', el.dataset.id === id));
-  document.querySelectorAll('.row').forEach(el => el.classList.toggle('sel', el.dataset.id === id));
-  document.querySelectorAll('.edge').forEach(el => el.classList.toggle('hot', el.dataset.src === id || el.dataset.dst === id));
-  const st = status(n);
-  const path = G.paths[id] || [id];
-  const outs = G.edges.filter(e => e.src === id);
-  let h = `<div class="dh"><h3>${nodeName(id)}</h3><button class="ib" id="closeSide" type="button" aria-label="닫기">×</button><div class="sub"><span>${esc(n.url)}</span>`
+  document.querySelectorAll('.node').forEach(el => el.classList.toggle('sel', el.dataset.id === rid));
+  document.querySelectorAll('.row').forEach(el => el.classList.toggle('sel', el.dataset.id === rid));
+  document.querySelectorAll('.edge').forEach(el => el.classList.toggle('hot', el.dataset.src === rid || el.dataset.dst === rid));
+  const st = rstatus(r), path = G.paths[rid] || [rid], outs = G.redges.filter(e => e.src === rid);
+  const focus = currentState ? G.nodes[currentState] : G.nodes[r.base];
+  const kinds = Object.entries(r.kinds).map(([k, n]) => `<span class="kd ${k}">${G.kind_ko[k]} ${n}</span>`).join('');
+  let h = `<div class="dh"><h3>${routeName(rid)}</h3><button class="ib" id="closeSide" type="button" aria-label="닫기">×</button><div class="sub"><span>${esc(r.path)}</span>`
     + (st === 'bad' ? '<span class="pill bad">as-is와 다름</span>' : st === 'ok' ? '<span class="pill ok">as-is와 같음</span>' : '')
-    + `<span>테스트 ${n.tests.length}개</span>${n.local ? `<span>화면 안 동작 ${n.local}</span>` : ''}</div></div>`;
-  h += n.shot ? `<div class="prev" title="크게 보기" data-lb="${n.shot}"><img src="${shot(n.shot)}" alt="${esc(n.name)} 화면"></div>` : `<div class="empty">캡처 없음</div>`;
-  if(n.hint) h += `<div class="sec"><h4>이 화면의 특징</h4><div>${esc(n.hint)}</div></div>`;
-  h += `<div class="sec"><h4>시작에서 오는 길 <span>${path.length - 1}번 눌러서</span></h4><div class="routes">`
-    + path.map((p, i) => { const e = i ? edgeBetween(path[i - 1], p) : null; return routeRow(p, i ? (e ? e.actions[0] : '…') : '시작', p === id); }).join('') + `</div></div>`;
+    + `<span>테스트 ${r.tests.length}개</span><span>상태 ${r.states.length}</span>${kinds}</div></div>`;
+  h += focus.shot ? `<div class="prev" title="크게 보기" data-lb="${focus.shot}" data-cap="${stateName(focus.id)}"><img src="${shot(focus.shot)}" alt="${routeName(rid)} 화면"><span class="cap">${stateName(focus.id)}</span></div>` : `<div class="empty">캡처 없음</div>`;
+  if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개 · 누르면 그 상태의 캡처와 테스트</span></h4>${miniGraph(rid)}</div>`;
+  else h += `<div class="sec"><h4>이 화면 안의 상태</h4><div class="tid">기본 상태뿐 (팝업·드로워·탭 없음)</div></div>`;
+  if(G.paths[rid]) h += `<div class="sec"><h4>시작에서 오는 길 <span>${path.length - 1}번 이동</span></h4><div class="routes">`
+    + path.map((p, i) => { const e = i ? redgeBetween(path[i - 1], p) : null; return routeRow(p, i ? (e ? e.actions[0] : '…') : '시작', p === rid); }).join('') + `</div></div>`;
+  else h += `<div class="sec"><h4>시작에서 오는 길</h4><div class="tid">시작 화면에서 이어지는 길이 기록에 없음 (테스트가 이 주소로 바로 들어감)</div></div>`;
   h += `<div class="sec"><h4>여기서 갈 수 있는 곳 <span>${outs.length}곳</span></h4><div class="routes">`
     + (outs.map(e => routeRow(e.dst, e.actions.join(' · '), false)).join('') || '<span class="tid">없음</span>') + `</div></div>`;
-  const byTest = {};
-  n.visits.forEach(v => (byTest[v.test] = byTest[v.test] || []).push(v));
-  const names = Object.keys(byTest).sort((a, b) => (byTest[b].some(v => v.failed) - byTest[a].some(v => v.failed)));
-  h += `<div class="sec"><h4>이 화면을 지나는 테스트 <span>${names.length}개 · 누르면 시나리오</span></h4><div class="trows">`
-    + names.map(t => { const test = testByName[t], failedHere = byTest[t].some(v => v.failed);
-        const pill = test.status === 'fail' ? '<span class="pill bad">다름</span>' : test.status === 'pass' ? '<span class="pill ok">같음</span>' : '<span class="pill">기록</span>';
-        return `<button type="button" class="trow ${failedHere ? 'fail' : ''}" data-test="${esc(t)}"><span><b>${esc(test.title)}</b><small>${esc(t)}</small></span>${pill}<span class="chev">›</span></button>`; }).join('')
-    + `</div></div>`;
+  const scope = currentState ? G.nodes[currentState] : null;
+  const names = (scope ? scope.tests : r.tests).slice().sort((a, b) => ((testByName[b].status === 'fail') - (testByName[a].status === 'fail')));
+  const failedIn = t => (scope ? scope.visits : r.states.flatMap(s => G.nodes[s].visits)).some(v => v.test === t && v.failed);
+  h += `<div class="sec"><h4>${scope ? `이 상태를 지나는 테스트` : `이 화면을 지나는 테스트`} <span>${names.length}개 · 누르면 시나리오</span></h4>${testRows(names, failedIn)}</div>`;
   side.innerHTML = h;
   side.scrollTop = 0;
   side.querySelector('#closeSide').addEventListener('click', closeSide);
   side.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', () => go(a.dataset.go)));
-  side.querySelectorAll('[data-lb]').forEach(a => a.addEventListener('click', () => openLb(shot(a.dataset.lb), n.name)));
-  side.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, id)));
-  try { history.replaceState(null, '', '#' + id); } catch(e) {}
+  side.querySelectorAll('[data-lb]').forEach(a => a.addEventListener('click', () => openLb(shot(a.dataset.lb), a.dataset.cap || r.name)));
+  side.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, rid)));
+  side.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => { const keep = side.querySelector('.mini') ? side.querySelector('.mini').scrollLeft : 0; show(rid, b.dataset.state === currentState ? null : b.dataset.state); const m = side.querySelector('.mini'); if(m) m.scrollLeft = keep; }));
+  try { history.replaceState(null, '', '#' + rid + (currentState ? '/' + currentState : '')); } catch(e) {}
 }
 function closeSide(){
-  stage.classList.remove('open'); current = null;
+  stage.classList.remove('open'); current = null; currentState = null;
   document.querySelectorAll('.node.sel, .row.sel').forEach(el => el.classList.remove('sel'));
   document.querySelectorAll('.edge.hot').forEach(el => el.classList.remove('hot'));
-  try { history.replaceState(null, '', location.pathname); } catch(e) {}
+  try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
   fit();
 }
 /* 시나리오 팝업: 필름스트립 + 단계 + (다르면) 무엇이 달랐는지 */
-function openTest(name, hereId){
+function openTest(name, hereRid){
   const test = testByName[name]; if(!test) return;
-  const hereSteps = new Set(test.seq.filter(s => s.node === hereId).map(s => s.index));
+  const hereSteps = new Set(test.seq.filter(s => currentState ? s.node === currentState : s.route === hereRid).map(s => s.index));
   const pill = test.status === 'fail' ? '<span class="pill bad">as-is와 다름</span>' : test.status === 'pass' ? '<span class="pill ok">as-is와 같음</span>' : '';
   let h = `<div class="mh"><div><b>${esc(test.title)}</b><small>${esc(name)} · ${test.seq.length}단계</small></div>${pill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb">`;
   h += `<div class="film">` + test.seq.map(s => `<button type="button" class="${hereSteps.has(s.index) ? 'here' : ''} ${s.failed ? 'fail' : ''}" data-lb="${s.shot}" data-cap="${esc(s.index + 1)}단계 · ${esc(s.action)}" title="${esc(s.action)}">`
       + (s.shot ? `<img src="${shot(s.shot)}" alt="">` : '') + `<span class="k">${s.index + 1}</span><span class="cap">${esc(s.action)}</span></button>`).join('') + `</div>`;
   h += `<div class="steps">` + test.seq.map(s => {
       const node = G.nodes[s.node] || {}, v = (node.visits || []).find(x => x.test === name && x.index === s.index) || {};
-      return `<div class="visit ${s.failed ? 'fail' : ''} ${hereSteps.has(s.index) ? 'here' : ''}"><span class="no">${s.index + 1}</span><div><div>${v.action || esc(s.action)} <span class="tid">· ${nodeName(s.node)}</span></div>`
+      const where = node.kind === 'base' ? routeName(s.route) : `${routeName(s.route)} › ${stateName(s.node)}`;
+      return `<div class="visit ${s.failed ? 'fail' : ''} ${hereSteps.has(s.index) ? 'here' : ''}"><span class="no">${s.index + 1}</span><div><div>${v.action || esc(s.action)} <span class="tid">· ${where}</span></div>`
         + (v.dialogs || []).map(d => `<div class="dlg">${d.type === 'confirm' ? '확인창' : '알림창'} “${esc(d.message)}” → ${d.action === 'accept' ? '확인' : '취소'}</div>`).join('')
         + ((v.checks || []).length ? `<div class="ck">${v.checks.join('')}</div>` : '') + `</div></div>`; }).join('') + `</div>`;
   if(test.rows.length) h += `<div class="dtab"><table><tr><th>무엇이</th><th>as-is</th><th>to-be</th></tr>` + test.rows.slice(0, 12).map(r =>
@@ -405,7 +531,7 @@ function openTest(name, hereId){
   modal.querySelector('#closeModal').addEventListener('click', closeModal);
   modal.querySelectorAll('[data-lb]').forEach(b => b.addEventListener('click', () => openLb(shot(b.dataset.lb), b.dataset.cap)));
 }
-function go(id){ show(id); const el = document.querySelector(`.node[data-id="${id}"]`); if(el) el.scrollIntoView({block: 'nearest', inline: 'center', behavior: 'smooth'}); }
+function go(rid, sid){ show(rid, sid); const el = document.querySelector(`.node[data-id="${rid}"]`); if(el) el.scrollIntoView({block: 'nearest', inline: 'center', behavior: 'smooth'}); }
 document.querySelectorAll('.node, .row').forEach(el => el.addEventListener('click', () => go(el.dataset.id)));
 document.querySelectorAll('.node').forEach(el => {
   el.addEventListener('mouseenter', () => document.querySelectorAll('.edge').forEach(e => e.classList.toggle('dim', e.dataset.src !== el.dataset.id && e.dataset.dst !== el.dataset.id)));
@@ -418,9 +544,9 @@ const q = document.getElementById('q'), f = document.getElementById('f');
 function filter(){
   const s = q.value.trim().toLowerCase(), t = f.value;
   const keep = new Set();
-  for(const [id, n] of Object.entries(G.nodes)){
-    const hit = (!s || n.name.toLowerCase().includes(s) || n.url.toLowerCase().includes(s) || (n.hint || '').toLowerCase().includes(s)) && (!t || n.tests.includes(t));
-    if(hit) keep.add(id);
+  for(const [rid, r] of Object.entries(G.routes)){
+    const text = [r.name, r.path, ...r.states.map(x => G.nodes[x].label)].join(' ').toLowerCase();
+    if((!s || text.includes(s)) && (!t || r.tests.includes(t))) keep.add(rid);
   }
   document.querySelectorAll('.node, .row').forEach(el => el.classList.toggle('dim', !keep.has(el.dataset.id)));
   document.querySelectorAll('.edge').forEach(el => el.classList.toggle('dim', !(keep.has(el.dataset.src) && keep.has(el.dataset.dst)) || (t && !el.dataset.tests.split('|').includes(t))));
@@ -438,17 +564,17 @@ addEventListener('mousemove', e => { if(!drag) return; cv.scrollLeft = drag.l - 
 addEventListener('mouseup', () => { drag = null; cv.classList.remove('drag'); });
 cv.addEventListener('wheel', e => { if(!e.ctrlKey && !e.metaKey) return; e.preventDefault(); zoom(z - Math.sign(e.deltaY) * 0.1); }, {passive: false});
 fit(); addEventListener('resize', fit);
-const first = (location.hash || '').slice(1);
-if(G.nodes[first]) go(first);
+const [h0, h1] = (location.hash || '').slice(1).split('/');
+if(G.routes[h0]) go(h0, h1);
 </script>"""
 
 
 def render(g: dict[str, Any]) -> str:
-    pos, paths = layout(g)
+    pos, paths = layout(g["rorder"], g["redges"], g["start"])
     g["paths"] = paths
     ncol = max((c for c, _ in pos.values()), default=0) + 1
     nrow = max((r for _, r in pos.values()), default=0) + 1
-    backs = [e for e in g["edges"] if pos[e["dst"]][0] <= pos[e["src"]][0]]
+    backs = [e for e in g["redges"] if pos[e["dst"]][0] <= pos[e["src"]][0]]
     w = PAD * 2 + ncol * CARD_W + (ncol - 1) * GAP_X
     body_h = PAD + nrow * CARD_H + (nrow - 1) * GAP_Y
     hgt = body_h + PAD + (len(backs) + 1) * LANE
@@ -462,7 +588,7 @@ def render(g: dict[str, Any]) -> str:
 
     parts = []
     lane_i = 0
-    for e in g["edges"]:
+    for e in g["redges"]:
         (x1, y1), (x2, y2) = xy[e["src"]], xy[e["dst"]]
         label = e["actions"][0][:16] + (f" +{len(e['actions']) - 1}" if len(e["actions"]) > 1 else "")
         if pos[e["dst"]][0] > pos[e["src"]][0]:
@@ -478,53 +604,55 @@ def render(g: dict[str, Any]) -> str:
             mx, my = (sx + tx) / 2, ly
             cls = "back"
         p = f"<path d='{d}' marker-end='url(#{'arrb' if cls else 'arr'})'/>"
-        parts.append(pill(mx, my, label, e["tests"], cls).replace("{src}", e["src"]).replace("{dst}", e["dst"]).replace("{path}", p))
+        parts.append(pill(mx, my, label, e["tests"], cls).replace("{src}", html._e(e["src"])).replace("{dst}", html._e(e["dst"])).replace("{path}", p))
     svg = (f"<svg class='links' width='{w}' height='{hgt}' viewBox='0 0 {w} {hgt}'><defs>"
            "<marker id='arr' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='8' markerHeight='8' orient='auto'><path d='M0,0 L10,5 L0,10 z' fill='var(--accent)'/></marker>"
            "<marker id='arrb' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='8' markerHeight='8' orient='auto'><path d='M0,0 L10,5 L0,10 z' fill='var(--faint)'/></marker>"
            "</defs>" + "".join(parts) + "</svg>")
 
-    def node_status(n: dict[str, Any]) -> str:
+    def route_status(r: dict[str, Any]) -> str:
         if not g["compared"]:
             return ""
-        if n["failed"]:
+        if r["failed"]:
             return "bad"
-        return "ok" if any(t["status"] for t in g["tests"] if t["name"] in n["tests"]) else ""
+        return "ok" if any(t["status"] for t in g["tests"] if t["name"] in r["tests"]) else ""
 
     cards, rows = [], []
-    for nid in g["order"]:
-        n, (x, y) = g["nodes"][nid], xy[nid]
-        st = node_status(n)
-        name = html._e(n["name"]) + (f"<em>{n['variant']}</em>" if n.get("variant") else "")
-        tag = "<span class='tag'>시작</span>" if nid == g["start"] else ("<span class='tag'>다름</span>" if st == "bad" else "")
-        thumb = f"<img src='{g['shots'][n['shot']]}' alt='' loading='lazy'>" if n["shot"] else "<span class='no'>캡처 없음</span>"
-        cards.append(f"<button class='node {st}' data-id='{nid}' style='left:{x}px;top:{y}px' type='button' title='{html._e(n['name'])}'>"
+    for rid in g["rorder"]:
+        r, (x, y) = g["routes"][rid], xy[rid]
+        st = route_status(r)
+        tag = "<span class='tag'>시작</span>" if rid == g["start"] else ("<span class='tag'>다름</span>" if st == "bad" else "")
+        thumb = f"<img src='{g['shots'][r['shot']]}' alt='' loading='lazy'>" if r["shot"] else "<span class='no'>캡처 없음</span>"
+        kinds = "".join(f"<span class='kd {k}'>{KIND_KO[k]} {n}</span>" for k, n in r["kinds"].items()) or "<span class='kd'>기본만</span>"
+        cards.append(f"<button class='node {st}' data-id='{html._e(rid)}' style='left:{x}px;top:{y}px' type='button' title='{html._e(r['name'])} {html._e(rid)}'>"
                      f"<div class='strip'></div><div class='chrome'><i></i><i></i><i></i></div><div class='th'>{thumb}</div>{tag}"
-                     f"<div class='body'><div class='nm'>{name}</div><div class='hint'>{html._e(n['hint'])}</div></div>"
-                     f"<div class='meta'><span>{html._e(n['url'])}</span><b>테스트 {len(n['tests'])}</b></div></button>")
-        rows.append(f"<button class='row' data-id='{nid}' type='button'><span class='dot {st}'></span>"
-                    f"<span class='nm'>{name}{'<small>' + html._e(n['hint']) + '</small>' if n['hint'] else ''}</span><span class='ct'>{len(n['tests'])}</span></button>")
+                     f"<div class='body'><div class='nm'>{html._e(r['name'])}</div><div class='kinds'>{kinds}</div></div>"
+                     f"<div class='meta'><span>{html._e(rid)}</span><b>테스트 {len(r['tests'])}</b></div></button>")
+        rows.append(f"<button class='row' data-id='{html._e(rid)}' type='button'><span class='dot {st}'></span>"
+                    f"<span class='nm'>{html._e(r['name'])}<small>{html._e(rid)}</small></span><span class='ct'>{len(r['tests'])}<br>상태 {len(r['states'])}</span></button>")
 
-    failed = sum(n["failed"] for n in g["nodes"].values())
+    failed = sum(r["failed"] for r in g["routes"].values())
+    n_states = len(g["nodes"])
     if not g["compared"]:
-        stamp, lede = ("ok", f"화면 {len(g['nodes'])}", f"연결 {len(g['edges'])}"), "골든에 기록된 as-is 동작을 화면 단위로 이은 지도입니다. 화면을 누르면 오는 길·가는 길과 거기를 지나는 테스트가 나옵니다."
+        stamp, lede = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}"), "골든에 기록된 as-is 동작을 화면(주소) 단위로 이은 지도입니다. 화면을 누르면 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 테스트가 나옵니다."
     elif failed:
-        stamp, lede = ("bad", f"다른 화면 {failed}", f"전체 {len(g['nodes'])}개 중"), "빨간 화면에서 to-be가 as-is와 다르게 동작했습니다. 누르면 무엇이 달랐는지 나옵니다."
+        stamp, lede = ("bad", f"다른 화면 {failed}", f"전체 {len(g['routes'])}개 중"), "빨간 화면에서 to-be가 as-is와 다르게 동작했습니다. 누르면 어느 상태에서 무엇이 달랐는지 나옵니다."
     else:
-        stamp, lede = ("ok", "모두 같음", f"화면 {len(g['nodes'])}개"), "모든 화면에서 to-be가 as-is와 같게 동작했습니다."
+        stamp, lede = ("ok", "모두 같음", f"화면 {len(g['routes'])}개"), "모든 화면에서 to-be가 as-is와 같게 동작했습니다."
     opts = "".join(f"<option value='{html._e(t['name'])}'>{html._e(t['title'])}</option>" for t in g["tests"])
     legend = ("<div class='legend'><span><i class='st'></i>시작 화면</span>"
               + ("<span><i class='ok'></i>as-is와 같음</span><span><i class='bad'></i>as-is와 다름</span>" if g["compared"] else "")
-              + "<span><span class='ln'></span>동작 → 다음 화면</span><span><span class='ln back'></span>되돌아가기</span></div>")
+              + "<span><span class='ln'></span>동작 → 다음 화면</span><span><span class='ln back'></span>되돌아가기</span>"
+              "<span><span class='kd dialog'>팝업</span><span class='kd drawer'>드로워</span><span class='kd tab'>탭</span> 화면 안의 상태</span></div>")
     body = (f"<header class='head'><div class='eyebrow'>화면 지도</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
             f"<h1>{html._e(g['app'])}</h1><p class='lede'>{lede}</p>"
             f"<div class='prov'><span><b>기준</b> golden/{html._e(g['app'])}</span>"
             + (f"<span><b>비교 대상</b> {html._e(g['target'])}</span>" if g["target"] else "")
-            + f"<span><b>테스트</b> {len(g['tests'])}개</span></div></header>{legend}"
-            f"<div class='toolbar'><input id='q' type='search' placeholder='화면 이름·주소·문구로 찾기' aria-label='화면 찾기'>"
+            + f"<span><b>테스트</b> {len(g['tests'])}개</span><span><b>상태</b> {n_states}개</span></div></header>{legend}"
+            f"<div class='toolbar'><input id='q' type='search' placeholder='화면 이름·주소·팝업 이름으로 찾기' aria-label='화면 찾기'>"
             f"<select id='f' aria-label='테스트로 거르기'><option value=''>모든 테스트</option>{opts}</select>"
             f"<span class='zoom'><button type='button' id='zo' aria-label='축소'>－</button><button type='button' id='zf'>맞춤</button><button type='button' id='zi' aria-label='확대'>＋</button></span></div>"
-            f"<div class='stage' id='stage'><div class='pane left'><h2><span>화면 {len(g['nodes'])}개</span><button class='ib' id='tl' type='button' aria-label='목록 접기'>‹</button></h2><div class='list'>{''.join(rows)}</div></div>"
+            f"<div class='stage' id='stage'><div class='pane left'><h2><span>화면 {len(g['routes'])}개</span><button class='ib' id='tl' type='button' aria-label='목록 접기'>‹</button></h2><div class='list'>{''.join(rows)}</div></div>"
             f"<div class='pane canvas' id='canvas'><div id='holder' style='position:relative;width:{w}px;height:{hgt}px'>"
             f"<div id='inner' data-w='{w}' data-h='{hgt}' style='position:absolute;left:0;top:0;width:{w}px;height:{hgt}px;transform-origin:0 0'>{svg}{''.join(cards)}</div></div></div>"
             f"<aside class='pane side detail' id='side' aria-live='polite'></aside></div>"
@@ -541,6 +669,6 @@ def write(d: Path, out: Path, junit: Path | None = None, tests_dir: Path | None 
         raise SystemExit(f"{d} has no recorded tests (record on as-is with pytest --record {d} first)")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render(g), encoding="utf-8")
-    print(f"{out} · 화면 {len(g['nodes'])}, 연결 {len(g['edges'])}, 테스트 {len(g['tests'])}"
-          + (f", 다른 화면 {sum(n['failed'] for n in g['nodes'].values())}" if junit else ""))
+    print(f"{out} · 화면 {len(g['routes'])}, 상태 {len(g['nodes'])}, 연결 {len(g['redges'])}, 테스트 {len(g['tests'])}"
+          + (f", 다른 화면 {sum(r['failed'] for r in g['routes'].values())}" if junit else ""))
     return out

@@ -23,7 +23,7 @@ HTML은 파일로 바로 열린다(서버 없음). 단계 번호는 [MIGRATION.m
 | | | 실패 시점 스크린샷 | 사람 | [test_order_save-fail.png](test_order_save-fail.png) |
 | | | 실행 원장 (`runs/<app>/<시각>.json`) | 상태 명령·관리 화면 입력 | [run-ledger-sample.json](run-ledger-sample.json) |
 | | `parity report` | 검증 보고서 (신뢰 확인 → 판정 → 다른 점 → 탐지율) | **사람** (최종) | [verification-sample.html](verification-sample.html), [.md](verification-sample.md) |
-| | `parity map --junit` | 화면 지도 (다른 화면은 빨갛게) | 사람 | [map-legacy-tobe-fixed.html](map-legacy-tobe-fixed.html), [map-reservation.html](map-reservation.html) |
+| | `parity map --junit` | 화면 지도: 라우트 네트워크 + 라우트 안의 팝업·드로워·탭 그래프 (다른 화면은 빨갛게) | 사람 | [map-portal.html](map-portal.html), [map-reservation.html](map-reservation.html), [map-legacy-tobe-fixed.html](map-legacy-tobe-fixed.html), 통합 화면 캡처 [ui-map.png](ui-map.png) |
 | 7 루프 | `parity ui` | 통합 화면 (개요·이력·승인 검토·지도·보고서, 지난 실행 선택) | **사람** | [ui-history.png](ui-history.png), [ui-overview.png](ui-overview.png) |
 | | `parity status` | 남은 실패, 지난 실행 대비 변화 | 개발자·에이전트 | [status.txt](status.txt) |
 | | `parity catalog` | 골든 관리 화면 한 장 (통합 화면의 개요 탭) | 사람 | [catalog-sample.html](catalog-sample.html) |
@@ -37,6 +37,9 @@ HTML은 파일로 바로 열린다(서버 없음). 단계 번호는 [MIGRATION.m
 - **루프**: 원장 `runs/legacy/`에 실행 3회 — `tobe-fixed`(8803, 3 다름) → `tobe-renamed`(8804, 이름 매핑 적용, 부가세 반올림 1 다름) → `tobe`(8802, 모두 같음).
   통합 화면 이력 탭에 "+2 통과로 / 1 계속 실패", "+1 통과로"가 찍히고, 실행을 고르면 그 실행의 지도·보고서가 다시 그려진다 (JUnit·스크린샷 사본이 `runs/legacy/<시각>/`에 있다).
 - **탐색**: 예약 데모(8787) 로그인부터 깊이 4까지 → 상태 10개, 동작 26개, 시나리오 6개. 로그인 실패·필수값 누락·확정·취소 경로가 모두 잡혔다.
+- **화면 지도 (포털 데모, `demo-app/portal_app.py`)**: 홈 → 주문 목록(필터 드로워, 신규 주문 팝업) → 주문 상세(기본 정보/이력 탭, 취소 confirm), 고객 목록(등록 팝업) → 고객 상세(메모 드로워), 설정(탭, 저장 alert).
+  crawl 초안 176개 중 18개 + 업무 값 테스트 2개를 `e2e/portal/`에 두고 `golden/portal`에 기록(승인 전). to-be(8821)는 as-is 버그 두 개(부가세 10원 절사, 취소된 주문 재취소)를 고쳐서 라우트 6개 중 2개가 빨갛다.
+  `golden/reservation`도 같은 방식(crawl 초안 6개 그대로). 두 골든은 **승인되지 않은 데모**라 비교는 `--allow-unapproved`로 돌렸고 보고서는 신뢰 불가로 표시된다 — 승인은 사람이 터미널에서.
 - **스모크**: ERP 화면 12개를 조회 버튼 규칙으로 9개 확정, 3개는 사람이 고름. to-be(8812)에 결함 5개가 심겨 있고 5개 모두 `real_defect`로 분류됐다.
 
 ## 다시 만들기
