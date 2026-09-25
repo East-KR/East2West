@@ -1,0 +1,22 @@
+{
+  "projects": {
+    "portal": {
+      "asis": {"src": "demo-app", "url": "http://127.0.0.1:8820"},
+      "tobe": {"src": "demo-app", "url": "http://127.0.0.1:8821"},
+      "note": "메인 데모. portal_app.py 변형: asis(8820) · tobe(8821) · tobe-fixed(8822) · tobe-renamed(8823) · tobe-custom(8824)",
+      "created_at": "2026-09-25T23:05:00"
+    },
+    "legacy": {
+      "asis": {"src": "demo-app", "url": "http://127.0.0.1:8801"},
+      "tobe": {"src": "demo-app", "url": "http://127.0.0.1:8802"},
+      "note": "frameset 레거시 데모. legacy_app.py 변형: asis(8801) · tobe(8802) · tobe-fixed(8803) · tobe-renamed(8804)",
+      "created_at": "2026-09-25T23:05:00"
+    },
+    "reservation": {
+      "asis": {"src": "demo-app", "url": "http://127.0.0.1:8787"},
+      "tobe": {"src": "demo-app", "url": ""},
+      "note": "탐색(crawl) 데모. app.py 하나뿐이라 to-be 주소 없음",
+      "created_at": "2026-09-25T23:05:00"
+    }
+  }
+}

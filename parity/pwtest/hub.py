@@ -1,16 +1,21 @@
-"""통합 화면 (parity ui): 사람이 보는 HTML 네 장(개요·승인 검토·화면 지도·검증 보고서)과 실행 이력을 한 화면에서 본다.
+"""통합 화면 (parity ui): 프로젝트 목록에서 시작해, 프로젝트마다 사람이 보는 HTML 네 장(개요·승인 검토·화면 지도·검증 보고서)과 실행 이력을 한 화면에서 본다.
 
 uv run parity ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
 
+첫 화면은 프로젝트 목록(parity.json)이다. "프로젝트 추가"를 누르면 as-is와 to-be 소스 위치를 파일 시스템에서 고르는 창이 뜨고,
+저장하면 등록부에 적히고 e2e/<app>/ 자리가 생긴다. 등록부에 없어도 golden/<app> 이나 e2e/<app> 이 있으면 목록에 나온다(경로 미설정).
 서버는 산출물(golden/<app>/, runs/<app>/)만 읽고, 요청이 올 때 기존 생성기(catalog·review·map·report)로 화면을 만든다.
-파일을 미리 만들어 둘 필요가 없고, 실행 원장이 실행마다 JUnit·스크린샷 사본을 남기므로 지난 실행의 지도·보고서도 다시 그릴 수 있다.
-새로 판단하는 것은 없다. 승인은 여전히 터미널에서만 한다.
+실행 원장이 실행마다 JUnit·스크린샷 사본을 남기므로 지난 실행의 지도·보고서도 다시 그릴 수 있다. 새로 판단하는 것은 없다.
 
 경로:
-  /                                 통합 화면 (앱 목록, 탭, 실행 선택)
-  /api/apps                         앱별 승인 상태·실행 수·마지막 결과
+  /                                 통합 화면 (프로젝트 목록 → 프로젝트 화면: 탭, 실행 선택)
+  /api/apps                         프로젝트별 등록 정보·승인 상태·실행 수·마지막 결과
   /api/app/<app>                    시나리오, 실행 이력(지난 실행 대비 변화 포함), 결함 주입 결과
   POST /api/app/<app>/approve       웹 승인 {by, code, fingerprint}. 사람이 터미널에서 띄운 서버만 코드를 만들고 그 터미널에 찍는다 (에이전트 서버는 403)
+  POST /api/projects                프로젝트 추가 {name, asis:{src,url}, tobe:{src,url}, note}
+  POST /api/projects/<app>          프로젝트 설정 변경 (같은 본문)
+  POST /api/projects/<app>/delete   등록 해제 (산출물은 남긴다)
+  /api/fs?path=                     폴더 고르기용 하위 폴더 목록 (작업 디렉터리·홈 아래만)
   /page/<app>/catalog|review        개요(골든 관리), 승인 검토
   /page/<app>/map?run=<시각>         화면 지도 (실행을 고르면 그 실행의 다른 화면을 빨갛게)
   /page/<app>/report?run=<시각>      검증 보고서 (그 실행의 JUnit + 현재 승인본의 결함 주입 결과)
@@ -30,16 +35,17 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlsplit
 
-from . import catalog, html, ledger, oracle, report, review
+from . import catalog, html, ledger, oracle, projects, report, review
 from . import map as screen_map
 
 PAGES = ("catalog", "review", "map", "report")
 
 
 class Hub:
-    def __init__(self, golden_root: Path, tests_root: Path = Path("e2e")):
+    def __init__(self, golden_root: Path, tests_root: Path = Path("e2e"), projects_file: Path = projects.FILE):
         self.golden_root = golden_root
         self.tests_root = tests_root
+        self.projects_file = projects_file
         self._cache: dict[tuple, tuple[float, str]] = {}
         self._lock = threading.Lock()
         self.approval_code: str | None = None  # 웹 승인 일회용 코드. 사람이 터미널에서 띄웠을 때만 만들어지고 그 터미널에만 찍힌다
@@ -53,7 +59,7 @@ class Hub:
 
     def approve(self, app: str, *, by: str, code: str, fingerprint: str, note: str = "") -> dict[str, Any]:
         """검토 화면의 승인 폼. 코드는 터미널에 찍힌 것과 같아야 하고(5번 틀리면 잠김), 지문은 검토 화면을 만들 때의 기준과 같아야 한다."""
-        d = self._dir(app)
+        d = self._golden(app)
         if not self.approval_code:
             raise PermissionError("웹 승인이 꺼져 있습니다. 사람이 자기 터미널에서 `uv run parity ui`를 띄우면 터미널에 승인 코드가 찍힙니다. 또는 `uv run parity approve` (터미널)")
         if self.attempts >= 5:
@@ -68,18 +74,47 @@ class Hub:
             self._cache.clear()
         return {"ok": True, "approved_by": rec["approved_by"], "approved_at": rec["approved_at"]}
 
-    # ---- 산출물 읽기 ----
+    # ---- 프로젝트 ----
+    def names(self) -> list[str]:
+        return projects.names(path=self.projects_file, golden_root=self.golden_root, tests_root=self.tests_root)
+
     def app_dirs(self) -> list[Path]:
+        """골든이 기록된 앱 폴더들."""
         if not self.golden_root.exists():
             return []
         return sorted(p for p in self.golden_root.iterdir() if p.is_dir() and any(p.glob("*.json")))
 
-    def _dir(self, app: str) -> Path:
-        d = self.golden_root / app
-        if "/" in app or ".." in app or not d.is_dir():
+    def _check(self, app: str) -> str:
+        if not projects.NAME_RE.match(app or "") or app not in self.names():
+            raise KeyError(app)
+        return app
+
+    def _golden(self, app: str) -> Path:
+        """골든 폴더. 없으면 KeyError (아직 기록 전)."""
+        d = self.golden_root / self._check(app)
+        if not d.is_dir():
             raise KeyError(app)
         return d
 
+    def _scenarios(self, app: str) -> int:
+        d = self.tests_root / app
+        return len(list(d.glob("test_*.py"))) if d.is_dir() else 0
+
+    def add_project(self, name: str, spec: dict[str, Any]) -> dict[str, Any]:
+        rec = projects.add(name, spec, path=self.projects_file, tests_root=self.tests_root)
+        return {"ok": True, "app": name, **rec}
+
+    def update_project(self, name: str, spec: dict[str, Any]) -> dict[str, Any]:
+        self._check(name)
+        rec = projects.update(name, spec, path=self.projects_file)
+        return {"ok": True, "app": name, **rec}
+
+    def remove_project(self, name: str) -> dict[str, Any]:
+        self._check(name)
+        projects.remove(name, path=self.projects_file)
+        return {"ok": True, "app": name, "kept": [str(p) for p in (self.tests_root / name, self.golden_root / name, ledger.run_dir(name)) if p.exists()]}
+
+    # ---- 산출물 읽기 ----
     def _sig(self, app: str) -> float:
         """골든이나 원장이 바뀌면 화면 캐시를 버린다."""
         latest = 0.0
@@ -89,22 +124,32 @@ class Hub:
         return latest
 
     def apps(self) -> list[dict[str, Any]]:
+        reg = projects.load(self.projects_file)
         out = []
-        for d in self.app_dirs():
-            st = oracle.status(d)
-            runs = ledger.load_runs(d.name)
+        for name in self.names():
+            d = self.golden_root / name
+            has_golden = d.is_dir() and any(d.glob("*.json"))
+            st = oracle.status(d) if has_golden else {"ok": False}
+            runs = ledger.load_runs(name)
             last = runs[-1] if runs else None
-            out.append({"app": d.name, "ok": st["ok"], "approved_by": st.get("approved_by"), "approved_at": st.get("approved_at"),
-                        "tests": len(oracle.tests(d)), "runs": len(runs),
+            spec = reg.get(name)
+            out.append({"app": name, "registered": spec is not None,
+                        "asis": (spec or {}).get("asis"), "tobe": (spec or {}).get("tobe"), "note": (spec or {}).get("note", ""),
+                        "created_at": (spec or {}).get("created_at"),
+                        "scenarios": self._scenarios(name), "golden": has_golden,
+                        "ok": st["ok"], "approved_by": st.get("approved_by"), "approved_at": st.get("approved_at"),
+                        "tests": len(oracle.tests(d)) if has_golden else 0, "runs": len(runs),
                         "last": {"finished": last["finished"], "target": last["target"], "totals": last["totals"]} if last else None})
         return out
 
     def app(self, app: str) -> dict[str, Any]:
-        d = self._dir(app)
-        st = oracle.status(d)
+        self._check(app)
+        d = self.golden_root / app
+        has_golden = d.is_dir() and any(d.glob("*.json"))
+        st = oracle.status(d) if has_golden else {"ok": False, "problems": ["골든이 아직 없습니다"]}
         docs = html.docstrings(self.tests_root / app)
         tests = [{"name": t["name"], "title": html._title(t["name"], docs), "assertions": len(t["assertions"]), "recorded_at": t["recorded_at"]}
-                 for t in oracle.tests(d)]
+                 for t in (oracle.tests(d) if has_golden else [])]
         runs, previous = [], None
         for r in ledger.load_runs(app):
             cases = {}
@@ -120,14 +165,23 @@ class Hub:
         muts = [{"file": m["_file"], "generated_at": m.get("generated_at"), "mode": m.get("mode"), "score": m.get("score"), "killed": m.get("killed"),
                  "total": m.get("total"), "errors": m.get("errors", 0), "approved_at": m.get("oracle_approved_at"),
                  "current": bool(current) and str(current) == m["_file"]} for m in ledger.load_mutations(app)]
-        return {"app": app, "oracle": st, "tests": tests, "runs": runs, "mutations": muts,
-                "kind_label": catalog.KIND_LABEL}
+        return {"app": app, "project": projects.load(self.projects_file).get(app), "golden": has_golden, "scenarios": self._scenarios(app),
+                "oracle": st, "tests": tests, "runs": runs, "mutations": muts, "kind_label": catalog.KIND_LABEL}
 
     # ---- 화면 만들기 ----
     def page(self, app: str, kind: str, run: str | None = None) -> str:
-        d = self._dir(app)
+        self._check(app)
         if kind not in PAGES:
             raise KeyError(kind)
+        d = self.golden_root / app
+        if not (d.is_dir() and any(d.glob("*.json"))):
+            spec = projects.load(self.projects_file).get(app) or {}
+            asis = (spec.get("asis") or {}).get("url") or "<as-is 주소>"
+            body = (f"<header class='head'><div class='eyebrow'>{html._e(app)}</div><h1>골든이 아직 없습니다</h1>"
+                    f"<p class='lede'>시나리오를 as-is에서 기록해야 개요·승인 검토·지도·보고서가 생깁니다.</p></header>"
+                    f"<section><pre><code>uv run parity crawl {html._e(asis)} --out crawl/{html._e(app)}   # 화면을 훑어 시나리오 초안\n"
+                    f"uv run pytest e2e/{html._e(app)} --base-url {html._e(asis)} --record golden/{html._e(app)}   # as-is에서 기록</code></pre></section>")
+            return html._page(f"{app} {kind}", body)
         key, sig = (app, kind, run), self._sig(app)
         with self._lock:
             hit = self._cache.get(key)
@@ -180,8 +234,8 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _json(self, data: Any) -> None:
-        self._send(json.dumps(data, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8")
+    def _json(self, data: Any, code: int = 200) -> None:
+        self._send(json.dumps(data, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8", code)
 
     def do_GET(self):  # noqa: N802
         u = urlsplit(self.path)
@@ -190,8 +244,10 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if not parts:
                 return self._send(SHELL.encode("utf-8"))
-            if parts == ["api", "apps"]:
+            if parts in (["api", "apps"], ["api", "projects"]):
                 return self._json(self.hub.apps())
+            if parts == ["api", "fs"]:
+                return self._json(projects.listdir((q.get("path") or [None])[0]))
             if len(parts) == 3 and parts[:2] == ["api", "app"]:
                 return self._json(self.hub.app(parts[2]))
             if len(parts) == 3 and parts[0] == "page":
@@ -201,33 +257,39 @@ class Handler(BaseHTTPRequestHandler):
                 if p is None:
                     return self._send(b"not found", "text/plain", 404)
                 return self._send(p.read_bytes(), mimetypes.guess_type(p.name)[0] or "application/octet-stream")
-        except KeyError as e:
+        except PermissionError as e:
+            return self._json({"error": str(e)}, 403)
+        except (KeyError, FileNotFoundError) as e:
             return self._send(f"unknown: {e}".encode(), "text/plain; charset=utf-8", 404)
         return self._send(b"not found", "text/plain", 404)
 
     def do_POST(self):  # noqa: N802
         parts = [unquote(x) for x in urlsplit(self.path).path.strip("/").split("/") if x]
-        if len(parts) != 4 or parts[:2] != ["api", "app"] or parts[3] != "approve":
-            return self._send(b"not found", "text/plain", 404)
         try:
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0)) or 0) or b"{}")
-            res = self.hub.approve(parts[2], by=str(body.get("by", "")), code=str(body.get("code", "")),
-                                   fingerprint=str(body.get("fingerprint", "")), note=str(body.get("note", "")))
-            return self._json(res)
+            if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "approve":
+                return self._json(self.hub.approve(parts[2], by=str(body.get("by", "")), code=str(body.get("code", "")),
+                                                   fingerprint=str(body.get("fingerprint", "")), note=str(body.get("note", ""))))
+            if parts == ["api", "projects"]:
+                return self._json(self.hub.add_project(str(body.get("name", "")).strip(), body))
+            if len(parts) == 3 and parts[:2] == ["api", "projects"]:
+                return self._json(self.hub.update_project(parts[2], body))
+            if len(parts) == 4 and parts[:2] == ["api", "projects"] and parts[3] == "delete":
+                return self._json(self.hub.remove_project(parts[2]))
+            return self._send(b"not found", "text/plain", 404)
         except PermissionError as e:
-            return self._send(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8", 403)
+            return self._json({"error": str(e)}, 403)
         except (ValueError, KeyError) as e:
-            return self._send(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8", 409)
+            return self._json({"error": str(e) if isinstance(e, ValueError) else f"모르는 프로젝트: {e}"}, 409)
 
 
 def serve(golden_root: Path, *, port: int = 8790, tests_root: Path = Path("e2e"), open_browser: bool = True) -> None:
     hub = Hub(golden_root, tests_root)
-    if not hub.app_dirs():
-        raise SystemExit(f"{golden_root}/ 아래에 기록된 골든이 없습니다 (pytest e2e/<app> --base-url <as-is> --record {golden_root}/<app>)")
     handler = type("HubHandler", (Handler,), {"hub": hub})
     srv = ThreadingHTTPServer(("127.0.0.1", port), handler)
     url = f"http://127.0.0.1:{srv.server_address[1]}/"
-    print(f"parity ui · {url}  (앱 {len(hub.app_dirs())}개: {', '.join(d.name for d in hub.app_dirs())}) — Ctrl+C로 종료")
+    names = hub.names()
+    print(f"parity ui · {url}  (프로젝트 {len(names)}개{': ' + ', '.join(names) if names else ' — 첫 화면에서 추가'}) — Ctrl+C로 종료")
     # 웹 승인은 사람이 터미널에서 띄웠을 때만. 에이전트 도구는 터미널이 없으므로 코드가 만들어지지 않고, 승인 요청은 403이다
     if sys.stdin.isatty() and sys.stdout.isatty():
         print(f"승인 코드: {hub.new_code()}   (검토 화면에서 모든 시나리오를 확인한 뒤 이름과 함께 입력. 이 터미널에만 보인다)")
@@ -245,13 +307,13 @@ def serve(golden_root: Path, *, port: int = 8790, tests_root: Path = Path("e2e")
 
 HUB_CSS = """
 html,body{height:100%}
+[hidden]{display:none!important}
 body.hub{display:flex;flex-direction:column;overflow:hidden}
-.top{display:flex;align-items:center;gap:18px;padding:0 20px;height:54px;border-bottom:1px solid var(--line);background:var(--surface);flex:none}
-.brand{font-weight:700;font-size:16px;letter-spacing:-.01em}.brand span{font-weight:500;color:var(--faint);margin-left:6px;font-size:13px}
-.apps{display:flex;gap:4px;flex:1;overflow:auto}
-.apps button{border:1px solid transparent;background:none;font:inherit;font-size:13.5px;font-weight:500;padding:5px 11px;border-radius:999px;cursor:pointer;color:var(--muted);display:flex;gap:7px;align-items:center;white-space:nowrap}
-.apps button.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
-.apps button i{width:8px;height:8px;border-radius:50%;background:var(--faint)}.apps button i.ok{background:var(--ok)}.apps button i.bad{background:var(--bad)}.apps button i.warn{background:var(--warn)}
+.top{display:flex;align-items:center;gap:14px;padding:0 20px;height:54px;border-bottom:1px solid var(--line);background:var(--surface);flex:none}
+.brand{font-weight:700;font-size:16px;letter-spacing:-.01em;color:var(--ink);text-decoration:none;cursor:pointer}
+.crumb{display:flex;align-items:center;gap:10px;flex:1;min-width:0;font-size:14px;color:var(--muted)}
+.crumb .sepc{color:var(--faint)}.crumb b{color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb select{font:inherit;font-size:13.5px;font-weight:600;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
 .runsel{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .runsel select{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);max-width:380px}
 .frame{display:flex;flex:1;min-height:0}
@@ -290,10 +352,51 @@ body.hub{display:flex;flex-direction:column;overflow:hidden}
 .case th{font-size:11.5px;color:var(--muted);font-weight:600}.case td.was{font-family:var(--mono)}.case td.now{font-family:var(--mono);color:var(--bad);font-weight:600}
 .case img{grid-column:1/-1;max-width:420px;max-height:220px;object-fit:cover;object-position:top left;border:1px solid var(--line);border-radius:6px;cursor:zoom-in}
 .actions{display:flex;gap:8px}.actions button{font:inherit;font-size:12.5px;padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer}
-.actions button:hover{border-color:var(--accent);color:var(--accent)}
+.actions button:hover{border-color:var(--accent);color:var(--accent)}.actions button.danger:hover{border-color:var(--bad);color:var(--bad)}
 .notice{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:10px 14px;font-size:13.5px}
 .empty{color:var(--muted);padding:40px;text-align:center}
-@media (max-width:760px){.side{width:56px;padding:10px 6px}.side a span,.side a small,.side .sep{display:none}.runsel label{display:none}}
+.btn{font:inherit;font-size:13.5px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{filter:brightness(1.08)}.btn:disabled{opacity:.5;cursor:default}
+/* 프로젝트 목록 */
+.plist{display:flex;flex-direction:column;gap:22px;max-width:1180px;margin:0 auto;padding:0 24px}
+.plist .bar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.plist h1{font-size:22px;font-weight:700;margin:0}.plist .lede{color:var(--muted);font-size:14px;margin:4px 0 0}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.proj{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.proj .hd{display:flex;align-items:center;gap:10px}.proj .hd b{font-size:16px;font-weight:700;cursor:pointer}.proj .hd b:hover{color:var(--accent)}
+.proj .hd .sp{flex:1}
+.proj .sides{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:13px;align-items:baseline}
+.proj .sides .k{font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--faint)}
+.proj .sides .v{min-width:0}.proj .sides .v code{font-family:var(--mono);font-size:12.5px;background:var(--sunk);padding:1px 6px;border-radius:4px;word-break:break-all}
+.proj .sides .v a{color:var(--muted);font-family:var(--mono);font-size:12px;margin-left:6px;text-decoration:none}.proj .sides .v a:hover{color:var(--accent)}
+.proj .sides .v.none{color:var(--warn);font-size:12.5px}
+.proj .stats{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}.proj .stats b{font-family:var(--mono);color:var(--ink);font-weight:600}
+.proj .next{font-size:12.5px;color:var(--muted);background:var(--sunk);border-radius:8px;padding:8px 12px}.proj .next code{font-family:var(--mono);font-size:12px;display:block;margin-top:4px;color:var(--ink);white-space:pre-wrap}
+.proj .ft{display:flex;align-items:center;gap:8px;margin-top:auto}.proj .ft .sp{flex:1}
+.proj .confirm{background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:8px 12px;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.proj .confirm .actions{margin-left:auto}
+/* 창 */
+.modal{position:fixed;inset:0;background:rgba(10,14,13,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.pdlg{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;width:min(680px,100%);max-height:92vh;overflow:auto;padding:22px 24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.pdlg,.pdlg *{text-align:left}.pdlg h2{font-size:18px;font-weight:700;margin:0}.pdlg .lede{color:var(--muted);font-size:13.5px;margin:-8px 0 0}
+.pdlg .prow{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;align-items:center;justify-items:stretch}.pdlg .prow>*{max-width:none}
+.pdlg .prow label{font-size:13px;font-weight:600;color:var(--muted)}
+.pdlg input,.pdlg textarea{font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);width:100%;box-sizing:border-box}.pdlg .ft,.pdlg .fsb,.pdlg .fscur{text-align:left}
+.pdlg input:disabled{color:var(--muted);background:var(--sunk)}
+.pdlg .pick{display:flex;gap:6px}.pdlg .pick input{flex:1;font-family:var(--mono);font-size:12.5px}
+.pdlg fieldset{border:1px solid var(--line);border-radius:10px;padding:12px 14px 14px;margin:0;display:flex;flex-direction:column;gap:10px}
+.pdlg legend{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--accent);padding:0 6px}
+.pdlg .err{color:var(--bad);font-size:13px;background:var(--bad-soft);border-radius:7px;padding:8px 12px}.pdlg .err:empty{display:none}
+.pdlg .ft{display:flex;gap:8px;justify-content:flex-end}
+/* 폴더 고르기 */
+.fsb{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12.5px}
+.fsb button{font:inherit;font-size:12.5px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);cursor:pointer}.fsb button:hover{color:var(--accent);border-color:var(--accent)}
+.fscur{font-family:var(--mono);font-size:12.5px;background:var(--sunk);padding:7px 10px;border-radius:7px;word-break:break-all;display:flex;gap:8px;align-items:center}.fscur .sp{flex:1}
+.fslist{border:1px solid var(--line);border-radius:8px;max-height:44vh;overflow:auto;background:var(--bg)}
+.fslist div{display:flex;gap:10px;align-items:baseline;padding:7px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13.5px}
+.fslist div:last-child{border-bottom:0}.fslist div:hover{background:var(--accent-soft)}.fslist div small{color:var(--faint);font-family:var(--mono);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fslist .none{color:var(--muted);cursor:default}
+@media (max-width:760px){.side{width:56px;padding:10px 6px}.side a span,.side a small,.side .sep{display:none}.runsel label{display:none}.pdlg .prow{grid-template-columns:1fr}}
 """
 
 HUB_JS = r"""
@@ -303,39 +406,142 @@ const TABS = [['overview','개요'],['history','이력'],['review','승인 검�
 const KIND = {golden_diff:'as-is와 다름', assert:'확인 값 실패', drift:'기대값 변경', error:'실행 못 함', same:'같음'};
 let apps = [], state = {app:null, tab:'overview', run:null}, data = null;
 
-function parseHash(){ const [app, tab, run] = location.hash.replace(/^#/, '').split('/').map(decodeURIComponent); return {app: app||null, tab: tab||'overview', run: run||null}; }
+function parseHash(){ const [app, tab, run] = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent); return {app: app||null, tab: tab||'overview', run: run||null}; }
 function setHash(){ location.hash = [state.app, state.tab, state.run].filter(x => x).map(encodeURIComponent).join('/'); }
 function runLabel(r){ return `${r.finished.slice(5,16)} · ${r.target.replace(/^https?:\/\//,'')} · ${r.totals.fail ? r.totals.fail + ' 다름' : '모두 같음'}`; }
+async function api(path, body){
+  const r = await fetch(path, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)} : undefined);
+  const j = await r.json().catch(() => ({error: r.statusText}));
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
 
-async function loadApps(){
-  apps = await (await fetch('/api/apps')).json();
-  const nav = $('#apps'); nav.innerHTML = '';
-  for (const a of apps){
-    const b = document.createElement('button');
-    const dot = !a.ok ? 'warn' : (a.last ? (a.last.totals.fail ? 'bad' : 'ok') : '');
-    b.innerHTML = `<i class="${dot}"></i>${esc(a.app)}<small>${a.runs}회</small>`;
-    b.onclick = () => { state.app = a.app; state.run = null; setHash(); };
-    b.className = a.app === state.app ? 'on' : '';
-    nav.appendChild(b);
+async function loadApps(){ apps = await api('/api/apps'); }
+
+// ---- 머리: 프로젝트 목록에서는 이름만, 프로젝트 안에서는 빵부스러기 + 실행 선택 ----
+function renderTop(){
+  const c = $('#crumb');
+  if (!state.app){ c.innerHTML = '<span class="sepc">›</span><b>프로젝트</b>'; $('#runsel').hidden = true; return; }
+  c.innerHTML = `<span class="sepc">›</span><select id="switch" aria-label="프로젝트 바꾸기">${apps.map(a => `<option value="${esc(a.app)}" ${a.app === state.app ? 'selected' : ''}>${esc(a.app)}</option>`).join('')}</select>`;
+  $('#switch').onchange = e => { state.app = e.target.value; state.run = null; setHash(); };
+  $('#runsel').hidden = false;
+}
+
+// ---- 프로젝트 목록 ----
+function projCard(a){
+  const side = (k, s) => `<div class="k">${k}</div>` + (s && s.src
+    ? `<div class="v"><code>${esc(s.src)}</code>${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url.replace(/^https?:\/\//,''))}</a>` : ''}</div>`
+    : `<div class="v none">경로 미설정 — 설정에서 고르세요</div>`);
+  const pill = a.ok ? `<span class="pill ok" title="${esc(a.approved_at||'')}">승인됨 · ${esc(a.approved_by)}</span>`
+             : a.golden ? '<span class="pill warn">승인 필요</span>' : '<span class="pill none">골든 없음</span>';
+  const last = a.last ? `${a.last.totals.fail ? `<b style="color:var(--bad)">${a.last.totals.fail} 다름</b>` : '<b style="color:var(--ok)">모두 같음</b>'} <span>${esc(a.last.finished.slice(5,16))}</span>` : '<b>—</b>';
+  let next = '';
+  const asis = (a.asis||{}).url || '<as-is 주소>', tobe = (a.tobe||{}).url || '<to-be 주소>';
+  if (!a.scenarios) next = `<div class="next">다음: as-is 화면을 훑어 시나리오 초안 만들기<code>uv run parity crawl ${esc(asis)} --out crawl/${esc(a.app)}</code></div>`;
+  else if (!a.golden) next = `<div class="next">다음: as-is에서 골든 기록<code>uv run pytest e2e/${esc(a.app)} --base-url ${esc(asis)} --record golden/${esc(a.app)}</code></div>`;
+  else if (!a.ok) next = `<div class="next">다음: 승인 검토 탭에서 확인 후 승인 (터미널 코드 필요)</div>`;
+  else if (!a.runs) next = `<div class="next">다음: to-be 비교<code>uv run pytest e2e/${esc(a.app)} --base-url ${esc(tobe)} --compare golden/${esc(a.app)} --junitxml reports/junit-${esc(a.app)}.xml</code></div>`;
+  return `<div class="proj" data-app="${esc(a.app)}"><div class="hd"><b data-open>${esc(a.app)}</b>${pill}<span class="sp"></span>${a.registered ? '' : '<span class="pill warn" title="parity.json에 없음. golden/ 또는 e2e/ 에서 발견">미등록</span>'}</div>
+    <div class="sides">${side('AS-IS', a.asis)}${side('TO-BE', a.tobe)}</div>
+    ${a.note ? `<div style="font-size:13px;color:var(--muted)">${esc(a.note)}</div>` : ''}
+    <div class="stats"><span>시나리오 <b>${a.scenarios}</b></span><span>골든 <b>${a.tests}</b></span><span>비교 <b>${a.runs}</b>회</span><span>마지막 ${last}</span></div>
+    ${next}<div class="confirm" hidden>등록만 지웁니다. e2e/·golden/·runs/ 의 산출물은 남습니다.<div class="actions"><button data-del-yes class="danger">지우기</button><button data-del-no>취소</button></div></div>
+    <div class="ft"><span class="sp"></span><div class="actions"><button data-open>열기</button><button data-edit>설정</button>${a.registered ? '<button data-del class="danger">삭제</button>' : ''}</div></div></div>`;
+}
+
+function renderList(v){
+  $('#tabs').hidden = true;
+  v.innerHTML = `<main class="plist"><div class="bar"><div><h1>프로젝트</h1><p class="lede">as-is와 to-be 한 쌍이 프로젝트 하나. 소스 위치와 실행 주소를 적어 두면 시나리오·골든·비교 이력이 이 이름으로 묶입니다.</p></div><button class="btn primary" id="add">+ 프로젝트 추가</button></div>
+    ${apps.length ? `<div class="pgrid">${apps.map(projCard).join('')}</div>` : '<div class="empty">아직 프로젝트가 없습니다. 위의 "프로젝트 추가"로 as-is·to-be 소스 위치를 고르세요.</div>'}</main>`;
+  $('#add').onclick = () => openEditor(null);
+  for (const card of v.querySelectorAll('.proj')){
+    const name = card.dataset.app, a = apps.find(x => x.app === name);
+    for (const el of card.querySelectorAll('[data-open]')) el.onclick = () => { state.app = name; state.tab = 'overview'; state.run = null; setHash(); };
+    card.querySelector('[data-edit]').onclick = () => openEditor(a);
+    const del = card.querySelector('[data-del]');
+    if (del) del.onclick = () => { card.querySelector('.confirm').hidden = false; };
+    card.querySelector('[data-del-no]').onclick = () => { card.querySelector('.confirm').hidden = true; };
+    card.querySelector('[data-del-yes]').onclick = async () => { try { await api('/api/projects/' + encodeURIComponent(name) + '/delete', {}); await loadApps(); route(); } catch (e) { alert(e.message); } };
   }
 }
 
+// ---- 프로젝트 추가/설정 창 ----
+function openEditor(a){
+  const isNew = !a;
+  const side = (k, label, s) => `<fieldset><legend>${label}</legend>
+    <div class="prow"><label>소스 위치</label><div class="pick"><input name="${k}_src" value="${esc((s||{}).src||'')}" placeholder="폴더를 고르세요" autocomplete="off"><button type="button" class="btn" data-pick="${k}">찾아보기</button></div></div>
+    <div class="prow"><label>실행 주소</label><input name="${k}_url" value="${esc((s||{}).url||'')}" placeholder="http://127.0.0.1:8820 (선택)" autocomplete="off"></div></fieldset>`;
+  const m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = `<form class="pdlg" id="pf"><h2>${isNew ? '프로젝트 추가' : `프로젝트 설정 · ${esc(a.app)}`}</h2>
+    <p class="lede">as-is(지금 쓰는 앱)와 to-be(새로 만든 앱)의 소스 위치를 고르세요. 실행 주소는 탐색·기록·비교 명령에 그대로 들어갑니다.</p>
+    <div class="prow"><label>이름</label><input name="name" value="${esc(isNew ? '' : a.app)}" ${isNew ? '' : 'disabled'} placeholder="소문자·숫자·-·_ (예: portal)" autocomplete="off" required></div>
+    ${side('asis', 'AS-IS', a && a.asis)}${side('tobe', 'TO-BE', a && a.tobe)}
+    <div class="prow"><label>메모</label><input name="note" value="${esc((a||{}).note||'')}" placeholder="선택" autocomplete="off"></div>
+    <div class="err" id="perr"></div>
+    <div class="ft"><button type="button" class="btn" data-cancel>취소</button><button type="submit" class="btn primary">${isNew ? '추가' : '저장'}</button></div></form>`;
+  document.body.appendChild(m);
+  const f = $('#pf', m);
+  m.querySelector('[data-cancel]').onclick = () => m.remove();
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  for (const b of m.querySelectorAll('[data-pick]')) b.onclick = () => { const inp = f.elements[b.dataset.pick + '_src']; openPicker(inp.value, p => { inp.value = p; }); };
+  f.onsubmit = async e => {
+    e.preventDefault(); $('#perr', m).textContent = '';
+    const name = isNew ? f.elements.name.value.trim() : a.app;
+    const body = {name, asis: {src: f.elements.asis_src.value.trim(), url: f.elements.asis_url.value.trim()}, tobe: {src: f.elements.tobe_src.value.trim(), url: f.elements.tobe_url.value.trim()}, note: f.elements.note.value.trim()};
+    try { await api(isNew ? '/api/projects' : '/api/projects/' + encodeURIComponent(name), body); m.remove(); await loadApps(); route(); }
+    catch (err) { $('#perr', m).textContent = err.message; }
+  };
+  (isNew ? f.elements.name : f.elements.asis_src).focus();
+}
+
+// ---- 폴더 고르기 (서버가 작업 디렉터리·홈 아래만 보여준다) ----
+function openPicker(start, onPick){
+  const m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = `<div class="pdlg" role="dialog" aria-label="폴더 고르기"><h2>폴더 고르기</h2><div class="fsb" id="fsroots"></div>
+    <div class="fscur"><button type="button" class="btn" id="fsup" title="상위 폴더">↑</button><span id="fspath" class="sp"></span><button type="button" class="btn primary" id="fsok">이 폴더 선택</button></div>
+    <div class="fslist" id="fslist"></div><div class="err" id="fserr"></div>
+    <div class="ft"><button type="button" class="btn" data-cancel>취소</button></div></div>`;
+  document.body.appendChild(m);
+  m.querySelector('[data-cancel]').onclick = () => m.remove();
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  let cur = null;  // 선택값: 작업 디렉터리 안이면 상대 경로
+  async function go(p){
+    $('#fserr', m).textContent = '';
+    try {
+      const d = await api('/api/fs' + (p ? '?path=' + encodeURIComponent(p) : ''));
+      cur = d.display === '.' ? '.' : d.display;
+      $('#fsroots', m).innerHTML = d.roots.map(r => `<button type="button" data-p="${esc(r.path)}">${esc(r.name)}</button>`).join('');
+      for (const b of $('#fsroots', m).children) b.onclick = () => go(b.dataset.p);
+      $('#fspath', m).textContent = d.display === '.' ? d.path : d.display;
+      $('#fspath', m).title = d.path;
+      $('#fsup', m).disabled = !d.parent; $('#fsup', m).onclick = () => d.parent && go(d.parent);
+      $('#fslist', m).innerHTML = d.dirs.length ? d.dirs.map(x => `<div data-p="${esc(x.path)}">📁 ${esc(x.name)}<small>${esc(x.hint)}</small></div>`).join('') : '<div class="none">하위 폴더 없음</div>';
+      for (const el of $('#fslist', m).querySelectorAll('[data-p]')) el.onclick = () => go(el.dataset.p);
+    } catch (e) { $('#fserr', m).textContent = e.message; }
+  }
+  $('#fsok', m).onclick = () => { if (cur){ onPick(cur); m.remove(); } };
+  go(start && start.trim() ? start.trim() : null);
+}
+
+// ---- 프로젝트 화면 ----
 async function loadApp(){
-  data = await (await fetch('/api/app/' + encodeURIComponent(state.app))).json();
+  data = await api('/api/app/' + encodeURIComponent(state.app));
   if (!state.run || !data.runs.some(r => r.stamp === state.run)) state.run = data.runs.length ? data.runs[data.runs.length-1].stamp : null;
   const sel = $('#run'); sel.innerHTML = '';
   for (const r of [...data.runs].reverse()){ const o = document.createElement('option'); o.value = r.stamp; o.textContent = runLabel(r); sel.appendChild(o); }
-  sel.value = state.run || ''; sel.disabled = !data.runs.length;
-  $('#tabs').innerHTML = `<div class="sep">${esc(state.app)}</div>` + TABS.map(([k, l]) => {
+  sel.value = state.run || ''; sel.disabled = !data.runs.length; $('#runsel').hidden = !data.runs.length;
+  $('#tabs').hidden = false;
+  $('#tabs').innerHTML = `<a data-back><span>← 프로젝트</span></a><div class="sep">${esc(state.app)}</div>` + TABS.map(([k, l]) => {
     const n = k === 'history' ? data.runs.length : (k === 'overview' ? data.tests.length : '');
     return `<a data-tab="${k}" class="${k === state.tab ? 'on' : ''}"><span>${l}</span>${n !== '' ? `<small>${n}</small>` : ''}</a>`;
   }).join('');
-  for (const a of $('#tabs').querySelectorAll('a')) a.onclick = () => { state.tab = a.dataset.tab; setHash(); };
+  for (const a of $('#tabs').querySelectorAll('a[data-tab]')) a.onclick = () => { state.tab = a.dataset.tab; setHash(); };
+  $('#tabs a[data-back]').onclick = () => { state = {app:null, tab:'overview', run:null}; location.hash = ''; };
 }
 
 function render(){
   const v = $('#view');
-  if (!state.app){ v.innerHTML = '<div class="empty">왼쪽 위에서 앱을 고르세요.</div>'; return; }
+  if (!state.app){ renderList(v); return; }
   const q = state.run ? '?run=' + encodeURIComponent(state.run) : '';
   const page = {overview:'catalog', review:'review', map:'map', report:'report'}[state.tab];
   if (page){ v.innerHTML = `<iframe title="${state.tab}" src="/page/${encodeURIComponent(state.app)}/${page}${q}"></iframe>`; return; }
@@ -348,14 +554,16 @@ function renderHistory(v){
   const last = runs[runs.length-1];
   const stale = last && st.approved_at && last.approved_at !== st.approved_at;
   const cards = [
-    ['승인', st.ok ? `${esc(st.approved_by)}<small>${esc((st.approved_at||'').slice(0,16))}</small>` : '없음<small>승인 필요</small>', st.ok ? 'ok' : 'warn'],
+    ['승인', st.ok ? `${esc(st.approved_by)}<small>${esc((st.approved_at||'').slice(0,16))}</small>` : (d.golden ? '없음<small>승인 필요</small>' : '없음<small>골든 없음</small>'), st.ok ? 'ok' : 'warn'],
     ['비교 실행', `${runs.length}회<small>${last ? esc(last.finished.slice(0,16)) : '아직 없음'}</small>`, ''],
     ['마지막 결과', last ? `${last.totals.pass} 같음 · ${last.totals.fail} 다름` : '—', last ? (last.totals.fail ? 'bad' : 'ok') : ''],
     ['결함 탐지', mut ? `${Math.round(mut.score*100)}%<small>${mut.killed}/${mut.total} · ${esc((mut.generated_at||'').slice(0,16))}</small>` : '없음<small>현재 승인본으로 측정한 결과 없음</small>', mut ? (mut.score >= .8 ? 'ok' : 'bad') : 'warn'],
   ];
   let h = `<main class="hist"><div class="strip">${cards.map(([k,val,c]) => `<div class="card ${c}"><div class="k">${k}</div><div class="v">${val}</div></div>`).join('')}</div>`;
   if (stale) h += `<div class="notice"><b>주의</b> 마지막 비교는 이전 승인본(${esc(last.approved_at||'없음')})으로 실행됐습니다. 현재 승인본으로 다시 비교하세요.</div>`;
-  if (!runs.length){ h += `<div class="empty">to-be 비교 실행 기록이 없습니다.<br><code>uv run pytest e2e/${esc(d.app)} --base-url &lt;to-be&gt; --compare golden/${esc(d.app)} --junitxml reports/junit-${esc(d.app)}.xml</code></div></main>`; v.innerHTML = h; return; }
+  if (!runs.length){
+    const tobe = ((d.project||{}).tobe||{}).url || '<to-be>';
+    h += `<div class="empty">to-be 비교 실행 기록이 없습니다.<br><code>uv run pytest e2e/${esc(d.app)} --base-url ${esc(tobe)} --compare golden/${esc(d.app)} --junitxml reports/junit-${esc(d.app)}.xml</code></div></main>`; v.innerHTML = h; return; }
 
   h += `<section><h2>실행 이력 <small class="mono" style="color:var(--faint);font-weight:400">오래된 → 최근</small></h2><div class="tbl"><table><thead><tr><th>#</th><th>끝난 시각</th><th>대상</th><th>승인본</th><th>결과</th><th>지난 실행 대비</th><th></th></tr></thead><tbody>`;
   runs.forEach((r, i) => {
@@ -410,23 +618,23 @@ function renderHistory(v){
 
 async function route(){
   const h = parseHash();
-  const changedApp = h.app !== state.app;
-  state = {app: h.app || (apps[0] && apps[0].app) || null, tab: h.tab, run: h.run};
-  for (const b of $('#apps').children) b.className = b.textContent.startsWith(state.app) ? 'on' : '';
-  if (state.app && (changedApp || !data)) await loadApp(); else if (state.app) await loadApp();
-  for (const a of $('#tabs').querySelectorAll('a')) a.className = a.dataset.tab === state.tab ? 'on' : '';
+  if (h.app && !apps.some(a => a.app === h.app)) h.app = null;  // 모르는 이름이면 목록으로
+  state = {app: h.app, tab: h.tab, run: h.run};
+  renderTop();
+  if (state.app) await loadApp();
   render();
-  if (!location.hash && state.app) setHash();
+  if (!apps.length && !document.querySelector('.modal')) openEditor(null);  // 첫 방문: 바로 추가 창
 }
 $('#run').addEventListener('change', e => { state.run = e.target.value || null; setHash(); });
-window.addEventListener('message', e => { if (e.data && e.data.parity === 'approved') loadApps().then(route); });  // 검토 화면에서 승인되면 상태 점·카드 갱신
+$('#brand').addEventListener('click', e => { e.preventDefault(); location.hash = ''; });
+window.addEventListener('message', e => { if (e.data && e.data.parity === 'approved') loadApps().then(route); });  // 검토 화면에서 승인되면 상태 갱신
 window.addEventListener('hashchange', route);
 loadApps().then(route);
 """
 
 SHELL = (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>"
          f"<title>parity</title>{html.FONTS}<style>{html.CSS}{HUB_CSS}</style></head><body class='hub'>"
-         "<header class='top'><div class='brand'>parity<span>통합 화면</span></div><nav class='apps' id='apps' aria-label='앱'></nav>"
-         "<div class='runsel'><label for='run'>실행</label><select id='run' aria-label='실행 선택'></select></div></header>"
-         "<div class='frame'><nav class='side' id='tabs' aria-label='화면'></nav><div id='view'></div></div>"
+         "<header class='top'><a class='brand' id='brand' href='#'>parity</a><div class='crumb' id='crumb'></div>"
+         "<div class='runsel' id='runsel' hidden><label for='run'>실행</label><select id='run' aria-label='실행 선택'></select></div></header>"
+         "<div class='frame'><nav class='side' id='tabs' aria-label='화면' hidden></nav><div id='view'></div></div>"
          f"<script>{HUB_JS}</script></body></html>")

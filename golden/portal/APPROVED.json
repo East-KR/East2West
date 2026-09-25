@@ -1,0 +1,1247 @@
+{
+ "approved_by": "east",
+ "approved_at": "2026-09-25 22:43:43",
+ "note": "",
+ "files": {
+  "shots/test_portal_01/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_01/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_01/02.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_02/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_02/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_02/02.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_02/03.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_03/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_03/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_03/02.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_03/03.jpg": "51c57f75e8ae055bd21665a65c9302419a2a35ac953735b602a7b6866d1a9961",
+  "shots/test_portal_04/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_04/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_04/02.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_04/03.jpg": "dd40af7cd08e27325cb3843cef1fac7ac6e6d654a81e1e9510721767575a3ae0",
+  "shots/test_portal_04/04.jpg": "dd40af7cd08e27325cb3843cef1fac7ac6e6d654a81e1e9510721767575a3ae0",
+  "shots/test_portal_05/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_05/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_05/02.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_05/03.jpg": "dd40af7cd08e27325cb3843cef1fac7ac6e6d654a81e1e9510721767575a3ae0",
+  "shots/test_portal_05/04.jpg": "0438a85181b100e58ebcdd3e2038a4638b056d74f5c09630a8b3045706ec1c9a",
+  "shots/test_portal_06/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_06/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_06/02.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_06/03.jpg": "dd40af7cd08e27325cb3843cef1fac7ac6e6d654a81e1e9510721767575a3ae0",
+  "shots/test_portal_06/04.jpg": "08f7951729430036dfcedd5f807aedd0fda222110dce060df5256e671c2d8c0e",
+  "shots/test_portal_06/05.jpg": "e4a666c52c2a696ce0981b1cb80c1da337a25f3d754da533eadb947627e6930c",
+  "shots/test_portal_07/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_07/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_07/02.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_07/03.jpg": "4d0be188cf4cfad5dd57258acefd25c4b8d1086e4a89a4b733ec31dabba86b1b",
+  "shots/test_portal_08/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_08/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_08/02.jpg": "4d0be188cf4cfad5dd57258acefd25c4b8d1086e4a89a4b733ec31dabba86b1b",
+  "shots/test_portal_08/03.jpg": "74c0fbacbf9ef060c6cb21301d8bf5a3809a5853deef799d1628163491b25bdc",
+  "shots/test_portal_09/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_09/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_09/02.jpg": "92819d1b752b68201c4fe0748e597c736626fcfee10702cd5659cc41aa0563cb",
+  "shots/test_portal_09/03.jpg": "0664ce6e37b5bc310817637f042471abd6b7a75c494b1ca1bee23b487cce5301",
+  "shots/test_portal_09/04.jpg": "92819d1b752b68201c4fe0748e597c736626fcfee10702cd5659cc41aa0563cb",
+  "shots/test_portal_10/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_10/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_10/02.jpg": "92819d1b752b68201c4fe0748e597c736626fcfee10702cd5659cc41aa0563cb",
+  "shots/test_portal_10/03.jpg": "33547d2a3480e1878f5ceab66360514a0c16d427a896778a550021d1108b3f18",
+  "shots/test_portal_10/04.jpg": "bfcfd8544c6eb335bfc23a5edff6f390fec3d5f5f2f11b716915432b3efd1820",
+  "shots/test_portal_11/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_11/01.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_11/02.jpg": "9b0b42935fc122da4a90eba50ace2f41edde08db4290c27b92ae4e598d7f613b",
+  "shots/test_portal_11/03.jpg": "1d36aeeb65c15af3d599b4e28e7069343d065e171f9994660cc5b886b9c0c21e",
+  "shots/test_portal_12/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_12/01.jpg": "aa0ef29b8b14dc5f5dfdd779518b1e26a5a0664d31d443ed0a3ba77dea767028",
+  "shots/test_portal_12/02.jpg": "8d3746a18e061ac4f17919af19fd2c2bf659c1aecd6bd84333b718cf72cad589",
+  "shots/test_portal_12/03.jpg": "4e2936156eeddadc9b8e6369b61ad7273e2ec5cc6b52b0b536efb4dfac37d4c0",
+  "shots/test_portal_12/04.jpg": "852506f3ab71280f90b31d00c337af31aec1dc1420684b4de7f0e1d393252456",
+  "shots/test_portal_12/05.jpg": "77bb3da9c415e41c5651fabfd5a671f73aa10a0f12bc8122c3b8fb8eeb13bf5d",
+  "shots/test_portal_12/06.jpg": "ab9205f4a5793cfd0e2b5a5be84b1b98d7f79d5096de7d489538048ea101b797",
+  "shots/test_portal_13/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_13/01.jpg": "aa0ef29b8b14dc5f5dfdd779518b1e26a5a0664d31d443ed0a3ba77dea767028",
+  "shots/test_portal_13/02.jpg": "8d3746a18e061ac4f17919af19fd2c2bf659c1aecd6bd84333b718cf72cad589",
+  "shots/test_portal_13/03.jpg": "4e2936156eeddadc9b8e6369b61ad7273e2ec5cc6b52b0b536efb4dfac37d4c0",
+  "shots/test_portal_13/04.jpg": "852506f3ab71280f90b31d00c337af31aec1dc1420684b4de7f0e1d393252456",
+  "shots/test_portal_13/05.jpg": "aa0ef29b8b14dc5f5dfdd779518b1e26a5a0664d31d443ed0a3ba77dea767028",
+  "shots/test_portal_13/06.jpg": "74c0fbacbf9ef060c6cb21301d8bf5a3809a5853deef799d1628163491b25bdc",
+  "shots/test_portal_14/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_14/01.jpg": "aa0ef29b8b14dc5f5dfdd779518b1e26a5a0664d31d443ed0a3ba77dea767028",
+  "shots/test_portal_14/02.jpg": "74c0fbacbf9ef060c6cb21301d8bf5a3809a5853deef799d1628163491b25bdc",
+  "shots/test_portal_14/03.jpg": "d69090fec528c5991724a1c8904348d4f7a839690f34469582b060ce8f7af530",
+  "shots/test_portal_14/04.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_15/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_15/01.jpg": "aa0ef29b8b14dc5f5dfdd779518b1e26a5a0664d31d443ed0a3ba77dea767028",
+  "shots/test_portal_15/02.jpg": "74c0fbacbf9ef060c6cb21301d8bf5a3809a5853deef799d1628163491b25bdc",
+  "shots/test_portal_15/03.jpg": "d69090fec528c5991724a1c8904348d4f7a839690f34469582b060ce8f7af530",
+  "shots/test_portal_15/04.jpg": "74c0fbacbf9ef060c6cb21301d8bf5a3809a5853deef799d1628163491b25bdc",
+  "shots/test_portal_16/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_16/01.jpg": "aa0ef29b8b14dc5f5dfdd779518b1e26a5a0664d31d443ed0a3ba77dea767028",
+  "shots/test_portal_16/02.jpg": "74c0fbacbf9ef060c6cb21301d8bf5a3809a5853deef799d1628163491b25bdc",
+  "shots/test_portal_16/03.jpg": "662d9cb2dfbae0c16c84624303171e4313416aff80bc74f473bb83dd3415f288",
+  "shots/test_portal_16/04.jpg": "4d0be188cf4cfad5dd57258acefd25c4b8d1086e4a89a4b733ec31dabba86b1b",
+  "shots/test_portal_17/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_17/01.jpg": "51c57f75e8ae055bd21665a65c9302419a2a35ac953735b602a7b6866d1a9961",
+  "shots/test_portal_17/02.jpg": "fafd25a4fb657baa597ca28fc3e9a1f7996fbb53400282f4c5691981a4a39e34",
+  "shots/test_portal_17/03.jpg": "d33a1165c0f775d519316fc7270ca6a02f00372523e733eb852903d7dbfdda28",
+  "shots/test_portal_18/00.jpg": "715259e9675e944087a0a1980826f9391d7e61428848715e5c0c3aae7f1ed288",
+  "shots/test_portal_18/01.jpg": "51c57f75e8ae055bd21665a65c9302419a2a35ac953735b602a7b6866d1a9961",
+  "shots/test_portal_18/02.jpg": "2ee53f7197e9d5b0366b7f92ae5420ca7b20e35e5f744ef6e32ee7389d50a17b",
+  "shots/test_portal_18/03.jpg": "fafd25a4fb657baa597ca28fc3e9a1f7996fbb53400282f4c5691981a4a39e34",
+  "shots/test_portal_18/04.jpg": "d33a1165c0f775d519316fc7270ca6a02f00372523e733eb852903d7dbfdda28",
+  "shots/test_portal_cancel_twice/00.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_cancel_twice/01.jpg": "9b0b42935fc122da4a90eba50ace2f41edde08db4290c27b92ae4e598d7f613b",
+  "shots/test_portal_cancel_twice/02.jpg": "9b0b42935fc122da4a90eba50ace2f41edde08db4290c27b92ae4e598d7f613b",
+  "shots/test_portal_cancel_twice/03.jpg": "eced97e804fec5cf3eee1d5bcdbebdd594487b86179dad8dc844b4f53fb713e8",
+  "shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_/00.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_/01.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_/02.jpg": "1fd1350b5e6d73d99a5e8bc1754dcaeef1ec470468cb921824f304cc9ca74bc9",
+  "shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_/03.jpg": "52e64b9cf3a8dba4aede593b43922d7de798f44f32778163f72b4572e6b19911",
+  "shots/test_portal_filter_by_status_uc644_ub8cc-0_uac74_/00.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_filter_by_status_uc644_ub8cc-0_uac74_/01.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_filter_by_status_uc644_ub8cc-0_uac74_/02.jpg": "8343777197fe872c4a687c67b6c2dbf9d131adf545dd43ff631b961849fd216b",
+  "shots/test_portal_filter_by_status_uc644_ub8cc-0_uac74_/03.jpg": "f6b6e4c57d61cc28d380e9224ff8a091bb85dc47518ec8f99f7cbf1f044a2cb6",
+  "shots/test_portal_filter_by_status_uc811_uc218-ORD-1_ub178_ud2b8_ubd81_/00.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_filter_by_status_uc811_uc218-ORD-1_ub178_ud2b8_ubd81_/01.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_filter_by_status_uc811_uc218-ORD-1_ub178_ud2b8_ubd81_/02.jpg": "2f4eaed658cd5cc6dbb27caf87e39058c6151b8b8aea88ea9484956248229a38",
+  "shots/test_portal_filter_by_status_uc811_uc218-ORD-1_ub178_ud2b8_ubd81_/03.jpg": "40bc43adef83dd653c1eb9ae7ead078d0303e6d62aa6a5d740efb4ef96b65049",
+  "shots/test_portal_filter_by_status_ucde8_uc18c-ORD-3_ub9c8_uc6b0_uc2a4_/00.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_filter_by_status_ucde8_uc18c-ORD-3_ub9c8_uc6b0_uc2a4_/01.jpg": "cea5f285bac6c14ebf8e3e36a753516c2008c8202645682a3509af80c957d40b",
+  "shots/test_portal_filter_by_status_ucde8_uc18c-ORD-3_ub9c8_uc6b0_uc2a4_/02.jpg": "fab88c2ab7b44baeee5cd7d2c682eb5f479f2920b8fc7697b7809c4c8b8fad95",
+  "shots/test_portal_filter_by_status_ucde8_uc18c-ORD-3_ub9c8_uc6b0_uc2a4_/03.jpg": "3ad6f45e391c6437f485e9b53691e4510f0d7a7945242994df47f9fa39af0856",
+  "shots/test_portal_new_order_other_customer/00.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_new_order_other_customer/01.jpg": "dd1c57419c4d7d1ef1b3831fced63d1ba43e3f89c11f96704129a1b17d8fc8a5",
+  "shots/test_portal_new_order_other_customer/02.jpg": "a8c826c17dec281a3696fc564ec74bb20d6bd0444d5d0dc11d8a1e31249d5ddc",
+  "shots/test_portal_new_order_other_customer/03.jpg": "36caf6c996616dc85540ac193722a258fa5ed11f00a2406b89111d3e470e9dc2",
+  "shots/test_portal_new_order_other_customer/04.jpg": "381a9a433cd84e2e622c95126edc7d7de771f2625eb1df65699b4b7b63e5e95d",
+  "shots/test_portal_new_order_other_customer/05.jpg": "1cebed2c2db9e8cdfe2af876016f5e91ed8252994e3b3500ebd8372ae9add33a",
+  "shots/test_portal_vat_truncation/00.jpg": "4ad455da69daa05826d6b2aabd78a58bcaece249493c1a3cc897b21892166221",
+  "shots/test_portal_vat_truncation/01.jpg": "dd1c57419c4d7d1ef1b3831fced63d1ba43e3f89c11f96704129a1b17d8fc8a5",
+  "shots/test_portal_vat_truncation/02.jpg": "dd1c57419c4d7d1ef1b3831fced63d1ba43e3f89c11f96704129a1b17d8fc8a5",
+  "shots/test_portal_vat_truncation/03.jpg": "c3643d110f326a0fee872272845eec170de5936272aac8126b10a320447db00e",
+  "shots/test_portal_vat_truncation/04.jpg": "49690f138f63594b71635a1ab209e04cca55b8f2792bece265ac304acbf7b6e2",
+  "shots/test_portal_vat_truncation/05.jpg": "56a61b34b193e15254b09cf52130a9767bfe4e1b0cb838e724b83bec377f1f99",
+  "test_portal_01.json": "9ecc455254934ea6213f67d66f41f10327618f5ae927574801943aa279bd543b",
+  "test_portal_02.json": "33b59237868dd556044ddb36a00ea1fd491e97266bffbf70ed9a26fedf36e616",
+  "test_portal_03.json": "788c1cd596cc723c973402928c8f5e82554498545226db1d7acbd98ff6cad4f0",
+  "test_portal_04.json": "fe96ca0f386dc859d0f06ba783472a7b0ec180a8acf00dc7da5ff0c6c263c7bf",
+  "test_portal_05.json": "8b06d8856b7cb4337f3f9a1fe425477558d4b5d9e56cd3553d545fd42137ec73",
+  "test_portal_06.json": "1c06a18bcb6644daf785a24caaf0905c433554f46593580ef05722ace6549390",
+  "test_portal_07.json": "a39ee42ae3c68b6e6c5110feea4ea17645433cc897347f2b8089189205f4f2a9",
+  "test_portal_08.json": "db73b59f50993941301eea3a3381bb9d31cff4fa8d8adf155735bf529737d0a4",
+  "test_portal_09.json": "dce8829580229a1243521508d0c663640b5e73c845085dc0672ff0ecbe80ac4e",
+  "test_portal_10.json": "853f3ebffe549672441a52e158825deacd4bc02bf6c0a134c990e94cfd2ffd86",
+  "test_portal_11.json": "099de1d2b77312669981db0ef5e5444d4a2b656b38e63bcb90861bc82168f53f",
+  "test_portal_12.json": "575e69bffb0d8001dde5314d474b14b3c176ae72a6a0e0fc1e553e533f299f14",
+  "test_portal_13.json": "f644df0c07d9466609b80dcf64148043f6289bfa7ed3f284691d444be90efbc5",
+  "test_portal_14.json": "57f276820e426c00d6f638522e3a2b378969e36d22d91f397329d0b3c40f1db4",
+  "test_portal_15.json": "42129016933c5449a6391f6302101ea6fef6bd988fc18113429bdd210c09b11d",
+  "test_portal_16.json": "b89af15e7030a413b4d9f437e6aa39b3d4454f4f878ea698cc5d08589c956999",
+  "test_portal_17.json": "6586bef2a68a0c5626f5d32212be5cc10eebf4418b63941aea6b591ba7b28c4c",
+  "test_portal_18.json": "bc1843311ea20e6459932926823d884a665a21f34528dc0eda085c980df1bf28",
+  "test_portal_cancel_twice.json": "2626d55177e470f7e32cb45ab96e7f4e15d86f03fa3fab0951047ba2b7f0b31e",
+  "test_portal_filter_by_status[\\ubc30\\uc1a1\\uc911-ORD-2 \\ubcfc\\ud39c].json": "c6d30f4fb5b7a84ff80e75b88709aed13649c5823b6d5876fa39a2cd5205b1d7",
+  "test_portal_filter_by_status[\\uc644\\ub8cc-0\\uac74].json": "45aca18c425dcc8c5096cebd5466379ed507b304e27373260dc9c091bb612aed",
+  "test_portal_filter_by_status[\\uc811\\uc218-ORD-1 \\ub178\\ud2b8\\ubd81].json": "980d120edcaf4506500637ed871796703fed88a437cb3ff1153677baff8ba2d6",
+  "test_portal_filter_by_status[\\ucde8\\uc18c-ORD-3 \\ub9c8\\uc6b0\\uc2a4].json": "0d712c440e4b2b0daf414c0c9b704e64140b0d74c8856c3b626259388345e1ea",
+  "test_portal_new_order_other_customer.json": "45d0fa8a1e35599047e36e83e79f95d31ec205f7ed589f96951ec01956437aa3",
+  "test_portal_vat_truncation.json": "2618b1d2f8da74adfafafe5866f0c606963b9befe0c2fe1b36f11c27a5f46b33"
+ },
+ "assertions": {
+  "test_portal_01": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "url_path",
+    "target": "/",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "김철수",
+    "value": null
+   }
+  ],
+  "test_portal_02": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "url_path",
+    "target": "/",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "no_text",
+    "target": "필터",
+    "value": null
+   }
+  ],
+  "test_portal_03": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "url_path",
+    "target": "/settings",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "회사명",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "no_text",
+    "target": "주문 목록",
+    "value": null
+   }
+  ],
+  "test_portal_04": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "품목",
+    "value": null
+   }
+  ],
+  "test_portal_05": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "품목",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "text_matches",
+    "target": "주문\\s+상세\\s+ORD\\-\\d+",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "no_text",
+    "target": "신규 주문",
+    "value": null
+   }
+  ],
+  "test_portal_06": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "품목",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "no_text",
+    "target": "품목",
+    "value": null
+   }
+  ],
+  "test_portal_07": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text_matches",
+    "target": "주문\\s+상세\\s+ORD\\-\\d+",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "no_text",
+    "target": "주문 목록",
+    "value": null
+   }
+  ],
+  "test_portal_08": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text_matches",
+    "target": "주문\\s+상세\\s+ORD\\-\\d+",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "주문 목록",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "url_contains",
+    "target": "/customers/",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "고객 상세 김철수",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "no_text",
+    "target": "\"상태:\"",
+    "value": null
+   }
+  ],
+  "test_portal_09": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text_matches",
+    "target": "주문\\s+상세\\s+ORD\\-\\d+",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "주문 목록",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text_matches",
+    "target": "\\d+\\.\\s+접수",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "no_text",
+    "target": "볼펜",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "text",
+    "target": "볼펜",
+    "value": null
+   }
+  ],
+  "test_portal_10": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text_matches",
+    "target": "주문\\s+상세\\s+ORD\\-\\d+",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "주문 목록",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "dialog",
+    "target": "이 주문을 취소할까요?",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "dialog",
+    "target": "이 주문을 취소할까요?",
+    "value": null
+   }
+  ],
+  "test_portal_11": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "김철수",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text_matches",
+    "target": "주문\\s+상세\\s+ORD\\-\\d+",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "주문 목록",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "dialog",
+    "target": "이 주문을 취소할까요?",
+    "value": null
+   }
+  ],
+  "test_portal_12": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/customers",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "VIP",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "url_contains",
+    "target": "/customers/",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "고객 상세 박민수",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "no_text",
+    "target": "고객 등록",
+    "value": null
+   },
+   {
+    "step": 7,
+    "kind": "url_path",
+    "target": "/",
+    "value": null
+   },
+   {
+    "step": 7,
+    "kind": "text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 7,
+    "kind": "no_text",
+    "target": "고객 상세 박민수",
+    "value": null
+   }
+  ],
+  "test_portal_13": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/customers",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "VIP",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 7,
+    "kind": "url_contains",
+    "target": "/customers/",
+    "value": null
+   },
+   {
+    "step": 7,
+    "kind": "text",
+    "target": "고객 상세 김철수",
+    "value": null
+   },
+   {
+    "step": 7,
+    "kind": "no_text",
+    "target": "고객 목록",
+    "value": null
+   }
+  ],
+  "test_portal_14": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/customers",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "VIP",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "url_contains",
+    "target": "/customers/",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text",
+    "target": "고객 상세 김철수",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "고객 목록",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "메모 내용",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "url_path",
+    "target": "/",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "no_text",
+    "target": "고객 상세 김철수",
+    "value": null
+   }
+  ],
+  "test_portal_15": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/customers",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "VIP",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "url_contains",
+    "target": "/customers/",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text",
+    "target": "고객 상세 김철수",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "고객 목록",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "메모 내용",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "no_text",
+    "target": "메모 내용",
+    "value": null
+   }
+  ],
+  "test_portal_16": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/customers",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "VIP",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "url_contains",
+    "target": "/customers/",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text",
+    "target": "고객 상세 김철수",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "고객 목록",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "url_path",
+    "target": "/orders",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "주문 목록",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "no_text",
+    "target": "고객 상세 김철수",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "text_matches",
+    "target": "주문\\s+상세\\s+ORD\\-\\d+",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "no_text",
+    "target": "주문 목록",
+    "value": null
+   }
+  ],
+  "test_portal_17": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/settings",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "회사명",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "text",
+    "target": "메일 알림",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "no_text",
+    "target": "회사명",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "dialog",
+    "target": "저장되었습니다.",
+    "value": null
+   }
+  ],
+  "test_portal_18": [
+   {
+    "step": 1,
+    "kind": "title",
+    "target": "홈",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "url_path",
+    "target": "/settings",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "회사명",
+    "value": null
+   },
+   {
+    "step": 2,
+    "kind": "no_text",
+    "target": "포털 홈",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "메일 알림",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "no_text",
+    "target": "회사명",
+    "value": null
+   },
+   {
+    "step": 5,
+    "kind": "dialog",
+    "target": "저장되었습니다.",
+    "value": null
+   }
+  ],
+  "test_portal_cancel_twice": [
+   {
+    "step": 2,
+    "kind": "text",
+    "target": "취소",
+    "value": null
+   },
+   {
+    "step": 3,
+    "kind": "dialog",
+    "target": "이 주문을 취소할까요?",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "3. 취소",
+    "value": null
+   }
+  ],
+  "test_portal_filter_by_status[\\ubc30\\uc1a1\\uc911-ORD-2 \\ubcfc\\ud39c]": [
+   {
+    "step": 4,
+    "kind": "url_contains",
+    "target": "status=",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "상태 배송중",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "ORD-2 볼펜",
+    "value": null
+   }
+  ],
+  "test_portal_filter_by_status[\\uc644\\ub8cc-0\\uac74]": [
+   {
+    "step": 4,
+    "kind": "url_contains",
+    "target": "status=",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "상태 완료",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "0건",
+    "value": null
+   }
+  ],
+  "test_portal_filter_by_status[\\uc811\\uc218-ORD-1 \\ub178\\ud2b8\\ubd81]": [
+   {
+    "step": 4,
+    "kind": "url_contains",
+    "target": "status=",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "상태 접수",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "ORD-1 노트북",
+    "value": null
+   }
+  ],
+  "test_portal_filter_by_status[\\ucde8\\uc18c-ORD-3 \\ub9c8\\uc6b0\\uc2a4]": [
+   {
+    "step": 4,
+    "kind": "url_contains",
+    "target": "status=",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "상태 취소",
+    "value": null
+   },
+   {
+    "step": 4,
+    "kind": "text",
+    "target": "ORD-3 마우스",
+    "value": null
+   }
+  ],
+  "test_portal_new_order_other_customer": [
+   {
+    "step": 6,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "이영희",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "마우스",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "66,000원",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "6,600원",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "72,600원",
+    "value": null
+   }
+  ],
+  "test_portal_vat_truncation": [
+   {
+    "step": 6,
+    "kind": "url_contains",
+    "target": "/orders/",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "공급가액",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "3,675원",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "360원",
+    "value": null
+   },
+   {
+    "step": 6,
+    "kind": "text",
+    "target": "4,035원",
+    "value": null
+   }
+  ]
+ }
+}

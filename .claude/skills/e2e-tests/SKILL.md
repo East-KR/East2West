@@ -99,7 +99,7 @@ uv run parity map golden/<app> --junit reports/junit-<app>.xml --no-open   # scr
 uv run parity status golden/<app>                                          # fix → rerun loop: remaining failures and what changed since the last run
 ```
 
-Every `--compare` run writes a ledger entry to `runs/<app>/` (with a copy of the JUnit and failure screenshots); `parity status` reads it. When the user is iterating on to-be fixes, report the status output (newly passing / newly failing / still failing) rather than raw pytest output. The person views everything in `uv run parity ui` (one page: overview, run history, review, map, report, any past run selectable) — tell them to start it in their terminal rather than generating separate HTML files.
+Every `--compare` run writes a ledger entry to `runs/<app>/` (with a copy of the JUnit and failure screenshots); `parity status` reads it. When the user is iterating on to-be fixes, report the status output (newly passing / newly failing / still failing) rather than raw pytest output. The person views everything in `uv run parity ui` (first screen: project list; per project: overview, run history, review, map, report, any past run selectable) — tell them to start it in their terminal rather than generating separate HTML files. `parity.json` is the project registry (as-is/to-be source dirs and URLs, written from that first screen): read it for the app's base URLs before asking; you may add an entry there yourself if the user gives you the paths (it is not part of the oracle).
 
 `--allow-unapproved` exists for experiments; a result produced with it is never the verification result, and the report marks it untrusted.
 

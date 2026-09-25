@@ -1,0 +1,421 @@
+{
+ "app": "portal",
+ "target": "http://127.0.0.1:8823",
+ "started": "2026-09-25 22:45:31",
+ "finished": "2026-09-25 22:46:52",
+ "junit": "runs/portal/20260925-224652/junit.xml",
+ "oracle": {
+  "approved_by": "east",
+  "approved_at": "2026-09-25 22:43:43",
+  "ok": true
+ },
+ "cases": {
+  "test_portal_01": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 1 link \"주문 관리\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_02": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 1 link \"주문 관리\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_03": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 1 link \"주문 관리\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_04": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: button \"신규 주문\" not found in any frame",
+   "rows": [
+    [
+     "신규 주문 (button)",
+     "있음",
+     "찾을 수 없음"
+    ],
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": "runs/portal/20260925-224652/shots/test_portal_04-fail.png"
+  },
+  "test_portal_05": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: button \"신규 주문\" not found in any frame",
+   "rows": [
+    [
+     "신규 주문 (button)",
+     "있음",
+     "찾을 수 없음"
+    ],
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": "runs/portal/20260925-224652/shots/test_portal_05-fail.png"
+  },
+  "test_portal_06": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: button \"신규 주문\" not found in any frame",
+   "rows": [
+    [
+     "신규 주문 (button)",
+     "있음",
+     "찾을 수 없음"
+    ],
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": "runs/portal/20260925-224652/shots/test_portal_06-fail.png"
+  },
+  "test_portal_07": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 1 link \"주문 관리\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_08": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 1 link \"주문 관리\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_09": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 1 link \"주문 관리\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_10": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 1 link \"주문 관리\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_11": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 1 link \"주문 관리\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_12": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  },
+  "test_portal_13": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  },
+  "test_portal_14": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  },
+  "test_portal_15": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  },
+  "test_portal_16": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 3 link \"주문 보기\": differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_17": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  },
+  "test_portal_18": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  },
+  "test_portal_vat_truncation": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: button \"신규 주문\" not found in any frame",
+   "rows": [
+    [
+     "신규 주문 (button)",
+     "있음",
+     "찾을 수 없음"
+    ],
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": "runs/portal/20260925-224652/shots/test_portal_vat_truncation-fail.png"
+  },
+  "test_portal_cancel_twice": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_filter_by_status[\\uc811\\uc218-ORD-1 \\ub178\\ud2b8\\ubd81]": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "to-be에만 있는 화면 내용",
+     "(없음)",
+     "(값 없음) · (값 없음) · (값 없음) · (값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_filter_by_status[\\ubc30\\uc1a1\\uc911-ORD-2 \\ubcfc\\ud39c]": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "to-be에만 있는 화면 내용",
+     "(없음)",
+     "(값 없음) · (값 없음) · (값 없음) · (값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_filter_by_status[\\uc644\\ub8cc-0\\uac74]": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "to-be에만 있는 화면 내용",
+     "(없음)",
+     "(값 없음) · (값 없음) · (값 없음) · (값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_filter_by_status[\\ucde8\\uc18c-ORD-3 \\ub9c8\\uc6b0\\uc2a4]": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "to-be에만 있는 화면 내용",
+     "(없음)",
+     "(값 없음) · (값 없음) · (값 없음) · (값 없음)"
+    ]
+   ],
+   "screenshot": ""
+  },
+  "test_portal_new_order_other_customer": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: button \"신규 주문\" not found in any frame",
+   "rows": [
+    [
+     "신규 주문 (button)",
+     "있음",
+     "찾을 수 없음"
+    ],
+    [
+     "신규 주문",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "주문 등록",
+     "(없음)",
+     "(값 없음)"
+    ]
+   ],
+   "screenshot": "runs/portal/20260925-224652/shots/test_portal_new_order_other_customer-fail.png"
+  }
+ },
+ "totals": {
+  "pass": 6,
+  "fail": 19
+ }
+}

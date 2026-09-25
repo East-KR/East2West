@@ -1,9 +1,9 @@
 {
  "app": "portal",
- "target": "http://127.0.0.1:8822",
- "started": "2026-09-25 22:44:20",
- "finished": "2026-09-25 22:45:29",
- "junit": "runs/portal/20260925-224529/junit.xml",
+ "target": "http://127.0.0.1:8821",
+ "started": "2026-09-25 22:47:59",
+ "finished": "2026-09-25 22:49:03",
+ "junit": "runs/portal/20260925-224903/junit.xml",
  "oracle": {
   "approved_by": "east",
   "approved_at": "2026-09-25 22:43:43",
@@ -119,50 +119,16 @@
    "rows": []
   },
   "test_portal_vat_truncation": {
-   "status": "fail",
-   "kind": "golden_diff",
-   "summary": "AssertionError: text '360원' visible: got None",
-   "rows": [
-    [
-     "화면 문구",
-     "360원",
-     "(없음)"
-    ],
-    [
-     "화면 문구",
-     "4,035원",
-     "(없음)"
-    ],
-    [
-     "화면 문구",
-     "(없음)",
-     "368원"
-    ],
-    [
-     "화면 문구",
-     "(없음)",
-     "4,043원"
-    ]
-   ],
-   "screenshot": "runs/portal/20260925-224529/shots/test_portal_vat_truncation-fail.png"
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
   },
   "test_portal_cancel_twice": {
-   "status": "fail",
-   "kind": "golden_diff",
-   "summary": "AssertionError: last dialog '이미 취소된 주문입니다.' != '이 주문을 취소할까요?'",
-   "rows": [
-    [
-     "알림창",
-     "이 주문을 취소할까요?",
-     "이미 취소된 주문입니다."
-    ],
-    [
-     "알림창",
-     "이 주문을 취소할까요?",
-     "이 주문을 취소할까요? / 이미 취소된 주문입니다."
-    ]
-   ],
-   "screenshot": "runs/portal/20260925-224529/shots/test_portal_cancel_twice-fail.png"
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
   },
   "test_portal_filter_by_status[\\uc811\\uc218-ORD-1 \\ub178\\ud2b8\\ubd81]": {
    "status": "pass",
@@ -196,7 +162,7 @@
   }
  },
  "totals": {
-  "pass": 23,
-  "fail": 2
+  "pass": 25,
+  "fail": 0
  }
 }
