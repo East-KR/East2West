@@ -96,7 +96,10 @@ Then compare and report:
 uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app> --junitxml reports/junit-<app>.xml
 uv run parity report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
 uv run parity map golden/<app> --junit reports/junit-<app>.xml --no-open   # screen network for the user: which screens differ, how they connect
+uv run parity status golden/<app>                                          # fix → rerun loop: remaining failures and what changed since the last run
 ```
+
+Every `--compare` run writes a ledger entry to `runs/<app>/`; `parity status` reads it. When the user is iterating on to-be fixes, report the status output (newly passing / newly failing / still failing) rather than raw pytest output, and regenerate `parity catalog golden/<app> --no-open` so the management page is current.
 
 `--allow-unapproved` exists for experiments; a result produced with it is never the verification result, and the report marks it untrusted.
 

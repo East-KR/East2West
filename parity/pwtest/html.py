@@ -1,4 +1,5 @@
-"""사람이 보는 화면 두 장: 승인 검토(write_review)와 검증 결과(write_report). 파일 하나짜리 HTML, 서버 없이 브라우저로 연다.
+"""검증 결과 화면(write_report)과 다른 화면들이 같이 쓰는 조각: 페이지 틀(_page, CSS), 단계 요약(_action, _seen), 다른 점 표(rows_for), 캡처(_shot).
+파일 하나짜리 HTML, 서버 없이 브라우저로 연다. 승인 검토는 review.py, 골든 관리는 catalog.py, 화면 지도는 map.py (write_review는 review.py로 넘긴다).
 
 원칙: 결론 먼저, 문장은 짧게, "무엇이 · 기준 · 실제"만. 원본 로그는 접어 둔다.
 디자인: 검수 서류. 차분한 청록 회색 바탕, 상태는 도장(stamp)과 점 표시, 값은 고정폭 숫자. 라이트/다크 모두.
@@ -253,132 +254,10 @@ def _seen(line: str) -> str:
     return line.removeprefix("text: ")
 
 
-def _timeline(d: Path, name: str, rules: list[str], out_dir: Path) -> str:
-    """골든에 기록된 as-is 동작: 단계마다 화면, 동작, 새로 나타난 내용, 뜬 알림창, 그 시점에 확인한 기대값."""
-    from parity.observe import flatten, mask
-    data = json.loads((d / f"{name}.json").read_text(encoding="utf-8"))
-    by_step: dict[int, list[dict[str, Any]]] = {}
-    for a in data.get("assertions", []):
-        by_step.setdefault(a["step"] - 1, []).append(a)
-    items, prev = [], Counter()
-    for o in data.get("steps", []):
-        cur = Counter(mask(flatten(o.get("snapshot", ""), keep_urls=False), rules))
-        new = [l for l in (cur - prev).elements() if not l.startswith(("option ", "link "))]
-        prev = cur
-        n = o["index"] + 1
-        if o.get("shot") and (d / o["shot"]).exists():
-            rel = os.path.relpath(d / o["shot"], out_dir)
-            shot = f"<a class='thumb' href='{_e(rel)}' target='_blank'><img src='{_e(rel)}' loading='lazy' alt='{n}단계 화면'><span>크게</span></a>"
-        else:
-            shot = "<div class='noshot'>화면 없음</div>"
-        shown = list(dict.fromkeys(_clean(_seen(l)) for l in new))  # 라벨 글자와 입력칸 이름이 같은 줄은 한 번만
-        seen = ("<div class='row'><span class='lab'>나타남</span>" + "".join(f"<span class='it'>{_e(x)}</span>" for x in shown[:6])
-                + (f"<span class='lab'>외 {len(shown) - 6}</span>" if len(shown) > 6 else "") + "</div>") if shown else ""
-        dlg = "".join(f"<div class='dlg'><span class='verb'>{'확인창' if x['type'] == 'confirm' else '알림창'}</span><b>{_e(x['message'])}</b>"
-                      f"<span class='ans'>→ {'확인' if x['action'] == 'accept' else '취소'}</span></div>" for x in o.get("dialogs", []))
-        checks = "".join(f"<div class='check'>{CHECK_SVG}<span><span class='k'>{_e(a['target'] if a['kind'] == 'field' else KIND.get(a['kind'], a['kind']))}</span> "
-                         f"<span class='v'>{_e((a['value'] if a['value'] != '' else '(빈 값)') if a['kind'] == 'field' else a['target'])}</span></span></div>"
-                         for a in by_step.get(o["index"], []))
-        items.append(f"<li><div class='no'>{n}</div><div class='shotcell'>{shot}</div><div class='txt'><div class='act'>{_action(o['kind'], o['text'])}</div>"
-                     f"{seen}{dlg}{checks}</div></li>")
-    return "<ol class='steps'>" + "".join(items) + "</ol>"
-
-
 def write_review(d: Path, *, tests_dir: Path | None = None, out: Path | None = None) -> Path:
-    tests_dir = tests_dir or Path("e2e") / d.name
-    docs = docstrings(tests_dir)
-    st = oracle.status(d)
-    prev = oracle.approved_assertions(d)
-    ts = oracle.tests(d)
-    cfg = oracle.load_config(d)
-    maps = oracle.name_maps(d)
-    masks = oracle.mask_hits(d)
-    eqs = cfg.get("equivalent_mutants", [])
-    out = out or Path("reports") / f"review-{d.name}.html"
-
-    if st["ok"]:
-        stamp = ("ok", "승인됨", f"{_e(st['approved_by'])} · {_e((st['approved_at'] or '')[:16])}")
-    elif (d / oracle.MANIFEST).exists():
-        stamp = ("warn", "재승인 필요", "승인 후 기록이 바뀜")
-    else:
-        stamp = ("warn", "승인 필요", "처음 승인")
-    recorded = sorted({(t["base_url"], (t["recorded_at"] or "")[:16]) for t in ts})
-    urls = ", ".join(sorted({u for u, _ in recorded}))
-    last = max((r for _, r in recorded), default="")
-
-    changed = new = 0
-    blocks = []
-    for t in ts:
-        before = None if prev is None else prev.get(t["name"])
-        vals = []
-        for i, a in enumerate(t["assertions"]):
-            old = before[i] if before is not None and i < len(before) else None
-            if before is not None and old is None:
-                vals.append(_val(a, "add"))
-            elif old is not None and old != a:
-                vals.append(_val(a, "chg", old))
-            else:
-                vals.append(_val(a))
-        tag = ""
-        if prev is not None and before is None:
-            tag, new = "<span class='tag new'>새 테스트</span>", new + 1
-        elif before is not None and before != t["assertions"]:
-            tag, changed = "<span class='tag chg'>기대값 바뀜</span>", changed + 1
-        blocks.append(f"<details class='test'><summary><div class='tt'>{_e(_title(t['name'], docs))}{tag}</div>"
-                      f"<span class='tog'>{t['steps']}단계 보기</span><div class='tid'>{_e(t['name'])}</div>"
-                      f"<div class='vals'>{''.join(vals) or '<span class=tid>명시한 확인 값 없음 · 화면 비교만</span>'}</div></summary>"
-                      + _timeline(d, t["name"], cfg.get("ignore", []), out.parent) + "</details>")
-    removed = [] if prev is None else sorted(set(prev) - {t["name"] for t in ts})
-
-    B = [f"<header class='head'><div class='eyebrow'>기준 승인 검토</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
-         f"<h1>{_e(d.name)}</h1><p class='lede'>as-is에서 기록한 동작이 to-be의 정답이 됩니다. 기록이 실제 업무와 맞는지 보고 승인하세요.</p>"
-         f"<div class='prov'><span><b>기록한 곳</b> {_e(urls)}</span><span><b>마지막 기록</b> {_e(last)}</span><span><b>기준 폴더</b> {_e(d)}</span></div></header>"]
-    facts = [("테스트", len(ts)), ("확인 값", sum(len(t["assertions"]) for t in ts)), ("가림 규칙", len(masks)),
-             ("이름 변경", sum(len(m) for m in maps.values())), ("동등 결함", len(eqs))]
-    B.append("<dl class='facts'>" + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>" for k, v in facts) + "</dl>")
-    if prev is not None and (changed or new or removed):
-        B.append(f"<div class='notice'><b>지난 승인 이후</b> 기대값이 바뀐 테스트 {changed}개 · 새 테스트 {new}개 · 없어진 테스트 {len(removed)}개"
-                 + (" (" + ", ".join(_e(r) for r in removed) + ")" if removed else "") + "</div>")
-    B.append("<section><div class='sh'><h2>승인 전에 볼 것</h2></div><ol class='todo'>"
-             "<li><span class='k'>1</span><a href='#tests'><b>테스트별 as-is 동작</b><br>단계별 화면과 확인 값이 실제 업무와 맞는지</a></li>"
-             "<li><span class='k'>2</span><a href='#masks'><b>가리는 값</b><br>매번 바뀌는 값만 가리고 금액 같은 값은 안 가리는지</a></li>"
-             "<li><span class='k'>3</span><a href='#rules'><b>이름 변경 · 동등 결함</b><br>바뀌어도 되는 라벨과 제외할 결함에 동의하는지</a></li></ol></section>")
-    B.append("<section id='tests'><div class='sh'><h2>테스트별 as-is 동작</h2><p>펼치면 단계마다 기록된 화면이 나옵니다</p></div>"
-             f"<div class='tests'>{''.join(blocks)}</div></section>")
-
-    if masks:
-        rows = "".join(f"<tr><td class='m'>{_e(m['rule'])}</td><td class='m'>{m['total']}곳</td><td>"
-                       + ("".join(f"<span class='chip'>{_e(k)}</span>" for k, _ in m["samples"]) or "<span class='warnchip'>아무것도 가리지 않음</span>")
-                       + "</td></tr>" for m in masks)
-        mask_html = f"<div class='panel tbl'><table><tr><th>규칙</th><th>가린 곳</th><th>실제로 가린 값</th></tr>{rows}</table></div>"
-    else:
-        mask_html = "<div class='panel empty'>가리는 값 없음</div>"
-    B.append(f"<section id='masks'><div class='sh'><h2>가리는 값</h2><p>비교에서 빼는 값입니다. 매번 바뀌는 값만 있어야 합니다</p></div>{mask_html}</section>")
-
-    if maps:
-        rows = "".join(f"<tr><td>{_e(t)}</td><td>{_e(a)}</td><td><b>{_e(b)}</b></td></tr>" for t, m in maps.items() for a, b in m.items())
-        map_html = f"<div class='panel tbl'><table><tr><th>대상 to-be</th><th>as-is 이름</th><th>to-be 이름</th></tr>{rows}</table></div>"
-    else:
-        map_html = "<div class='panel empty'>이름 변경 없음</div>"
-    if eqs:
-        rows = "".join(f"<tr><td class='m'>{_e(e.get('path'))}</td><td class='m'>{_e(e.get('context'))}</td><td>{_e(e.get('reason', ''))}</td></tr>" for e in eqs)
-        eq_html = f"<div class='panel tbl'><table><tr><th>화면</th><th>바꾼 곳</th><th>화면에 차이가 없는 이유</th></tr>{rows}</table></div>"
-    else:
-        eq_html = "<div class='panel empty'>동등 결함 없음</div>"
-    B.append(f"<section id='rules'><div class='sh'><h2>이름 변경</h2><p>to-be에서 바뀌어도 되는 라벨</p></div>{map_html}"
-             f"<div class='sh' style='margin-top:14px'><h2>동등 결함</h2><p>일부러 넣어도 화면이 같아서 탐지율에서 빼는 결함</p></div>{eq_html}</section>")
-
-    cmd = f"uv run parity approve {d} --by <이름>"
-    if st["ok"]:
-        msg = f"<b>승인된 기준</b>입니다. 기록이 바뀌면 이 화면이 다시 만들어지고 재승인을 요청합니다."
-        bar = f"<div class='bar-approve'><div class='in'><p>{msg}</p></div></div>"
-    else:
-        msg = "as-is 동작이 맞으면 <b>터미널</b>에서 승인하세요. 승인 중이면 <code>" + _e(d.name) + "</code>을 입력합니다. 틀린 게 있으면 승인하지 말고 담당자에게 알려 주세요."
-        bar = (f"<div class='bar-approve'><div class='in'><p>{msg}</p><div class='cmd'><code>{_e(cmd)}</code>"
-               f"<button type='button' data-copy='{_e(cmd)}'>복사</button></div></div></div>")
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(_page(f"{d.name} 기준 승인", "".join(B) + bar, script=COPY_JS), encoding="utf-8")
-    return out
+    """승인 검토 화면. 구현은 review.py (시나리오별 확인 → 터미널 승인)."""
+    from . import review
+    return review.write_review(d, tests_dir=tests_dir, out=out)
 
 
 # -- 검증 결과 ---------------------------------------------------------------------------

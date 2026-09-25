@@ -134,6 +134,7 @@ svg text{font-family:var(--sans)}
       <li><span class="dot">3</span>시식가 시험<small>일부러 맛 바꾸기</small></li>
       <li><span class="dot">4</span>새 가게 맛보기<small>같은지 비교</small></li>
       <li><span class="dot">5</span>성적표<small>믿을 수 있나</small></li>
+      <li><span class="dot">6</span>고치고 다시<small>뭐가 달라졌나</small></li>
     </ol>
     <div class="legend">
       <span><i style="background:var(--accent)"></i>에이전트(Claude)가 해요</span>
@@ -319,6 +320,33 @@ svg text{font-family:var(--sans)}
         <p class="real"><b>실제로는</b> <code>parity report …</code>. 에이전트의 말이 아니라 실행 기록 파일만 읽고 만들어요. HTML로 열면 "무엇이 · as-is · to-be" 표가 나와요.</p>
       </div>
     </article>
+
+    <!-- 6 고치고 다시 -->
+    <article class="step">
+      <div class="art">
+        <svg viewBox="0 0 400 240" role="img" aria-label="맛보기 기록장에 회차별 결과가 줄지어 있고 마지막 줄에서 실패가 통과로 바뀐 그림">
+          <rect x="40" y="20" width="320" height="200" rx="12" fill="var(--surface)" stroke="var(--screen-line)" stroke-width="2"/>
+          <text x="200" y="50" text-anchor="middle" font-size="16" font-weight="700" fill="var(--ink)">맛보기 기록장</text>
+          <g font-size="13" fill="var(--ink)">
+            <text x="64" y="86" fill="var(--muted)">1회</text>
+            <circle cx="150" cy="81" r="8" fill="var(--bad)"/><circle cx="182" cy="81" r="8" fill="var(--bad)"/><circle cx="214" cy="81" r="8" fill="var(--ok)"/><circle cx="246" cy="81" r="8" fill="var(--bad)"/>
+            <text x="64" y="122" fill="var(--muted)">2회</text>
+            <circle cx="150" cy="117" r="8" fill="var(--ok)"/><circle cx="182" cy="117" r="8" fill="var(--bad)"/><circle cx="214" cy="117" r="8" fill="var(--ok)"/><circle cx="246" cy="117" r="8" fill="var(--bad)"/>
+            <text x="64" y="158" fill="var(--muted)">3회</text>
+            <circle cx="150" cy="153" r="8" fill="var(--ok)"/><circle cx="182" cy="153" r="8" fill="var(--ok)"/><circle cx="214" cy="153" r="8" fill="var(--ok)"/><circle cx="246" cy="153" r="8" fill="var(--ok)"/>
+          </g>
+          <text x="290" y="158" font-size="13" font-weight="700" fill="var(--ok)">+2 통과</text>
+          <text x="64" y="200" font-size="13" fill="var(--muted)">지난번보다 뭐가 바뀌었는지만 봐요</text>
+        </svg>
+      </div>
+      <div>
+        <div class="num">6 · 고치고 다시</div>
+        <h3>기록장을 보고 고친 뒤 다시 맛봐요</h3>
+        <p class="say">맛볼 때마다 기록장에 남아요. 새 가게를 고치고 다시 맛보면 "지난번보다 뭐가 좋아졌고 뭐가 나빠졌나"만 알려줘요.</p>
+        <span class="who auto">자동으로 쌓여요</span>
+        <p class="real"><b>실제로는</b> 비교할 때마다 <code>runs/&lt;app&gt;/</code>에 결과가 남고, <code>parity status</code>가 남은 실패와 지난 실행 대비 변화(통과로 바뀜 / 새로 실패)를 보여줘요. <code>parity catalog</code>는 시나리오별 이력을 한 화면에 모아요.</p>
+      </div>
+    </article>
   </section>
 
   <!-- 도우미 -->
@@ -398,7 +426,7 @@ svg text{font-family:var(--sans)}
 
   <section class="last">
     <h2>한 줄로 줄이면</h2>
-    <p>옛 프로그램을 사진 찍어 사람이 도장 찍고, 시식가 실력을 시험한 뒤, 새 프로그램이 사진과 같은지 맞춰 보고, 믿을 수 있는 성적표를 줘요.</p>
+    <p>옛 프로그램을 사진 찍어 사람이 도장 찍고, 시식가 실력을 시험한 뒤, 새 프로그램이 사진과 같은지 맞춰 보고, 믿을 수 있는 성적표를 줘요. 고치고 다시 맞춰 보면 뭐가 달라졌는지만 알려줘요.</p>
   </section>
 
 </div>

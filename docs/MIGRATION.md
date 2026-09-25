@@ -14,20 +14,27 @@ as-is에 버그가 있으면 그 버그가 곧 기대값이다. Claude Code에�
 
 ## 절차
 
+| 단계 | 하는 일 | 누가 | 명령 · 산출물 |
+| :--- | :--- | :--- | :--- |
+| 1 탐색 | as-is 화면을 눌러 흐름 그래프와 테스트 초안을 뽑는다 (LLM 없음) | 도구 | `parity crawl` → `crawl/<app>/` ([CRAWL.md](CRAWL.md)) |
+| 2 시나리오 | 초안에 업무 값(금액, 문구)을 붙여 `e2e/<app>/test_*.py`로. as-is에서 두 번 연속 통과할 때까지 기대값을 as-is에 맞춘다 | 에이전트 | `pytest e2e/<app> --base-url $ASIS` |
+| 3 기록 | 동작마다 as-is 화면 내용·입력값·대화상자·캡처를 저장. 통과한 테스트만 기록된다 | 도구 | `--record golden/<app>` → `golden/<app>/`, `reports/review-<app>.html` |
+| 4 승인 | 개발자가 검토 화면에서 시나리오를 하나씩 확인하고 터미널에서 승인 | **사람** | `parity approve` → `APPROVED.json` |
+| 5 결함 주입 | 테스트가 결함을 잡는지 측정 (80% 이상, 생존 결함은 판정) | 도구 + 사람 판정 | `parity mutate` → `reports/mutation-<app>-golden.json` |
+| 6 to-be 비교 | 같은 테스트, 같은 골든. 실행마다 원장에 남는다 | 도구 | `--compare golden/<app>` → JUnit, `runs/<app>/<시각>.json` |
+| 7 루프 | 남은 실패 → to-be 수정 → 재실행. 지난 실행 대비 무엇이 바뀌었는지만 본다 | 개발자 + 에이전트 | `parity status`, `parity catalog`, `parity report`, `parity map` |
+
 ```bash
 # 0) 같은 DB 스냅샷, 같은 기준 시각으로 as-is와 to-be를 띄운다 (데이터가 다르면 비교가 무의미)
-
-# 1) as-is 코드와 화면(tools/explore.py)을 보고 e2e/<app>/test_*.py 작성. as-is에서 두 번 연속 통과할 때까지 기대값을 as-is에 맞춘다
-uv run pytest e2e/<app> --base-url $ASIS
-
-# 2) as-is 골든 기록: 동작마다 화면 내용·입력값·대화상자를 저장. 통과한 테스트만 기록된다
-uv run pytest e2e/<app> --base-url $ASIS --record golden/<app>
-
-# 3) to-be 비교. 같은 테스트, 같은 골든
-uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
+uv run pytest e2e/<app> --base-url $ASIS                                            # 2) 두 번 연속 통과
+uv run pytest e2e/<app> --base-url $ASIS --record golden/<app>                      # 3) 기록 + 검토 화면
+uv run parity approve golden/<app> --by <이름>                                       # 4) 사람
+uv run parity mutate e2e/<app> --base-url $ASIS --compare golden/<app> --max-per-op 100   # 5)
+uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml   # 6)
+uv run parity status golden/<app>                                                    # 7) 남은 실패, 지난 실행 대비 변화
 ```
 
-`e2e/<app>/`와 `golden/<app>/`가 산출물이다. 저장소에 커밋한다.
+`e2e/<app>/`, `golden/<app>/`, `runs/<app>/`가 산출물이다. 저장소에 커밋한다. 골든을 다시 기록하면 재승인이 필요하고, 원장에는 어느 승인본으로 실행했는지 남는다.
 
 ## 에이전트가 진행해도 결과를 믿을 수 있게 하는 장치
 
@@ -52,9 +59,13 @@ uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml repor
 
 순서: as-is 두 번 통과 → 기록 → **사람 승인** → 결함 주입(탐지율 80% 이상, 생존 결함 판정) → to-be 비교 → 보고서.
 
-사람이 보는 화면은 HTML 두 장이다 (서버 없이 파일로 연다).
-- `reports/review-<app>.html`: 승인 검토. `--record`가 끝나면 자동으로 만들어지고, `parity approve`가 다시 연다. 테스트마다 단계별 as-is 화면(기록 때 찍은 스크린샷, `golden/<app>/shots/`, 승인 해시에 포함), 동작, 새로 나타난 내용, 알림창, 그 시점에 확인한 기대값. 가리는 값과 실제로 가린 값, 이름 변경, 동등 결함, 지난 승인 이후 바뀐 기대값.
+사람이 보는 화면은 HTML 네 장이다 (서버 없이 파일로 연다. 모두 산출물만 읽고 새로 판단하지 않는다).
+- `reports/review-<app>.html`: 승인 검토 (`parity/pwtest/review.py`). `--record`가 끝나면 자동으로 만들어지고, `parity approve`가 다시 연다.
+  왼쪽 시나리오 목록(확인 체크, 지난 승인 이후 바뀐 것·새 것 표시, 전체/미확인/바뀐 것 필터), 가운데 선택한 시나리오의 단계별 큰 as-is 캡처(`golden/<app>/shots/`, 승인 해시에 포함)와 동작·새로 나타난 내용·알림창·그 시점에 확인한 값(바뀐 값은 이전 값도), 오른쪽 규칙(가리는 값과 실제로 가린 값, 이름 변경, 동등 결함).
+  확인 체크는 보는 사람의 브라우저에만 남고(localStorage, 골든 해시별), 전부 확인되면 아래 바에 승인 명령이 나타난다. 승인 자체는 여전히 터미널에서만.
+  예: `docs/samples/review-sample.html`.
 - `reports/verification-<app>.html`: 검증 결과. `parity report`가 `.md`와 함께 만든다. 결론, 다른 점(무엇이 · as-is · to-be), 신뢰 확인, 결함 탐지 능력.
+- `reports/catalog-<app>.html`: 골든 관리 (`parity catalog golden/<app>`). 승인 상태, 시나리오 수, 마지막 비교 결과, 실행 횟수. 시나리오 표(제목, 단계, 확인 값, 마지막 결과, 실행 이력 점), 행을 누르면 필름스트립·단계·마지막 실행에서 다른 점·실행 이력. 화면 지도·검증 보고서·승인 검토로 가는 링크. 예: `docs/samples/catalog-sample.html`.
 - `reports/map-<app>[-<대상>].html`: 화면 지도. `parity map golden/<app> [--junit …]`. 골든의 단계들을 화면 단위로 합쳐 네트워크로 그린다.
   세 칸 구성(Playwright Trace Viewer의 동작 목록·필름스트립·미리보기 구성을 따랐다): 왼쪽 화면 목록(검색, 상태 점), 가운데 지도, 오른쪽 선택한 화면.
   지도는 왼쪽에서 오른쪽 한 방향, 열은 시작 화면에서 몇 번 눌러 가는지, 열 안 순서는 무게중심(Sugiyama 방식)으로 선 교차를 줄인다.
@@ -71,6 +82,8 @@ uv run parity approve golden/<app> --by <이름>                     # 사람이
 uv run parity mutate e2e/<app> --base-url $ASIS --compare golden/<app> --max-per-op 100
 uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
 uv run parity report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
+uv run parity status golden/<app>                                 # 남은 실패, 지난 실행 대비 변화
+uv run parity catalog golden/<app>                                # 골든 관리 화면 reports/catalog-<app>.html
 ```
 
 데모(2026-09-24): 처음 4개 테스트의 결함 탐지율은 expect만 56%, 골든 비교를 더하면 78%. 생존 결함에서 실제 빈틈 두 개가 나왔다
@@ -104,13 +117,22 @@ to-be 코드를 보는 목적은 조작 방법(`ui.py`)뿐이다. 기대값은 a
 
 ## 결과 읽기 (to-be 실행)
 
-| 신호 | 뜻 |
-| :--- | :--- |
-| pass | as-is와 같은 동작 |
-| `not found in any frame` | to-be에서 이름이나 위젯이 바뀜 → name-map이나 `ui.py` 확장, 의도치 않았으면 결함 |
-| `differs from golden` (teardown error) | 화면 내용·값·대화상자가 다름 → to-be 결함 |
-| expect 실패 | 명시한 as-is 동작이 깨짐 → to-be 결함 |
-| 실패 스크린샷 | `reports/<test>-fail.png` |
+| 신호 | 원장 kind | 뜻 |
+| :--- | :--- | :--- |
+| pass | `same` | as-is와 같은 동작 |
+| `not found in any frame` | `error` | to-be에서 이름이나 위젯이 바뀜 → name-map이나 `ui.py` 확장, 의도치 않았으면 결함 |
+| `differs from golden` (teardown error) | `golden_diff` | 화면 내용·값·대화상자가 다름 → to-be 결함 |
+| expect 실패 | `assert` | 명시한 as-is 동작이 깨짐 → to-be 결함 |
+| `expectation changed since as-is recording` | `drift` | 기록 이후 테스트의 기대값이 편집됨 → 되돌린다. as-is 기록이 진실 |
+| 실패 스크린샷 | | `reports/<test>-fail.png` (원장에도 경로가 남는다) |
+
+### 수정 → 재실행 루프
+
+`--compare` 실행마다 `runs/<app>/<시각>.json`에 대상 URL, 실행한 승인본(승인자·승인 시각), 테스트별 결과(상태, kind, 첫 오류 줄, 다른 점 표, 스크린샷)가 남는다 (`parity/pwtest/ledger.py`).
+`parity status golden/<app>`은 마지막 실행의 남은 실패를 kind별로 나열하고, 직전 실행과 비교해 **통과로 바뀜 / 새로 실패 / 여전히 실패 / 새 테스트**를 보여준다. 실행한 승인본이 현재 승인본과 다르면 경고한다.
+개발자는 이 출력과 `parity catalog`의 이력 점만 보고 다음 수정으로 간다. 결함 주입 실행(`--jev-mutant`)은 원장에 남기지 않는다.
+
+데모(2026-09-25): `tobe-fixed`(8803) 비교 → 6개 중 3개 `golden_diff` → 원장 기록 → `tobe`(8802)로 재실행 → `parity status`: "통과 6 · 남은 실패 0 · 통과로 바뀜 3".
 
 ## 데모 (`demo-app/legacy_app.py`, `e2e/legacy/`)
 

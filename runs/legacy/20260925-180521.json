@@ -1,0 +1,95 @@
+{
+ "app": "legacy",
+ "target": "http://127.0.0.1:8803",
+ "started": "2026-09-25 18:05:01",
+ "finished": "2026-09-25 18:05:21",
+ "junit": "reports/junit-legacy-tobe-fixed.xml",
+ "oracle": {
+  "approved_by": "east",
+  "approved_at": "2026-09-24 18:10:42",
+  "ok": true
+ },
+ "cases": {
+  "test_order_save": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: field \"부가세\" == '120': got '124'",
+   "rows": [
+    [
+     "부가세",
+     "120",
+     "124"
+    ],
+    [
+     "합계",
+     "1,355",
+     "1,359"
+    ]
+   ],
+   "screenshot": "reports/test_order_save-fail.png"
+  },
+  "test_qty_required_alert": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '수량을 입력하세요.'",
+   "rows": [
+    [
+     "알림창",
+     "수량을 입력하세요.",
+     "수량은 1 이상이어야 합니다."
+    ]
+   ],
+   "screenshot": "reports/test_qty_required_alert-fail.png"
+  },
+  "test_save_cancel": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  },
+  "test_qty_zero_saved": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '저장하시겠습니까?'",
+   "rows": [
+    [
+     "알림창",
+     "저장하시겠습니까?",
+     "수량은 1 이상이어야 합니다."
+    ],
+    [
+     "화면 문구",
+     "주문이 저장되었습니다. (가림)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "노트북 0개, 공급가액 0원, 부가세 0원, 합계 0원",
+     "(없음)"
+    ],
+    [
+     "to-be에만 있는 화면 내용",
+     "(없음)",
+     "주문 등록 · 품목 · 노트북 · 수량 외 1줄"
+    ]
+   ],
+   "screenshot": "reports/test_qty_zero_saved-fail.png"
+  },
+  "test_order_calc_each_item[notebook]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  },
+  "test_order_calc_each_item[mouse]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": []
+  }
+ },
+ "totals": {
+  "pass": 3,
+  "fail": 3
+ }
+}

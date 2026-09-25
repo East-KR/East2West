@@ -39,6 +39,13 @@ uv run parity report --oracle golden/<app> --junit reports/junit-<app>.xml --mut
 uv run parity map golden/<app> --junit reports/junit-<app>.xml     # 화면 지도: 화면 네트워크 + 대표 캡처, 다른 화면은 빨갛게
 ```
 
+수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장을 남긴다):
+
+```bash
+uv run parity status golden/<app>     # 남은 실패, 종류, 지난 실행 대비 변화 (통과로 바뀜 / 새로 실패)
+uv run parity catalog golden/<app>    # 골든 관리 화면: 시나리오별 승인 상태·마지막 결과·이력, 행을 누르면 단계와 다른 점
+```
+
 절차, 신뢰 장치, 데모 결과: [docs/MIGRATION.md](docs/MIGRATION.md).
 
 ## 스모크와 탐색
@@ -53,7 +60,7 @@ uv run parity crawl <시작 URL> --fixtures f.yaml --out crawl/<app> --dry-run  
 
 | 문서 | 내용 |
 | :--- | :--- |
-| [docs/MIGRATION.md](docs/MIGRATION.md) | 전환 검증 절차, 신뢰 장치 표, 데모 결과 |
+| [docs/MIGRATION.md](docs/MIGRATION.md) | 전환 검증 절차(탐색 → 시나리오 → 기록 → 승인 → 비교 → 원장 → 루프), 신뢰 장치 표, 관리 화면, 데모 결과 |
 | [docs/SMOKE.md](docs/SMOKE.md) | 시나리오 하나로 화면 N개 스모크 (matrix) |
 | [docs/CRAWL.md](docs/CRAWL.md) | 화면 탐색기: 동작 방식, 안전장치, 산출물 |
 | [docs/YAML_RUNNER.md](docs/YAML_RUNNER.md) | Jev 러너: 시나리오 형식, expect 키, 동작 원리, 한계 |
@@ -64,6 +71,7 @@ uv run parity crawl <시작 URL> --fixtures f.yaml --out crawl/<app> --dry-run  
 ```
 parity/            패키지. pwtest/ (Playwright 검증), runner.py·snapshot.py·jev.py (Jev 러너), crawl.py, observe.py (비교 정규화)
 e2e/<app>/         Playwright 테스트            golden/<app>/   승인된 오라클 (골든, 스크린샷, 규칙, APPROVED.json)
+runs/<app>/        to-be 비교 실행 원장 (실행마다 JSON: 대상, 승인본, 테스트별 결과) → parity status / catalog
 scenarios/         YAML 시나리오 (스모크, 데모)  examples/       YAML 전환 예제, 비교 실험 코드, crawl 픽스처
 demo-app/          데모 서버 (예약, 레거시 주문 as-is/to-be 변형, ERP 화면 12개)
 tools/             explore.py (요소 이름 탐색), guard_oracle.py (Claude Code hook: golden/ 편집·승인 차단)

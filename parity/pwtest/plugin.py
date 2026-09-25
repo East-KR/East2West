@@ -1,7 +1,7 @@
 """pytest 플러그인: `ui` fixture와 as-is/to-be 비교 옵션. parity를 설치하면 자동 등록된다 (pyproject의 pytest11 entry point).
 
 uv run pytest e2e/<app> --base-url <as-is> --record golden/<app>     # as-is 골든 기록 → 사람이 `parity approve golden/<app>`
-uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app>    # to-be 비교 (승인된 오라클만)
+uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app>    # to-be 비교 (승인된 오라클만). 끝나면 runs/<app>/ 원장에 결과를 남긴다 (ledger.py)
 
 비교 규칙(마스킹, 이름 매핑)은 오라클 디렉터리 안에만 둔다 (oracle.py). 테스트 코드나 명령행으로 바꿀 수 없다.
 """
@@ -16,10 +16,12 @@ from playwright.sync_api import sync_playwright
 
 from parity.observe import CompareOptions
 
-from . import mutation, oracle
+from . import ledger, mutation, oracle
 from .ui import UI
 
 _capture: mutation.Capture | None = None
+_cases: dict[str, dict] = {}  # --compare 실행의 테스트별 결과 → 실행 원장 (runs/<app>/)
+_started = 0.0
 
 
 def pytest_addoption(parser):
@@ -58,10 +60,24 @@ def pytest_configure(config):
 def pytest_sessionfinish(session):
     if _capture is not None:
         _capture.dump(session.config.getoption("--jev-capture"))
+    cfg = session.config
+    compare = cfg.getoption("--compare")
+    if compare and _cases and not cfg.getoption("--jev-mutant"):  # 결함 주입 실행은 원장에 남기지 않는다
+        junit = cfg.getoption("xmlpath", default=None) or cfg.getoption("--junitxml", default=None)
+        out = ledger.write_run(compare.name, target=cfg.getoption("--base-url"), oracle=cfg._jev_oracle or {}, cases=dict(_cases),
+                               started=_started, junit=str(junit) if junit else None)
+        session.config._jev_ledger = out
+
+
+def pytest_sessionstart(session):
+    global _started
+    import time as _t
+    _started = _t.time()
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """기록이 끝나면 승인 검토 화면을 만든다. 사람은 이 화면을 보고 승인한다."""
+    _ledger_summary_line(terminalreporter, config)
     record = config.getoption("--record")
     if not record or not record.exists():
         return
@@ -77,6 +93,12 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     page = html.write_review(record)
     terminalreporter.write_line(f"\n승인 검토 화면: {page.resolve().as_uri()}")
     terminalreporter.write_line(f"확인 후 승인 (사람, 터미널): uv run parity approve {record} --by <이름>")
+
+
+def _ledger_summary_line(terminalreporter, config):
+    out = getattr(config, "_jev_ledger", None)
+    if out:
+        terminalreporter.write_line(f"\n실행 원장: {out}  (parity status {config.getoption('--compare')})")
 
 
 def pytest_report_header(config):
@@ -107,6 +129,7 @@ def pytest_runtest_makereport(item, call):
     rep = (yield).get_result()
     if rep.when == "call":
         item.passed_call = rep.passed
+        item.fail_text = "" if rep.passed else (rep.longreprtext or "")
 
 
 @pytest.fixture(scope="session")
@@ -145,9 +168,22 @@ def ui(request, browser):
         u.screenshot(Path("reports") / f"{request.node.name}-fail.png")
     u.finish(passed=passed)
     ctx.close()
-    lines = [f"  {d}" for d in u.assertion_drift(passed)]
+    drift = u.assertion_drift(passed)
+    lines = [f"  {d}" for d in drift]
     for step, text, diff in u.diffs:
         lines.append(f"step {step} {text}: differs from golden")
         lines += [f"    {l}" for l in diff[:12]]
+    if compare and not mutant and _capture is None:
+        from . import html as _html
+        fail_text = getattr(request.node, "fail_text", "")
+        messages = [m for m in (fail_text, "\n".join(lines)) if m]
+        if passed and not lines:
+            _cases[request.node.name] = {"status": "pass", "kind": "same", "summary": "", "rows": []}
+        else:
+            kind = "drift" if drift else ("golden_diff" if u.diffs else ("assert" if passed is False and "AssertionError" in fail_text else "error"))
+            rows, _ = _html.rows_for(messages)
+            first = next((l.strip() for l in fail_text.splitlines() if l.strip().startswith("E ")), "") or (lines[0].strip() if lines else fail_text.strip()[:200])
+            _cases[request.node.name] = {"status": "fail", "kind": kind, "summary": first.removeprefix("E ").strip(), "rows": rows[:12],
+                                         "screenshot": f"reports/{request.node.name}-fail.png" if not passed else ""}
     if lines:
         pytest.fail("\n".join(lines), pytrace=False)

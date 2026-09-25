@@ -90,6 +90,13 @@ def main(argv: list[str] | None = None) -> int:
     tg.add_argument("--base-url", default=os.environ.get("PARITY_BASE_URL"))
     tg.add_argument("--names", default=None, help="조회 버튼으로 인정할 이름, | 로 구분 (기본: 조회|검색|찾기|조회하기|검색하기|Search|Find)")
     tg.add_argument("--storage-state", type=Path, default=None)
+    stt = sub.add_parser("status", help="수정 → 재실행 루프용: 마지막 to-be 비교의 남은 실패, 종류, 지난 실행 대비 변화 (runs/<app>/ 원장)")
+    stt.add_argument("oracle_dir", type=Path)
+    cat = sub.add_parser("catalog", help="골든 관리 화면(HTML): 시나리오별 승인 상태·마지막 결과·이력, 화면 지도 링크")
+    cat.add_argument("oracle_dir", type=Path)
+    cat.add_argument("--tests", type=Path, default=None)
+    cat.add_argument("--out", type=Path, default=None)
+    cat.add_argument("--no-open", action="store_true")
     mp = sub.add_parser("map", help="화면 지도: 골든에 기록된 동작을 화면 네트워크로 그린 HTML (비교 결과를 겹칠 수 있음)")
     mp.add_argument("oracle_dir", type=Path)
     mp.add_argument("--junit", type=Path, default=None, help="to-be 비교 결과를 겹친다 (다른 화면을 빨갛게)")
@@ -97,6 +104,16 @@ def main(argv: list[str] | None = None) -> int:
     mp.add_argument("--out", type=Path, default=None)
     mp.add_argument("--no-open", action="store_true")
     args = ap.parse_args(argv)
+    if args.cmd == "status":
+        from .pwtest import ledger, oracle
+        print(ledger.status_text(args.oracle_dir.name, oracle.status(args.oracle_dir)))
+        return 0
+    if args.cmd == "catalog":
+        from .pwtest import catalog as _catalog, html as _html
+        page = _catalog.write(args.oracle_dir, args.out or Path("reports") / f"catalog-{args.oracle_dir.name}.html", args.tests)
+        if not args.no_open:
+            _html.open_in_browser(page)
+        return 0
     if args.cmd == "map":
         from .pwtest import html as _html, map as _map
         suffix = ("-" + args.junit.stem.removeprefix("junit-").removeprefix(f"{args.oracle_dir.name}-")) if args.junit else ""
