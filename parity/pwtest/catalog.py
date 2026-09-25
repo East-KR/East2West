@@ -158,7 +158,8 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
             "tests": tests, "shots": shots, "kind_label": KIND_LABEL}
 
 
-def render(g: dict[str, Any]) -> str:
+def render(g: dict[str, Any], embed: bool = False) -> str:
+    """embed=True: 통합 화면(parity ui) 안에 들어갈 때. 다른 화면으로 가는 링크는 통합 화면의 탭이 맡는다."""
     st, runs, tests = g["oracle"], g["runs"], g["tests"]
     latest = runs[-1] if runs else None
     n_fail = sum(1 for t in tests.values() if t["last"] and t["last"]["status"] != "pass")
@@ -191,7 +192,7 @@ def render(g: dict[str, Any]) -> str:
                     f"<td class='n'>{len(t['steps'])}</td><td class='n'>{t['assertions']}</td><td>{pill}</td>"
                     f"<td><span class='hist'>{hist or '<span class=tid>—</span>'}</span></td><td class='n'>{html._e((t['recorded_at'] or '')[:10])}</td></tr>")
     links = (f"<div class='links'><a href='map-{html._e(g['app'])}.html'>화면 지도</a><a href='verification-{html._e(g['app'])}.html'>검증 보고서</a>"
-             f"<a href='review-{html._e(g['app'])}.html'>승인 검토</a></div>")
+             f"<a href='review-{html._e(g['app'])}.html'>승인 검토</a></div>") if not embed else ""
     body = (f"<header class='head'><div class='eyebrow'>골든 관리</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
             f"<h1>{html._e(g['app'])}</h1><p class='lede'>이 앱의 골든 시나리오와 to-be 비교 현황입니다. 행을 누르면 시나리오 단계와 마지막 결과가 나옵니다.</p>"
             f"<div class='prov'><span><b>기준 폴더</b> golden/{html._e(g['app'])}</span><span><b>실행 기록</b> runs/{html._e(g['app'])} · {len(runs)}회</span></div></header>"

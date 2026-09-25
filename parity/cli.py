@@ -103,7 +103,16 @@ def main(argv: list[str] | None = None) -> int:
     mp.add_argument("--tests", type=Path, default=None, help="테스트 디렉터리 (제목용, 기본 e2e/<오라클 이름>)")
     mp.add_argument("--out", type=Path, default=None)
     mp.add_argument("--no-open", action="store_true")
+    ui = sub.add_parser("ui", help="통합 화면: 앱별 개요·이력·승인 검토·화면 지도·검증 보고서를 한 화면에서 (로컬 서버, 산출물만 읽음)")
+    ui.add_argument("--golden", type=Path, default=Path("golden"), help="오라클 루트 (기본 golden/)")
+    ui.add_argument("--tests", type=Path, default=Path("e2e"), help="테스트 루트 (제목용, 기본 e2e/)")
+    ui.add_argument("--port", type=int, default=8790)
+    ui.add_argument("--no-open", action="store_true")
     args = ap.parse_args(argv)
+    if args.cmd == "ui":
+        from .pwtest import hub
+        hub.serve(args.golden, port=args.port, tests_root=args.tests, open_browser=not args.no_open)
+        return 0
     if args.cmd == "status":
         from .pwtest import ledger, oracle
         print(ledger.status_text(args.oracle_dir.name, oracle.status(args.oracle_dir)))
@@ -176,6 +185,9 @@ def main(argv: list[str] | None = None) -> int:
         out = args.out or Path("reports") / f"mutation-{name}-{'golden' if args.compare else 'expects'}.json"
         mutation.run(args.targets, base_url=args.base_url, compare=args.compare, workers=args.workers,
                      max_per_op=args.max_per_op, allow_unapproved=args.allow_unapproved, out=out)
+        if args.compare:
+            from .pwtest import ledger
+            print(f"kept for history: {ledger.save_mutation(args.compare.name, out)}")
         return 0
     if args.cmd == "report":
         from .pwtest import report

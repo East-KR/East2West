@@ -330,15 +330,17 @@ def rows_for(messages: list[str]) -> tuple[list[tuple[str, str, str]], list[str]
 
 
 def _shot(name: str, junit: Path) -> str:
-    p = Path("reports") / f"{name}-fail.png"
-    if not p.exists() or not (junit.stat().st_mtime - 900 <= p.stat().st_mtime <= junit.stat().st_mtime + 5):
-        return ""
+    p = junit.parent / "shots" / f"{name}-fail.png"  # 원장 사본 (runs/<app>/<시각>/shots/)
+    if not p.exists():
+        p = Path("reports") / f"{name}-fail.png"
+        if not p.exists() or not (junit.stat().st_mtime - 900 <= p.stat().st_mtime <= junit.stat().st_mtime + 5):
+            return ""
     return (f"<details class='more'><summary>실패 순간 화면</summary>"
             f"<img class='shot' src='data:image/png;base64,{base64.b64encode(p.read_bytes()).decode()}' alt='실패 순간 화면'></details>")
 
 
-def write_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trusted: bool, runs: list[dict[str, Any]],
-                 muts: list[dict[str, Any]], out: Path, tests_dir: Path | None = None) -> Path:
+def render_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trusted: bool, runs: list[dict[str, Any]],
+                  muts: list[dict[str, Any]], tests_dir: Path | None = None) -> str:
     docs = docstrings(tests_dir or Path("e2e") / oracle_dir.name)
     B = []
     for r in runs:
@@ -388,7 +390,4 @@ def write_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trust
                  f"<div class='bar'><i style='width:{m['score'] * 100:.0f}%'></i></div>"
                  + "".join(f"<div class='tid' style='margin-top:8px'>못 잡음 · {_e(x['path'])} · {_e(x['desc'][:90])}</div>" for x in surv[:5])
                  + "</div></section>")
-    out = out.with_suffix(".html")
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(_page(f"{oracle_dir.name} 검증 결과", "".join(B)), encoding="utf-8")
-    return out
+    return _page(f"{oracle_dir.name} 검증 결과", "".join(B))

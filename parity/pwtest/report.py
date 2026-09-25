@@ -47,7 +47,8 @@ def _first_lines(text: str, n: int = 6) -> str:
     return "\n".join(lines[:n]) + ("\n…" if len(lines) > n else "")
 
 
-def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: Path) -> None:
+def build(*, oracle_dir: Path, junits: list[Path], mutations: list[Path]) -> dict[str, Any]:
+    """산출물 → 신뢰 확인 목록과 판정. write()와 통합 화면(hub)이 같이 쓴다."""
     st = oracle.status(oracle_dir)
     runs = [_junit(j) for j in junits]
     muts = [json.loads(m.read_text(encoding="utf-8")) for m in mutations]
@@ -80,6 +81,12 @@ def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: P
         score = m["score"] or 0
         checks.append((f"테스트가 결함을 {MIN_SCORE:.0%} 이상 잡음", score >= MIN_SCORE, f"{m['killed']}/{m['total']} = {score:.0%}"))
     trusted = all(ok for _, ok, _ in checks) and bool(runs) and bool(gold)
+    return {"status": st, "runs": runs, "muts": muts, "gold": gold, "checks": checks, "trusted": trusted}
+
+
+def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: Path) -> None:
+    b = build(oracle_dir=oracle_dir, junits=junits, mutations=mutations)
+    runs, muts, gold, checks, trusted = b["runs"], b["muts"], b["gold"], b["checks"], b["trusted"]
 
     L = [f"# 검증 보고서: {oracle_dir.name}", "",
          f"생성 {time.strftime('%Y-%m-%d %H:%M:%S')} · `parity report`가 아래 산출물에서만 만들었다.", ""]
@@ -119,10 +126,17 @@ def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: P
           "마스킹 규칙과 실제로 가린 값:", "", "```", *([l.strip() for l in oracle.mask_audit(oracle_dir)] or ["(없음)"]), "```", ""]
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(L), encoding="utf-8")
-    if not runs:
-        checks.append(("비교 실행 결과", False, "JUnit 결과 없음"))
-    if not gold:
-        checks.append(("결함 탐지 측정", False, "결과 없음"))
     from . import html
-    page = html.write_report(oracle_dir=oracle_dir, checks=checks, trusted=trusted, runs=runs, muts=muts, out=out)
+    page = out.with_suffix(".html")
+    page.write_text(render_html(oracle_dir, b), encoding="utf-8")
     print(f"{'TRUSTED' if trusted else 'NOT TRUSTED'}: {out} · {page}")
+
+
+def render_html(oracle_dir: Path, b: dict[str, Any], tests_dir: Path | None = None) -> str:
+    from . import html
+    checks = list(b["checks"])
+    if not b["runs"]:
+        checks.append(("비교 실행 결과", False, "JUnit 결과 없음"))
+    if not b["gold"]:
+        checks.append(("결함 탐지 측정", False, "결과 없음"))
+    return html.render_report(oracle_dir=oracle_dir, checks=checks, trusted=b["trusted"], runs=b["runs"], muts=b["muts"], tests_dir=tests_dir)

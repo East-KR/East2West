@@ -57,6 +57,7 @@ def pytest_configure(config):
         _capture = mutation.Capture()
 
 
+@pytest.hookimpl(trylast=True)  # junitxml 플러그인이 XML을 다 쓴 뒤에 원장이 그 사본을 챙긴다
 def pytest_sessionfinish(session):
     if _capture is not None:
         _capture.dump(session.config.getoption("--jev-capture"))

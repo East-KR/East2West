@@ -1,9 +1,9 @@
 {
  "app": "legacy",
- "target": "http://127.0.0.1:8802",
- "started": "2026-09-25 18:05:23",
- "finished": "2026-09-25 18:05:39",
- "junit": "reports/junit-legacy-tobe.xml",
+ "target": "http://127.0.0.1:8804",
+ "started": "2026-09-25 18:38:31",
+ "finished": "2026-09-25 18:38:52",
+ "junit": "runs/legacy/20260925-183852/junit.xml",
  "oracle": {
   "approved_by": "east",
   "approved_at": "2026-09-24 18:10:42",
@@ -11,10 +11,22 @@
  },
  "cases": {
   "test_order_save": {
-   "status": "pass",
-   "kind": "same",
-   "summary": "",
-   "rows": []
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "AssertionError: field \"부가세\" == '120': got '124'",
+   "rows": [
+    [
+     "부가세",
+     "120",
+     "124"
+    ],
+    [
+     "합계",
+     "1,355",
+     "1,359"
+    ]
+   ],
+   "screenshot": "runs/legacy/20260925-183852/shots/test_order_save-fail.png"
   },
   "test_qty_required_alert": {
    "status": "pass",
@@ -48,7 +60,7 @@
   }
  },
  "totals": {
-  "pass": 6,
-  "fail": 0
+  "pass": 5,
+  "fail": 1
  }
 }

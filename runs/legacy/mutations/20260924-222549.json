@@ -1,0 +1,817 @@
+{
+ "generated_at": "2026-09-24 22:25:49",
+ "targets": [
+  "e2e/legacy"
+ ],
+ "base_url": "http://127.0.0.1:8801",
+ "oracle_approved": true,
+ "oracle_approved_at": "2026-09-24 18:10:42",
+ "mode": "expects+golden",
+ "compare": "golden/legacy",
+ "total": 34,
+ "killed": 34,
+ "errors": 0,
+ "score": 1.0,
+ "by_op": {
+  "num": {
+   "total": 8,
+   "killed": 8
+  },
+  "math": {
+   "total": 1,
+   "killed": 1
+  },
+  "cond": {
+   "total": 1,
+   "killed": 1
+  },
+  "dialog": {
+   "total": 2,
+   "killed": 2
+  },
+  "msg": {
+   "total": 2,
+   "killed": 2
+  },
+  "label": {
+   "total": 16,
+   "killed": 16
+  },
+  "http500": {
+   "total": 4,
+   "killed": 4
+  }
+ },
+ "test_kills": {
+  "test_order_calc_each_item[mouse]": 17,
+  "test_order_calc_each_item[notebook]": 16,
+  "test_order_save": 29,
+  "test_qty_required_alert": 16,
+  "test_qty_zero_saved": 21,
+  "test_save_cancel": 15
+ },
+ "mutants": [
+  {
+   "path": "/",
+   "op": "http500",
+   "site": 0,
+   "desc": "/ → 500",
+   "id": "m000",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/done.jsp",
+   "op": "num",
+   "site": 1,
+   "desc": "번호 446</p><p>볼펜 1개, 공급가액 ⟦1→2⟧,235원, 부가세 120원, 합계 1,355",
+   "id": "m001",
+   "tests": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/done.jsp",
+   "op": "num",
+   "site": 2,
+   "desc": "급가액 1,235원, 부가세 120원, 합계 ⟦1→2⟧,355원</p></body></html>",
+   "id": "m002",
+   "tests": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/done.jsp",
+   "op": "label",
+   "site": 0,
+   "desc": "}</style></head><body><p>⟦주문이 저장되었습니다→X문이 저장되었습니다⟧. 주문번호 446</p><p>볼펜 1개, 공",
+   "id": "m003",
+   "tests": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/done.jsp",
+   "op": "label",
+   "site": 2,
+   "desc": " 저장되었습니다. 주문번호 446</p><p>⟦볼펜→X펜⟧ 1개, 공급가액 1,235원, 부가세 120",
+   "id": "m004",
+   "tests": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/done.jsp",
+   "op": "label",
+   "site": 3,
+   "desc": "다. 주문번호 446</p><p>볼펜 1개, ⟦공급가액→X급가액⟧ 1,235원, 부가세 120원, 합계 1,3",
+   "id": "m005",
+   "tests": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/done.jsp",
+   "op": "label",
+   "site": 4,
+   "desc": "p><p>볼펜 1개, 공급가액 1,235원, ⟦부가세→X가세⟧ 120원, 합계 1,355원</p></bod",
+   "id": "m006",
+   "tests": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/done.jsp",
+   "op": "label",
+   "site": 5,
+   "desc": ", 공급가액 1,235원, 부가세 120원, ⟦합계→X계⟧ 1,355원</p></body></html>",
+   "id": "m007",
+   "tests": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/done.jsp",
+   "op": "http500",
+   "site": 0,
+   "desc": "/done.jsp → 500",
+   "id": "m008",
+   "tests": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_zero_saved"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/menu.jsp",
+   "op": "label",
+   "site": 0,
+   "desc": "order.jsp' target='main'>⟦주문 등록→X문 등록⟧</a> | <a href='/list.jsp",
+   "id": "m009",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/menu.jsp",
+   "op": "label",
+   "site": 1,
+   "desc": "/list.jsp' target='main'>⟦주문 조회→X문 조회⟧</a></body></html>",
+   "id": "m010",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/menu.jsp",
+   "op": "http500",
+   "site": 0,
+   "desc": "/menu.jsp → 500",
+   "id": "m011",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "num",
+   "site": 1,
+   "desc": "ce)*q;var v=Math.floor(s*⟦0.1→0.2⟧/10)*10;document.f.supply",
+   "id": "m012",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "num",
+   "site": 2,
+   "desc": "q;var v=Math.floor(s*0.1/⟦10→11⟧)*10;document.f.supply.va",
+   "id": "m013",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "num",
+   "site": 3,
+   "desc": "r v=Math.floor(s*0.1/10)*⟦10→11⟧;document.f.supply.value=",
+   "id": "m014",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "num",
+   "site": 4,
+   "desc": "e='notebook' data-price='⟦1250000→1250001⟧'>노트북</option><option val",
+   "id": "m015",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[notebook]"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "num",
+   "site": 5,
+   "desc": "alue='mouse' data-price='⟦33000→33001⟧'>마우스</option><option val",
+   "id": "m016",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "num",
+   "site": 6,
+   "desc": " value='pen' data-price='⟦1235→1236⟧'>볼펜</option></select></t",
+   "id": "m017",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "math",
+   "site": 0,
+   "desc": "o.dataset.price)*q;var v=⟦Math.floor→Math.ceil⟧(s*0.1/10)*10;document.f.",
+   "id": "m018",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "cond",
+   "site": 0,
+   "desc": "document.f.qty.value;if(q⟦===→!==⟧''){alert('수량을 입력하세요.');r",
+   "id": "m019",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "dialog",
+   "site": 0,
+   "desc": "t.f.qty.value;if(q===''){⟦alert(→void(⟧'수량을 입력하세요.');return;}if(",
+   "id": "m020",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_qty_required_alert"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "dialog",
+   "site": 1,
+   "desc": "'수량을 입력하세요.');return;}if(⟦confirm(→(function(){return true;})(⟧'저장하시겠습니까?')){document.f.",
+   "id": "m021",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "msg",
+   "site": 0,
+   "desc": ".value;if(q===''){alert('⟦수량을 입력하세요.→수량을 입력하세요. (변경)⟧');return;}if(confirm('저장",
+   "id": "m022",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_qty_required_alert"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "msg",
+   "site": 1,
+   "desc": "요.');return;}if(confirm('⟦저장하시겠습니까?→저장하시겠습니까? (변경)⟧')){document.f.submit();}",
+   "id": "m023",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 0,
+   "desc": "submit();}} </script><h2>⟦주문 등록→X문 등록⟧</h2><form name='f' metho",
+   "id": "m024",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 1,
+   "desc": "ave.jsp'><table> <tr><th>⟦품목→X목⟧</th><td><select name='it",
+   "id": "m025",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 2,
+   "desc": "ok' data-price='1250000'>⟦노트북→X트북⟧</option><option value='m",
+   "id": "m026",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 3,
+   "desc": "ouse' data-price='33000'>⟦마우스→X우스⟧</option><option value='p",
+   "id": "m027",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_qty_required_alert"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 4,
+   "desc": "='pen' data-price='1235'>⟦볼펜→X펜⟧</option></select></td></",
+   "id": "m028",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_save"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 5,
+   "desc": "elect></td></tr> <tr><th>⟦수량→X량⟧</th><td><input name='qty",
+   "id": "m029",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 6,
+   "desc": "e='5'></td></tr> <tr><th>⟦공급가액→X급가액⟧</th><td><input name='sup",
+   "id": "m030",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 7,
+   "desc": "donly></td></tr> <tr><th>⟦부가세→X가세⟧</th><td><input name='vat",
+   "id": "m031",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "label",
+   "site": 8,
+   "desc": "donly></td></tr> <tr><th>⟦합계→X계⟧</th><td><input name='tot",
+   "id": "m032",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  },
+  {
+   "path": "/order.jsp",
+   "op": "http500",
+   "site": 0,
+   "desc": "/order.jsp → 500",
+   "id": "m033",
+   "tests": [
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_save_cancel",
+    "test_qty_zero_saved",
+    "test_order_calc_each_item[notebook]",
+    "test_order_calc_each_item[mouse]"
+   ],
+   "status": "killed",
+   "killed": true,
+   "killed_by": [
+    "test_order_calc_each_item[mouse]",
+    "test_order_calc_each_item[notebook]",
+    "test_order_save",
+    "test_qty_required_alert",
+    "test_qty_zero_saved",
+    "test_save_cancel"
+   ],
+   "error": ""
+  }
+ ]
+}

@@ -1,13 +1,17 @@
-"""실행 원장: to-be 비교(`pytest --compare`)가 끝날 때마다 결과를 runs/<app>/<시각>.json 에 남긴다. 관리 화면과 상태 명령이 이 원장만 읽는다.
+"""실행 원장: to-be 비교(`pytest --compare`)가 끝날 때마다 결과를 runs/<app>/ 에 남긴다. 관리 화면·상태 명령·통합 화면(parity ui)이 이 원장만 읽는다.
 
-한 실행 = {app, target, started, finished, oracle: {approved_by, approved_at, ok}, cases: {test: {status, kind, summary, rows, screenshot}}}
-  kind: same | drift(기대값이 기록 이후 바뀜) | golden_diff(화면·값·대화상자가 다름) | assert(명시한 확인 값 실패) | error(실행 못 함)
+runs/<app>/<시각>.json           한 실행 = {app, target, started, finished, junit, oracle: {approved_by, approved_at, ok}, cases: {test: {…}}, totals}
+runs/<app>/<시각>/junit.xml      그 실행의 JUnit 사본 (검증 보고서·화면 지도를 나중에 다시 그릴 수 있게)
+runs/<app>/<시각>/shots/         실패 순간 스크린샷 사본
+runs/<app>/mutations/<시각>.json parity mutate 결과 사본 (승인본마다 하나면 된다)
+  case kind: same | drift(기대값이 기록 이후 바뀜) | golden_diff(화면·값·대화상자가 다름) | assert(명시한 확인 값 실패) | error(실행 못 함)
 
 parity status golden/<app>   남은 실패, 분류, 지난 실행 대비 변화 (수정 → 재실행 루프에서 이것만 본다)
 """
 from __future__ import annotations
 
 import json
+import shutil
 import time
 from pathlib import Path
 from typing import Any
@@ -25,6 +29,18 @@ def write_run(app: str, *, target: str, oracle: dict[str, Any], cases: dict[str,
     d.mkdir(parents=True, exist_ok=True)
     stamp = time.strftime("%Y%m%d-%H%M%S")
     out = d / f"{stamp}.json"
+    keep = d / stamp  # 실행 산출물 사본. reports/ 는 다음 실행이 덮어쓰므로 여기 남겨야 이력이 된다
+    if junit and Path(junit).exists():
+        keep.mkdir(exist_ok=True)
+        shutil.copyfile(junit, keep / "junit.xml")
+        junit = str(keep / "junit.xml")
+    for c in cases.values():
+        shot = c.get("screenshot")
+        if shot and Path(shot).exists():
+            (keep / "shots").mkdir(parents=True, exist_ok=True)
+            dst = keep / "shots" / Path(shot).name
+            shutil.copyfile(shot, dst)
+            c["screenshot"] = str(dst)
     rec = {"app": app, "target": target, "started": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(started)),
            "finished": time.strftime("%Y-%m-%d %H:%M:%S"), "junit": junit,
            "oracle": {"approved_by": oracle.get("approved_by"), "approved_at": oracle.get("approved_at"), "ok": bool(oracle.get("ok"))},
@@ -34,6 +50,15 @@ def write_run(app: str, *, target: str, oracle: dict[str, Any], cases: dict[str,
     return out
 
 
+def save_mutation(app: str, result: Path) -> Path:
+    """parity mutate 결과를 원장 옆에 복사한다. 보고서는 현재 승인본과 승인 시각이 같은 최신 결과를 쓴다."""
+    d = run_dir(app) / "mutations"
+    d.mkdir(parents=True, exist_ok=True)
+    dst = d / f"{time.strftime('%Y%m%d-%H%M%S')}.json"
+    shutil.copyfile(result, dst)
+    return dst
+
+
 def load_runs(app: str) -> list[dict[str, Any]]:
     d = run_dir(app)
     if not d.exists():
@@ -41,10 +66,32 @@ def load_runs(app: str) -> list[dict[str, Any]]:
     runs = []
     for p in sorted(d.glob("*.json")):
         try:
-            runs.append({**json.loads(p.read_text(encoding="utf-8")), "_file": p.name})
+            runs.append({**json.loads(p.read_text(encoding="utf-8")), "_file": p.name, "_stamp": p.stem})
         except (OSError, ValueError):
             continue
     return runs
+
+
+def load_mutations(app: str) -> list[dict[str, Any]]:
+    """오래된 것부터. 각 항목에 _file 이 붙는다."""
+    d = run_dir(app) / "mutations"
+    if not d.exists():
+        return []
+    out = []
+    for p in sorted(d.glob("*.json")):
+        try:
+            out.append({**json.loads(p.read_text(encoding="utf-8")), "_file": str(p)})
+        except (OSError, ValueError):
+            continue
+    return out
+
+
+def mutation_for(app: str, approved_at: str | None) -> Path | None:
+    """현재 승인본으로 측정한 최신 결함 주입 결과. 없으면 None (보고서는 ❌로 표시한다)."""
+    for m in reversed(load_mutations(app)):
+        if m.get("mode") == "expects+golden" and m.get("oracle_approved_at") == approved_at:
+            return Path(m["_file"])
+    return None
 
 
 def history(app: str) -> dict[str, list[dict[str, Any]]]:
@@ -52,7 +99,7 @@ def history(app: str) -> dict[str, list[dict[str, Any]]]:
     out: dict[str, list[dict[str, Any]]] = {}
     for r in load_runs(app):
         for name, c in r["cases"].items():
-            out.setdefault(name, []).append({"run": r["_file"].removesuffix(".json"), "finished": r["finished"], "target": r["target"],
+            out.setdefault(name, []).append({"run": r["_stamp"], "finished": r["finished"], "target": r["target"],
                                              "status": c["status"], "kind": c.get("kind", ""), "approved_at": r["oracle"].get("approved_at")})
     return out
 

@@ -24,8 +24,9 @@ HTML은 파일로 바로 열린다(서버 없음). 단계 번호는 [MIGRATION.m
 | | | 실행 원장 (`runs/<app>/<시각>.json`) | 상태 명령·관리 화면 입력 | [run-ledger-sample.json](run-ledger-sample.json) |
 | | `parity report` | 검증 보고서 (신뢰 확인 → 판정 → 다른 점 → 탐지율) | **사람** (최종) | [verification-sample.html](verification-sample.html), [.md](verification-sample.md) |
 | | `parity map --junit` | 화면 지도 (다른 화면은 빨갛게) | 사람 | [map-legacy-tobe-fixed.html](map-legacy-tobe-fixed.html), [map-reservation.html](map-reservation.html) |
-| 7 루프 | `parity status` | 남은 실패, 지난 실행 대비 변화 | 개발자·에이전트 | [status.txt](status.txt) |
-| | `parity catalog` | 골든 관리 화면 (시나리오별 승인·결과·이력) | 사람 | [catalog-sample.html](catalog-sample.html) |
+| 7 루프 | `parity ui` | 통합 화면 (개요·이력·승인 검토·지도·보고서, 지난 실행 선택) | **사람** | [ui-history.png](ui-history.png), [ui-overview.png](ui-overview.png) |
+| | `parity status` | 남은 실패, 지난 실행 대비 변화 | 개발자·에이전트 | [status.txt](status.txt) |
+| | `parity catalog` | 골든 관리 화면 한 장 (통합 화면의 개요 탭) | 사람 | [catalog-sample.html](catalog-sample.html) |
 | 스모크 | `parity targets` | 화면별 조회 버튼 결정 (rule / review) | 사람이 review 행만 | [smoke/targets-output.txt](smoke/targets-output.txt), [smoke/screens.targets.yaml](smoke/screens.targets.yaml) |
 | | `parity run … --triage` | 화면별 결과, 실패 분류 (real_defect·ui_changed·environment…) | 에이전트 → 사람 | [smoke/run-output.txt](smoke/run-output.txt), [smoke/junit-smoke.xml](smoke/junit-smoke.xml) |
 
@@ -33,7 +34,8 @@ HTML은 파일로 바로 열린다(서버 없음). 단계 번호는 [MIGRATION.m
 
 - **동등성 검증**: as-is `legacy`(8801)에서 기록·승인한 시나리오 6개를 `tobe-fixed`(8803)와 비교. to-be가 as-is 버그 두 개(부가세 10원 절사, 수량 0 허용)를 "고쳐버려서" 3개가 다르다.
   보고서 판정은 **신뢰 가능**(승인본·전수 실행·탐지율 100% 모두 ✅)이고 다른 점 3건이 나열된다. 신뢰 가능은 "결과를 믿어도 된다"는 뜻이지 "같다"는 뜻이 아니다.
-- **루프**: 직전 실행은 충실한 `tobe`(8802)라 전부 통과였고, 이번은 3개가 새로 실패 → `status.txt`에 "새로 실패 3". 관리 화면의 이력 점에 실행 3회가 보인다.
+- **루프**: 원장 `runs/legacy/`에 실행 3회 — `tobe-fixed`(8803, 3 다름) → `tobe-renamed`(8804, 이름 매핑 적용, 부가세 반올림 1 다름) → `tobe`(8802, 모두 같음).
+  통합 화면 이력 탭에 "+2 통과로 / 1 계속 실패", "+1 통과로"가 찍히고, 실행을 고르면 그 실행의 지도·보고서가 다시 그려진다 (JUnit·스크린샷 사본이 `runs/legacy/<시각>/`에 있다).
 - **탐색**: 예약 데모(8787) 로그인부터 깊이 4까지 → 상태 10개, 동작 26개, 시나리오 6개. 로그인 실패·필수값 누락·확정·취소 경로가 모두 잡혔다.
 - **스모크**: ERP 화면 12개를 조회 버튼 규칙으로 9개 확정, 3개는 사람이 고름. to-be(8812)에 결함 5개가 심겨 있고 5개 모두 `real_defect`로 분류됐다.
 

@@ -1,9 +1,9 @@
 {
  "app": "legacy",
  "target": "http://127.0.0.1:8803",
- "started": "2026-09-25 18:21:07",
- "finished": "2026-09-25 18:21:27",
- "junit": "reports/junit-legacy-tobe-fixed.xml",
+ "started": "2026-09-25 18:38:09",
+ "finished": "2026-09-25 18:38:30",
+ "junit": "runs/legacy/20260925-183830/junit.xml",
  "oracle": {
   "approved_by": "east",
   "approved_at": "2026-09-24 18:10:42",
@@ -26,7 +26,7 @@
      "1,359"
     ]
    ],
-   "screenshot": "reports/test_order_save-fail.png"
+   "screenshot": "runs/legacy/20260925-183830/shots/test_order_save-fail.png"
   },
   "test_qty_required_alert": {
    "status": "fail",
@@ -39,7 +39,7 @@
      "수량은 1 이상이어야 합니다."
     ]
    ],
-   "screenshot": "reports/test_qty_required_alert-fail.png"
+   "screenshot": "runs/legacy/20260925-183830/shots/test_qty_required_alert-fail.png"
   },
   "test_save_cancel": {
    "status": "pass",
@@ -73,7 +73,7 @@
      "주문 등록 · 품목 · 노트북 · 수량 외 1줄"
     ]
    ],
-   "screenshot": "reports/test_qty_zero_saved-fail.png"
+   "screenshot": "runs/legacy/20260925-183830/shots/test_qty_zero_saved-fail.png"
   },
   "test_order_calc_each_item[notebook]": {
    "status": "pass",
