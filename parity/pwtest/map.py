@@ -109,9 +109,63 @@ def _word(action: str) -> str:
     return w.replace("열기", "").replace("누르기", "").replace("선택", "").replace("입력", "").strip() or w
 
 
-def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> dict[str, Any]:
+def _records_from_golden(d: Path, tests_dir: Path | None) -> list[dict[str, Any]]:
+    """골든(as-is 기록) → 기록 목록. 캡처 경로는 골든 폴더 기준."""
     docs = html.docstrings(tests_dir or Path("e2e") / d.name)
-    run = _junit(junit) if junit else None
+    out = []
+    for t in oracle.tests(d):
+        data = json.loads((d / f"{t['name']}.json").read_text(encoding="utf-8"))
+        out.append({"name": t["name"], "title": html._title(t["name"], docs), "steps": data.get("steps", []),
+                    "assertions": data.get("assertions", []), "shot_dir": d})
+    return out
+
+
+def _records_from_crawl(out_dir: Path) -> list[dict[str, Any]]:
+    """탐색 결과(crawl/<app>/graph.json) → 기록 목록. 경로 하나(모든 전이를 한 번 이상 지나는 최대 경로) = 기록 하나. 캡처는 상태마다 한 장이라 경로들이 나눠 쓴다."""
+    g = json.loads((out_dir / "graph.json").read_text(encoding="utf-8"))
+    nodes = {n["id"]: n for n in g["nodes"]}
+    edges = {e["id"]: e for e in g["edges"]}
+    cands = [nodes[e["src"]]["path"] + [e["id"]] for e in g["edges"] if e["kind"] == "transition" and e["dst"] is not None]
+    cands.sort(key=len, reverse=True)
+    kept: list[list[int]] = []
+    for p in cands:
+        if not any(k[:len(p)] == p for k in kept):
+            kept.append(p)
+    kept.sort()
+    if not kept and nodes:
+        kept = [[]]
+    start = nodes[min(nodes)] if nodes else None
+    recs = []
+    for i, path in enumerate(kept, 1):
+        if start is None:
+            break
+        steps = [{"index": 0, "kind": "goto", "text": g.get("start") or urlparse(start["url"]).path or "/", "url": start["url"], "title": start["title"],
+                  "snapshot": start["snapshot"], "shot": start["screenshot"], "dialogs": []}]
+        for j, eid in enumerate(path, 1):
+            e, dst = edges[eid], nodes[edges[eid]["dst"]]
+            act = e["steps"][-1]
+            text = f'{act["role"]} "{act["name"]}"' + (f' = {act["value"]}' if act.get("value") is not None else "")
+            kind = "fill" if act["action"] == "fill" else ("select" if act["role"] == "option" else "act")
+            dialogs = [{"type": x["type"], "message": x["message"], "action": "dismiss" if e["mode"] == "dismiss" else "accept"} for x in e.get("dialogs", [])]
+            steps.append({"index": j, "kind": kind, "text": text, "url": dst["url"], "title": dst["title"], "snapshot": dst["snapshot"], "shot": dst["screenshot"], "dialogs": dialogs})
+        title = " → ".join([start["label"]] + [nodes[edges[eid]["dst"]]["label"] for eid in path])
+        recs.append({"name": f"crawl_{i:02d}", "title": title, "steps": steps, "assertions": [], "shot_dir": None})
+    return recs
+
+
+def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> dict[str, Any]:
+    """골든 시나리오 기반: as-is 기록을 잇고, --junit이 있으면 to-be 비교 결과를 겹친다."""
+    return _build(d.name, _records_from_golden(d, tests_dir), _junit(junit) if junit else None,
+                  {"kind": "golden", "label": "골든 시나리오 비교", "base": f"golden/{d.name}", "unit": "테스트"})
+
+
+def build_from_crawl(app: str, out_dir: Path, side: str = "asis") -> dict[str, Any]:
+    """탐색 기반: parity crawl 이 찾은 화면을 잇는다 (as-is 또는 to-be 한쪽만, 비교 없음)."""
+    label = {"asis": "as-is 탐색", "tobe": "to-be 탐색"}.get(side, f"{side} 탐색")
+    return _build(app, _records_from_crawl(out_dir), None, {"kind": "crawl", "side": side, "label": label, "base": str(out_dir), "unit": "경로"})
+
+
+def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, source: dict[str, Any]) -> dict[str, Any]:
     cases = {c["name"]: c for c in run["cases"]} if run else {}
     nodes: dict[str, dict[str, Any]] = {}          # 상태 (구조 서명 기준)
     routes: dict[str, dict[str, Any]] = {}         # 라우트 (주소 기준)
@@ -121,14 +175,13 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> 
     rorder: list[str] = []
     shots: dict[str, str] = {}
     tests = []
-    for t in oracle.tests(d):
-        data = json.loads((d / f"{t['name']}.json").read_text(encoding="utf-8"))
-        steps = data.get("steps", [])
+    for t in records:
+        steps = t["steps"]
         by_step = defaultdict(list)
-        for a in data.get("assertions", []):
+        for a in t["assertions"]:
             by_step[a["step"] - 1].append(a)
         case = cases.get(t["name"])
-        failed = _fail_steps(case["messages"], data.get("assertions", [])) if case and case["status"] == "fail" else set()
+        failed = _fail_steps(case["messages"], t["assertions"]) if case and case["status"] == "fail" else set()
         rows = html.rows_for(case["messages"])[0] if case and case["status"] == "fail" else []
         status = None if case is None else case["status"]
         seq, prev = [], None
@@ -137,8 +190,10 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> 
             sig = _screen_sig(snap)
             shot_id = ""
             if o.get("shot"):
-                shot_id = f"{t['name']}#{o['index']}"
-                shots[shot_id] = _img(d / o["shot"])
+                shot_path = (t["shot_dir"] / o["shot"]) if t["shot_dir"] else Path(o["shot"])
+                shot_id = str(shot_path)  # 파일 하나 = 항목 하나 (탐색 지도는 경로들이 같은 캡처를 나눠 쓴다)
+                if shot_id not in shots:
+                    shots[shot_id] = _img(shot_path)
             path = _route(o["url"])
             head = _heading(snap, o["url"], o.get("title", ""))
             kind0, _, tab0 = _state(snap)
@@ -202,7 +257,7 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> 
                             re_["from"].append(prev)
             seq.append({"index": o["index"], "node": sig, "route": rid, "shot": shot_id, "action": _plain(action), "failed": o["index"] in failed})
             prev = sig
-        tests.append({"name": t["name"], "title": html._title(t["name"], docs), "status": status, "rows": rows, "seq": seq})
+        tests.append({"name": t["name"], "title": t["title"], "status": status, "rows": rows, "seq": seq})
     # 라우트 안 상태 이름: 같은 이름이 여럿이면 번호, 종류별 개수
     for r in routes.values():
         seen: dict[str, int] = defaultdict(int)
@@ -228,7 +283,7 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> 
     entries = [t["seq"][0]["route"] for t in tests if t["seq"]]
     home = next((r for r in entries if routes[r]["path"] == "/"), None)
     start = home or (entries[0] if entries else (rorder[0] if rorder else None))
-    return {"app": d.name, "start": start, "order": order, "rorder": rorder, "nodes": nodes, "routes": routes, "shots": shots,
+    return {"app": app, "source": source, "unit": source["unit"], "start": start, "order": order, "rorder": rorder, "nodes": nodes, "routes": routes, "shots": shots,
             "sedges": list(sedges.values()), "redges": list(redges.values()), "tests": tests,
             "target": (run["props"].get("base_url") if run else None), "compared": run is not None, "kind_ko": KIND_KO}
 
@@ -473,7 +528,7 @@ function miniGraph(rid){
   }).join('');
   const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs><marker id="marr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker><marker id="marrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--faint)"/></marker></defs>${paths}</svg>`;
   const cards = ids.map(s => { const n = G.nodes[s], [x, y] = pos[s];
-    return `<button type="button" class="mnode ${n.failed && G.compared ? 'bad' : ''} ${s === currentState ? 'sel' : ''}" data-state="${s}" style="left:${x}px;top:${y}px" title="${stateName(s)}"><div class="th">${n.shot ? `<img src="${shot(n.shot)}" alt="">` : ''}</div><div class="lab"><b>${stateName(s)}</b><small>테스트 ${n.tests.length}${n.failed && G.compared ? ' · 다름' : ''}</small></div></button>`; }).join('');
+    return `<button type="button" class="mnode ${n.failed && G.compared ? 'bad' : ''} ${s === currentState ? 'sel' : ''}" data-state="${s}" style="left:${x}px;top:${y}px" title="${stateName(s)}"><div class="th">${n.shot ? `<img src="${shot(n.shot)}" alt="">` : ''}</div><div class="lab"><b>${stateName(s)}</b><small>${G.unit} ${n.tests.length}${n.failed && G.compared ? ' · 다름' : ''}</small></div></button>`; }).join('');
   return `<div class="mini" style="height:${Math.min(H, 520)}px"><div style="position:relative;width:${W}px;height:${H}px">${svg}${cards}</div></div>`;
 }
 
@@ -493,20 +548,20 @@ function show(rid, sid){
   const kinds = Object.entries(r.kinds).map(([k, n]) => `<span class="kd ${k}">${G.kind_ko[k]} ${n}</span>`).join('');
   let h = `<div class="dh"><a class="back" href="#" data-back>← 지도</a><div><h3>${routeName(rid)}${currentState ? ` <span style="color:var(--muted);font-weight:500">› ${stateName(currentState)}</span>` : ''}</h3><div class="sub"><span>${esc(r.path)}</span>`
     + (st === 'bad' ? '<span class="pill bad">as-is와 다름</span>' : st === 'ok' ? '<span class="pill ok">as-is와 같음</span>' : '')
-    + `<span>테스트 ${r.tests.length}개</span><span>상태 ${r.states.length}</span>${kinds}</div></div></div><div class="dgrid"><div class="col">`;
+    + `<span>${G.unit} ${r.tests.length}개</span><span>상태 ${r.states.length}</span>${kinds}</div></div></div><div class="dgrid"><div class="col">`;
   h += focus.shot ? `<div class="prev" title="크게 보기" data-lb="${focus.shot}" data-cap="${stateName(focus.id)}"><img src="${shot(focus.shot)}" alt="${routeName(rid)} 화면"><span class="cap">${stateName(focus.id)}</span></div>` : `<div class="empty">캡처 없음</div>`;
-  if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개 · 누르면 그 상태의 캡처와 테스트</span></h4>${miniGraph(rid)}</div>`;
+  if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개 · 누르면 그 상태의 캡처와 ${G.unit}</span></h4>${miniGraph(rid)}</div>`;
   else h += `<div class="sec"><h4>이 화면 안의 상태</h4><div class="tid">기본 상태뿐 (팝업·드로워·탭 없음)</div></div>`;
   h += `</div><div class="col">`;
   if(G.paths[rid]) h += `<div class="sec"><h4>시작에서 오는 길 <span>${path.length - 1}번 이동</span></h4><div class="routes">`
     + path.map((p, i) => { const e = i ? redgeBetween(path[i - 1], p) : null; return routeRow(p, i ? (e ? e.actions[0] : '…') : '시작', p === rid); }).join('') + `</div></div>`;
-  else h += `<div class="sec"><h4>시작에서 오는 길</h4><div class="tid">시작 화면에서 이어지는 길이 기록에 없음 (테스트가 이 주소로 바로 들어감)</div></div>`;
+  else h += `<div class="sec"><h4>시작에서 오는 길</h4><div class="tid">시작 화면에서 이어지는 길이 기록에 없음 (${G.unit}가 이 주소로 바로 들어감)</div></div>`;
   h += `<div class="sec"><h4>여기서 갈 수 있는 곳 <span>${outs.length}곳</span></h4><div class="routes">`
     + (outs.map(e => routeRow(e.dst, e.actions.join(' · '), false)).join('') || '<span class="tid">없음</span>') + `</div></div>`;
   const scope = currentState ? G.nodes[currentState] : null;
   const names = (scope ? scope.tests : r.tests).slice().sort((a, b) => ((testByName[b].status === 'fail') - (testByName[a].status === 'fail')));
   const failedIn = t => (scope ? scope.visits : r.states.flatMap(s => G.nodes[s].visits)).some(v => v.test === t && v.failed);
-  h += `<div class="sec"><h4>${scope ? `이 상태를 지나는 테스트` : `이 화면을 지나는 테스트`} <span>${names.length}개 · 누르면 시나리오</span></h4>${testRows(names, failedIn)}</div>`;
+  h += `<div class="sec"><h4>${scope ? `이 상태를 지나는 ${G.unit}` : `이 화면을 지나는 ${G.unit}`} <span>${names.length}개 · 누르면 단계</span></h4>${testRows(names, failedIn)}</div>`;
   h += `</div></div>`;
   detail.innerHTML = h;
   detail.querySelector('[data-back]').addEventListener('click', e => { e.preventDefault(); back(); });
@@ -636,6 +691,7 @@ def render(g: dict[str, Any]) -> str:
             return "bad"
         return "ok" if any(t["status"] for t in g["tests"] if t["name"] in r["tests"]) else ""
 
+    unit = g["unit"]
     cards, rows = [], []
     for rid in g["rorder"]:
         r, (x, y) = g["routes"][rid], xy[rid]
@@ -646,13 +702,17 @@ def render(g: dict[str, Any]) -> str:
         cards.append(f"<button class='node {st}' data-id='{html._e(rid)}' style='left:{x}px;top:{y}px' type='button' title='{html._e(r['name'])} {html._e(r['path'])}'>"
                      f"<div class='strip'></div><div class='chrome'><i></i><i></i><i></i></div><div class='th'>{thumb}</div>{tag}"
                      f"<div class='body'><div class='nm'>{html._e(r['name'])}</div><div class='kinds'>{kinds}</div></div>"
-                     f"<div class='meta'><span>{html._e(r['path'])}</span><b>테스트 {len(r['tests'])}</b></div></button>")
+                     f"<div class='meta'><span>{html._e(r['path'])}</span><b>{unit} {len(r['tests'])}</b></div></button>")
         rows.append(f"<button class='row' data-id='{html._e(rid)}' type='button'><span class='dot {st}'></span>"
                     f"<span class='nm'>{html._e(r['name'])}<small>{html._e(r['path'])}</small></span><span class='ct'>{len(r['tests'])}<br>상태 {len(r['states'])}</span></button>")
 
     failed = sum(r["failed"] for r in g["routes"].values())
     n_states = len(g["nodes"])
-    if not g["compared"]:
+    src, unit = g["source"], g["unit"]
+    if src["kind"] == "crawl":
+        who = "as-is" if src.get("side") == "asis" else "to-be"
+        stamp, lede = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}"), f"{who}를 탐색(parity crawl)해 찾은 화면(주소)을 이은 지도입니다. 시나리오나 비교와 무관하게 {who}에 무엇이 있는지 봅니다. 화면을 누르면 상세 페이지로 넘어가 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 탐색 경로를 봅니다."
+    elif not g["compared"]:
         stamp, lede = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}"), "골든에 기록된 as-is 동작을 화면(주소) 단위로 이은 지도입니다. 화면을 누르면 상세 페이지로 넘어가 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 테스트를 봅니다."
     elif failed:
         stamp, lede = ("bad", f"다른 화면 {failed}", f"전체 {len(g['routes'])}개 중"), "빨간 화면에서 to-be가 as-is와 다르게 동작했습니다. 누르면 어느 상태에서 무엇이 달랐는지 나옵니다."
@@ -663,13 +723,13 @@ def render(g: dict[str, Any]) -> str:
               + ("<span><i class='ok'></i>as-is와 같음</span><span><i class='bad'></i>as-is와 다름</span>" if g["compared"] else "")
               + "<span><span class='ln'></span>동작 → 다음 화면</span><span><span class='ln back'></span>되돌아가기</span>"
               "<span><span class='kd dialog'>팝업</span><span class='kd drawer'>드로워</span><span class='kd tab'>탭</span> 화면 안의 상태</span></div>")
-    body = (f"<header class='head'><div class='eyebrow'>화면 지도</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
+    body = (f"<header class='head'><div class='eyebrow'>화면 지도 · {html._e(src['label'])}</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
             f"<h1>{html._e(g['app'])}</h1><p class='lede'>{lede}</p>"
-            f"<div class='prov'><span><b>기준</b> golden/{html._e(g['app'])}</span>"
+            f"<div class='prov'><span><b>기준</b> {html._e(src['base'])}</span>"
             + (f"<span><b>비교 대상</b> {html._e(g['target'])}</span>" if g["target"] else "")
-            + f"<span><b>테스트</b> {len(g['tests'])}개</span><span><b>상태</b> {n_states}개</span></div></header><div id='overview'>{legend}"
+            + f"<span><b>{unit}</b> {len(g['tests'])}개</span><span><b>상태</b> {n_states}개</span></div></header><div id='overview'>{legend}"
             f"<div class='toolbar'><input id='q' type='search' placeholder='화면 이름·주소·팝업 이름으로 찾기' aria-label='화면 찾기'>"
-            f"<select id='f' aria-label='테스트로 거르기'><option value=''>모든 테스트</option>{opts}</select>"
+            f"<select id='f' aria-label='{unit}로 거르기'><option value=''>모든 {unit}</option>{opts}</select>"
             f"<span class='zoom'><button type='button' id='zo' aria-label='축소'>－</button><button type='button' id='zf'>맞춤</button><button type='button' id='zi' aria-label='확대'>＋</button></span></div>"
             f"<div class='stage' id='stage'><div class='pane left'><h2><span>화면 {len(g['routes'])}개</span><button class='ib' id='tl' type='button' aria-label='목록 접기'>‹</button></h2><div class='list'>{''.join(rows)}</div></div>"
             f"<div class='pane canvas' id='canvas'><div id='holder' style='position:relative;width:{w}px;height:{hgt}px'>"
@@ -678,16 +738,23 @@ def render(g: dict[str, Any]) -> str:
             f"<div class='modal' id='modal' role='dialog' aria-label='시나리오 상세'><div class='box'></div></div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
     data = json.dumps(g, ensure_ascii=False).replace("</", "<\\/")
-    page = html._page(f"{g['app']} 화면 지도", body, script=f"<script type='application/json' id='g'>{data}</script>{MAP_JS}")
+    page = html._page(f"{g['app']} 화면 지도 · {src['label']}", body, script=f"<script type='application/json' id='g'>{data}</script>{MAP_JS}")
     return page.replace("</style>", MAP_CSS + "</style>", 1)
 
 
-def write(d: Path, out: Path, junit: Path | None = None, tests_dir: Path | None = None) -> Path:
-    g = build(d, junit, tests_dir)
+def write(d: Path | None, out: Path, junit: Path | None = None, tests_dir: Path | None = None, crawl: Path | None = None, side: str = "asis") -> Path:
+    """d(골든) 또는 crawl(탐색 결과 폴더) 중 하나로 그린다."""
+    if crawl is not None:
+        if not (crawl / "graph.json").exists():
+            raise SystemExit(f"{crawl}/graph.json not found (run parity crawl <url> --out {crawl} first)")
+        g = build_from_crawl(crawl.name.removesuffix("-tobe"), crawl, side)
+    else:
+        assert d is not None
+        g = build(d, junit, tests_dir)
     if not g["tests"]:
         raise SystemExit(f"{d} has no recorded tests (record on as-is with pytest --record {d} first)")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render(g), encoding="utf-8")
-    print(f"{out} · 화면 {len(g['routes'])}, 상태 {len(g['nodes'])}, 연결 {len(g['redges'])}, 테스트 {len(g['tests'])}"
+    print(f"{out} · {g['source']['label']} · 화면 {len(g['routes'])}, 상태 {len(g['nodes'])}, 연결 {len(g['redges'])}, {g['unit']} {len(g['tests'])}"
           + (f", 다른 화면 {sum(r['failed'] for r in g['routes'].values())}" if junit else ""))
     return out

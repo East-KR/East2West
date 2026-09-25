@@ -98,7 +98,9 @@ def main(argv: list[str] | None = None) -> int:
     cat.add_argument("--out", type=Path, default=None)
     cat.add_argument("--no-open", action="store_true")
     mp = sub.add_parser("map", help="화면 지도: 골든에 기록된 동작을 화면 네트워크로 그린 HTML (비교 결과를 겹칠 수 있음)")
-    mp.add_argument("oracle_dir", type=Path)
+    mp.add_argument("oracle_dir", type=Path, nargs="?", default=None, help="골든 시나리오 기반 (as-is 기록, --junit으로 비교 결과를 겹침)")
+    mp.add_argument("--crawl", type=Path, default=None, help="탐색 기반: parity crawl 산출물 폴더 (graph.json). as-is나 to-be 한쪽만, 비교 없음")
+    mp.add_argument("--side", choices=("asis", "tobe"), default="asis", help="--crawl 이 어느 쪽인지 (제목용)")
     mp.add_argument("--junit", type=Path, default=None, help="to-be 비교 결과를 겹친다 (다른 화면을 빨갛게)")
     mp.add_argument("--tests", type=Path, default=None, help="테스트 디렉터리 (제목용, 기본 e2e/<오라클 이름>)")
     mp.add_argument("--out", type=Path, default=None)
@@ -125,9 +127,15 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "map":
         from .pwtest import html as _html, map as _map
-        suffix = ("-" + args.junit.stem.removeprefix("junit-").removeprefix(f"{args.oracle_dir.name}-")) if args.junit else ""
-        out = args.out or Path("reports") / f"map-{args.oracle_dir.name}{suffix}.html"
-        page = _map.write(args.oracle_dir, out, args.junit, args.tests)
+        if (args.oracle_dir is None) == (args.crawl is None):
+            ap.error("골든 폴더(oracle_dir) 또는 --crawl 폴더 중 하나를 주세요")
+        if args.crawl is not None:
+            out = args.out or Path("reports") / f"map-{args.crawl.name}-{args.side}.html"
+            page = _map.write(None, out, crawl=args.crawl, side=args.side)
+        else:
+            suffix = ("-" + args.junit.stem.removeprefix("junit-").removeprefix(f"{args.oracle_dir.name}-")) if args.junit else ""
+            out = args.out or Path("reports") / f"map-{args.oracle_dir.name}{suffix}.html"
+            page = _map.write(args.oracle_dir, out, args.junit, args.tests)
         if not args.no_open:
             _html.open_in_browser(page)
         return 0

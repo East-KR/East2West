@@ -158,6 +158,29 @@ def test_init_plan_and_rules(ws):
         h.init_plan("nope")
 
 
+def test_map_sources_and_crawl_plan(ws, monkeypatch, tmp_path):
+    """지도 출처 셋: 탐색 결과 유무(maps), 탐색 계획(as-is/to-be 주소), 탐색 전 페이지 안내, 골든 초기화가 기존 as-is 탐색을 재사용."""
+    monkeypatch.chdir(tmp_path)  # crawl/ 은 작업 디렉터리 기준
+    h = hub.Hub(ws["golden"], ws["tests"], ws["file"])
+    h.add_project("shop", {**spec(ws), "tobe": {"src": str(ws["new"]), "url": ""}})
+    assert h.maps("shop") == {"asis": False, "tobe": False, "compare": False}
+    assert h.app("shop")["maps"]["asis"] is False
+    plan = h.crawl_plan("shop", "asis", depth=2)
+    assert plan[0]["cmd"][-6:] == ["crawl", "http://127.0.0.1:8001", "--out", "crawl/shop", "--depth", "2"]
+    with pytest.raises(ValueError, match="to-be 실행 주소"):
+        h.crawl_plan("shop", "tobe")
+    with pytest.raises(ValueError, match="asis|tobe"):
+        h.crawl_plan("shop", "x")
+    for src in ("asis", "tobe"):
+        assert "아직 탐색하지 않았습니다" in h.page("shop", "map", src=src)
+    (tmp_path / "crawl" / "shop").mkdir(parents=True)
+    (tmp_path / "crawl" / "shop" / "graph.json").write_text('{"start": "/", "nodes": [], "edges": []}', encoding="utf-8")
+    (tmp_path / "crawl" / "shop" / "test_crawl.py").write_text("", encoding="utf-8")
+    assert h.maps("shop")["asis"] is True
+    init = h.init_plan("shop")  # 시나리오는 없지만 as-is 탐색 결과가 있으니 탐색은 건너뛰고 초안만 옮긴다
+    assert [s["step"] for s in init] == ["crawl", "tests", "record"] and init[0]["skip"]
+
+
 def test_init_job_runs_steps(ws):
     """작업 실행기: 명령 단계는 하위 프로세스로, 복사 단계는 파일 복사로. 실패하면 error에 남고 running이 풀린다."""
     import sys

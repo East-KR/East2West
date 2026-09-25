@@ -56,6 +56,37 @@ def test_route_key_shared_with_mutation():
     assert route_key("/") == "/" and route_key("/orders") == "/orders"
 
 
+def test_map_from_crawl_graph(tmp_path):
+    """탐색 결과(graph.json)로도 같은 지도가 그려진다: 경로 = 전이를 한 번 이상 지나는 최대 경로, 상태 캡처는 경로들이 나눠 쓴다, 단위는 '경로'."""
+    import json
+    shots = tmp_path / "screens"
+    shots.mkdir()
+    for i in range(3):
+        (shots / f"n{i}.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+    snap = lambda h, extra="": f'- banner:\n  - link "홈"\n- main:\n  - heading "{h}" [level=1]\n  - button "신규"\n{extra}'  # noqa: E731
+    nodes = [{"id": 0, "sig": "a", "filled": False, "url": "http://x/", "loc": "/", "title": "홈", "path": [], "headings": ["홈"], "alerts": [], "modal": "", "texts": [], "missing_inputs": [], "snapshot": snap("홈"), "explored": True, "screenshot": str(shots / "n0.png"), "label": "홈"},
+             {"id": 1, "sig": "b", "filled": False, "url": "http://x/orders", "loc": "/orders", "title": "주문", "path": [0], "headings": ["주문 목록"], "alerts": [], "modal": "", "texts": [], "missing_inputs": [], "snapshot": snap("주문 목록"), "explored": True, "screenshot": str(shots / "n1.png"), "label": "주문 목록"},
+             {"id": 2, "sig": "c", "filled": False, "url": "http://x/orders", "loc": "/orders", "title": "주문", "path": [0, 1], "headings": ["주문 목록"], "alerts": [], "modal": "신규 주문", "texts": [], "missing_inputs": [], "snapshot": snap("주문 목록", '  - dialog "신규 주문":\n    - textbox "수량"'), "explored": True, "screenshot": str(shots / "n2.png"), "label": "신규 주문"}]
+    el = lambda role, name: {"role": role, "name": name, "order": 0, "nth": 0, "dup": 1, "scope": "", "frame": ""}  # noqa: E731
+    edges = [{"id": 0, "src": 0, "steps": [{"action": "click", **el("link", "주문 관리")}], "mode": "as-is", "kind": "transition", "dst": 1, "group": 1, "preset_len": 0, "preset_sets": {}, "sets": {}, "url_after": "http://x/orders", "dialogs": [], "js_errors": [], "http_errors": [], "reason": "", "sentence": '링크 "주문 관리" 누르기'},
+             {"id": 1, "src": 1, "steps": [{"action": "click", **el("button", "신규")}], "mode": "as-is", "kind": "transition", "dst": 2, "group": 1, "preset_len": 0, "preset_sets": {}, "sets": {}, "url_after": "http://x/orders", "dialogs": [{"type": "alert", "message": "열림"}], "js_errors": [], "http_errors": [], "reason": "", "sentence": '버튼 "신규" 누르기'},
+             {"id": 2, "src": 1, "steps": [{"action": "click", **el("link", "홈")}], "mode": "as-is", "kind": "local", "dst": None, "group": 1, "preset_len": 0, "preset_sets": {}, "sets": {}, "url_after": "", "dialogs": [], "js_errors": [], "http_errors": [], "reason": "", "sentence": '링크 "홈" 누르기'}]
+    out = tmp_path / "crawl-shop"
+    out.mkdir()
+    (out / "graph.json").write_text(json.dumps({"start": "/", "start_url": "http://x/", "inputs": [], "deny": "", "nodes": nodes, "edges": edges}), encoding="utf-8")
+    recs = screen_map._records_from_crawl(out)
+    assert [r["name"] for r in recs] == ["crawl_01"] and recs[0]["title"] == "홈 → 주문 목록 → 신규 주문"  # 0→1→2 한 경로가 0→1을 품는다
+    assert [s["kind"] for s in recs[0]["steps"]] == ["goto", "act", "act"] and recs[0]["steps"][2]["dialogs"] == [{"type": "alert", "message": "열림", "action": "accept"}]
+    g = screen_map.build_from_crawl("shop", out, "tobe")
+    assert g["unit"] == "경로" and g["source"]["label"] == "to-be 탐색" and g["start"] == "/"
+    assert set(g["routes"]) == {"/", "/orders"} and g["routes"]["/orders"]["kinds"] == {"dialog": 1}
+    assert len(g["shots"]) == 3 and all(k.endswith(".png") for k in g["shots"])  # 파일 하나 = 항목 하나
+    page = screen_map.render(g)
+    assert "to-be 탐색" in page and "모든 경로" in page and "id='detail'" in page
+    with pytest.raises(SystemExit):
+        screen_map.write(None, tmp_path / "m.html", crawl=tmp_path / "nope")
+
+
 @pytest.mark.skipif(not (GOLDEN / "portal").is_dir(), reason="portal 골든 없음")
 def test_map_has_detail_page():
     """화면을 누르면 옆 패널이 아니라 상세 페이지(#<라우트>)로 넘어간다: 지도와 상세가 따로 있고, 옆 패널은 없다."""
