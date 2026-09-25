@@ -142,15 +142,29 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> 
             if o.get("shot"):
                 shot_id = f"{t['name']}#{o['index']}"
                 shots[shot_id] = _img(d / o["shot"])
-            rid = _route(o["url"])
+            path = _route(o["url"])
+            head = _heading(snap, o["url"], o.get("title", ""))
+            kind0, _, tab0 = _state(snap)
+            if sig in nodes:
+                rid = nodes[sig]["route"]
+            else:
+                # 같은 주소의 라우트 중 제목이 같은 것. 주소가 안 바뀌는 앱(frameset, 해시 없는 SPA)은 제목이 다른 기본 화면을 다른 라우트로 가른다.
+                # {id}가 있는 주소는 제목에 데이터(고객 이름)가 섞이므로 가르지 않는다
+                same_path = [r for r in routes.values() if r["path"] == path]
+                match = next((r["id"] for r in same_path if r["name"] == head), None)
+                if match:
+                    rid = match
+                elif same_path and kind0 in ("base", "tab") and "{id}" not in path:
+                    rid = f"{path}#{head}"
+                else:
+                    rid = same_path[0]["id"] if same_path else path
             if rid not in routes:
-                routes[rid] = {"id": rid, "path": rid, "name": _heading(snap, o["url"], o.get("title", "")), "base": sig, "states": [],
-                               "shot": "", "tests": [], "failed": False, "kinds": {}, "tab": _state(snap)[2]}
+                routes[rid] = {"id": rid, "path": path, "name": head, "base": sig, "states": [],
+                               "shot": "", "tests": [], "failed": False, "kinds": {}, "tab": tab0}
                 rorder.append(rid)
             r = routes[rid]
             if sig not in nodes:
                 kind, label, _ = _state(snap, r["tab"])
-                head = _heading(snap, o["url"], o.get("title", ""))
                 if kind == "base" and head != r["name"]:
                     label = head
                 nodes[sig] = {"id": sig, "route": rid, "kind": kind, "label": label, "name": head, "url": urlparse(o["url"]).path or "/",
@@ -215,7 +229,8 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None) -> 
                 n["variant"] = 0
     # 시작 = 테스트가 실제로 들어가는 첫 화면. 홈(/)으로 들어가는 테스트가 하나라도 있으면 홈이 맨 앞
     entries = [t["seq"][0]["route"] for t in tests if t["seq"]]
-    start = "/" if "/" in entries else (entries[0] if entries else (rorder[0] if rorder else None))
+    home = next((r for r in entries if routes[r]["path"] == "/"), None)
+    start = home or (entries[0] if entries else (rorder[0] if rorder else None))
     return {"app": d.name, "start": start, "order": order, "rorder": rorder, "nodes": nodes, "routes": routes, "shots": shots,
             "sedges": list(sedges.values()), "redges": list(redges.values()), "tests": tests,
             "target": (run["props"].get("base_url") if run else None), "compared": run is not None, "kind_ko": KIND_KO}
@@ -624,12 +639,12 @@ def render(g: dict[str, Any]) -> str:
         tag = "<span class='tag'>시작</span>" if rid == g["start"] else ("<span class='tag'>다름</span>" if st == "bad" else "")
         thumb = f"<img src='{g['shots'][r['shot']]}' alt='' loading='lazy'>" if r["shot"] else "<span class='no'>캡처 없음</span>"
         kinds = "".join(f"<span class='kd {k}'>{KIND_KO[k]} {n}</span>" for k, n in r["kinds"].items()) or "<span class='kd'>기본만</span>"
-        cards.append(f"<button class='node {st}' data-id='{html._e(rid)}' style='left:{x}px;top:{y}px' type='button' title='{html._e(r['name'])} {html._e(rid)}'>"
+        cards.append(f"<button class='node {st}' data-id='{html._e(rid)}' style='left:{x}px;top:{y}px' type='button' title='{html._e(r['name'])} {html._e(r['path'])}'>"
                      f"<div class='strip'></div><div class='chrome'><i></i><i></i><i></i></div><div class='th'>{thumb}</div>{tag}"
                      f"<div class='body'><div class='nm'>{html._e(r['name'])}</div><div class='kinds'>{kinds}</div></div>"
-                     f"<div class='meta'><span>{html._e(rid)}</span><b>테스트 {len(r['tests'])}</b></div></button>")
+                     f"<div class='meta'><span>{html._e(r['path'])}</span><b>테스트 {len(r['tests'])}</b></div></button>")
         rows.append(f"<button class='row' data-id='{html._e(rid)}' type='button'><span class='dot {st}'></span>"
-                    f"<span class='nm'>{html._e(r['name'])}<small>{html._e(rid)}</small></span><span class='ct'>{len(r['tests'])}<br>상태 {len(r['states'])}</span></button>")
+                    f"<span class='nm'>{html._e(r['name'])}<small>{html._e(r['path'])}</small></span><span class='ct'>{len(r['tests'])}<br>상태 {len(r['states'])}</span></button>")
 
     failed = sum(r["failed"] for r in g["routes"].values())
     n_states = len(g["nodes"])

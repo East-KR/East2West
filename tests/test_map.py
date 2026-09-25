@@ -34,6 +34,15 @@ def test_portal_map_two_levels():
     assert "이 화면 안의 상태" in page and "/customers/{id}" in page
 
 
+@pytest.mark.skipif(not (GOLDEN / "legacy").is_dir(), reason="legacy 골든 없음")
+def test_frameset_app_splits_routes_by_heading():
+    """주소가 항상 /인 frameset 앱: 제목이 다른 기본 화면(주문 등록, 주문관리)은 다른 라우트"""
+    g = screen_map.build(GOLDEN / "legacy", tests_dir=Path("e2e/legacy"))
+    assert len(g["routes"]) == 2 and all(r["path"] == "/" for r in g["routes"].values())
+    assert {"주문 등록", "주문관리"} <= {r["name"] for r in g["routes"].values()}
+    assert g["redges"] and g["routes"][g["start"]]["name"] == "주문 등록"
+
+
 @pytest.mark.skipif(not (GOLDEN / "reservation").is_dir(), reason="reservation 골든 없음")
 def test_reservation_map_starts_where_tests_enter():
     g = screen_map.build(GOLDEN / "reservation", tests_dir=Path("e2e/reservation"))
