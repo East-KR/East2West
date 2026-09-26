@@ -20,7 +20,8 @@ uv run parity ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
   POST /api/projects/<app>/delete   등록 해제 (산출물은 남긴다)
   /api/fs?path=                     폴더 고르기용 하위 폴더 목록 (작업 디렉터리·홈 아래만)
   /page/<app>/catalog|review        개요(골든 관리), 승인 검토
-  /page/<app>/map?src=compare&run=<시각>   화면 지도 셋 중 하나: src=asis|tobe 는 탐색 결과(crawl/<app>, crawl/<app>-tobe), compare 는 골든 시나리오 (실행을 고르면 그 실행의 다른 화면을 빨갛게)
+  /page/<app>/map?src=compare&run=<시각>   화면 지도 셋 중 하나: src=asis|tobe 는 탐색 결과(crawl/<app>, crawl/<app>-tobe), compare 는 as-is 기준 to-be 비교
+                                    (골든 + 그 실행의 다름(빨강) + to-be 탐색으로 미개발(노랑)·새 화면(파랑), 캡처는 to-be 우선)
   /page/<app>/report?run=<시각>      검증 보고서 (그 실행의 JUnit + 현재 승인본의 결함 주입 결과)
   /file?p=runs/…                    스크린샷 등 산출물 파일 (runs/ 와 골든 루트 아래만, 읽기 전용)
 """
@@ -122,7 +123,7 @@ class Hub:
         projects.remove(name, path=self.projects_file)
         return {"ok": True, "app": name, "kept": [str(p) for p in (self.tests_root / name, self.golden_root / name, ledger.run_dir(name)) if p.exists()]}
 
-    # ---- 화면 지도 세 가지: as-is 탐색 (crawl/<app>), to-be 탐색 (crawl/<app>-tobe), 골든 시나리오 비교 (golden/<app> + 실행 JUnit) ----
+    # ---- 화면 지도 세 가지: as-is 탐색 (crawl/<app>), to-be 탐색 (crawl/<app>-tobe), to-be 비교 (as-is 기준: 골든 + 실행 JUnit + 두 탐색으로 미개발·새 화면) ----
     def _has_golden(self, app: str) -> bool:
         d = self.golden_root / app
         return d.is_dir() and any(d.glob("*.json"))
@@ -349,7 +350,8 @@ class Hub:
         elif kind == "review":
             page = review.render(review.build(d, tests_dir), approve=self.approval_code is not None)
         elif kind == "map":
-            page = screen_map.render(screen_map.build(d, junit, tests_dir))
+            ca, ct = self.crawl_dir(app, "asis"), self.crawl_dir(app, "tobe")
+            page = screen_map.render(screen_map.build(d, junit, tests_dir, ca if (ca / "graph.json").exists() else None, ct if (ct / "graph.json").exists() else None))
         else:
             st = oracle.status(d)
             mut = ledger.mutation_for(app, st.get("approved_at"))
@@ -588,7 +590,7 @@ const TABS = [['map','화면 지도'],['overview','개요'],['history','이력']
 const KIND = {golden_diff:'as-is와 다름', assert:'확인 값 실패', drift:'기대값 변경', error:'실행 못 함', same:'같음'};
 let apps = [], state = {app:null, tab:'map', run:null, src:null}, data = null, initTimer = null;
 
-const SRC = [['asis','as-is 탐색'],['tobe','to-be 탐색'],['compare','골든 시나리오 비교']];
+const SRC = [['asis','as-is 탐색'],['tobe','to-be 탐색'],['compare','to-be 비교 (as-is 기준)']];
 function parseHash(){ const [app, tab, run, src] = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent); return {app: app||null, tab: tab||'map', run: run && run !== '-' ? run : null, src: src||null}; }
 function setHash(){ const parts = [state.app, state.tab, state.run || '-', state.src]; while (parts.length && !parts[parts.length-1]) parts.pop(); location.hash = parts.map(encodeURIComponent).join('/'); }
 function mapSrc(){ return state.src && data.maps && (state.src in data.maps) ? state.src : (data.golden ? 'compare' : (data.maps && data.maps.asis ? 'asis' : (data.maps && data.maps.tobe ? 'tobe' : 'asis'))); }
@@ -734,7 +736,7 @@ function render(){
   renderHistory(v);
 }
 
-// ---- 화면 지도: 출처 셋. as-is 탐색 / to-be 탐색 은 crawl 결과, 골든 시나리오 비교 는 골든 + 선택한 실행. 없으면 만드는 화면 ----
+// ---- 화면 지도: 출처 셋. as-is 탐색 / to-be 탐색 은 crawl 결과, to-be 비교 는 골든 + 선택한 실행 + 두 탐색(미개발·새 화면). 없으면 만드는 화면 ----
 function renderMap(v){
   const src = mapSrc(), m = data.maps || {};
   const bar = `<div class="srcbar">${SRC.map(([k, l]) => `<button class="${k === src ? 'on' : ''}" data-src="${k}"><i class="${m[k] ? 'has' : ''}"></i>${l}</button>`).join('')}
@@ -761,9 +763,9 @@ async function renderJob(v, kind, force){
       {state: data.scenarios ? 'skip' : 'wait', label: `시나리오 초안을 e2e/${state.app}/ 로`},
       {state: 'wait', label: `as-is(${url || '주소 없음'})에서 골든 기록 → golden/${state.app}/`}]
     : [{state: 'wait', label: `${who}(${url || '주소 없음'}) 화면 탐색 (crawl) → ${crawlDir}`}];
-  const title = kind === 'init' ? '아직 골든 시나리오 비교 지도가 없습니다' : (force ? `${who}를 다시 탐색합니다` : `아직 ${who} 탐색 지도가 없습니다`);
+  const title = kind === 'init' ? '아직 to-be 비교 지도가 없습니다' : (force ? `${who}를 다시 탐색합니다` : `아직 ${who} 탐색 지도가 없습니다`);
   const lede = kind === 'init'
-    ? '이 지도는 as-is에서 기록한 골든 시나리오로 그리고, 실행을 고르면 to-be에서 달랐던 화면을 빨갛게 표시합니다. 아래 순서를 서버가 대신 돌립니다. 기록이 끝나면 지도가 바로 보이고, <b>승인</b>은 그 뒤 사람이 승인 검토 탭에서 합니다.'
+    ? '이 지도는 as-is에서 기록한 골든 시나리오를 뼈대로, 비교 실행에서 다르게 동작한 화면(빨강)·to-be 탐색에 없는 미개발 화면(노랑)·to-be에만 있는 새 화면(파랑)을 표시합니다. 아래 순서를 서버가 대신 돌립니다. 기록이 끝나면 지도가 바로 보이고, <b>승인</b>은 그 뒤 사람이 승인 검토 탭에서 합니다.'
     : `이 지도는 ${who}를 탐색(parity crawl)해 찾은 화면을 그대로 잇습니다. 시나리오나 비교와 무관하게 ${who}에 어떤 화면·팝업·드로워가 있는지 봅니다.`;
   const needCrawl = kind !== 'init' || !(data.scenarios || (data.maps||{}).asis);
   const running = job.running, busyOther = running && !mine;

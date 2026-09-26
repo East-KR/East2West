@@ -36,14 +36,14 @@ uv run parity approve golden/<app> --by <이름>                        # 사람
 uv run parity mutate e2e/<app> --base-url $ASIS --compare golden/<app>   # 테스트가 결함을 잡는지 측정
 uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
 uv run parity report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
-uv run parity map golden/<app> --junit reports/junit-<app>.xml     # 화면 지도(골든 시나리오 비교): 라우트 네트워크(홈부터) + 라우트 안의 팝업·드로워·탭 그래프, 다른 화면은 빨갛게
+uv run parity map golden/<app> --junit reports/junit-<app>.xml     # 화면 지도(to-be 비교, as-is 기준): 라우트 네트워크(홈부터) + 안의 팝업·드로워·탭. 다름 빨강, 미개발 노랑, 새 화면 파랑 (crawl/<app>, crawl/<app>-tobe 가 있으면 자동)
 uv run parity map --crawl crawl/<app> [--side tobe]                 # 화면 지도(탐색): parity crawl 결과를 그대로 — as-is와 to-be에 무엇이 있는지
 ```
 
 수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다):
 
 ```bash
-uv run parity ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 화면 지도(첫 탭. as-is 탐색 / to-be 탐색 / 골든 시나리오 비교 셋을 오가고, 없으면 버튼 하나로 탐색·기록)·개요·실행 이력·승인 검토·검증 보고서, 지난 실행도 골라 본다
+uv run parity ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 화면 지도(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록)·개요·실행 이력·승인 검토·검증 보고서, 지난 실행도 골라 본다
 uv run parity status golden/<app>     # 터미널용: 남은 실패, 종류, 지난 실행 대비 변화 (통과로 바뀜 / 새로 실패)
 uv run parity catalog golden/<app>    # 파일로 남길 때: 골든 관리 화면 한 장 (통합 화면의 개요 탭과 같음)
 ```

@@ -78,7 +78,8 @@ uv run parity ui            # http://127.0.0.1:8790 (골든 루트 golden/, 테�
 **화면 지도는 셋**이다. 지도 위의 출처 바로 오간다 (주소 `#<app>/map/<실행>/<출처>`).
 - **as-is 탐색**: `parity crawl`이 as-is를 훑어 찾은 화면을 그대로 잇는다 (`crawl/<app>/graph.json`). 시나리오·비교와 무관하게 as-is에 무엇이 있는지. 단위는 "경로"(탐색 경로).
 - **to-be 탐색**: 같은 것을 to-be에서 (`crawl/<app>-tobe/`). as-is 탐색과 나란히 놓고 화면·팝업·드로워가 빠졌는지 본다.
-- **골든 시나리오 비교**: 사람이 승인한 골든(as-is 기록)을 잇고, 실행을 고르면 to-be에서 달랐던 화면을 빨갛게. 실행 선택은 이 출처에서만 보인다.
+- **to-be 비교 (as-is 기준)**: 사람이 승인한 골든(as-is 기록)이 뼈대. as-is 탐색이 있으면 시나리오가 닿지 않은 as-is 화면도 잇는다. 화면마다 상태가 테두리 색으로:
+  **빨강** = 고른 비교 실행에서 as-is와 다르게 동작, **노랑** = as-is에는 있는데 to-be 탐색에 없음(미개발), **파랑** = to-be 탐색에만 있음(새 화면), 초록 = 같음. 미개발·새 화면은 to-be 탐색 결과가 있어야 판정한다(없으면 안내). 노드의 캡처는 to-be 탐색 캡처가 우선이고(같음·새 화면·다름), 미개발 화면만 as-is 캡처다. 상세 페이지에서는 as-is/to-be 캡처를 바꿔 볼 수 있다. 실행 선택은 이 출처에서만 보인다. 예: `docs/samples/map-portal-wip.html` (설정 미개발·보고서 새 화면·주문 상세 다름).
 
 탐색 지도가 없으면 그 자리에 "as-is 탐색" / "to-be 탐색" 버튼(깊이 선택)이 나오고 서버가 `parity crawl`을 돌려 지도를 그린다. "다시 탐색"으로 갱신한다.
 
@@ -185,6 +186,7 @@ python demo-app/portal_app.py 8822 tobe-fixed &    # 버그 2개를 "고쳐버�
 python demo-app/portal_app.py 8823 tobe-renamed &  # "신규 주문"→"주문 등록", "수량"→"주문 수량" + 부가세 반올림
 python demo-app/portal_app.py 8824 tobe-custom &   # 신규 주문 팝업의 품목이 커스텀 드롭다운 (React/MUI 방식)
 python demo-app/portal_app.py 8825 tobe-modern &   # 새 룩: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭. 글자·역할·동작은 같음 (프로젝트의 to-be 주소)
+python demo-app/portal_app.py 8826 tobe-wip &      # 개발 중: 새 룩 + 설정 화면 없음(미개발) + 보고서 화면 새로(새 화면) + 부가세 반올림(다름). 비교 지도 색 데모
 uv run pytest e2e/portal --base-url http://127.0.0.1:8820 --record golden/portal
 uv run parity approve golden/portal --by <이름>                                  # 사람
 uv run parity mutate e2e/portal --base-url http://127.0.0.1:8820 --compare golden/portal --max-per-op 100

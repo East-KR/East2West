@@ -7,6 +7,8 @@ python demo-app/portal_app.py <port> tobe-renamed  라벨 변경("신규 주문"
 python demo-app/portal_app.py <port> tobe-custom   tobe와 같은 동작, 신규 주문 팝업의 품목만 커스텀 드롭다운 (div role=combobox + listbox, React/MUI 방식)
 python demo-app/portal_app.py <port> tobe-modern   tobe와 같은 동작·같은 글자·같은 역할, 겉모습만 새로 만든 to-be: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭,
                                                    아이콘(aria-hidden). 실제 전환처럼 "화면은 달라 보여도 동작은 같다"를 보여 준다 → 비교 25개 모두 같음
+python demo-app/portal_app.py <port> tobe-wip      개발 중인 to-be (새 룩): 설정 화면은 아직 없고(메뉴에도 없음, /settings 404 → 비교 지도의 "미개발"),
+                                                   보고서 화면(/reports)이 새로 생김(→ "새 화면"). 부가세는 tobe-fixed처럼 반올림(→ "다름")
 
 라우트
   /                  홈 (요약 카드, 메뉴)
@@ -59,7 +61,7 @@ JS = ("function openBox(id){document.getElementById(id).hidden=false}function cl
 
 
 def vat(supply: int) -> int:
-    return int(supply * 0.1 + 0.5) if VARIANT in ("tobe-fixed", "tobe-renamed") else int(supply * 0.1 // 10 * 10)  # 고친 변형: 반올림, as-is: 10원 절사
+    return int(supply * 0.1 + 0.5) if VARIANT in ("tobe-fixed", "tobe-renamed", "tobe-wip") else int(supply * 0.1 // 10 * 10)  # 고친 변형: 반올림, as-is: 10원 절사
 
 
 def L(label: str) -> str:
@@ -91,12 +93,13 @@ CSS_MODERN = ("[hidden]{display:none!important}*{box-sizing:border-box}body{marg
               "[role=tab][aria-selected=true]{color:#4a3bc9;border-bottom-color:#4a3bc9}[role=tabpanel]{background:#fff;border-radius:0 0 14px 14px;padding:16px 18px;box-shadow:0 1px 3px rgba(28,27,46,.08);margin-bottom:16px}"
               "[role=tabpanel] table{box-shadow:none;border-radius:0}label{display:block;margin:10px 0;font-size:14px;color:#3d3a5c}"
               "input,select,textarea{font:inherit;padding:8px 10px;border:1px solid #d9d5ee;border-radius:10px;background:#fbfbfe;min-width:180px}form>a{margin-left:10px;color:#6f6c8c}")
-ICONS = {"홈": "⌂", "주문 관리": "▤", "고객 관리": "◉", "설정": "⚙"}
+ICONS = {"홈": "⌂", "주문 관리": "▤", "고객 관리": "◉", "설정": "⚙", "보고서": "▦"}
 
 
 def page(title: str, body: str) -> bytes:
-    if VARIANT == "tobe-modern":  # 사이드바: 같은 글자·같은 순서의 링크. 아이콘은 aria-hidden이라 접근성 이름에 들어가지 않는다
-        links = "".join(f"<a href='{h}'><i aria-hidden='true'>{ICONS[t]}</i>{t}</a>" for h, t in (("/", "홈"), ("/orders", "주문 관리"), ("/customers", "고객 관리"), ("/settings", "설정")))
+    if VARIANT in ("tobe-modern", "tobe-wip"):  # 사이드바: 같은 글자·같은 순서의 링크. 아이콘은 aria-hidden이라 접근성 이름에 들어가지 않는다
+        menu = (("/", "홈"), ("/orders", "주문 관리"), ("/customers", "고객 관리")) + ((("/reports", "보고서"),) if VARIANT == "tobe-wip" else (("/settings", "설정"),))
+        links = "".join(f"<a href='{h}'><i aria-hidden='true'>{ICONS[t]}</i>{t}</a>" for h, t in menu)
         nav, css = f"<header><b>업무 포털</b>{links}</header>", CSS_MODERN
     else:
         nav, css = "<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a></header>", CSS
@@ -253,8 +256,11 @@ class Handler(BaseHTTPRequestHandler):
         if parts[0] == "customers" and len(parts) == 2 and parts[1].isdigit():
             c = next((x for x in DB()["customers"] if x["id"] == int(parts[1])), None)
             return self._send(customer_detail(c)) if c else self._send(page("없음", "<h1>고객이 없습니다</h1>"), HTTPStatus.NOT_FOUND)
-        if parts == ["settings"]:
+        if parts == ["settings"] and VARIANT != "tobe-wip":  # tobe-wip: 설정 화면은 아직 개발 전
             return self._send(settings())
+        if parts == ["reports"] and VARIANT == "tobe-wip":  # tobe-wip 에만 있는 새 화면
+            n = len(DB()["orders"]); total = sum(order_total(o)[2] for o in DB()["orders"])
+            return self._send(page("보고서", f"<h1>보고서</h1><div class='cards'><div class='card'>주문 건수<b>{n}건</b></div><div class='card'>주문 합계<b>{won(total)}</b></div></div>"))
         self._send(page("없음", "<h1>페이지가 없습니다</h1>"), HTTPStatus.NOT_FOUND)
 
     def do_POST(self):
@@ -288,6 +294,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8820
     VARIANT = sys.argv[2] if len(sys.argv) > 2 else "asis"
-    assert VARIANT in ("asis", "tobe", "tobe-fixed", "tobe-renamed", "tobe-custom", "tobe-modern"), VARIANT
+    assert VARIANT in ("asis", "tobe", "tobe-fixed", "tobe-renamed", "tobe-custom", "tobe-modern", "tobe-wip"), VARIANT
     print(f"portal demo ({VARIANT}) on http://127.0.0.1:{port}/")
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()

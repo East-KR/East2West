@@ -87,6 +87,46 @@ def test_map_from_crawl_graph(tmp_path):
         screen_map.write(None, tmp_path / "m.html", crawl=tmp_path / "nope")
 
 
+def _graph(tmp_path, name, urls, dead=()):
+    """탐색 그래프 흉내: 시작 노드에서 urls 각각으로 가는 전이 하나씩. dead 에 든 주소는 404 로 닿는 죽은 링크."""
+    import json
+    d = tmp_path / name
+    (d / "screens").mkdir(parents=True)
+    nodes, edges = [], []
+    for i, (url, title) in enumerate([("http://x/", "포털 홈")] + urls):  # 시작 화면 제목은 골든과 같게 (제목이 다르면 다른 화면으로 가른다)
+        (d / "screens" / f"n{i}.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        nodes.append({"id": i, "sig": f"s{i}", "filled": False, "url": url, "loc": url, "title": title, "path": [] if i == 0 else [i - 1], "headings": [title], "alerts": [], "modal": "",
+                      "texts": [], "missing_inputs": [], "snapshot": f'- heading "{title}" [level=1]\n- button "b{i}"', "explored": True, "screenshot": str(d / "screens" / f"n{i}.png"), "label": title})
+        if i:
+            edges.append({"id": i - 1, "src": 0, "steps": [{"action": "click", "role": "link", "name": title, "order": 0, "nth": 0, "dup": 1, "scope": "", "frame": ""}], "mode": "as-is",
+                          "kind": "transition", "dst": i, "group": 1, "preset_len": 0, "preset_sets": {}, "sets": {}, "url_after": url, "dialogs": [], "js_errors": [], "http_errors": [f"404 {url}"] if url in dead else [], "reason": "", "sentence": ""})
+    (d / "graph.json").write_text(json.dumps({"start": "/", "start_url": "http://x/", "inputs": [], "deny": "", "nodes": nodes, "edges": edges}), encoding="utf-8")
+    return d
+
+
+@pytest.mark.skipif(not (GOLDEN / "portal").is_dir(), reason="portal 골든 없음")
+def test_compare_map_statuses(tmp_path):
+    """as-is 기준 to-be 비교: to-be 탐색에 없는 화면 = 미개발, to-be에만 있는 화면 = 새 화면, 캡처는 to-be 우선(미개발만 as-is). as-is 탐색만 있는 화면도 잇는다."""
+    asis = _graph(tmp_path, "crawl-asis", [("http://x/orders", "주문 목록"), ("http://x/help", "도움말")])   # /help: 시나리오가 닿지 않은 as-is 화면
+    tobe = _graph(tmp_path, "crawl-tobe", [("http://x/orders", "주문 목록"), ("http://x/customers", "고객 목록"), ("http://x/reports", "보고서"), ("http://x/settings", "없음")], dead={"http://x/settings"})  # /settings 는 죽은 링크(404) → 없는 것, /reports 새로
+    g = screen_map.build(GOLDEN / "portal", None, Path("e2e/portal"), asis, tobe)
+    st = {r["path"]: r["status"] for r in g["routes"].values()}
+    assert st["/reports"] == "new" and st["/settings"] == "undeveloped" and st["/help"] == "undeveloped" and st["/orders"] == "untested"  # 비교 실행 없음 → 같음 판정 없음
+    assert st["/customers/{id}"] == "undeveloped"  # to-be 탐색에 없는 상세 화면
+    r = {x["path"]: x for x in g["routes"].values()}
+    assert r["/orders"]["shot"] == r["/orders"]["tobe_shot"] and r["/orders"]["tobe_shot"].endswith("crawl-tobe/screens/n1.png") and r["/orders"]["asis_shot"].startswith(str(GOLDEN / "portal"))
+    assert r["/settings"]["shot"] == r["/settings"]["asis_shot"] and not r["/settings"]["tobe_shot"]
+    assert r["/reports"]["shot"] == r["/reports"]["tobe_shot"] and not r["/reports"]["asis_shot"]
+    assert g["counts"] == {"new": 1, "undeveloped": 4, "untested": 3}  # 미개발: /orders/{id} /customers/{id} /settings(404) /help · 비교 안 됨: / /orders /customers
+    assert not any(r["path"] == "/settings" and r["id"] != "/settings" for r in g["routes"].values())  # 404 페이지가 다른 화면으로 끼어들지 않는다
+    assert [t["side"] for t in g["tests"] if t["name"].startswith("asis-crawl")] == ["asis"] and any(t["name"].startswith("tobe-crawl") for t in g["tests"])
+    page = screen_map.render(g)
+    assert "미개발 (to-be에 없음)" in page and "새 화면 (to-be에만)" in page and "node new" in page and "node undev" in page
+    # to-be 탐색이 없으면 미개발·새 화면 판정 없음, 캡처는 as-is
+    g2 = screen_map.build(GOLDEN / "portal", None, Path("e2e/portal"), None, None)
+    assert set(r["status"] for r in g2["routes"].values()) == {"untested"} and all(r["shot"] == r["asis_shot"] for r in g2["routes"].values())
+
+
 @pytest.mark.skipif(not (GOLDEN / "portal").is_dir(), reason="portal 골든 없음")
 def test_map_has_detail_page():
     """화면을 누르면 옆 패널이 아니라 상세 페이지(#<라우트>)로 넘어간다: 지도와 상세가 따로 있고, 옆 패널은 없다."""

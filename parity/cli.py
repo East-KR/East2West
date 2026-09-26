@@ -102,6 +102,8 @@ def main(argv: list[str] | None = None) -> int:
     mp.add_argument("--crawl", type=Path, default=None, help="탐색 기반: parity crawl 산출물 폴더 (graph.json). as-is나 to-be 한쪽만, 비교 없음")
     mp.add_argument("--side", choices=("asis", "tobe"), default="asis", help="--crawl 이 어느 쪽인지 (제목용)")
     mp.add_argument("--junit", type=Path, default=None, help="to-be 비교 결과를 겹친다 (다른 화면을 빨갛게)")
+    mp.add_argument("--asis-crawl", type=Path, default=None, help="as-is 탐색 결과 폴더 (기본: crawl/<app> 이 있으면). 시나리오가 닿지 않은 as-is 화면을 잇는다")
+    mp.add_argument("--tobe-crawl", type=Path, default=None, help="to-be 탐색 결과 폴더 (기본: crawl/<app>-tobe 가 있으면). 미개발(노랑)·새 화면(파랑) 판정과 to-be 캡처")
     mp.add_argument("--tests", type=Path, default=None, help="테스트 디렉터리 (제목용, 기본 e2e/<오라클 이름>)")
     mp.add_argument("--out", type=Path, default=None)
     mp.add_argument("--no-open", action="store_true")
@@ -135,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             suffix = ("-" + args.junit.stem.removeprefix("junit-").removeprefix(f"{args.oracle_dir.name}-")) if args.junit else ""
             out = args.out or Path("reports") / f"map-{args.oracle_dir.name}{suffix}.html"
-            page = _map.write(args.oracle_dir, out, args.junit, args.tests)
+            page = _map.write(args.oracle_dir, out, args.junit, args.tests, asis_crawl=args.asis_crawl, tobe_crawl=args.tobe_crawl)
         if not args.no_open:
             _html.open_in_browser(page)
         return 0
