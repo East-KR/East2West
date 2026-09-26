@@ -7,6 +7,8 @@
 - 입력칸은 누르지 않고 픽스처 값으로만 채운다. 입력칸이 있는 상태에서는 전이 동작을 "그대로" / "채워서" 두 번 누른다.
   "채워서" = 픽스처 값 + 다른 입력칸 값을 바꾸는 화면 안 버튼(캘린더 날짜 등) 하나.
 - (프레임, 역할, 범위 라벨, 숫자를 가린 이름)이 같은 요소가 group_min개 이상이면 첫 요소만 누른다 (캘린더 날짜, 페이지 번호).
+- 목록성 화면(표의 행, 목록의 항목)은 같은 열의 요소를 한 템플릿으로 보고 행 몇 개만 대표로 누른다 (parity.lists): 분기 열(상태·유형 …)의 값 조합마다 하나,
+  상한 --reps. 분기 열은 픽스처 pick > Jev 분류(캐시, margin 게이트) > 규칙 순. 같은 층의 대표들이 다른 화면으로 가면 그 층을 더 누른다 (적응 확장).
 - deny 정규식에 걸리는 이름(삭제, 로그아웃 …)은 누르지 않고 기록만 한다. 다른 origin으로 나가는 동작은 따라가지 않는다.
 
 산출물: graph.json, graph.md (mermaid + 표), 화면 스크린샷, 시나리오 YAML과 재생 캐시 (첫 실행부터 Jev 호출 0).
@@ -25,8 +27,9 @@ from urllib.parse import urljoin, urlparse
 import yaml
 from playwright.sync_api import Page, sync_playwright
 
+from . import lists as _lists
 from .runner import UA, Runner, _expand
-from .snapshot import EDITABLE_ROLES, LINE, Element
+from .snapshot import EDITABLE_ROLES, LINE, Element, parse_elements
 
 # 누르면 되돌릴 수 없거나 밖으로 나가는 동작. 테스트 DB에서도 메일·문자·결재·이체는 실제 사람과 외부 기관에 닿을 수 있다.
 DEFAULT_DENY = (r"삭제|탈퇴|해지|로그아웃|결제|이체|송금|환불|전송|발송|메일|문자|결재|상신|초기화|다운로드|엑셀|인쇄"
@@ -74,6 +77,7 @@ class Node:
     snapshot: str = ""          # 이 상태의 스냅샷 원문: 이전/다음 화면에만 있는 문구를 고를 때 쓴다
     explored: bool = False
     screenshot: str = ""
+    lists: list[dict[str, Any]] = field(default_factory=list)  # 이 화면의 목록 템플릿과 표본 (parity.lists.ListInfo.to_dict)
 
     @property
     def label(self) -> str:
@@ -98,6 +102,9 @@ class Edge:
     js_errors: list[str] = field(default_factory=list)
     http_errors: list[str] = field(default_factory=list)
     reason: str = ""
+    template: str = ""        # 목록 템플릿 대표일 때: '<목록 제목>:<열>' (parity.lists)
+    row: int = -1              # 그 목록의 몇 번째 행
+    stratum: dict[str, str] = field(default_factory=dict)  # 분기 열 값 (층)
 
     @property
     def action(self) -> Step:
@@ -183,7 +190,8 @@ def stable_path(url: str) -> str:
 class Crawler:
     def __init__(self, start: str, *, base_url: str | None = None, inputs: dict[str, Any] | None = None, deny: str = DEFAULT_DENY,
                  max_depth: int = 3, max_states: int = 30, max_actions: int = 40, group_min: int = 3, settle_ms: int = 400,
-                 action_timeout_ms: int = 3000, storage_state: Path | None = None, headed: bool = False):
+                 action_timeout_ms: int = 3000, storage_state: Path | None = None, headed: bool = False,
+                 reps: int = 3, pick: dict[str, list[str]] | None = None, jev: Any | None = None, list_cache: Path | None = None, min_margin: float = 0.2):
         self.start_url = start if urlparse(start).scheme else urljoin((base_url or "").rstrip("/") + "/", start.lstrip("/"))
         # 시나리오·테스트의 goto는 항상 상대 경로: 절대 주소를 박아 두면 to-be 비교가 조용히 as-is를 치게 된다. 실행 때 --base-url로 as-is/to-be를 고른다
         u = urlparse(self.start_url)
@@ -196,6 +204,10 @@ class Crawler:
         self.max_depth, self.max_states, self.max_actions, self.group_min = max_depth, max_states, max_actions, group_min
         self.action_timeout_ms = action_timeout_ms
         self.storage_state, self.headed = storage_state, headed
+        # 목록 표본화: 대표 행 상한, 픽스처 pick(목록 제목 → 분기 열), Jev 클라이언트(없으면 규칙), 분류 캐시
+        self.reps, self.pick, self.jev, self.min_margin = reps, pick or {}, jev, min_margin
+        self.list_cache_path = list_cache
+        self.list_cache = _lists.load_cache(list_cache)
         self.rt = Runner(settle_ms=settle_ms)  # 프레임·스냅샷·요소 찾기·실행 도우미를 그대로 쓴다
         self.nodes: list[Node] = []
         self.edges: list[Edge] = []
@@ -254,6 +266,14 @@ class Crawler:
         snaps = self.rt._snapshots(page)
         text = "\n".join(snap if not key else f"## frame {key}\n{snap}" for key, snap in snaps)
         headings, alerts, modal, texts = landmarks(text)
+        lists_, slots, offset = [], {}, 0  # 프레임마다 목록을 읽고 요소 번호를 전체 순서로 맞춘다 (Runner._elements 와 같은 순서)
+        for key, snap in snaps:
+            ls, sl = _lists.parse_lists(snap)
+            for info in ls:
+                info.id += len(lists_)
+            slots.update({offset + i: _lists.Slot(sl[i].list_id + len(lists_), sl[i].row, sl[i].col) for i in sl})
+            lists_ += ls
+            offset += len(parse_elements(snap))
         elements = []
         for el in self.rt._elements(page, editable_only=False):
             try:
@@ -270,7 +290,7 @@ class Crawler:
                 except Exception:
                     continue
             elements = inside or elements
-        return {"url": page.url, "title": page.title(), "sig": signature(snaps), "elements": elements,
+        return {"url": page.url, "title": page.title(), "sig": signature(snaps), "elements": elements, "lists": lists_, "slots": slots,
                 "headings": headings, "alerts": alerts, "modal": modal, "texts": texts, "snapshot": text,
                 "loc": "|".join(urlparse(f.url).path for _, f in self.rt._frames(page))}
 
@@ -349,19 +369,50 @@ class Crawler:
         self._close(page)
         return edge
 
-    def _candidates(self, elements: list[Element]) -> tuple[list[tuple[Element, int]], list[Element]]:
+    def _candidates(self, elements: list[Element], obs: dict[str, Any] | None = None
+                    ) -> tuple[list[tuple[Element, int, dict[str, Any] | None]], list[Element]]:
+        """누를 후보 (요소, 비슷한 요소 수, 템플릿 메타). 목록 템플릿(같은 표의 같은 열)은 대표 행만, 나머지는 이름 그룹 규칙."""
+        lists_: list[_lists.ListInfo] = (obs or {}).get("lists", [])
+        slots: dict[int, _lists.Slot] = (obs or {}).get("slots", {})
         groups: dict[tuple[str, str, str, str], list[Element]] = {}
+        tpl: dict[tuple[int, int, str], dict[int, Element]] = {}   # (목록, 열, 역할) → 행 → 요소
         for el in elements:
-            if el.role in CLICK_ROLES or el.role in TOGGLE_ROLES:
+            if el.role not in CLICK_ROLES and el.role not in TOGGLE_ROLES:
+                continue
+            slot = slots.get(el.order)
+            if slot is not None and slot.list_id < len(lists_) and lists_[slot.list_id].rows:
+                tpl.setdefault((slot.list_id, slot.col, el.role), {}).setdefault(slot.row, el)
+            else:
                 groups.setdefault((el.frame, el.role, el.scope, DIGITS.sub("#", el.name)), []).append(el)
-        out, denied = [], []
+        out: list[tuple[Element, int, dict[str, Any] | None]] = []
+        denied = []
         for els in groups.values():
             n = len(els) if len(els) >= self.group_min else 1
             for el in (els[:1] if n > 1 else els):
                 if self.deny.search(el.name):
                     denied.append(el)
                 else:
-                    out.append((el, n))
+                    out.append((el, n, None))
+        self._tpl = tpl
+        decided: set[int] = set()
+        for (lid, col, role), by_row in tpl.items():
+            info = lists_[lid]
+            if lid not in decided:
+                _lists.decide(info, pick=self.pick, jev=self.jev, page_title=(obs or {}).get("title", ""), cache=self.list_cache, min_margin=self.min_margin)
+                decided.add(lid)
+            if len(by_row) < self.group_min:  # 행이 몇 개 안 되면 그냥 다 누른다
+                rows = sorted(by_row)
+            else:
+                rows = [r for r in _lists.choose_reps(info, self.reps) if r in by_row] or sorted(by_row)[:1]
+            key = f"{info.heading or info.kind}:{info.headers[col] if col < len(info.headers) else col}"
+            info.reps[f"{key}:{role}"] = rows
+            for r in rows:
+                el = by_row[r]
+                meta = {"template": key, "list": lid, "col": col, "role": role, "row": r, "stratum": _lists.stratum(info, r)}
+                if self.deny.search(el.name):
+                    denied.append(el)
+                else:
+                    out.append((el, len(by_row), meta))
         out.sort(key=lambda t: t[0].order)
         return out[:self.max_actions], denied
 
@@ -400,15 +451,21 @@ class Crawler:
             self._close(page)
             return
         self._close(page)
-        cands, denied = self._candidates(obs["elements"])
+        cands, denied = self._candidates(obs["elements"], obs)
+        node.lists = [info.to_dict() for info in obs.get("lists", []) if info.rows]
         for el in denied:
             self.edges.append(Edge(len(self.edges), node.id, [Step(el, "click")], "as-is", "denied", reason="deny pattern"))
-        print(f"n{node.id} {node.label}: {len(cands)} actions" + (f", {len(denied)} denied" if denied else ""), flush=True)
+        sampled = [(info, sum(len(v) for v in info.reps.values())) for info in obs.get("lists", []) if info.reps]
+        print(f"n{node.id} {node.label}: {len(cands)} actions" + (f", {len(denied)} denied" if denied else "")
+              + "".join(f" · 목록 '{i.heading or i.kind}' {len(i.rows)}행 중 대표 {n} ({i.source}{'' if not i.branch_cols else ': ' + ', '.join(i.headers[c] for c in i.branch_cols)})" for i, n in sampled), flush=True)
         as_is = []
-        for el, n in cands:
+        for el, n, meta in cands:
             e = self._try(node, [Step(el, "click")], "as-is", group=n)
+            if meta:
+                e.template, e.row, e.stratum = meta["template"], meta["row"], meta["stratum"]
             self.edges.append(e)
             as_is.append(e)
+        as_is += self._expand_strata(node, obs, as_is)
         for e in list(as_is):
             self._dismissed(node, e)
         if node.filled:
@@ -426,6 +483,39 @@ class Crawler:
             if not same:
                 self.edges.append(f)
                 self._dismissed(node, f)
+
+    def _expand_strata(self, node: Node, obs: dict[str, Any], as_is: list[Edge]) -> list[Edge]:
+        """적응 확장: 같은 목록·같은 열·같은 층의 대표들이 서로 다른 화면으로 갔으면 분기 열이 틀린 것이다. 그 층의 다른 행을 둘 더 누른다."""
+        lists_: list[_lists.ListInfo] = obs.get("lists", [])
+        extra: list[Edge] = []
+        by_key: dict[tuple[str, tuple], list[Edge]] = {}
+        for e in as_is:
+            if e.template:
+                by_key.setdefault((e.template, tuple(e.stratum.items())), []).append(e)
+        for (template, _), edges in by_key.items():
+            results = {(e.kind, e.dst) for e in edges}
+            if len(edges) < 2 or len(results) < 2:
+                continue
+            e0 = edges[0]
+            tkey = next((k for k, by_row in self._tpl.items() if any(by_row.get(e.row) is e.action.el for e in edges)), None)
+            if tkey is None:
+                continue
+            lid, col, role = tkey
+            info = lists_[lid]
+            tried = {e.row for e in edges}
+            for r in _lists.more_rows(info, e0.row, exclude=tried, limit=2):
+                el = self._tpl[tkey].get(r)
+                if el is None or self.deny.search(el.name):
+                    continue
+                e = self._try(node, [Step(el, "click")], "as-is", group=e0.group)
+                e.template, e.row, e.stratum = template, r, _lists.stratum(info, r)
+                e.reason = (e.reason + "; " if e.reason else "") + "적응 확장: 같은 층의 대표들이 다른 화면으로 감"
+                self.edges.append(e)
+                extra.append(e)
+            rk = f"{template}:{role}"
+            info.reps[rk] = sorted(set(info.reps.get(rk, [])) | tried | {e.row for e in extra if e.template == template})
+            node.lists = [i.to_dict() for i in lists_ if i.rows]
+        return extra
 
     def _dismissed(self, node: Node, e: Edge) -> None:
         """confirm이 뜬 동작은 '취소'한 경로도 한 번 누른다 (취소하면 입력이 남는지, 저장이 안 되는지)."""
@@ -515,7 +605,7 @@ class Crawler:
 
         - URL: 경로가 바뀌었으면 정확한 경로(url_path). 숫자 id가 든 경로는 id 앞까지를 url_contains로, 이전 경로에도 맞으면 생략.
         - 새 화면에만 있는 문구 하나 (모달 > alert > 제목 > 본문 순). 이전 화면 스냅샷에 들어 있지 않아야 한다.
-          숫자가 든 문구는 숫자 자리만 \d+ 인 패턴(text_matches): 건수·번호가 바뀌어도 통과, 문구가 바뀌면 실패.
+          숫자가 든 문구는 숫자 자리만 \\d+ 인 패턴(text_matches): 건수·번호가 바뀌어도 통과, 문구가 바뀌면 실패.
         - 이전 화면에만 있던 문구 하나가 사라졌는지 (no_text). 새 화면 스냅샷에 들어 있지 않아야 한다.
         """
         out: list[dict[str, Any]] = []
@@ -560,10 +650,11 @@ class Crawler:
                 self._close(page)
             finally:
                 self.browser.close()
-        cands, denied = self._candidates(obs["elements"])
+        cands, denied = self._candidates(obs["elements"], obs)
         fills = [(el.name, self.inputs[el.name]) for el in obs["elements"] if el.role in EDITABLE_ROLES and el.name in self.inputs]
         missing = [el.name for el in obs["elements"] if el.role in EDITABLE_ROLES and el.name not in self.inputs]
-        return {"url": obs["url"], "title": obs["title"], "click": [(sentence(Step(el, "click")), n) for el, n in cands],
+        return {"url": obs["url"], "title": obs["title"],
+                "click": [(sentence(Step(el, "click")) + (f" [목록 {m['template']} {m['row'] + 1}행]" if m else ""), n) for el, n, m in cands],
                 "deny": [sentence(Step(el, "click")) for el in denied], "fill": fills, "missing": missing}
 
     def pytest_module(self) -> str:
@@ -605,6 +696,8 @@ class Crawler:
         out_dir.mkdir(parents=True, exist_ok=True)
         cache_dir.mkdir(parents=True, exist_ok=True)
         marker.write_text("parity crawl output: regenerated on every crawl. Move reviewed files out before editing them.\n", encoding="utf-8")
+        if self.list_cache:  # 분기 열 분류 캐시: 표식이 생긴 뒤에 쓴다 (먼저 쓰면 out 이 '탐색 산출물 폴더가 아닌 것'으로 보인다)
+            _lists.save_cache(self.list_cache_path or cache_dir / "lists.json", self.list_cache)
         (out_dir / "graph.json").write_text(json.dumps(self.to_dict(), ensure_ascii=False, indent=1), encoding="utf-8")
         (out_dir / "graph.md").write_text(self.markdown(), encoding="utf-8")
         for old in out_dir.glob("crawl_*.yaml"):  # 이전 탐색이 만든 시나리오 (이 도구의 산출물)
@@ -637,7 +730,9 @@ class Crawler:
         for e in self.edges:
             res = f"→ n{e.dst}" if e.kind == "transition" and e.dst is not None else result.get(e.kind, e.kind)
             notes = [e.reason] if e.reason else []
-            if e.group > 1:
+            if e.template:
+                notes.append(f"목록 대표: {e.template} {e.row + 1}행" + (f" ({', '.join(f'{k}={v}' for k, v in e.stratum.items())})" if e.stratum else "") + (f" / {e.group}행 중" if e.group > 1 else ""))
+            elif e.group > 1:
                 notes.append(f"비슷한 요소 {e.group}개 중 대표")
             notes += [f"{k} = {v}" for k, v in e.sets.items()]
             notes += [f"{d['type']}: {d['message']}" for d in e.dialogs] + [f"JS 오류: {x}" for x in e.js_errors] + [f"HTTP {x}" for x in e.http_errors]
@@ -646,6 +741,16 @@ class Crawler:
         if missing:
             out += ["", "## 픽스처 값이 없는 입력칸", "", "`inputs:`에 값을 주면 \"채워서\" 경로가 이 칸도 채운다.", ""]
             out += [f"- n{n.id} {n.label}: {', '.join(m)}" for n, m in missing]
+        sampled = [(n, L) for n in self.nodes for L in n.lists if L.get("reps")]
+        if sampled:
+            out += ["", "## 목록 표본", "", "목록성 화면은 행을 전부 누르지 않고 분기 열의 값 조합마다 대표 하나(상한 --reps)만 누른다. "
+                    "분기 열은 픽스처 `pick` > Jev 분류 > 규칙. `검토`가 붙은 목록은 Jev가 확신하지 못해 규칙으로 정했으니 사람이 `pick:`으로 확정한다.", "",
+                    "| 상태 | 목록 | 행 | 분기 열 (근거) | 대표 행 |", "| :--- | :--- | :--- | :--- | :--- |"]
+            for n, L in sampled:
+                branch = ", ".join(L["branch"]) or "(없음 → 첫·끝 행)"
+                src = L["source"] + (f" margin {L['margin']}" if L.get("margin") is not None else "") + (" **검토**" if "abstain" in L["source"] else "")
+                reps = "; ".join(f"{k.rsplit(':', 1)[0].split(':', 1)[-1]}: {', '.join(str(r + 1) for r in v)}" for k, v in L["reps"].items())
+                out.append(f"| n{n.id} | {q(L['heading'] or L['kind'])} | {L['rows']} | {q(branch)} ({q(src)}) | {q(reps)} |")
         unexplored = [n for n in self.nodes if not n.explored]
         if unexplored:
             out += ["", f"## 탐색하지 않은 상태 (깊이 {self.max_depth} 도달)", ""] + [f"- n{n.id} {n.label}" for n in unexplored]
@@ -663,7 +768,14 @@ def check_output_dir(out_dir: Path) -> Path:
 
 def load_fixtures(path: Path | None) -> tuple[dict[str, Any], str]:
     """inputs: {입력칸 이름: 값 | 체크박스 이름: true | 콤보박스 이름: 옵션 이름}, deny: 정규식 (생략 시 기본값)."""
+    inputs, deny, _ = load_fixtures_full(path)
+    return inputs, deny
+
+
+def load_fixtures_full(path: Path | None) -> tuple[dict[str, Any], str, dict[str, list[str]]]:
+    """… + pick: {목록 제목 | "*": [분기 열 이름…]} (목록 표본화의 분기 열을 사람이 정할 때)."""
     if path is None:
-        return {}, DEFAULT_DENY
+        return {}, DEFAULT_DENY, {}
     spec = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    return dict(spec.get("inputs") or {}), spec.get("deny") or DEFAULT_DENY
+    pick = {str(k): [str(c) for c in (v or [])] for k, v in (spec.get("pick") or {}).items()}
+    return dict(spec.get("inputs") or {}), spec.get("deny") or DEFAULT_DENY, pick

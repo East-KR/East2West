@@ -79,6 +79,10 @@ def main(argv: list[str] | None = None) -> int:
     cr.add_argument("--max-states", type=int, default=30)
     cr.add_argument("--max-actions", type=int, default=40, help="상태당 누를 동작 수 상한")
     cr.add_argument("--group-min", type=int, default=3, help="비슷한 요소가 이 개수 이상이면 대표 하나만 누른다")
+    cr.add_argument("--reps", type=int, default=3, help="목록성 화면(표 행·목록 항목)에서 누를 대표 행 상한. 분기 열(상태·유형 …) 값 조합마다 하나 (기본 3)")
+    cr.add_argument("--classify", choices=("auto", "rule", "jev"), default="auto",
+                    help="분기 열 고르기: rule=값 종류 규칙만, jev=Jev 분류(캐시, margin 미달이면 규칙), auto=API 키가 있으면 jev (기본). 픽스처 pick 이 늘 우선")
+    cr.add_argument("--min-margin", type=float, default=0.2, help="Jev 분류를 믿는 최소 margin (1위-2위 확률 차). 미달이면 규칙 + graph.md 검토 표시")
     cr.add_argument("--settle-ms", type=int, default=400)
     cr.add_argument("--base-url", default=os.environ.get("PARITY_BASE_URL"))
     cr.add_argument("--storage-state", type=Path, default=None)
@@ -145,11 +149,17 @@ def main(argv: list[str] | None = None) -> int:
         from . import targets
         return targets.main(args.screens, args.out, args.base_url, args.names.split("|") if args.names else None, args.storage_state)
     if args.cmd == "crawl":
-        from .crawl import Crawler, load_fixtures
-        inputs, deny = load_fixtures(args.fixtures)
+        from .crawl import Crawler, load_fixtures_full
+        inputs, deny, pick = load_fixtures_full(args.fixtures)
+        jev = None
+        if args.classify == "jev" or (args.classify == "auto" and (os.environ.get("TYPESAFE_API_KEY") or os.environ.get("TYPESAFEAI_API_KEY"))):
+            from .jev import JevClient
+            jev = JevClient()
+        cache_dir = args.cache_dir or args.out / "cache"
         crawler = Crawler(args.start, base_url=args.base_url, inputs=inputs, deny=deny, max_depth=args.depth, max_states=args.max_states,
                           max_actions=args.max_actions, group_min=args.group_min, settle_ms=args.settle_ms,
-                          storage_state=args.storage_state, headed=args.headed)
+                          storage_state=args.storage_state, headed=args.headed,
+                          reps=args.reps, pick=pick, jev=jev, list_cache=cache_dir / "lists.json", min_margin=args.min_margin)
         if args.dry_run:
             pv = crawler.preview()
             print(f"{pv['title']}  {pv['url']}\n\n누를 것 ({len(pv['click'])}):")
@@ -163,8 +173,10 @@ def main(argv: list[str] | None = None) -> int:
         from .crawl import check_output_dir
         check_output_dir(args.out)
         crawler.run(shots_dir=args.out / "screens")
-        cache_dir = args.cache_dir or args.out / "cache"
         written = crawler.write(args.out, cache_dir)
+        sampled = [(n, L) for n in crawler.nodes for L in n.lists if L.get("reps")]
+        if sampled:
+            print("   목록 표본: " + "; ".join(f"n{n.id} '{L['heading'] or L['kind']}' {L['rows']}행 → 대표 {sum(len(v) for v in L['reps'].values())} ({L['source']})" for n, L in sampled))
         counts = {k: sum(1 for e in crawler.edges if e.kind == k) for k in ("transition", "local", "external", "error", "denied")}
         print(f"\n== states {len(crawler.nodes)}, actions {counts} | {args.out / 'graph.md'} | {len(written)} scenarios")
         if written:
