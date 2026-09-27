@@ -1,5 +1,5 @@
 """검증 보고서 화면(render_report)과 다른 화면들이 같이 쓰는 조각: 페이지 틀(_page, CSS), 단계 요약(_action, _seen), 다른 점 표(rows_for), 캡처(_shot).
-화면은 전부 통합 화면(eastshift ui, hub.py)이 요청 때 조각(fragment: html·css·js)으로 만들어 한 문서 안에 끼운다 (iframe 없음). 시나리오 승인는 review.py, 골든 관리는 catalog.py, 화면 지도는 map.py.
+화면은 전부 통합 화면(eastshift ui, hub.py)이 요청 때 조각(fragment: html·css·js)으로 만들어 한 문서 안에 끼운다 (iframe 없음). 시나리오 승인은 review.py, 골든 관리는 catalog.py, Screen Map은 map.py.
 
 원칙: 결론 먼저, 문장은 짧게, "무엇이 · 기준 · 실제"만. 원본 로그는 접어 둔다.
 디자인: 검수 서류. 차분한 청록 회색 바탕, 상태는 도장(stamp)과 점 표시, 값은 고정폭 숫자. 라이트/다크 모두.
@@ -42,10 +42,6 @@ a{color:var(--accent)}
 .lede{grid-column:1/-1;color:var(--muted);max-width:62ch;margin:0}
 .prov{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12.5px;color:var(--faint)}
 .prov b{color:var(--muted);font-weight:500}
-.stamp{grid-row:1/3;grid-column:2;align-self:center;border:2px solid currentColor;border-radius:6px;padding:8px 14px;text-align:center;
-transform:rotate(-2deg);font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.02em}
-.stamp small{display:block;font-size:11.5px;font-weight:500;letter-spacing:0;opacity:.85}
-.stamp.ok{color:var(--ok);background:var(--ok-soft)}.stamp.warn{color:var(--warn);background:var(--warn-soft)}.stamp.bad{color:var(--bad);background:var(--bad-soft)}
 
 /* 페이지 머리 + 칩: 통합 화면의 네 탭이 같은 언어를 쓴다. 칩 = 상태 한 줄 요약, 누를 수 있으면 거르기 */
 .pgh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -87,10 +83,6 @@ button.fchip.on{background:var(--accent);border-color:var(--accent);color:#fff}b
 .kpi .k{font-size:12px;color:var(--muted)}.kpi .v{font:600 17px/1.3 var(--mono);margin-top:2px}.kpi .v small{display:block;font:12px/1.4 var(--sans);color:var(--muted);margin-top:1px}
 .kpi.ok .v{color:var(--ok)}.kpi.bad .v{color:var(--bad)}.kpi.warn .v{color:var(--warn)}
 
-/* 요약 수치 */
-.facts{display:flex;flex-wrap:wrap;margin:0;border-block:1px solid var(--line)}
-.facts div{flex:1 1 120px;padding:14px 18px;border-left:1px solid var(--line)}.facts div:first-child{border-left:0;padding-left:0}
-.facts dt{font-size:12.5px;color:var(--muted)}.facts dd{margin:0;font:600 24px/1.2 var(--mono);font-variant-numeric:tabular-nums}
 
 /* 섹션 */
 section{display:flex;flex-direction:column;gap:12px}
@@ -99,24 +91,13 @@ section{display:flex;flex-direction:column;gap:12px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px}
 .empty{padding:14px 18px;color:var(--faint);font-size:14px}
 
-/* 검토 순서 */
-.todo{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
-.todo li{display:flex;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:10px;font-size:14px}
-.todo .k{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:600 12.5px/24px var(--mono);text-align:center}
-.todo a{color:inherit;text-decoration:none}.todo a:hover b{text-decoration:underline}
 
 .notice{padding:12px 16px;border-radius:10px;background:var(--warn-soft);color:var(--ink);font-size:14px}
 .notice b{color:var(--warn)}
 
 /* 테스트 */
 .tests{display:flex;flex-direction:column;gap:10px}
-details.test{background:var(--surface);border:1px solid var(--line);border-radius:10px}
-details.test>summary{list-style:none;cursor:pointer;padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:6px 16px}
-details.test>summary::-webkit-details-marker{display:none}
-details.test[open]>summary{border-bottom:1px solid var(--line)}
 .tt{font-weight:600;font-size:15.5px}.tid{font:12px var(--mono);color:var(--faint)}
-.tog{grid-row:1/3;grid-column:2;align-self:center;font-size:13px;color:var(--accent);white-space:nowrap}
-.tog::after{content:" ↓"}details[open] .tog::after{content:" ↑"}
 .vals{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .val{display:inline-flex;align-items:baseline;gap:6px;background:var(--sunk);border-radius:6px;padding:3px 9px;font-size:13px}
 .val .k{color:var(--muted)}.val .v{font:500 13px var(--mono);font-variant-numeric:tabular-nums}
@@ -170,17 +151,8 @@ img.shot{max-width:100%;border:1px solid var(--line);border-radius:6px;margin-to
 .meter .bar i{display:block;height:100%;background:var(--accent)}
 .same{display:flex;flex-wrap:wrap;gap:6px;padding:14px 18px}.same span{font-size:13px;background:var(--ok-soft);color:var(--ink);border-radius:6px;padding:3px 10px}
 
-/* 하단 승인 막대 */
-.bar-approve{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);
-padding:12px clamp(16px,4vw,32px) calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(15,20,19,.06)}
-.bar-approve .in{max-width:1040px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
-.bar-approve p{margin:0;font-size:14px;flex:1 1 280px}.bar-approve p b{color:var(--accent)}
-.cmd{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;max-width:100%}
-.cmd code{padding:8px 12px;font-size:13px;background:var(--sunk);white-space:nowrap;overflow-x:auto;max-width:60vw}
-.cmd button{border:0;background:var(--accent);color:#fff;font:600 13px var(--sans);padding:8px 14px;cursor:pointer}
-.cmd button:hover{filter:brightness(1.08)}
 @media (max-width:760px){
- .head{grid-template-columns:1fr}.stamp{grid-row:auto;grid-column:1;justify-self:start}
+ .head{grid-template-columns:1fr}
  ol.steps li{grid-template-columns:28px 1fr}ol.steps li>.shotcell{grid-column:2}ol.steps li>.txt{grid-column:2}
  .facts div{border-left:0;padding-left:0}
 }

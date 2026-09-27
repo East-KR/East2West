@@ -1,7 +1,7 @@
 """검증 보고서: 산출물(오라클 승인 상태, JUnit XML, 결함 주입 결과)에서만 만든다. 서술은 넣지 않는다.
 
 eastshift report --oracle golden/<app> --junit reports/junit-<target>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md
-  → markdown 한 장 (에이전트·CI 가 판정 줄을 읽는다). 사람이 보는 화면은 eastshift ui 의 검증 보고서 탭 (hub.py 가 render_html 로 만든다).
+  → markdown 한 장 (에이전트·CI 가 판정 줄을 읽는다). 사람이 보는 화면은 eastshift ui 실행 탭의 판정 (hub.py 가 render_fragment 로 끼운다).
 """
 from __future__ import annotations
 
@@ -177,11 +177,11 @@ def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: P
           "마스킹 규칙과 실제로 가린 값:", "", "```", *([l.strip() for l in oracle.mask_audit(oracle_dir)] or ["(없음)"]), "```", ""]
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(L), encoding="utf-8")
-    print(f"{'TRUSTED' if trusted else 'NOT TRUSTED'}: {out}  (화면: uv run eastshift ui → 검증 보고서 탭)")
+    print(f"{'TRUSTED' if trusted else 'NOT TRUSTED'}: {out}  (화면: uv run eastshift ui → 실행 탭)")
 
 
 def render_fragment(oracle_dir: Path, b: dict[str, Any], tests_dir: Path | None = None) -> dict[str, Any]:
-    """통합 화면의 검증 보고서 탭 조각 (html.fragment 형식)."""
+    """통합 화면 실행 탭에 끼우는 판정 조각 (html.fragment 형식)."""
     from . import html
     checks = list(b["checks"])
     if not b["runs"]:

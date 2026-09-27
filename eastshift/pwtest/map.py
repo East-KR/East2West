@@ -1,4 +1,4 @@
-"""화면 지도 (eastshift ui 의 첫 탭): 골든에 기록된 as-is 동작을 라우트(주소) 단위로 합쳐 네트워크로 그린다.
+"""Screen Map (eastshift ui 의 첫 탭): 골든에 기록된 as-is 동작을 라우트(주소) 단위로 합쳐 네트워크로 그린다.
 
 hub.py 가 /page/<app>/map 요청에 만든다: src=compare 는 render(build(golden, junit, …)), src=asis|tobe 는 render(build_from_crawl(…)).
 
@@ -9,7 +9,7 @@ hub.py 가 /page/<app>/map 요청에 만든다: src=compare 는 render(build(gol
 화면 두 장
   지도  왼쪽 라우트 목록 (검색, 상태 점, 이름·주소, 안의 상태 수) + 지도: 왼쪽에서 오른쪽으로 한 방향. 열 = 시작에서 몇 번 눌러 가는지, 열 안 순서는 무게중심(Sugiyama 방식)으로 선 교차를 줄인다.
         노드 = 화면 프레임(대표 캡처, 이름, 안의 팝업·드로워·탭, 상태 띠). 화살표 = 동작 이름 알약. 되돌아가는 길은 아래 차선으로 회색.
-  상세  라우트를 누르면 넘어가는 페이지 (#<라우트>[/<상태>], 뒤로가기로 지도에 복귀): 큰 캡처와 이 화면 안의 상태 그래프(누르면 그 상태의 캡처·테스트) | 시작에서 오는 길, 나가는 길, 지나는 테스트(누르면 시나리오 팝업).
+  상세  라우트를 누르면 넘어가는 페이지 (#<라우트>[/<상태>], 뒤로가기로 지도에 복귀): 큰 캡처(호버하면 as-is/to-be 전환)와 '상태 그래프 보기' 버튼(팝업. 상태를 누르면 그 상태의 상세로 바뀐다) | 시작에서 오는 길, 나가는 길, 지나는 테스트(누르면 시나리오 팝업).
   --junit이 있으면 to-be에서 다른 화면은 빨간 띠, 상세에 무엇이 달랐는지.
 
 같은 상태인지는 화면 구조(제목·입력칸·버튼)로 가리고 글자 내용(주문번호, 품목명)은 보지 않는다. 주소의 숫자 조각은 {id}로 합친다. 그 밖에는 기록된 산출물만 읽는다.
@@ -488,15 +488,8 @@ def _tw(s: str) -> int:
 
 MAP_CSS = """
 main{max-width:none;padding-block:24px 40px;gap:20px}
-.head{gap:6px 24px}.head h1{font-size:26px}
-.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);align-items:center}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{display:inline-block;width:14px;height:14px;border-radius:4px}
-.legend i.ok{background:var(--ok)}.legend i.bad{background:var(--bad)}.legend i.st{background:var(--accent)}.legend i.undev{background:var(--warn)}.legend i.new{background:var(--new)}.legend i.accepted{background:var(--accent)}
 :root{--new:#2F6FDE;--new-soft:#E2ECFC}
 .pill.new{background:var(--new-soft);color:var(--new)}
-.legend .ln{width:26px;height:0;border-top:2px solid var(--accent)}.legend .ln.back{border-top:2px dashed var(--faint)}
-.legend .kd{font:600 11px var(--sans);padding:1px 7px;border-radius:4px;background:var(--sunk);color:var(--muted)}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .toolbar input,.toolbar select{font:inherit;font-size:14px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
 .toolbar input{min-width:240px}
@@ -559,6 +552,9 @@ body.fs .detail{padding:16px 20px 60px;max-width:none}
 .edge.back path{stroke:var(--faint);stroke-dasharray:6 5}
 .edge .pill{fill:var(--surface);stroke:var(--line)}
 .edge text{font-size:12.5px;font-weight:600;fill:var(--ink)}
+body.nolabels .edge .pill,body.nolabels .edge text{display:none}
+.edge.merged{display:none}body.nolabels .edge.merged{display:inline}body.nolabels .edge.back:not(.merged){display:none}
+.fsb.lbt.on,.fsbar .lbt.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .edge.dim{opacity:.12}.edge.hot path{stroke-width:3}.edge.hot .pill{stroke:var(--accent)}
 .node{position:absolute;width:__CW__px;height:__CH__px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;display:flex;flex-direction:column;
  text-align:left;font:inherit;color:inherit;padding:0;overflow:hidden;box-shadow:0 1px 2px rgba(15,20,19,.06);transition:box-shadow .15s,opacity .15s}
@@ -569,8 +565,6 @@ body.fs .detail{padding:16px 20px 60px;max-width:none}
 .node.bad{border-color:var(--bad)}.node.undev{border-color:var(--warn)}.node.new{border-color:var(--new)}.node.ok{border-color:var(--ok)}.node.accepted{border-color:var(--accent)}
 .node.unreached{border-style:dashed;border-color:var(--faint);background:var(--sunk)}.node.unreached .strip{background:var(--faint)}.node.unreached .tag{background:var(--faint)}
 .row .dot.unreached{background:var(--faint)}.legend i.unreached{background:var(--faint)}.pill.unreached{background:var(--sunk);color:var(--muted)}
-/* 머리의 칩: 상태별 개수, 누르면 거르기 */
-@media (max-width:760px){.chips{grid-row:auto;grid-column:1;justify-content:flex-start;max-width:none}}
 .node .chrome{display:flex;gap:4px;padding:6px 10px 0}.node .chrome i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}
 .node .th{margin:5px 8px 0;height:__TH__px;border-radius:6px;overflow:hidden;background:#fff;border:1px solid var(--line);position:relative}
 .node .th img{width:150%;max-width:none;display:block}
@@ -852,7 +846,7 @@ function openTest(name, hereRid){
 function go(rid, sid){ const h = encodeURIComponent(rid) + (sid ? '/' + encodeURIComponent(sid) : ''); if(ctx.getSub() === h) route(); else ctx.setSub(h); }
 $$('.node, .row').forEach(el => el.addEventListener('click', () => go(el.dataset.id)));
 $$('.node').forEach(el => {
-  el.addEventListener('mouseenter', () => $$('.edge').forEach(e => e.classList.toggle('dim', e.dataset.src !== el.dataset.id && e.dataset.dst !== el.dataset.id)));
+  el.addEventListener('mouseenter', () => $$('.edge').forEach(e => e.classList.toggle('dim', e.dataset.src !== el.dataset.id && e.dataset.dst !== el.dataset.id && !(e.dataset.srcs || '').split('|').includes(el.dataset.id))));
   el.addEventListener('mouseleave', () => $$('.edge').forEach(e => e.classList.remove('dim')));
 });
 /* 왼쪽 목록 접기 */
@@ -930,6 +924,12 @@ function exitFs(){
   setTimeout(fit, 60);
 }
 $('#fsb').onclick = enterFs;
+/* 연결선 위 동작 이름 켜고 끄기: 끄면 화면과 연결선만 남는다. 브라우저에 기억 */
+const LBL_KEY = 'eastshift-map-labels';
+function setLabels(on){ root.classList.toggle('nolabels', !on); ['#lbt', '#flbt'].forEach(s => { const b = $(s); if(b) b.classList.toggle('on', on); }); try { localStorage.setItem(LBL_KEY, on ? '1' : '0'); } catch(_) {} }
+let lblOn = true; try { lblOn = localStorage.getItem(LBL_KEY) !== '0'; } catch(_) {}
+setLabels(lblOn);
+['#lbt', '#flbt'].forEach(s => { const b = $(s); if(b) b.onclick = () => setLabels(root.classList.contains('nolabels')); });
 $('#fsx').onclick = exitFs;
 $('#fst').onclick = () => setTools(!root.classList.contains('tools'));
 $('#fzf').onclick = fit; $('#fzi').onclick = () => zoom(z + 0.15); $('#fzo').onclick = () => zoom(z - 0.15);
@@ -940,7 +940,7 @@ route();
 
 
 def fragment(g: dict[str, Any]) -> dict[str, Any]:
-    """화면 지도 조각 (html.fragment 형식). 통합 화면이 iframe 없이 끼운다."""
+    """Screen Map 조각 (html.fragment 형식). 통합 화면이 iframe 없이 끼운다."""
     pos, paths = layout(g["rorder"], g["redges"], g["start"])
     g["paths"] = paths
     ncol = max((c for c, _ in pos.values()), default=0) + 1
@@ -961,7 +961,7 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
     lane_i = 0
     for e in g["redges"]:
         (x1, y1), (x2, y2) = xy[e["src"]], xy[e["dst"]]
-        label = e["actions"][0][:16] + (f" +{len(e['actions']) - 1}" if len(e["actions"]) > 1 else "")
+        label = e["actions"][0][:16]  # 동작이 여럿이면 첫 동작만 (나머지는 상세 페이지의 '여기서 갈 수 있는 곳')
         if pos[e["dst"]][0] > pos[e["src"]][0]:
             sx, sy, tx, ty = x1 + CARD_W, y1 + CARD_H / 2, x2, y2 + CARD_H / 2
             d = f"M{sx},{sy} C{sx + GAP_X * .5},{sy} {tx - GAP_X * .5},{ty} {tx},{ty}"
@@ -976,6 +976,19 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
             cls = "back"
         p = f"<path d='{d}' marker-end='url(#{'arrb' if cls else 'arr'})'/>"
         parts.append(pill(mx, my, label, e["tests"], cls).replace("{src}", html._e(e["src"])).replace("{dst}", html._e(e["dst"])).replace("{path}", p))
+    # 동작 이름을 끈 때의 되돌아가는 선: 같은 화면으로 돌아오는 선들을 차선 하나로 합친다 (이름이 없으면 따로 그을 이유가 없다)
+    by_dst: dict[str, list[str]] = defaultdict(list)
+    for e in backs:
+        by_dst[e["dst"]].append(e["src"])
+    for k, (dst, srcs) in enumerate(by_dst.items(), 1):
+        ly = body_h + k * LANE
+        tx, ty = xy[dst][0] + CARD_W * .5, xy[dst][1] + CARD_H
+        xs = [xy[s][0] + CARD_W * .5 for s in srcs]
+        lo, hi = min(xs + [tx]), max(xs + [tx])
+        d = "".join(f"M{sx},{xy[s][1] + CARD_H} L{sx},{ly} " for s, sx in zip(srcs, xs)) + f"M{lo},{ly} L{hi},{ly} M{tx},{ly} L{tx},{ty + 6}"
+        tests = sorted({t for e in backs if e["dst"] == dst for t in e["tests"]})
+        parts.append(f"<g class='edge back merged' data-src='{html._e(dst)}' data-dst='{html._e(dst)}' data-srcs='{html._e('|'.join(srcs))}' data-tests='{'|'.join(tests)}'>"
+                     f"<path d='{d}' marker-end='url(#arrb)'/></g>")
     svg = (f"<svg class='links' width='{w}' height='{hgt}' viewBox='0 0 {w} {hgt}'><defs>"
            "<marker id='arr' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='8' markerHeight='8' orient='auto'><path d='M0,0 L10,5 L0,10 z' fill='var(--accent)'/></marker>"
            "<marker id='arrb' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='8' markerHeight='8' orient='auto'><path d='M0,0 L10,5 L0,10 z' fill='var(--faint)'/></marker>"
@@ -1035,8 +1048,9 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
             f"<div class='toolbar'><input id='q' type='search' placeholder='화면 이름·주소·팝업 이름으로 찾기' aria-label='화면 찾기'>"
             f"<div class='pick' id='pick'><input id='f' type='search' placeholder='{unit} 찾기 · 제목이나 지나는 화면 이름' aria-label='{unit}로 거르기' autocomplete='off'><div class='pl' id='pl' hidden></div></div>"
             f"<span class='zoom'><button type='button' id='zo' aria-label='축소'>−</button><button type='button' id='zf'>맞춤</button><button type='button' id='zi' aria-label='확대'>+</button></span>"
+            f"<button type='button' class='fsb lbt on' id='lbt' title='연결선 위 동작 이름 보이기/숨기기'>동작 이름</button>"
             f"<button type='button' class='fsb' id='fsb' title='지도만 화면 가득. 검색·목록은 버튼으로 켠다'>⛶ 전체화면</button></div>"
-            f"<div class='fsbar' id='fsbar'><button type='button' id='fst' title='검색·화면 목록·상태 칩 보이기/숨기기'>검색·목록</button><span class='sep'></span>"
+            f"<div class='fsbar' id='fsbar'><button type='button' id='fst' title='검색·화면 목록·상태 칩 보이기/숨기기'>검색·목록</button><button type='button' class='lbt on' id='flbt' title='연결선 위 동작 이름 보이기/숨기기'>동작 이름</button><span class='sep'></span>"
             f"<button type='button' id='fzo' aria-label='축소'>−</button><button type='button' id='fzf'>맞춤</button><button type='button' id='fzi' aria-label='확대'>+</button><span class='sep'></span>"
             f"<button type='button' id='fsx' title='전체화면 나가기 (Esc)'>나가기</button></div>"
             f"<div class='stage' id='stage'><div class='pane left'><h2><span>화면 {len(g['routes'])}개</span><button class='ib' id='tl' type='button' aria-label='목록 접기'>‹</button></h2><div class='list'>{''.join(rows)}</div></div>"

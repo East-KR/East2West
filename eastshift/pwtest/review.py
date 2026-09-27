@@ -78,11 +78,6 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 .chip{display:inline-block;font:12px var(--mono);background:var(--sunk);border-radius:4px;padding:1px 6px;margin:1px 3px 1px 0}
 .warnchip{color:var(--warn);font-weight:600;font-size:12.5px}
 .notice{padding:10px 14px;border-radius:10px;background:var(--warn-soft);font-size:14px}.notice b{color:var(--warn)}
-/* 하단 승인 막대 */
-.prog{height:8px;border-radius:99px;background:var(--sunk);flex:1 1 160px;overflow:hidden;max-width:260px}.prog i{display:block;height:100%;background:var(--ok)}
-.cmd{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden;max-width:100%}
-.cmd code{padding:8px 12px;font-size:13px;background:var(--sunk);white-space:nowrap;overflow-x:auto;max-width:60vw}
-.cmd button{border:0;background:var(--accent);color:#fff;font:600 13px var(--sans);padding:8px 14px;cursor:pointer}
 .abox:empty{display:none}.af{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center;margin-left:6px}
 .af input{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:150px}
 .af button{border:0;background:var(--accent);color:#fff;font:600 14px var(--sans);padding:8px 16px;border-radius:8px;cursor:pointer}

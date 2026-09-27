@@ -56,12 +56,12 @@ def main(argv: list[str] | None = None) -> int:
     mut.add_argument("--workers", type=int, default=4)
     mut.add_argument("--max-per-op", type=int, default=5, help="(응답 경로, 연산자)당 최대 결함 수")
     mut.add_argument("--out", type=Path, default=None)
-    rep = sub.add_parser("report", help="산출물만으로 검증 보고서(markdown) 생성. 사람이 보는 화면은 eastshift ui 의 검증 보고서 탭")
+    rep = sub.add_parser("report", help="산출물만으로 검증 보고서(markdown) 생성. 사람이 보는 화면은 eastshift ui 실행 탭의 판정")
     rep.add_argument("--oracle", type=Path, required=True)
     rep.add_argument("--junit", type=Path, action="append", default=[], help="pytest --junitxml 결과 (여러 개 가능)")
     rep.add_argument("--mutation", type=Path, action="append", default=[], help="eastshift mutate 결과 JSON (여러 개 가능)")
     rep.add_argument("--out", type=Path, required=True, help="보고서 markdown 경로")
-    rt = sub.add_parser("routes", help="소스에서 라우트(화면 주소) 목록을 뽑는다 (실행 없이 정규식). 화면 지도가 '코드에는 있는데 탐색·시나리오가 못 간 화면'을 회색으로 표시하는 잣대")
+    rt = sub.add_parser("routes", help="소스에서 라우트(화면 주소) 목록을 뽑는다 (실행 없이 정규식). Screen Map이 '코드에는 있는데 탐색·시나리오가 못 간 화면'을 회색으로 표시하는 잣대")
     rt.add_argument("src", type=Path, help="as-is 또는 to-be 소스 폴더 (단일 파일 앱이면 파일)")
     rt.add_argument("--out", type=Path, required=True, help="crawl/<app>/routes.json (as-is) 또는 crawl/<app>-tobe/routes.json (to-be)")
     cr = sub.add_parser("crawl", help="시작 화면에서 동작을 모두 눌러 보고 흐름 그래프와 시나리오를 만든다 (Jev 호출 없음)")
@@ -90,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
     tg.add_argument("--storage-state", type=Path, default=None)
     stt = sub.add_parser("status", help="수정 → 재실행 루프용: 마지막 to-be 비교의 남은 실패, 종류, 지난 실행 대비 변화 (runs/<app>/ 원장)")
     stt.add_argument("oracle_dir", type=Path)
-    ui = sub.add_parser("ui", help="통합 화면: 프로젝트마다 화면 지도·개요·이력·시나리오 승인·검증 보고서를 한 화면에서 (로컬 서버, 산출물만 읽음). 사람이 보는 화면은 전부 여기")
+    ui = sub.add_parser("ui", help="통합 화면: 프로젝트마다 Screen Map·시나리오·시나리오 승인·실행을 한 화면에서 (로컬 서버, 산출물만 읽음). 사람이 보는 화면은 전부 여기")
     ui.add_argument("--golden", type=Path, default=Path("golden"), help="오라클 루트 (기본 golden/)")
     ui.add_argument("--tests", type=Path, default=Path("e2e"), help="테스트 루트 (제목용, 기본 e2e/)")
     ui.add_argument("--port", type=int, default=8790)
@@ -110,7 +110,7 @@ def main(argv: list[str] | None = None) -> int:
             ap.error(f"소스 위치가 없습니다: {args.src}")
         data = _routes.write(args.src, args.out)
         print(_routes.summary(data))
-        print(f"-> {args.out}  (eastshift ui 의 화면 지도가 이 목록과 대조해 못 간 화면을 회색으로 표시)")
+        print(f"-> {args.out}  (eastshift ui 의 Screen Map이 이 목록과 대조해 못 간 화면을 회색으로 표시)")
         return 0
     if args.cmd == "targets":
         from . import targets

@@ -136,7 +136,7 @@ def test_hub_projects_http(ws):
 
 
 def test_init_plan_and_rules(ws):
-    """화면 지도 초기화: 골든 없음 + as-is 주소 있을 때만. 시나리오가 없으면 탐색→초안→기록, 있으면 기록만. 골든이 있으면 거부."""
+    """Screen Map 초기화: 골든 없음 + as-is 주소 있을 때만. 시나리오가 없으면 탐색→초안→기록, 있으면 기록만. 골든이 있으면 거부."""
     h = hub.Hub(ws["golden"], ws["tests"], ws["file"])
     h.add_project("shop", {**spec(ws), "asis": {"src": str(ws["old"]), "url": ""}})
     with pytest.raises(ValueError, match="as-is 실행 주소"):

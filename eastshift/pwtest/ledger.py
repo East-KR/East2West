@@ -1,7 +1,7 @@
 """실행 원장: to-be 비교(`pytest --compare`)가 끝날 때마다 결과를 runs/<app>/ 에 남긴다. 관리 화면·상태 명령·통합 화면(eastshift ui)이 이 원장만 읽는다.
 
 runs/<app>/<시각>.json           한 실행 = {app, target, started, finished, junit, oracle: {approved_by, approved_at, ok}, cases: {test: {…}}, totals}
-runs/<app>/<시각>/junit.xml      그 실행의 JUnit 사본 (검증 보고서·화면 지도를 나중에 다시 그릴 수 있게)
+runs/<app>/<시각>/junit.xml      그 실행의 JUnit 사본 (검증 보고서·Screen Map을 나중에 다시 그릴 수 있게)
 runs/<app>/<시각>/shots/         실패 순간 스크린샷 사본
 runs/<app>/mutations/<시각>.json eastshift mutate 결과 사본 (승인본마다 하나면 된다)
   case kind: same | drift(기대값이 기록 이후 바뀜) | golden_diff(화면·값·대화상자가 다름) | assert(명시한 확인 값 실패) | error(실행 못 함)

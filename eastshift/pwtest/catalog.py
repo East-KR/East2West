@@ -1,4 +1,4 @@
-"""골든 관리 화면 (eastshift ui 의 개요 탭): 한 앱의 골든 시나리오를 한눈에. 승인 상태, 마지막 to-be 결과, 실행 이력, 시나리오 상세.
+"""골든 관리 화면 (eastshift ui 의 시나리오 탭): 한 앱의 골든 시나리오를 한눈에. 승인 상태, 마지막 to-be 결과, 실행 이력, 시나리오 상세.
 
 hub.py 가 /page/<app>/catalog 요청에 render(build(golden/<app>)) 로 만든다.
 
@@ -23,13 +23,6 @@ CSS = """
 main{max-width:none;gap:12px;padding-block:14px 14px;height:100%;display:flex;flex-direction:column}
 .tbl{flex:1;min-height:0;overflow:hidden}.pager{margin-top:0;flex:none}.tools .sp{flex:1}
 .head{gap:6px 24px}.head h1{font-size:26px}
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-.card .k{font-size:12.5px;color:var(--muted)}.card .v{font:600 22px var(--mono);margin-top:2px}.card .v small{font:12.5px var(--sans);color:var(--muted);margin-left:6px}
-.card.bad .v{color:var(--bad)}.card.ok .v{color:var(--ok)}.card.warn .v{color:var(--warn)}
-.links{display:flex;gap:8px;flex-wrap:wrap}
-.links a,.links button{font:600 13px var(--sans);padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);text-decoration:none;cursor:pointer}
-.links a:hover,.links button:hover{border-color:var(--accent);color:var(--accent)}
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .tools input,.tools select{font:inherit;font-size:14px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
 .tools input{min-width:260px}
@@ -45,7 +38,6 @@ main{max-width:none;gap:12px;padding-block:14px 14px;height:100%;display:flex;fl
 .hist{display:inline-flex;gap:3px;align-items:center}.hist i{width:10px;height:10px;border-radius:3px;background:var(--line);display:inline-block}
 .hist i.p{background:var(--ok)}.hist i.f{background:var(--bad)}.hist i.cur{outline:2px solid var(--ink);outline-offset:1px}
 .pill.none{background:var(--sunk);color:var(--muted)}
-.chips{display:flex;flex-wrap:wrap;gap:4px}
 .modal{position:fixed;inset:0;background:rgba(15,20,19,.55);display:none;place-items:center;z-index:40;padding:24px}
 .modal.on{display:grid}
 .modal .box{background:var(--surface);color:var(--ink);border-radius:14px;width:min(980px,96vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)}
@@ -195,7 +187,7 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
 
 
 def fragment(g: dict[str, Any]) -> dict[str, Any]:
-    """골든 관리(개요) 조각 (html.fragment 형식). 머리의 칩이 상태 요약이자 거르기, 표는 다른 것부터."""
+    """골든 관리(시나리오 탭) 조각 (html.fragment 형식). 머리의 칩이 상태 요약이자 거르기, 표는 다른 것부터."""
     st, runs, tests = g["oracle"], g["runs"], g["tests"]
     latest = runs[-1] if runs else None
 

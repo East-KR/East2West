@@ -1,4 +1,4 @@
-"""통합 화면 (eastshift ui): 프로젝트 목록에서 시작해, 프로젝트마다 사람이 보는 화면 네 장(개요·시나리오 승인·화면 지도·검증 보고서)과 실행 이력을 한 화면에서 본다.
+"""통합 화면 (eastshift ui): 프로젝트 목록에서 시작해, 프로젝트마다 탭 넷(Screen Map · 시나리오 · 시나리오 승인 · 실행)을 한 화면에서 본다.
 사람이 보는 화면은 전부 여기서만 만든다 (파일로 따로 떨구지 않는다). 승인도 여기서만 한다.
 
 uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
@@ -23,8 +23,8 @@ uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:87
   POST /api/projects/<app>          프로젝트 설정 변경 (같은 본문)
   POST /api/projects/<app>/delete   등록 해제 (산출물은 남긴다)
   /api/fs?path=                     폴더 고르기용 하위 폴더 목록 (작업 디렉터리·홈 아래만)
-  /page/<app>/catalog|review        개요(골든 관리), 시나리오 승인
-  /page/<app>/map?src=compare&run=<시각>   화면 지도 셋 중 하나: src=asis|tobe 는 탐색 결과(crawl/<app>, crawl/<app>-tobe), compare 는 as-is 기준 to-be 비교
+  /page/<app>/catalog|review        시나리오(골든 관리), 시나리오 승인
+  /page/<app>/map?src=compare&run=<시각>   Screen Map 셋 중 하나: src=asis|tobe 는 탐색 결과(crawl/<app>, crawl/<app>-tobe), compare 는 as-is 기준 to-be 비교
                                     (골든 + 그 실행의 다름(빨강) + to-be 탐색으로 미개발(노랑)·새 화면(파랑), 캡처는 to-be 우선)
   /page/<app>/report?run=<시각>      검증 보고서 (그 실행의 JUnit + 현재 승인본의 결함 주입 결과)
   /file?p=runs/…                    스크린샷 등 산출물 파일 (runs/ 와 골든 루트 아래만, 읽기 전용)
@@ -58,7 +58,7 @@ class Hub:
         self.projects_file = projects_file
         self._cache: dict[tuple, tuple[float, str]] = {}
         self._lock = threading.Lock()
-        self.jobs: dict[str, dict[str, Any]] = {}  # 화면 지도 초기화 작업 (앱별 하나)
+        self.jobs: dict[str, dict[str, Any]] = {}  # Screen Map 초기화 작업 (앱별 하나)
 
     # ---- 웹 승인 ----
     def approve(self, app: str, *, by: str, fingerprint: str, note: str = "") -> dict[str, Any]:
@@ -109,7 +109,7 @@ class Hub:
         projects.remove(name, path=self.projects_file)
         return {"ok": True, "app": name, "kept": [str(p) for p in (self.tests_root / name, self.golden_root / name, ledger.run_dir(name)) if p.exists()]}
 
-    # ---- 화면 지도 세 가지: as-is 탐색 (crawl/<app>), to-be 탐색 (crawl/<app>-tobe), to-be 비교 (as-is 기준: 골든 + 실행 JUnit + 두 탐색으로 미개발·새 화면) ----
+    # ---- Screen Map 세 가지: as-is 탐색 (crawl/<app>), to-be 탐색 (crawl/<app>-tobe), to-be 비교 (as-is 기준: 골든 + 실행 JUnit + 두 탐색으로 미개발·새 화면) ----
     def _has_golden(self, app: str) -> bool:
         d = self.golden_root / app
         return d.is_dir() and any(d.glob("*.json"))
@@ -324,7 +324,7 @@ class Hub:
     # ---- 화면 만들기 ----
     def page(self, app: str, kind: str, run: str | None = None, src: str = "compare") -> dict[str, Any]:
         """화면 조각 (html.fragment 형식: kind·title·html·css·js). 통합 화면이 한 문서 안에 끼우고, /page/… 직접 접속은 html.assemble 로 문서를 만든다.
-        src: 화면 지도의 출처 — compare(골든 시나리오 + 실행), asis/tobe(탐색 결과)."""
+        src: Screen Map의 출처 — compare(골든 시나리오 + 실행), asis/tobe(탐색 결과)."""
         self._check(app)
         if kind not in PAGES:
             raise KeyError(kind)
@@ -349,7 +349,7 @@ class Hub:
             spec = projects.load(self.projects_file).get(app) or {}
             asis = (spec.get("asis") or {}).get("url") or "<as-is 주소>"
             body = (f"<header class='head'><div class='eyebrow'>{html._e(app)}</div><h1>골든이 아직 없습니다</h1>"
-                    f"<p class='lede'>시나리오를 as-is에서 기록해야 개요·시나리오 승인·지도·보고서가 생깁니다.</p></header>"
+                    f"<p class='lede'>시나리오를 as-is에서 기록해야 시나리오·시나리오 승인·Screen Map·실행 판정이 생깁니다.</p></header>"
                     f"<section><pre><code>uv run eastshift crawl {html._e(asis)} --out crawl/{html._e(app)}   # 화면을 훑어 시나리오 초안\n"
                     f"uv run pytest e2e/{html._e(app)} --base-url {html._e(asis)} --record golden/{html._e(app)}   # as-is에서 기록</code></pre></section>")
             return html.fragment(kind, f"{app} {kind}", body)
@@ -361,7 +361,7 @@ class Hub:
         tests_dir = self.tests_root / app
         junit = ledger.run_dir(app) / run / "junit.xml" if run else None
         if run and (junit is None or not junit.exists()):
-            body = (f"<header class='head'><div class='eyebrow'>{'Screen Map' if kind == 'map' else '검증 보고서'}</div><h1>{html._e(app)}</h1>"
+            body = (f"<header class='head'><div class='eyebrow'>{'Screen Map' if kind == 'map' else '실행 판정'}</div><h1>{html._e(app)}</h1>"
                     f"<p class='lede'>실행 {html._e(run)}의 JUnit 사본이 없습니다. 이 실행은 원장에 JUnit을 남기기 전 것이거나, "
                     f"<code>--junitxml</code> 없이 실행됐습니다. 다시 비교하면 지도와 보고서가 나옵니다.</p></header>")
             return html.fragment(kind, f"{app} {kind}", body)
@@ -550,7 +550,7 @@ main.hist h2{font-size:16px;font-weight:600}
 .empty{color:var(--muted);padding:40px;text-align:center}
 .btn{font:inherit;font-size:13.5px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{filter:brightness(1.08)}.btn:disabled{opacity:.5;cursor:default}.btn.sm{font-size:12.5px;padding:4px 10px}
-/* 화면 지도 초기화 */
+/* Screen Map 초기화 */
 .init{max-width:820px;margin:0 auto;padding:0 24px;width:100%;box-sizing:border-box}
 .init .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px 28px;display:flex;flex-direction:column;gap:16px}
 .init h1{font-size:22px;font-weight:700;margin:0}.init .lede{margin:0;color:var(--muted);font-size:14px}
@@ -567,7 +567,7 @@ main.hist h2{font-size:16px;font-weight:600}
 .init .err{color:var(--bad);font-size:13px;background:var(--bad-soft);border-radius:8px;padding:8px 12px}.init .err:empty{display:none}
 pre.log{margin:0;background:var(--sunk);border-radius:10px;padding:12px 14px;font:12px/1.5 var(--mono);max-height:340px;overflow:auto;white-space:pre-wrap;word-break:break-all}
 .proj .next .nx{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-/* 화면 지도 출처 바 */
+/* Screen Map 출처 바 */
 .mapwrap{display:flex;flex-direction:column;height:100%}
 .srcbar{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--surface);flex:none}
 .srcbar > button:not(.btn){font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
@@ -826,7 +826,7 @@ function render(){
   renderRuns(v);
 }
 
-// ---- 화면 지도: 출처 셋. as-is 탐색 / to-be 탐색 은 crawl 결과, to-be 비교 는 골든 + 선택한 실행 + 두 탐색(미개발·새 화면). 없으면 만드는 화면 ----
+// ---- Screen Map: 출처 셋. as-is 탐색 / to-be 탐색 은 crawl 결과, to-be 비교 는 골든 + 선택한 실행 + 두 탐색(미개발·새 화면). 없으면 만드는 화면 ----
 function renderMap(v){
   const src = mapSrc(), m = data.maps || {};
   const bar = `<div class="srcbar">${SRC.map(([k, l]) => `<button class="${k === src ? 'on' : ''}" data-src="${k}">${l}${m[k] ? '' : `<small>${k === 'compare' ? '골든 전' : '탐색 전'}</small>`}</button>`).join('')}

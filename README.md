@@ -86,7 +86,7 @@ e2e/<app>/         Playwright 테스트            golden/<app>/   승인된 오
 eastshift.json        프로젝트 등록부: as-is/to-be 소스 위치·실행 주소 (eastshift ui 첫 화면에서 추가·설정)
 runs/<app>/        to-be 비교 실행 원장 (실행마다 JSON + JUnit·스크린샷 사본, mutations/ 결함 주입 결과) → eastshift ui / status
 scenarios/         YAML 시나리오 (스모크, 데모)  examples/       YAML 전환 예제, 비교 실험 코드, crawl 픽스처
-demo-app/          데모 서버. 포털(메인 데모: 라우트 6개 + 팝업·드로워·탭, as-is/to-be 변형 5개 — 새 룩 tobe-modern 포함), 레거시 주문(frameset 특수 케이스), 예약(crawl), ERP 화면 12개(스모크)
+demo-app/          데모 서버. 포털(메인 데모: 라우트 7개 + 팝업·드로워·탭, as-is에만 있는 공지사항 화면, as-is/to-be 변형 6개 — 새 룩 tobe-modern 포함), 레거시 주문(frameset 특수 케이스), 예약(crawl), ERP 화면 12개(스모크)
 tools/             explore.py (요소 이름 탐색), guard_oracle.py (Claude Code hook: golden/ 편집·승인 차단)
 .claude/skills/    e2e-tests, smoke
 ```
