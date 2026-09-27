@@ -23,13 +23,30 @@ def run_dir(app: str) -> Path:
     return RUNS / app
 
 
+def _claim(d: Path) -> Path:
+    """이 실행의 원장 파일 이름을 배타적으로 만든다 (O_EXCL). 같은 초에 끝난 실행이 서로 덮어쓰지 않게 뒤에 온 쪽이 -2, -3 … 을 붙인다."""
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    for n in range(1, 1000):
+        out = d / (f"{stamp}.json" if n == 1 else f"{stamp}-{n}.json")
+        try:
+            out.open("x").close()
+            return out
+        except FileExistsError:
+            continue
+    raise RuntimeError(f"{d}: could not claim a ledger name for {stamp}")
+
+
+def _ordered(files) -> list[Path]:
+    """시각 순. 같은 초의 -2 가 원본 뒤에 온다 (이름순이면 '-' < '.' 이라 앞에 온다)."""
+    return sorted(files, key=lambda p: (p.stem[:15], len(p.stem), p.stem))
+
+
 def write_run(app: str, *, target: str, oracle: dict[str, Any], cases: dict[str, dict[str, Any]], started: float,
               junit: str | None = None) -> Path:
     d = run_dir(app)
     d.mkdir(parents=True, exist_ok=True)
-    stamp = time.strftime("%Y%m%d-%H%M%S")
-    out = d / f"{stamp}.json"
-    keep = d / stamp  # 실행 산출물 사본. reports/ 는 다음 실행이 덮어쓰므로 여기 남겨야 이력이 된다
+    out = _claim(d)
+    keep = d / out.stem  # 실행 산출물 사본. reports/ 는 다음 실행이 덮어쓰므로 여기 남겨야 이력이 된다
     if junit and Path(junit).exists():
         keep.mkdir(exist_ok=True)
         shutil.copyfile(junit, keep / "junit.xml")
@@ -55,7 +72,7 @@ def save_mutation(app: str, result: Path) -> Path:
     """eastshift mutate 결과를 원장 옆에 복사한다. 보고서는 현재 승인본과 승인 시각이 같은 최신 결과를 쓴다."""
     d = run_dir(app) / "mutations"
     d.mkdir(parents=True, exist_ok=True)
-    dst = d / f"{time.strftime('%Y%m%d-%H%M%S')}.json"
+    dst = _claim(d)
     shutil.copyfile(result, dst)
     return dst
 
@@ -65,7 +82,7 @@ def load_runs(app: str) -> list[dict[str, Any]]:
     if not d.exists():
         return []
     runs = []
-    for p in sorted(d.glob("*.json")):
+    for p in _ordered(d.glob("*.json")):
         try:
             runs.append({**json.loads(p.read_text(encoding="utf-8")), "_file": p.name, "_stamp": p.stem})
         except (OSError, ValueError):
@@ -79,7 +96,7 @@ def load_mutations(app: str) -> list[dict[str, Any]]:
     if not d.exists():
         return []
     out = []
-    for p in sorted(d.glob("*.json")):
+    for p in _ordered(d.glob("*.json")):
         try:
             out.append({**json.loads(p.read_text(encoding="utf-8")), "_file": str(p)})
         except (OSError, ValueError):
