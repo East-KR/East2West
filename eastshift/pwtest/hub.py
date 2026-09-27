@@ -620,7 +620,7 @@ pre.log{margin:0;background:var(--sunk);border-radius:10px;padding:12px 14px;fon
 HUB_JS = r"""
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const TABS = [['overview','개요'],['map','Screen Map'],['review','시나리오 승인'],['report','검증 보고서'],['history','이력']];  // 왼쪽 메뉴 순서. 첫 탭(개요)이 프로젝트를 열 때의 기본
+const TABS = [['map','Screen Map'],['overview','시나리오'],['review','시나리오 승인'],['report','검증 보고서'],['history','이력']];  // 왼쪽 메뉴 순서. 첫 탭(Screen Map)이 프로젝트를 열 때의 기본
 // 위 막대 가운데: 앱 이름 › 탭 (지도는 출처까지). 페이지 조각에는 제목이 없다
 function setWhere(extra){
   const tab = (TABS.find(t => t[0] === state.tab) || ['', ''])[1];
@@ -652,7 +652,7 @@ let apps = [], state = {app:null, tab:'map', run:null, src:null, sub:''}, data =
 
 const SRC = [['asis','as-is 탐색'],['tobe','to-be 탐색'],['compare','to-be 비교 (as-is 기준)']];
 // 해시 = #app/tab/run/src[/sub…]. sub 는 끼워 넣은 화면 조각의 안쪽 이동(지도의 상세 라우트, 검토의 시나리오)으로, 조각이 ctx.setSub 로 쓰고 ctx.getSub 로 읽는다 (인코딩된 그대로)
-function parseHash(){ const parts = location.hash.replace(/^#\/?/, '').split('/'); const [app, tab, run, src] = parts.slice(0, 4).map(decodeURIComponent); return {app: app||null, tab: tab||'overview', run: run && run !== '-' ? run : null, src: src && src !== '-' ? src : null, sub: parts.slice(4).join('/')}; }
+function parseHash(){ const parts = location.hash.replace(/^#\/?/, '').split('/'); const [app, tab, run, src] = parts.slice(0, 4).map(decodeURIComponent); return {app: app||null, tab: tab||'map', run: run && run !== '-' ? run : null, src: src && src !== '-' ? src : null, sub: parts.slice(4).join('/')}; }
 function setHash(){ const parts = [state.app, state.tab, state.run || '-', state.src || (state.sub ? '-' : null)]; while (parts.length && !parts[parts.length-1]) parts.pop(); const h = parts.map(encodeURIComponent).join('/') + (state.sub ? '/' + state.sub : ''); if (location.hash.replace(/^#\/?/, '') !== h) location.hash = h; }
 
 // ---- 화면 조각 끼우기 (iframe 대신): 서버의 /page/<app>/<kind>?fragment=1 이 {html, css, js} 를 주고, css 는 .pg-<kind> 로 가둬져 있고 js 는 (root, ctx) 함수 본문이다 ----
@@ -730,7 +730,7 @@ function renderList(v){
   $('#add').onclick = () => openEditor(null);
   for (const card of v.querySelectorAll('.proj')){
     const name = card.dataset.app, a = apps.find(x => x.app === name);
-    for (const el of card.querySelectorAll('[data-open], [data-init]')) el.onclick = () => { state.app = name; state.tab = el.hasAttribute('data-init') ? 'map' : 'overview'; state.run = null; state.sub = ''; setHash(); };
+    for (const el of card.querySelectorAll('[data-open], [data-init]')) el.onclick = () => { state.app = name; state.tab = 'map'; state.run = null; state.sub = ''; setHash(); };
     card.querySelector('[data-edit]').onclick = () => openEditor(a);
     const del = card.querySelector('[data-del]');
     if (del) del.onclick = () => { card.querySelector('.confirm').hidden = false; };

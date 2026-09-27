@@ -248,14 +248,17 @@ def _scope_selectors(sel: str, prefix: str) -> str:
     return lead + ",".join(dict.fromkeys(scoped))
 
 
+def help(*, info: str = "", facts: list[str] = (), extra: str = "") -> str:
+    """(i) 설명 아이콘: 호버·초점에 말풍선. info 는 문장(이스케이프됨), facts 는 '<b>이름</b> 값' 조각(HTML), extra 는 말풍선 안에 넣을 HTML (지도의 범례 등)."""
+    if not (info or facts or extra):
+        return ""
+    return ("<span class='ihelp' tabindex='0' role='note' aria-label='설명'><i>i</i><span class='tip'>" + (f"<p>{_e(info)}</p>" if info else "") + extra
+            + (f"<div class='facts'>{''.join(f'<span>{f}</span>' for f in facts)}</div>" if facts else "") + "</span></span>")
+
+
 def head(chips: list[str], *, info: str = "", facts: list[str] = (), chips_id: str = "", extra: str = "") -> str:
-    """페이지 머리: 상태 칩 한 줄 + (i) 설명. 제목(앱 이름·탭)은 통합 화면의 위 막대 가운데가 보여 주므로 여기 없다.
-    info 는 문장(이스케이프됨), facts 는 '<b>이름</b> 값' 조각(HTML 그대로), extra 는 말풍선 안에 넣을 HTML (지도의 범례 등)."""
-    tip = ""
-    if info or facts or extra:
-        tip = ("<span class='ihelp' tabindex='0' role='note' aria-label='설명'><i>i</i><span class='tip'>" + (f"<p>{_e(info)}</p>" if info else "") + extra
-               + (f"<div class='facts'>{''.join(f'<span>{f}</span>' for f in facts)}</div>" if facts else "") + "</span></span>")
-    return f"<header class='pgh'><div class='chips'{f' id={chips_id!r}' if chips_id else ''}>{''.join(chips)}</div>{tip}</header>"
+    """페이지 머리: 상태 칩 한 줄 + (i) 설명. 제목(앱 이름·탭)은 통합 화면의 위 막대 가운데가 보여 주므로 여기 없다."""
+    return f"<header class='pgh'><div class='chips'{f' id={chips_id!r}' if chips_id else ''}>{''.join(chips)}</div>{help(info=info, facts=facts, extra=extra)}</header>"
 
 
 def chip(cls: str, label: str, n: Any = None, *, sub: str = "", title: str = "", lead: bool = False) -> str:

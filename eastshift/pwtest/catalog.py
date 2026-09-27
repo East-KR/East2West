@@ -20,7 +20,8 @@ from .map import _plain
 KIND_LABEL = {"same": "같음", "accepted_diff": "승인된 차이", "drift": "기대값 바뀜", "golden_diff": "as-is와 다름", "assert": "확인 값 실패", "error": "실행 못 함"}
 
 CSS = """
-main{max-width:none;gap:22px;padding-block:22px 60px}
+main{max-width:none;gap:12px;padding-block:14px 14px;height:100%;display:flex;flex-direction:column}
+.tbl{flex:1;min-height:0;overflow:hidden}.pager{margin-top:0;flex:none}.tools .sp{flex:1}
 .head{gap:6px 24px}.head h1{font-size:26px}
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
@@ -34,7 +35,7 @@ main{max-width:none;gap:22px;padding-block:22px 60px}
 .tools input{min-width:260px}
 .tbl table{width:100%;border-collapse:collapse;font-size:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .tbl th{font-size:12px;letter-spacing:.04em;color:var(--muted);text-align:left;padding:10px 12px;background:var(--sunk);border-bottom:1px solid var(--line)}
-.tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:0}.tbl tbody tr{cursor:pointer}.tbl tbody tr:hover td{background:var(--accent-soft)}
 .tbl tr.dim{display:none}
 .tbl .t b{display:block;font-size:14.5px}.tbl .t small{font:11.5px var(--mono);color:var(--faint)}
@@ -109,7 +110,16 @@ $$('tbody tr[data-test]').forEach(tr => tr.addEventListener('click', () => openT
 const q = $('#q');
 let st = '';  // 머리 칩으로 고른 결과 ('' = 전부)
 // 쪽 나누기: 걸러진 행을 10줄씩. 검색·칩이 바뀌면 1쪽으로
-const PER = 10; let page = 0;
+let PER = 10, page = 0;
+const tbl = $('.tbl');
+function fitRows(){  // 표에 보이는 줄 수 = (표 높이 − 머리줄) / 줄 높이. 스크롤이 생기지 않게 딱 맞춘다
+  const thead = tbl.querySelector('thead'), row = tbl.querySelector('tbody tr:not(.dim)') || tbl.querySelector('tbody tr');
+  const rowH = row ? Math.max(40, row.getBoundingClientRect().height) : 58;
+  const avail = tbl.clientHeight - (thead ? thead.offsetHeight : 0) - 2;
+  const per = Math.max(1, Math.floor(avail / rowH));
+  if(per !== PER){ PER = per; return true; } return false;
+}
+ctx.listen(window, 'resize', () => { if(fitRows()) filter(); });
 const foot = document.createElement('div'); foot.className = 'pager'; $('.tbl').after(foot);
 function filter(resetPage){
   if(resetPage) page = 0;
@@ -130,7 +140,7 @@ function filter(resetPage){
   foot.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { page = +b.dataset.p; filter(); });
   foot.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { page += +b.dataset.d; filter(); });
 }
-filter();
+fitRows(); filter(); requestAnimationFrame(() => { if(fitRows()) filter(); });
 q.addEventListener('input', () => filter(true));
 $$('#chips .fchip[data-st]').forEach(b => b.addEventListener('click', () => {
   st = (b.dataset.st && st !== b.dataset.st) ? b.dataset.st : '';
@@ -200,21 +210,6 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
     states = {n: state_of(t) for n, t in tests.items()}
     n = {k: sum(1 for s in states.values() if s == k) for k in ("pass", "fail", "accepted", "never")}
     stale = bool(latest and st.get("approval_id") and latest.get("approval_id") != st.get("approval_id"))
-    chips = []
-    if st["ok"]:
-        chips.append(html.chip("ok", "승인됨", sub=f"{st.get('approved_by')} · {(st.get('approved_at') or '')[:16]}", lead=True))
-    elif st.get("approved_by"):
-        chips.append(html.chip("warn", "재승인 필요", sub="승인 후 기록이 바뀜", lead=True))
-    else:
-        chips.append(html.chip("warn", "승인 필요", sub="시나리오 승인 탭에서", lead=True))
-    chips.append(f"<button type='button' class='fchip all on' data-st=''>시나리오<b>{len(tests)}</b></button>")
-    for k, label, cls in (("fail", "다름", "bad"), ("accepted", "승인된 차이", "accepted"), ("pass", "같음", "ok"), ("never", "비교 전", "none")):
-        if n[k]:
-            chips.append(f"<button type='button' class='fchip {cls}' data-st='{k}' title='이 결과의 시나리오만 보기'><i></i>{label}<b>{n[k]}</b></button>")
-    if latest:
-        chips.append(html.chip("warn" if stale else "info", f"마지막 비교 {latest['finished'][5:16]}", sub=latest["target"].replace("http://", "") + (" · 이전 승인본" if stale else "")))
-    else:
-        chips.append(html.chip("info", "to-be 비교 전"))
     notice = (f"<div class='notice'><b>주의</b> 마지막 비교는 이전 승인본({html._e(latest['approved_at'] or '없음')})으로 실행됐습니다. 현재 승인본으로 다시 비교하세요.</div>" if stale else "")
 
     order = {"fail": 0, "accepted": 1, "never": 2, "pass": 3}
@@ -229,10 +224,10 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
         rows.append(f"<tr data-test='{html._e(name)}' data-state='{state}'><td class='t'><b>{html._e(t['title'])}</b><small>{html._e(name)} · {len(t['steps'])}단계 · 확인 값 {t['assertions']}</small></td>"
                     f"<td class='r'>{pill}{('<small>' + summary + '</small>') if summary else ''}</td>"
                     f"<td><span class='hist'>{hist or '<span class=tid>—</span>'}</span></td><td class='n'>{html._e((t['recorded_at'] or '')[:10])}</td></tr>")
-    body = (html.head(chips, chips_id="chips", info="이 앱의 골든 시나리오와 to-be 비교 현황입니다. 칩을 누르면 그 결과의 시나리오만 남고, 행을 누르면 단계·캡처·다른 점·실행 이력이 나옵니다.",
+    help_ = html.help(info="이 앱의 골든 시나리오와 to-be 비교 현황입니다. 행을 누르면 단계·캡처·다른 점·실행 이력이 나옵니다. 표는 창 높이에 맞춰 쪽을 나눕니다.",
                       facts=[f"<b>기준 폴더</b> golden/{html._e(g['app'])}", f"<b>실행 기록</b> runs/{html._e(g['app'])} · {len(runs)}회", f"<b>확인 값</b> {sum(t['assertions'] for t in tests.values())}개"])
-            + notice +
-            f"<div class='tools'><input id='q' type='search' placeholder='시나리오 제목·ID로 찾기' aria-label='찾기'></div>"
+    body = (notice +
+            f"<div class='tools'><input id='q' type='search' placeholder='시나리오 제목·ID로 찾기' aria-label='찾기'><span class='sp'></span>{help_}</div>"
             f"<div class='tbl'><table><thead><tr><th>시나리오</th><th>마지막 결과</th><th>이력 (오래된 → 최근)</th><th>기록일</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
             f"<div class='modal' id='modal' role='dialog' aria-label='시나리오 상세'><div class='box'></div></div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
