@@ -40,8 +40,9 @@ DRAWER = re.compile(r'^\s*-\s+complementary\s+"(?P<name>(?:\\.|[^"\\])*)"')
 TAB_SEL = re.compile(r'^\s*-\s+tab\s+"(?P<name>(?:\\.|[^"\\])*)"\s+\[selected\]')
 KIND_KO = {"base": "기본", "dialog": "팝업", "drawer": "드로워", "tab": "탭", "alert": "알림"}
 # 비교 지도의 화면 상태: 다름(빨강) · 미개발(노랑, as-is에는 있는데 to-be 탐색에 없음) · 새 화면(파랑, to-be 탐색에만 있음) · 같음(초록) · 비교 안 됨
-STATUS_KO = {"diff": "as-is와 다름", "undeveloped": "to-be 탐색에서 미발견", "new": "to-be에서만 발견", "accepted": "승인된 차이", "same": "as-is와 같음", "untested": "비교 안 됨"}
-STATUS_CLS = {"diff": "bad", "undeveloped": "undev", "new": "new", "accepted": "accepted", "same": "ok", "untested": ""}
+STATUS_KO = {"diff": "as-is와 다름", "undeveloped": "to-be 탐색에서 미발견", "new": "to-be에서만 발견", "accepted": "승인된 차이", "same": "as-is와 같음", "untested": "비교 안 됨",
+             "unreached": "코드에만 있음 (탐색·시나리오 미도달)"}
+STATUS_CLS = {"diff": "bad", "undeveloped": "undev", "new": "new", "accepted": "accepted", "same": "ok", "untested": "", "unreached": "unreached"}
 
 
 def _screen_sig(snapshot: str) -> str:
@@ -242,6 +243,7 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None, asi
                {"kind": "golden", "label": "to-be 비교 (as-is 기준)", "base": f"golden/{d.name}", "unit": "테스트",
                 "asis_crawl": str(asis_crawl) if ga else None, "tobe_crawl": str(tobe_crawl) if gt else None})
     _annotate(g, tobe_routes, new_paths)
+    _add_code_routes(g, asis_crawl)  # as-is 소스가 선언한 주소가 잣대: 골든도 as-is 탐색도 닿지 않은 화면
     return g
 
 
@@ -250,7 +252,31 @@ def build_from_crawl(app: str, out_dir: Path, side: str = "asis") -> dict[str, A
     label = {"asis": "as-is 탐색", "tobe": "to-be 탐색"}.get(side, f"{side} 탐색")
     g = _build(app, _records_from_crawl(out_dir), None, {"kind": "crawl", "side": side, "label": label, "base": str(out_dir), "unit": "경로"})
     _annotate(g, None, set())
+    _add_code_routes(g, out_dir)
     return g
+
+
+def _add_code_routes(g: dict[str, Any], crawl_dir: Path | None) -> None:
+    """crawl/<app>/routes.json (eastshift routes 가 소스에서 뽑은 주소)이 있으면 잣대로 쓴다:
+    지도의 어느 라우트에도 없는 화면 주소를 회색 '코드에만 있음' 카드로 넣는다. 상태·캡처·테스트는 없다 (닿지 못했으니)."""
+    from eastshift import routes as code
+
+    data = code.load(crawl_dir / "routes.json") if crawl_dir else None
+    g["code_routes"] = None
+    if not data:
+        return
+    have = {r["path"] for r in g["routes"].values()}
+    screens = [r for r in data["routes"] if r["kind"] == "screen"]
+    missing = [r for r in screens if r["path"] not in have]
+    for r in missing:
+        rid = r["path"] if r["path"] not in g["routes"] else f"{r['path']}#code"
+        g["routes"][rid] = {"id": rid, "path": r["path"], "name": r["path"], "base": "", "states": [], "shot": "", "tests": [], "failed": False, "accepted": False,
+                            "kinds": {}, "tab": "", "status": "unreached", "asis_shot": "", "tobe_shot": "", "methods": r.get("methods", []),
+                            "evidence": [f"{r['file']}:{r['line']}", *r.get("also", [])]}
+        g["rorder"].append(rid)
+    g.setdefault("counts", {})["unreached"] = len(missing)
+    g["code_routes"] = {"src": data["src"], "file": str(crawl_dir / "routes.json"), "generated_at": data.get("generated_at"), "total": len(data["routes"]),
+                        "screens": len(screens), "reached": len(screens) - len(missing), "unreached": [r["path"] for r in missing]}
 
 
 def _annotate(g: dict[str, Any], tobe_routes: dict[str, dict[str, Any]] | None, new_paths: set[str]) -> None:
@@ -474,6 +500,33 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .toolbar input,.toolbar select{font:inherit;font-size:14px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
 .toolbar input{min-width:240px}
+/* 경로 고르기 (입력형 목록) */
+.pick{position:relative;flex:1 1 280px;max-width:460px}.pick input{width:100%;box-sizing:border-box}.pick.has input{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft)}
+.pl{position:absolute;top:100%;left:0;right:0;z-index:30;margin-top:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(15,20,19,.14);max-height:min(52vh,460px);overflow:auto}
+.pl button{display:flex;width:100%;align-items:center;gap:10px;text-align:left;padding:8px 12px;border:0;border-bottom:1px solid var(--line);background:none;cursor:pointer;font:inherit;font-size:13.5px;color:var(--ink)}
+.pl button:last-child{border-bottom:0}.pl button:hover{background:var(--accent-soft)}.pl button>span:first-child{flex:1;min-width:0}
+.pl b{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl small{display:block;font:11px var(--mono);color:var(--faint)}
+.pl .more{padding:8px 12px;font-size:12px;color:var(--faint)}
+.mh .only{font:600 12px var(--sans);padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap}.mh .only:hover{color:var(--accent);border-color:var(--accent)}
+/* 전체화면: 지도만 화면 가득. 검색·목록·칩은 숨기고 떠 있는 막대의 버튼으로 켠다 */
+.fsb{font:600 13px var(--sans);padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;white-space:nowrap}.fsb:hover{border-color:var(--accent);color:var(--accent)}
+body:not(.fs) .fsbar{display:none}
+body.fs{overflow:hidden}body.fs main{padding:0;gap:0;max-width:none}
+body.fs .pgh,body.fs .legend,body.fs .toolbar,body.fs .pane.left,body.fs .chips{display:none}
+body.fs #overview{gap:0}body.fs .stage,body.fs .stage.nol{position:fixed;inset:0;height:100vh;min-height:0;grid-template-columns:minmax(0,1fr);gap:0}
+body.fs .pane.canvas{border:0;border-radius:0}
+body.fs.tools .toolbar{display:flex;flex-wrap:nowrap;position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:40;background:var(--surface);padding:8px;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(15,20,19,.16);width:max-content;max-width:min(760px,calc(100vw - 680px))}
+body.fs.tools .toolbar .zoom,body.fs.tools .toolbar .fsb{display:none}body.fs.tools .toolbar #q{min-width:220px;width:220px}body.fs.tools .toolbar .pick{flex:none;width:440px;max-width:none}
+body.fs.tools .pane.left{display:flex;position:fixed;left:10px;top:10px;bottom:10px;width:300px;z-index:40;box-shadow:0 12px 32px rgba(15,20,19,.16)}
+body.fs.tools .pgh{display:flex;position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:40;background:var(--surface);padding:8px;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(15,20,19,.16);width:max-content;max-width:min(760px,calc(100vw - 680px))}
+body.fs.tools .chips{display:flex;justify-content:center}
+@media (max-width:1180px){body.fs.tools .toolbar,body.fs.tools .chips{left:322px;transform:none;max-width:calc(100vw - 660px)}}
+@media (max-width:900px){body.fs.tools .toolbar,body.fs.tools .chips{left:322px;max-width:calc(100vw - 340px);flex-wrap:wrap}body.fs.tools .chips{top:auto;bottom:10px}}
+.fsbar{position:fixed;top:10px;right:10px;z-index:50;display:flex;gap:6px;align-items:center;background:var(--surface);padding:6px;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(15,20,19,.16)}
+.fsbar button{font:600 13px var(--sans);padding:6px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;white-space:nowrap}
+.fsbar button:hover{border-color:var(--accent);color:var(--accent)}.fsbar button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.fsbar .sep{width:1px;height:20px;background:var(--line);margin:0 2px}
+body.fs .detail{padding:16px 20px 60px;max-width:none}
 .zoom{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-left:auto}
 .zoom button{border:0;background:var(--surface);color:var(--ink);font:600 14px var(--sans);padding:7px 13px;cursor:pointer}
 .zoom button+button{border-left:1px solid var(--line)}.zoom button:hover{background:var(--sunk)}
@@ -491,7 +544,7 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .list{overflow:auto;padding:6px}
 .row{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer;border:0;background:none;text-align:left;font:inherit;color:inherit;width:100%}
 .row:hover{background:var(--sunk)}.row.sel{background:var(--accent-soft)}
-.row .dot{width:10px;height:10px;border-radius:50%;background:var(--line)}.row .dot.ok{background:var(--ok)}.row .dot.bad{background:var(--bad)}.row .dot.undev{background:var(--warn)}.row .dot.new{background:var(--new)}.row .dot.accepted{background:var(--accent)}
+.row .dot{width:10px;height:10px;border-radius:50%;background:var(--line);visibility:hidden}.row .dot.ok,.row .dot.bad,.row .dot.undev,.row .dot.new,.row .dot.accepted,.row .dot.unreached{visibility:visible}.row .dot.ok{background:var(--ok)}.row .dot.bad{background:var(--bad)}.row .dot.undev{background:var(--warn)}.row .dot.new{background:var(--new)}.row .dot.accepted{background:var(--accent)}
 .row .nm{font-size:14px;font-weight:600;line-height:1.25;min-width:0}.row .nm small{display:block;font:400 12px var(--mono);color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .ct{font:12px var(--mono);color:var(--faint);text-align:right;line-height:1.3}.row.dim{opacity:.35}
 
@@ -511,6 +564,10 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .node.dim{opacity:.28}
 .node .strip{height:5px;background:var(--line)}.node.ok .strip{background:var(--ok)}.node.bad .strip{background:var(--bad)}.node.undev .strip{background:var(--warn)}.node.new .strip{background:var(--new)}.node.accepted .strip{background:var(--accent)}
 .node.bad{border-color:var(--bad)}.node.undev{border-color:var(--warn)}.node.new{border-color:var(--new)}.node.ok{border-color:var(--ok)}.node.accepted{border-color:var(--accent)}
+.node.unreached{border-style:dashed;border-color:var(--faint);background:var(--sunk)}.node.unreached .strip{background:var(--faint)}.node.unreached .tag{background:var(--faint)}
+.row .dot.unreached{background:var(--faint)}.legend i.unreached{background:var(--faint)}.pill.unreached{background:var(--sunk);color:var(--muted)}
+/* 머리의 칩: 상태별 개수, 누르면 거르기 */
+@media (max-width:760px){.chips{grid-row:auto;grid-column:1;justify-content:flex-start;max-width:none}}
 .node .chrome{display:flex;gap:4px;padding:6px 10px 0}.node .chrome i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}
 .node .th{margin:5px 8px 0;height:__TH__px;border-radius:6px;overflow:hidden;background:#fff;border:1px solid var(--line);position:relative}
 .node .th img{width:150%;max-width:none;display:block}
@@ -606,25 +663,26 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 @media (max-width:760px){.stage,.stage.nol{grid-template-columns:1fr}.pane.left{max-height:40vh}.detail .dh{flex-direction:column;gap:10px}}
 """.replace("__CW__", str(CARD_W)).replace("__CH__", str(CARD_H)).replace("__TH__", str(THUMB_H)).replace("__MW__", "150").replace("__MH__", "116").replace("__MT__", "72")
 
-MAP_JS = r"""<script>
-const G = JSON.parse(document.getElementById('g').textContent);
+MAP_JS = r"""
+const $ = s => root.querySelector(s), $$ = s => root.querySelectorAll(s);
+const G = JSON.parse($('#g').textContent);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shot = id => G.shots[id] || '';
 const routeName = rid => esc(G.routes[rid].name);
 const stateName = sid => { const n = G.nodes[sid]; const base = n.kind === 'base' ? (n.label || '기본') : `${G.kind_ko[n.kind]} · ${n.label}`; return esc(base) + (n.variant ? ` ${n.variant}` : ''); };
-const stage = document.getElementById('stage'), overview = document.getElementById('overview'), detail = document.getElementById('detail'), lb = document.getElementById('lb'), modal = document.getElementById('modal');
+const stage = $('#stage'), overview = $('#overview'), detail = $('#detail'), lb = $('#lb'), modal = $('#modal');
 const testByName = Object.fromEntries(G.tests.map(t => [t.name, t]));
 const redgeBetween = (a, b) => G.redges.find(e => e.src === a && e.dst === b);
 let current = null, currentState = null;
 
-const SCLS = {diff:'bad', undeveloped:'undev', new:'new', accepted:'accepted', same:'ok', untested:''};
+const SCLS = {diff:'bad', undeveloped:'undev', new:'new', accepted:'accepted', same:'ok', untested:'', unreached:'unreached'};
 function rstatus(r){ return SCLS[r.status] || ''; }
 function statusPill(r){ const c = SCLS[r.status]; return c ? `<span class="pill ${c === 'undev' || c === 'accepted' ? 'warn' : c}">${esc(G.status_ko[r.status])}</span>` : ''; }
 function openLb(src, cap){ if(!src) return; lb.querySelector('img').src = src; lb.querySelector('.cap').textContent = cap || ''; lb.classList.add('on'); }
 lb.addEventListener('click', () => lb.classList.remove('on'));
 function closeModal(){ modal.classList.remove('on'); currentState = null; }
 modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
-addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else if(modal.classList.contains('on')) closeModal(); else if(!detail.hidden) back(); });
+ctx.listen(window, 'keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else if(modal.classList.contains('on')) closeModal(); else if(!detail.hidden) back(); else if(root.classList.contains('fs') && !document.fullscreenElement) exitFs(); });
 
 const routeRow = (rid, act, here) => `<a class="route ${here ? 'here' : ''}" ${here ? '' : `data-go="${rid}"`}><span class="act">${esc(act)}</span><span class="nm">${routeName(rid)}</span><span class="path">${esc(G.routes[rid].path)}</span></a>`;
 
@@ -671,7 +729,7 @@ function show(rid, sid){
   current = rid; currentState = sid && r.states.includes(sid) ? sid : null;
   overview.hidden = true; detail.hidden = false;
   const st = rstatus(r), path = G.paths[rid] || [rid], outs = G.redges.filter(e => e.src === rid);
-  const focus = currentState ? G.nodes[currentState] : G.nodes[r.base];
+  const focus = currentState ? G.nodes[currentState] : (G.nodes[r.base] || {shot: '', visits: [], tests: []});  // 코드에만 있는 주소는 상태가 없다
   const kinds = Object.entries(r.kinds).map(([k, n]) => `<span class="kd ${k}">${G.kind_ko[k]} ${n}</span>`).join('');
   let h = `<div class="dh"><a class="back" href="#" data-back>← 지도</a><div><h3>${routeName(rid)}${currentState ? ` <span style="color:var(--muted);font-weight:500">› ${stateName(currentState)}</span>` : ''}</h3><div class="sub"><span>${esc(r.path)}</span>`
     + statusPill(r)
@@ -680,8 +738,10 @@ function show(rid, sid){
   const both = !currentState && r.asis_shot && r.tobe_shot && r.asis_shot !== r.tobe_shot;
   const mainShot = currentState ? focus.shot : (r.shot || focus.shot), mainCap = currentState ? stateName(focus.id) : (r.tobe_shot && r.shot === r.tobe_shot ? 'to-be' : 'as-is');
   h += both ? `<div class="side"><button type="button" data-side="${r.tobe_shot}" data-capn="to-be" class="${mainShot === r.tobe_shot ? 'on' : ''}">to-be 캡처</button><button type="button" data-side="${r.asis_shot}" data-capn="as-is" class="${mainShot === r.asis_shot ? 'on' : ''}">as-is 캡처</button></div>` : '';
-  h += mainShot ? `<div class="prev" title="크게 보기" data-lb="${mainShot}" data-cap="${mainCap}"><img src="${shot(mainShot)}" alt="${routeName(rid)} 화면"><span class="cap">${mainCap}</span></div>` : `<div class="empty">캡처 없음</div>`;
-  if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개 · 누르면 그 상태의 캡처와 ${G.unit}</span></h4>${miniGraph(rid)}</div>`;
+  h += mainShot ? `<div class="prev" title="크게 보기" data-lb="${mainShot}" data-cap="${mainCap}"><img src="${shot(mainShot)}" alt="${routeName(rid)} 화면"><span class="cap">${mainCap}</span></div>` : `<div class="empty">${r.status === 'unreached' ? '닿지 못한 화면 · 캡처 없음' : '캡처 없음'}</div>`;
+  if(r.status === 'unreached') h += `<div class="sec"><h4>코드 위치 <span>${(r.evidence || []).length}곳${r.methods && r.methods.length ? ' · ' + r.methods.join(',') : ''}</span></h4><div class="tid">${(r.evidence || []).map(esc).join('<br>')}</div>`
+    + `<p class="tid" style="margin-top:8px">소스 코드가 선언한 주소인데 어떤 탐색 경로·시나리오도 여기에 닿지 않았습니다. 막은 것이 무엇인지 확인하세요: 픽스처 값이 없는 입력칸, 금지 목록(deny)에 걸린 버튼, 로그인·권한, 특정 데이터가 있어야 보이는 화면, 탐색 예산(상태·동작·깊이). 그래도 갈 수 없는 화면이면 소스에서 실제로 쓰이는지 봅니다.</p></div>`;
+  else if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개 · 누르면 그 상태의 캡처와 ${G.unit}</span></h4>${miniGraph(rid)}</div>`;
   else h += `<div class="sec"><h4>이 화면 안의 상태</h4><div class="tid">기본 상태뿐 (팝업·드로워·탭 없음)</div></div>`;
   h += `</div><div class="col">`;
   if(G.paths[rid]) h += `<div class="sec"><h4>시작에서 오는 길 <span>${path.length - 1}번 이동</span></h4><div class="routes">`
@@ -701,17 +761,17 @@ function show(rid, sid){
   detail.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, rid)));
   detail.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => openState(rid, b.dataset.state)));
   detail.querySelectorAll('[data-side]').forEach(b => b.addEventListener('click', () => { const pv = detail.querySelector('.prev'); if(!pv) return; pv.querySelector('img').src = shot(b.dataset.side); pv.querySelector('.cap').textContent = b.dataset.capn; pv.dataset.lb = b.dataset.side; pv.dataset.cap = b.dataset.capn; detail.querySelectorAll('[data-side]').forEach(x => x.classList.toggle('on', x === b)); }));
-  scrollTo({top: 0});
+  root.scrollTo({top: 0});
 }
-function back(){ if(location.hash && location.hash !== '#') location.hash = ''; else showOverview(); }
+function back(){ if(ctx.getSub()) ctx.setSub(''); else showOverview(); }
 function showOverview(){
   current = null; currentState = null;
   detail.hidden = true; overview.hidden = false;
-  document.querySelectorAll('.node.sel, .row.sel').forEach(el => el.classList.remove('sel'));
+  $$('.node.sel, .row.sel').forEach(el => el.classList.remove('sel'));
   fit();
 }
 function route(){
-  const [h0, h1] = (location.hash || '').slice(1).split('/').map(x => { try { return decodeURIComponent(x); } catch(e) { return x; } });  // 라우트 id에 /가 있어 먼저 나누고 푼다
+  const [h0, h1] = (ctx.getSub() || '').split('/').map(x => { try { return decodeURIComponent(x); } catch(e) { return x; } });  // 라우트 id에 /가 있어 먼저 나누고 푼다. 통합 화면에서는 해시의 뒷부분
   if(G.routes[h0]){ const keep = detail.querySelector('.mini') ? detail.querySelector('.mini').scrollLeft : 0; show(h0, h1 || null); const m = detail.querySelector('.mini'); if(m) m.scrollLeft = keep; }
   else showOverview();
 }
@@ -742,7 +802,7 @@ function openTest(name, hereRid){
   const test = testByName[name]; if(!test) return;
   const hereSteps = new Set(test.seq.filter(s => currentState ? s.node === currentState : s.route === hereRid).map(s => s.index));
   const pill = test.status === 'fail' ? '<span class="pill bad">as-is와 다름</span>' : test.status === 'accepted' ? '<span class="pill warn">승인된 차이</span>' : test.status === 'pass' ? '<span class="pill ok">as-is와 같음</span>' : '';
-  let h = `<div class="mh"><div><b>${esc(test.title)}</b><small>${esc(name)} · ${test.seq.length}단계</small></div>${pill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb">`;
+  let h = `<div class="mh"><div><b>${esc(test.title)}</b><small>${esc(name)} · ${test.seq.length}단계</small></div>${pill}<button type="button" class="only" data-only="${esc(name)}" title="지도에서 이 ${G.unit}가 지나는 화면만 남긴다">지도에서 이 ${G.unit}만</button><button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb">`;
   h += `<div class="film">` + test.seq.map(s => `<button type="button" class="${hereSteps.has(s.index) ? 'here' : ''} ${s.failed ? 'fail' : ''}" data-lb="${s.shot}" data-cap="${esc(s.index + 1)}단계 · ${esc(s.action)}" title="${esc(s.action)}">`
       + (s.shot ? `<img src="${shot(s.shot)}" alt="">` : '') + `<span class="k">${s.index + 1}</span><span class="cap">${esc(s.action)}</span></button>`).join('') + `</div>`;
   h += `<div class="steps">` + test.seq.map(s => {
@@ -759,45 +819,98 @@ function openTest(name, hereRid){
   modal.querySelector('#closeModal').addEventListener('click', closeModal);
   modal.querySelectorAll('[data-lb]').forEach(b => b.addEventListener('click', () => openLb(shot(b.dataset.lb), b.dataset.cap)));
 }
-function go(rid, sid){ const h = encodeURIComponent(rid) + (sid ? '/' + encodeURIComponent(sid) : ''); if(location.hash === '#' + h) route(); else location.hash = h; }
-document.querySelectorAll('.node, .row').forEach(el => el.addEventListener('click', () => go(el.dataset.id)));
-document.querySelectorAll('.node').forEach(el => {
-  el.addEventListener('mouseenter', () => document.querySelectorAll('.edge').forEach(e => e.classList.toggle('dim', e.dataset.src !== el.dataset.id && e.dataset.dst !== el.dataset.id)));
-  el.addEventListener('mouseleave', () => document.querySelectorAll('.edge').forEach(e => e.classList.remove('dim')));
+function go(rid, sid){ const h = encodeURIComponent(rid) + (sid ? '/' + encodeURIComponent(sid) : ''); if(ctx.getSub() === h) route(); else ctx.setSub(h); }
+$$('.node, .row').forEach(el => el.addEventListener('click', () => go(el.dataset.id)));
+$$('.node').forEach(el => {
+  el.addEventListener('mouseenter', () => $$('.edge').forEach(e => e.classList.toggle('dim', e.dataset.src !== el.dataset.id && e.dataset.dst !== el.dataset.id)));
+  el.addEventListener('mouseleave', () => $$('.edge').forEach(e => e.classList.remove('dim')));
 });
 /* 왼쪽 목록 접기 */
-document.getElementById('tl').addEventListener('click', () => { stage.classList.toggle('nol'); document.getElementById('tl').textContent = stage.classList.contains('nol') ? '›' : '‹'; fit(); });
+$('#tl').addEventListener('click', () => { stage.classList.toggle('nol'); $('#tl').textContent = stage.classList.contains('nol') ? '›' : '‹'; fit(); });
 /* 검색·거르기 */
-const q = document.getElementById('q'), f = document.getElementById('f');
+const q = $('#q'), f = $('#f'), pl = $('#pl'), pick = $('#pick');
+let stFilter = '', tFilter = '';  // 머리 칩으로 고른 상태, 고른 경로(테스트) 이름 ('' = 전부)
 function filter(){
-  const s = q.value.trim().toLowerCase(), t = f.value;
+  const s = q.value.trim().toLowerCase(), t = tFilter;
   const keep = new Set();
   for(const [rid, r] of Object.entries(G.routes)){
     const text = [r.name, r.path, ...r.states.map(x => G.nodes[x].label)].join(' ').toLowerCase();
-    if((!s || text.includes(s)) && (!t || r.tests.includes(t))) keep.add(rid);
+    if((!s || text.includes(s)) && (!t || r.tests.includes(t)) && (!stFilter || r.status === stFilter)) keep.add(rid);
   }
-  document.querySelectorAll('.node, .row').forEach(el => el.classList.toggle('dim', !keep.has(el.dataset.id)));
-  document.querySelectorAll('.edge').forEach(el => el.classList.toggle('dim', !(keep.has(el.dataset.src) && keep.has(el.dataset.dst)) || (t && !el.dataset.tests.split('|').includes(t))));
+  $$('.node, .row').forEach(el => el.classList.toggle('dim', !keep.has(el.dataset.id)));
+  $$('.edge').forEach(el => el.classList.toggle('dim', !(keep.has(el.dataset.src) && keep.has(el.dataset.dst)) || (t && !el.dataset.tests.split('|').includes(t))));
 }
-q.addEventListener('input', filter); f.addEventListener('change', filter);
+q.addEventListener('input', filter);
+/* 경로 고르기: 입력하면 제목·이름·지나는 화면 이름으로 맞는 경로 목록, 고르면 그 경로가 지나는 화면만 남는다. 비우면 해제 */
+const statusWord = t => t.status === 'fail' ? '<span class="pill bad">다름</span>' : t.status === 'accepted' ? '<span class="pill warn">승인된 차이</span>' : t.status === 'pass' ? '<span class="pill ok">같음</span>' : '';
+function pickList(){
+  const s = f.value.trim().toLowerCase();
+  const hits = G.tests.filter(t => !s || [t.title, t.name, ...t.seq.map(x => G.routes[x.route] ? G.routes[x.route].name : '')].join(' ').toLowerCase().includes(s));
+  const show = hits.slice(0, 40);
+  pl.innerHTML = show.map(t => `<button type="button" data-pick="${esc(t.name)}"><span><b>${esc(t.title)}</b><small>${esc(t.name)} · ${t.seq.length}단계</small></span>${statusWord(t)}</button>`).join('')
+    + (hits.length > show.length ? `<div class="more">${hits.length - show.length}개 더 · 더 입력해 좁히세요</div>` : (hits.length ? '' : '<div class="more">맞는 경로가 없습니다</div>'));
+  pl.hidden = false;
+}
+function pickTest(name){
+  tFilter = name; const t = testByName[name];
+  f.value = t ? t.title : ''; pl.hidden = true; pick.classList.toggle('has', !!tFilter);
+  if(tFilter && !detail.hidden) back();
+  filter();
+}
+f.addEventListener('input', () => { if(tFilter){ tFilter = ''; pick.classList.remove('has'); filter(); } pickList(); });
+f.addEventListener('focus', pickList);
+f.addEventListener('keydown', e => { if(e.key === 'Escape'){ e.stopPropagation(); pl.hidden = true; f.blur(); } if(e.key === 'Enter'){ const b = pl.querySelector('[data-pick]'); if(b) pickTest(b.dataset.pick); } });
+pl.addEventListener('mousedown', e => { const b = e.target.closest('[data-pick]'); if(b){ e.preventDefault(); pickTest(b.dataset.pick); } });
+ctx.listen(document, 'click', e => { if(!e.target.closest('#pick')) pl.hidden = true; });
+modal.addEventListener('click', e => { const b = e.target.closest('[data-only]'); if(b){ closeModal(); pickTest(b.dataset.only); } });
+const chipBtns = [...$$('#chips .fchip[data-st]')];  // 머리가 출처 바로 옮겨져도 (root 밖) 같은 요소를 다룬다
+chipBtns.forEach(b => b.addEventListener('click', () => {
+  stFilter = (b.dataset.st && stFilter !== b.dataset.st) ? b.dataset.st : '';
+  chipBtns.forEach(x => x.classList.toggle('on', x.dataset.st === stFilter));
+  if(!detail.hidden) back();
+  filter();
+}));
 /* 확대·축소·끌기 */
-const inner = document.getElementById('inner'), holder = document.getElementById('holder'), cv = document.getElementById('canvas');
+const inner = $('#inner'), holder = $('#holder'), cv = $('#canvas');
 const W = +inner.dataset.w, H = +inner.dataset.h; let z = 1;
 function zoom(v){ z = Math.max(0.3, Math.min(1.6, v)); inner.style.transform = `scale(${z})`; holder.style.width = W * z + 'px'; holder.style.height = H * z + 'px'; }
 function fit(){ requestAnimationFrame(() => zoom(Math.min(1, Math.max(0.7, (cv.clientWidth - 24) / W)))); }
-document.getElementById('zf').onclick = fit; document.getElementById('zi').onclick = () => zoom(z + 0.15); document.getElementById('zo').onclick = () => zoom(z - 0.15);
+$('#zf').onclick = fit; $('#zi').onclick = () => zoom(z + 0.15); $('#zo').onclick = () => zoom(z - 0.15);
 let drag = null;
 cv.addEventListener('mousedown', e => { if(e.target.closest('.node')) return; drag = {x: e.clientX, y: e.clientY, l: cv.scrollLeft, t: cv.scrollTop}; cv.classList.add('drag'); });
-addEventListener('mousemove', e => { if(!drag) return; cv.scrollLeft = drag.l - (e.clientX - drag.x); cv.scrollTop = drag.t - (e.clientY - drag.y); });
-addEventListener('mouseup', () => { drag = null; cv.classList.remove('drag'); });
+ctx.listen(window, 'mousemove', e => { if(!drag) return; cv.scrollLeft = drag.l - (e.clientX - drag.x); cv.scrollTop = drag.t - (e.clientY - drag.y); });
+ctx.listen(window, 'mouseup', () => { drag = null; cv.classList.remove('drag'); });
 cv.addEventListener('wheel', e => { if(!e.ctrlKey && !e.metaKey) return; e.preventDefault(); zoom(z - Math.sign(e.deltaY) * 0.1); }, {passive: false});
 fit(); addEventListener('resize', fit);
-addEventListener('hashchange', route);
+/* 전체화면: 브라우저 전체화면(허용되면) + 지도만 남기는 배치. 검색·목록·칩은 '검색·목록' 버튼으로 켠다 */
+function setTools(on){ root.classList.toggle('tools', on); $('#fst').classList.toggle('on', on); if(on) q.focus(); }  // 버튼 표시와 실제 상태를 늘 같이 바꾼다
+// 머리(상태 칩 + (i))는 통합 화면 안에서는 출처 바 오른쪽(ctx.slot)에 놓고, 전체화면에서는 조각 안으로 되돌린다 (fs 배치 CSS 가 조각 안 기준)
+const pgh = $('.pgh');
+function placeHead(inside){ if(!pgh) return; if(!inside && ctx.slot) ctx.slot.appendChild(pgh); else if(!root.contains(pgh)) root.querySelector('main').prepend(pgh); }
+placeHead(false);
+function enterFs(){
+  placeHead(true); root.classList.add('fs'); setTools(false);
+  const el = document.documentElement;
+  if(el.requestFullscreen && !document.fullscreenElement) el.requestFullscreen().catch(() => {});  // iframe 이 허용하지 않으면 배치만 바꾼다
+  setTimeout(fit, 60);
+}
+function exitFs(){
+  root.classList.remove('fs'); setTools(false); placeHead(false);
+  if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  setTimeout(fit, 60);
+}
+$('#fsb').onclick = enterFs;
+$('#fsx').onclick = exitFs;
+$('#fst').onclick = () => setTools(!root.classList.contains('tools'));
+$('#fzf').onclick = fit; $('#fzi').onclick = () => zoom(z + 0.15); $('#fzo').onclick = () => zoom(z - 0.15);
+ctx.listen(document, 'fullscreenchange', () => { if(!document.fullscreenElement && root.classList.contains('fs')) exitFs(); else setTimeout(fit, 60); });
+ctx.onSub(route);
 route();
-</script>"""
+"""
 
 
-def render(g: dict[str, Any]) -> str:
+def fragment(g: dict[str, Any]) -> dict[str, Any]:
+    """화면 지도 조각 (html.fragment 형식). 통합 화면이 iframe 없이 끼운다."""
     pos, paths = layout(g["rorder"], g["redges"], g["start"])
     g["paths"] = paths
     ncol = max((c for c, _ in pos.values()), default=0) + 1
@@ -839,14 +952,15 @@ def render(g: dict[str, Any]) -> str:
            "</defs>" + "".join(parts) + "</svg>")
 
     unit = g["unit"]
-    tags = {"diff": "다름", "undeveloped": "탐색 미발견", "new": "to-be에서만 발견", "accepted": "승인된 차이"}
+    tags = {"diff": "다름", "undeveloped": "탐색 미발견", "new": "to-be에서만 발견", "accepted": "승인된 차이", "unreached": "코드에만 있음"}
     cards, rows = [], []
     for rid in g["rorder"]:
         r, (x, y) = g["routes"][rid], xy[rid]
         st = STATUS_CLS.get(r.get("status", "untested"), "")
         tag = "<span class='tag'>시작</span>" if rid == g["start"] else (f"<span class='tag'>{tags[r['status']]}</span>" if r.get("status") in tags else "")
         thumb = f"<img src='{g['shots'][r['shot']]}' alt='' loading='lazy'>" if r["shot"] else "<span class='no'>캡처 없음</span>"
-        kinds = "".join(f"<span class='kd {k}'>{KIND_KO[k]} {n}</span>" for k, n in r["kinds"].items()) or "<span class='kd'>기본만</span>"
+        kinds = ("<span class='kd'>탐색·시나리오 미도달</span>" if r.get("status") == "unreached"
+                 else "".join(f"<span class='kd {k}'>{KIND_KO[k]} {n}</span>" for k, n in r["kinds"].items()) or "<span class='kd'>기본만</span>")
         cards.append(f"<button class='node {st}' data-id='{html._e(rid)}' style='left:{x}px;top:{y}px' type='button' title='{html._e(r['name'])} {html._e(r['path'])}'>"
                      f"<div class='strip'></div><div class='chrome'><i></i><i></i><i></i></div><div class='th'>{thumb}</div>{tag}"
                      f"<div class='body'><div class='nm'>{html._e(r['name'])}</div><div class='kinds'>{kinds}</div></div>"
@@ -859,48 +973,53 @@ def render(g: dict[str, Any]) -> str:
     src, unit = g["source"], g["unit"]
     c = g.get("counts", {})
     has_tobe = bool(src.get("tobe_crawl"))
-    if src["kind"] == "crawl":
-        who = "as-is" if src.get("side") == "asis" else "to-be"
-        stamp, lede = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}"), f"{who}를 탐색(eastshift crawl)해 찾은 화면(주소)을 이은 지도입니다. 시나리오나 비교와 무관하게 {who}에 무엇이 있는지 봅니다. 화면을 누르면 상세 페이지로 넘어가 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 탐색 경로를 봅니다."
-    else:
-        base = "as-is(승인된 골든 시나리오" + (" + as-is 탐색" if src.get("asis_crawl") else "") + ")을 기준으로 to-be를 견준 지도입니다. "
-        how = ("빨강 = 비교 실행에서 다른 화면, 노랑 = to-be 탐색에서 못 찾은 화면(미개발 확정 아님), 파랑 = to-be 탐색에서만 찾은 화면. "
-               "탐색에서 못 찾은 화면은 직접 접속해 확인하세요. " if has_tobe
-               else "to-be 탐색 결과가 없어 빠진 화면이나 추가 화면은 판단하지 못했습니다. ")
-        if not g["compared"]:
-            how += " 비교 실행을 고르면 다르게 동작한 화면이 빨갛게 표시됩니다."
-        parts = [f"다름 {c['diff']}" for _ in [0] if c.get("diff")] + [f"탐색 미발견 {c['undeveloped']}" for _ in [0] if c.get("undeveloped")] + [f"승인된 차이 {c['accepted']}" for _ in [0] if c.get("accepted")] + [f"to-be에서만 발견 {c['new']}" for _ in [0] if c.get("new")]
-        if parts:
-            stamp = ("bad" if c.get("diff") else "warn", " · ".join(parts), f"전체 {len(g['routes'])}개 중")
-        elif g["compared"]:
-            stamp = ("ok", "모두 같음", f"화면 {len(g['routes'])}개")
-        else:
-            stamp = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}")
-        lede = base + how
-    opts = "".join(f"<option value='{html._e(t['name'])}'>{html._e(t['title'])}</option>" for t in g["tests"])
+    cr = g.get("code_routes")
+    n_found = len(g["routes"]) - c.get("unreached", 0)
+    # 머리의 칩: 화면 수와 상태별 개수. 누르면 그 상태의 화면만 남긴다 (다시 누르면 해제). 마지막 칩은 소스 라우트 대조 결과(정보만)
+    chip_order = [("diff", "다름"), ("undeveloped", "탐색 미발견"), ("new", "to-be에서만"), ("accepted", "승인된 차이"), ("same", "같음"), ("unreached", "코드에만 있음")]
+    chips = [f"<button type='button' class='fchip all on' data-st=''>화면<b>{n_found}</b></button>"]
+    chips += [f"<button type='button' class='fchip {STATUS_CLS[k]}' data-st='{k}' title='{html._e(STATUS_KO[k])}'><i></i>{label}<b>{c[k]}</b></button>"
+              for k, label in chip_order if c.get(k) and (k != "same" or g["compared"])]
+    if cr:
+        chips.append(f"<span class='fchip info' title='eastshift routes 가 소스에서 뽑은 화면 주소와 대조'>소스 화면 {cr['screens']} 중 {cr['reached']} 도달</span>")
     legend = ("<div class='legend'><span><i class='st'></i>시작 화면</span>"
               + ("<span><i class='ok'></i>as-is와 같음</span><span><i class='bad'></i>as-is와 다름</span>" if g["compared"] else "")
               + ("<span><i class='undev'></i>to-be 탐색에서 미발견</span><span><i class='new'></i>to-be에서만 발견</span>" if has_tobe else "")
+              + ("<span><i class='unreached'></i>코드에만 있음 (탐색·시나리오 미도달)</span>" if cr else "")
               + "<span><span class='ln'></span>동작 → 다음 화면</span><span><span class='ln back'></span>되돌아가기</span>"
               "<span><span class='kd dialog'>팝업</span><span class='kd drawer'>드로워</span><span class='kd tab'>탭</span> 화면 안의 상태</span></div>")
-    body = (f"<header class='head'><div class='eyebrow'>화면 지도 · {html._e(src['label'])}</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
-            f"<h1>{html._e(g['app'])}</h1><p class='lede'>{lede}</p>"
-            f"<div class='prov'><span><b>기준</b> {html._e(src['base'])}</span>"
-            + (f"<span><b>비교 대상</b> {html._e(g['target'])}</span>" if g["target"] else "")
-            + (f"<span><b>to-be 탐색</b> {html._e(src['tobe_crawl'])}</span>" if has_tobe else "")
-            + (f"<span><b>as-is 탐색</b> {html._e(src['asis_crawl'])}</span>" if src.get("asis_crawl") else "")
-            + f"<span><b>{unit}</b> {len(g['tests'])}개</span><span><b>상태</b> {n_states}개</span></div></header><div id='overview'>{legend}"
+    facts = [f"<b>출처</b> {html._e(src['label'])}", f"<b>기준</b> {html._e(src['base'])}"]
+    if g["target"]:
+        facts.append(f"<b>비교 대상</b> {html._e(g['target'])}")
+    if has_tobe:
+        facts.append(f"<b>to-be 탐색</b> {html._e(src['tobe_crawl'])}")
+    if src.get("asis_crawl"):
+        facts.append(f"<b>as-is 탐색</b> {html._e(src['asis_crawl'])}")
+    if cr:
+        facts.append(f"<b>소스 라우트</b> {html._e(cr['src'])} · 화면 {cr['screens']}개 중 {cr['reached']} 도달")
+    facts += [f"<b>{unit}</b> {len(g['tests'])}개", f"<b>상태</b> {n_states}개"]
+    info = ("화면(주소)을 이은 지도입니다. 화면을 누르면 상세 페이지로 넘어가 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 " + unit + "를 봅니다. "
+            + ("빨강 = 비교 실행에서 다른 화면, 노랑 = to-be 탐색에서 못 찾은 화면(미개발 확정 아님), 파랑 = to-be 탐색에서만 찾은 화면. " if src["kind"] != "crawl" else "")
+            + ("회색 = 소스 코드에는 선언돼 있는데 어떤 탐색·시나리오도 닿지 않은 주소(eastshift routes)." if cr else ""))
+    body = (html.head(chips, chips_id="chips", info=info, facts=facts, extra=legend) + "<div id='overview'>"
             f"<div class='toolbar'><input id='q' type='search' placeholder='화면 이름·주소·팝업 이름으로 찾기' aria-label='화면 찾기'>"
-            f"<select id='f' aria-label='{unit}로 거르기'><option value=''>모든 {unit}</option>{opts}</select>"
-            f"<span class='zoom'><button type='button' id='zo' aria-label='축소'>－</button><button type='button' id='zf'>맞춤</button><button type='button' id='zi' aria-label='확대'>＋</button></span></div>"
+            f"<div class='pick' id='pick'><input id='f' type='search' placeholder='{unit} 찾기 · 제목이나 지나는 화면 이름' aria-label='{unit}로 거르기' autocomplete='off'><div class='pl' id='pl' hidden></div></div>"
+            f"<span class='zoom'><button type='button' id='zo' aria-label='축소'>－</button><button type='button' id='zf'>맞춤</button><button type='button' id='zi' aria-label='확대'>＋</button></span>"
+            f"<button type='button' class='fsb' id='fsb' title='지도만 화면 가득. 검색·목록은 버튼으로 켠다'>⛶ 전체화면</button></div>"
+            f"<div class='fsbar' id='fsbar'><button type='button' id='fst' title='검색·화면 목록·상태 칩 보이기/숨기기'>검색·목록</button><span class='sep'></span>"
+            f"<button type='button' id='fzo' aria-label='축소'>－</button><button type='button' id='fzf'>맞춤</button><button type='button' id='fzi' aria-label='확대'>＋</button><span class='sep'></span>"
+            f"<button type='button' id='fsx' title='전체화면 나가기 (Esc)'>나가기</button></div>"
             f"<div class='stage' id='stage'><div class='pane left'><h2><span>화면 {len(g['routes'])}개</span><button class='ib' id='tl' type='button' aria-label='목록 접기'>‹</button></h2><div class='list'>{''.join(rows)}</div></div>"
             f"<div class='pane canvas' id='canvas'><div id='holder' style='position:relative;width:{w}px;height:{hgt}px'>"
             f"<div id='inner' data-w='{w}' data-h='{hgt}' style='position:absolute;left:0;top:0;width:{w}px;height:{hgt}px;transform-origin:0 0'>{svg}{''.join(cards)}</div></div></div>"
             f"</div></div><section class='detail' id='detail' aria-live='polite' hidden></section>"
             f"<div class='modal' id='modal' role='dialog' aria-label='시나리오 상세'><div class='box'></div></div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
-    data = json.dumps(g, ensure_ascii=False).replace("</", "<\\/")
-    page = html._page(f"{g['app']} 화면 지도 · {src['label']}", body, script=f"<script type='application/json' id='g'>{data}</script>{MAP_JS}")
-    return page.replace("</style>", MAP_CSS + "</style>", 1)
+    return html.fragment("map", f"{g['app']} Screen Map · {src['label']}", body, css=MAP_CSS, js=MAP_JS, data=("g", g))
+
+
+def render(g: dict[str, Any]) -> str:
+    """혼자 열리는 문서 (테스트, /page/… 직접 접속). 통합 화면은 fragment() 를 끼운다."""
+    return html.assemble(fragment(g))
 
 

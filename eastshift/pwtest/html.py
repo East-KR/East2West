@@ -1,5 +1,5 @@
 """검증 보고서 화면(render_report)과 다른 화면들이 같이 쓰는 조각: 페이지 틀(_page, CSS), 단계 요약(_action, _seen), 다른 점 표(rows_for), 캡처(_shot).
-화면은 전부 통합 화면(eastshift ui, hub.py)이 요청 때 만들어 iframe 에 넣는다. 승인 검토는 review.py, 골든 관리는 catalog.py, 화면 지도는 map.py.
+화면은 전부 통합 화면(eastshift ui, hub.py)이 요청 때 조각(fragment: html·css·js)으로 만들어 한 문서 안에 끼운다 (iframe 없음). 시나리오 승인는 review.py, 골든 관리는 catalog.py, 화면 지도는 map.py.
 
 원칙: 결론 먼저, 문장은 짧게, "무엇이 · 기준 · 실제"만. 원본 로그는 접어 둔다.
 디자인: 검수 서류. 차분한 청록 회색 바탕, 상태는 도장(stamp)과 점 표시, 값은 고정폭 숫자. 라이트/다크 모두.
@@ -46,6 +46,46 @@ a{color:var(--accent)}
 transform:rotate(-2deg);font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.02em}
 .stamp small{display:block;font-size:11.5px;font-weight:500;letter-spacing:0;opacity:.85}
 .stamp.ok{color:var(--ok);background:var(--ok-soft)}.stamp.warn{color:var(--warn);background:var(--warn-soft)}.stamp.bad{color:var(--bad);background:var(--bad-soft)}
+
+/* 페이지 머리 + 칩: 통합 화면의 네 탭이 같은 언어를 쓴다. 칩 = 상태 한 줄 요약, 누를 수 있으면 거르기 */
+.pgh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pgh .chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex:1;min-width:0}
+/* (i) 설명: 제목·출처·긴 설명은 여기 숨겨 두고 호버·초점에 보인다. 제목은 통합 화면 위 막대 가운데에 있다 */
+.ihelp{position:relative;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);color:var(--muted);font:600 12px/1 var(--mono);cursor:help;background:var(--surface);flex:none}
+.ihelp i{font-style:normal}.ihelp:hover,.ihelp:focus{border-color:var(--accent);color:var(--accent);outline:none}
+.ihelp .tip{display:none;position:absolute;right:0;top:30px;z-index:60;width:min(560px,80vw);background:var(--ink);color:#fff;border-radius:10px;padding:12px 14px;font:13px/1.55 var(--sans);text-align:left;box-shadow:0 12px 32px rgba(0,0,0,.28);cursor:auto}
+.ihelp:hover .tip,.ihelp:focus .tip,.ihelp:focus-within .tip{display:block}
+.ihelp .tip p{margin:0 0 8px}.ihelp .tip p:last-child{margin-bottom:0}
+.ihelp .tip .facts{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:rgba(255,255,255,.78)}.ihelp .tip .facts b{color:#fff;font-weight:600;margin-right:4px}
+/* 범례 (지도가 (i) 말풍선 안에 넣는다) */
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--line)}
+.legend i.ok{background:var(--ok)}.legend i.bad{background:var(--bad)}.legend i.st{background:var(--accent)}.legend i.undev{background:var(--warn)}.legend i.new{background:var(--new,#2F6FDE)}.legend i.accepted{background:var(--accent)}.legend i.unreached{background:var(--faint)}
+.legend .ln{width:26px;height:0;border-top:2px solid var(--accent)}.legend .ln.back{border-top:2px dashed var(--faint)}
+.legend .kd{font:600 11px var(--sans);padding:1px 7px;border-radius:4px;background:var(--sunk);color:var(--muted)}
+.ihelp .tip .legend{color:rgba(255,255,255,.88);margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.18)}
+.ihelp .tip .legend i.st{background:#8fd1c6}.ihelp .tip .legend .ln{border-top-color:#8fd1c6}.ihelp .tip .legend .ln.back{border-top-color:rgba(255,255,255,.6)}.ihelp .tip .legend i.unreached{background:rgba(255,255,255,.55)}
+.ihelp .tip .legend .kd{background:rgba(255,255,255,.16);color:#fff}
+.fchip{font:600 12.5px var(--sans);padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;gap:6px;line-height:1.2;white-space:nowrap}
+button.fchip{cursor:pointer}button.fchip:hover{border-color:var(--accent);color:var(--accent)}
+.fchip b{font:600 12.5px var(--mono);color:var(--ink)}.fchip i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block;flex:none}
+.fchip small{font-weight:500;color:var(--faint);font-size:12px}
+.fchip.ok i{background:var(--ok)}.fchip.bad i{background:var(--bad)}.fchip.warn i,.fchip.undev i{background:var(--warn)}.fchip.new i{background:var(--new,#2F5FB3)}.fchip.accepted i{background:var(--accent)}.fchip.unreached i,.fchip.none i{background:var(--faint)}
+.fchip.ok{color:var(--ok)}.fchip.bad{color:var(--bad)}.fchip.warn{color:var(--warn)}
+button.fchip.on{background:var(--accent);border-color:var(--accent);color:#fff}button.fchip.on b,button.fchip.on small{color:#fff}button.fchip.on i{background:#fff}button.fchip.on::before{content:"✓";font-weight:700;margin-right:-2px}button.fchip.on:hover{color:#fff;filter:brightness(1.08)}
+.fchip.info{background:var(--sunk);border-color:transparent}
+.fchip.lead{font-size:14px;padding:7px 14px}.fchip.lead.ok{background:var(--ok-soft);border-color:transparent}.fchip.lead.bad{background:var(--bad-soft);border-color:transparent}
+.fchip.lead.warn{background:var(--warn-soft);border-color:transparent}.fchip.lead.accepted{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+/* 쪽 나누기 (표·목록을 10줄씩) */
+.pager{display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:8px;font:12.5px var(--mono);color:var(--muted)}
+.pager .rng{margin-right:8px}.pager .gap{padding:0 4px;color:var(--faint)}
+.pager button{font:600 13px var(--sans);min-width:30px;height:28px;padding:0 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer}
+.pager button:hover{border-color:var(--accent);color:var(--accent)}.pager button.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}.pager button:disabled{opacity:.35;cursor:default}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.kpi .k{font-size:12px;color:var(--muted)}.kpi .v{font:600 17px/1.3 var(--mono);margin-top:2px}.kpi .v small{display:block;font:12px/1.4 var(--sans);color:var(--muted);margin-top:1px}
+.kpi.ok .v{color:var(--ok)}.kpi.bad .v{color:var(--bad)}.kpi.warn .v{color:var(--warn)}
 
 /* 요약 수치 */
 .facts{display:flex;flex-wrap:wrap;margin:0;border-block:1px solid var(--line)}
@@ -147,13 +187,6 @@ padding:12px clamp(16px,4vw,32px) calc(12px + env(safe-area-inset-bottom,0px));b
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 """
 
-COPY_JS = """<script>
-document.querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){
- var t=b.getAttribute('data-copy');var done=function(){b.textContent='복사됨';setTimeout(function(){b.textContent='복사'},1500)};
- var sel=function(){var c=b.previousElementSibling;var r=document.createRange();r.selectNodeContents(c);var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='선택됨 · ⌘C'};
- try{navigator.clipboard.writeText(t).then(done,sel)}catch(e){sel()}});});
-</script>"""
-
 CHECK_SVG = ("<svg width='14' height='14' viewBox='0 0 14 14' aria-hidden='true'><path d='M2.5 7.5l3 3 6-7' fill='none' "
              "stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>")
 
@@ -165,9 +198,148 @@ def _e(s: Any) -> str:
     return h.escape("" if s is None else str(s))
 
 
-def _page(title: str, body: str, *, script: str = "") -> str:
+# -- 화면 조각: 통합 화면(hub)이 iframe 없이 한 문서 안에 끼워 넣는 단위 -------------------------------------
+# 조각 = {kind, title, html, css, js}. css 는 .pg-<kind> 안으로 가둔 것, js 는 (root, ctx) 를 받는 함수 본문.
+#   root: 조각의 컨테이너 요소 (독립 페이지에서는 body). 화면 안 요소는 root.querySelector 로만 찾는다.
+#   ctx:  getSub()/setSub(s)/onSub(fn) — 화면 안 이동(지도의 상세, 검토의 첫 시나리오)을 주소 해시의 뒷부분으로 (통합 화면이 자기 해시 뒤에 붙여 준다)
+#         listen(target, type, fn) — window/document 리스너. 통합 화면이 조각을 치울 때 함께 떼어 낸다
+#         approved() — 웹 승인 뒤 통합 화면에 알린다
+STANDALONE_CTX = ("const __ctx = {getSub: () => (location.hash || '').slice(1), setSub: s => { if (s) location.hash = s; else if (location.hash) location.hash = ''; },"
+                  " onSub: fn => addEventListener('hashchange', fn), listen: (t, e, f, o) => t.addEventListener(e, f, o), onDestroy: () => {}, approved: () => {}};")
+
+
+def scope_css(css: str, prefix: str) -> str:
+    """페이지 CSS를 컨테이너 안으로 가둔다: 선택자마다 prefix 를 앞에 붙이고, html/body/:root 는 컨테이너 자신으로. @media 안은 재귀, @keyframes/@font-face 는 그대로."""
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    out, i, n = [], 0, len(css)
+    while i < n:
+        j = css.find("{", i)
+        if j < 0:
+            out.append(css[i:])
+            break
+        depth, k = 1, j + 1
+        while k < n and depth:
+            depth += (css[k] == "{") - (css[k] == "}")
+            k += 1
+        sel, body = css[i:j], css[j + 1:k - 1]
+        s = sel.strip()
+        if s.startswith("@"):
+            out.append(f"{sel}{{{scope_css(body, prefix) if s.startswith(('@media', '@supports', '@container', '@layer')) else body}}}")
+        else:
+            out.append(_scope_selectors(sel, prefix) + "{" + body + "}")
+        i = k
+    return "".join(out)
+
+
+def _scope_selectors(sel: str, prefix: str) -> str:
+    lead = sel[:len(sel) - len(sel.lstrip())]
+    scoped = []
+    for p in (x.strip() for x in sel.split(",")):
+        if not p:
+            continue
+        if p in ("html", "body", ":root"):
+            scoped.append(prefix)
+        elif p.startswith(("body.", "body:", "body ", "body>")):
+            scoped.append(prefix + p[4:])
+        elif p.startswith("html "):
+            scoped.append(prefix + " " + p[5:].lstrip())
+        else:
+            scoped.append(prefix + " " + p)
+    return lead + ",".join(dict.fromkeys(scoped))
+
+
+def head(chips: list[str], *, info: str = "", facts: list[str] = (), chips_id: str = "", extra: str = "") -> str:
+    """페이지 머리: 상태 칩 한 줄 + (i) 설명. 제목(앱 이름·탭)은 통합 화면의 위 막대 가운데가 보여 주므로 여기 없다.
+    info 는 문장(이스케이프됨), facts 는 '<b>이름</b> 값' 조각(HTML 그대로), extra 는 말풍선 안에 넣을 HTML (지도의 범례 등)."""
+    tip = ""
+    if info or facts or extra:
+        tip = ("<span class='ihelp' tabindex='0' role='note' aria-label='설명'><i>i</i><span class='tip'>" + (f"<p>{_e(info)}</p>" if info else "") + extra
+               + (f"<div class='facts'>{''.join(f'<span>{f}</span>' for f in facts)}</div>" if facts else "") + "</span></span>")
+    return f"<header class='pgh'><div class='chips'{f' id={chips_id!r}' if chips_id else ''}>{''.join(chips)}</div>{tip}</header>"
+
+
+def chip(cls: str, label: str, n: Any = None, *, sub: str = "", title: str = "", lead: bool = False) -> str:
+    """머리의 상태 칩 (누르지 않는 것). cls: ok|bad|warn|accepted|new|none|info. n 은 숫자, sub 는 작은 보조 글."""
+    dot = "" if cls in ("info", "") else "<i></i>"
+    return (f"<span class='fchip {cls}{' lead' if lead else ''}'" + (f" title='{_e(title)}'" if title else "") + f">{dot}{_e(label)}"
+            + (f"<b>{_e(n)}</b>" if n is not None else "") + (f"<small>{_e(sub)}</small>" if sub else "") + "</span>")
+
+
+# 믿을 수 있는가 항목 → 실행으로 풀리는 것. compare = to-be 비교 다시 (pytest --compare), mutate = 결함 탐지 측정, review = 시나리오 승인 탭으로
+FIX = {"기준이 승인됨": ("review", "시나리오 승인 탭으로"), "비교 실행 결과": ("compare", "to-be 비교 실행"),
+       "결함 탐지 측정": ("mutate", "결함 탐지 측정 실행"), "결함 탐지 측정도 승인된 기준으로": ("mutate", "결함 탐지 측정 실행")}
+COMPARE_FIX = {"승인된 기준으로 비교함", "비교 결과가 현재 승인본으로 만들어짐", "비교 결과의 승인 파일이 현재와 같음", "비교 때의 테스트·도구 코드가 현재와 같음",
+               "결함 주입 실행이 아닌 실제 비교 결과", "기록된 테스트를 빠짐없이 실행"}
+
+REPORT_JS = r"""
+const $ = s => root.querySelector(s), $$ = s => root.querySelectorAll(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const box = $('#fixlog'), APP = ctx.app || (box ? box.dataset.app : '');
+let timer = null;
+ctx.onDestroy(() => clearTimeout(timer));
+const NAMES = {compare: 'to-be 비교', mutate: '결함 탐지 측정'};
+function lock(running){ $$('.fix').forEach(b => { b.disabled = running || b.dataset.locked === '1'; }); }
+function show(j){
+  if(!box) return;
+  box.hidden = false;
+  const steps = (j.steps || []).map((s, i) => `<div class="istep ${s.state}"><span class="no">${i + 1}</span><span>${esc(s.label)}</span><span class="st">${{wait:'대기', run:'실행 중…', done:'완료', fail:'실패', skip:'건너뜀'}[s.state] || ''}</span></div>`).join('');
+  box.innerHTML = `<div class="fixhead"><b>${esc(NAMES[j.kind] || j.kind)}</b><span>${j.running ? '실행 중 · ' + esc(j.started || '') : (j.ok ? '끝 · 보고서를 새로 그립니다' : '실패')}</span></div>${steps}`
+    + (j.error ? `<div class="err">${esc(j.error)}</div>` : '') + `<pre class="log">${esc((j.log || []).join('\n'))}</pre>`;
+  const pre = box.querySelector('pre'); pre.scrollTop = pre.scrollHeight;
+  lock(!!j.running);
+}
+async function poll(first){
+  let j; try { j = await (await fetch(`/api/app/${encodeURIComponent(APP)}/job`)).json(); } catch(e) { return; }
+  if(!NAMES[j.kind]) return;                       // 탐색 같은 다른 작업은 여기서 다루지 않는다
+  if(j.running){ show(j); timer = setTimeout(() => poll(false), 2000); return; }
+  if(first) return;                                // 예전에 끝난 작업은 다시 보여주지 않는다
+  show(j);
+  if(j.ok && ctx.refresh) setTimeout(() => ctx.refresh(), 900);
+}
+$$('.fix').forEach(b => b.addEventListener('click', async () => {
+  const kind = b.dataset.fix;
+  if(kind === 'review'){ if(ctx.go) ctx.go('review'); return; }
+  lock(true);
+  try {
+    const r = await fetch(`/api/app/${encodeURIComponent(APP)}/${kind}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'});
+    const j = await r.json(); if(!r.ok || j.error) throw new Error(j.error || r.statusText);
+    show(j); timer = setTimeout(() => poll(false), 2000);
+  } catch(e) { if(box){ box.hidden = false; box.innerHTML = `<div class="err">${esc(e.message)}</div>`; } lock(false); }
+}));
+poll(true);
+"""
+
+REPORT_CSS = """
+main{max-width:none;gap:22px;padding-block:22px 60px}
+.checks li{grid-template-columns:18px 1fr auto auto}
+.fix{font:600 12px var(--sans);padding:4px 11px;border-radius:999px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);cursor:pointer;white-space:nowrap}
+.fix:hover{background:var(--accent);color:#fff}.fix:disabled{opacity:.5;cursor:default;border-color:var(--line);color:var(--muted);background:var(--surface)}
+.fixlog{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.fixhead{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}.fixhead span{color:var(--muted)}
+.fixlog .istep{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:8px}
+.fixlog .istep .no{width:22px;height:22px;border-radius:50%;background:var(--sunk);color:var(--muted);font:600 11px/22px var(--mono);text-align:center}
+.fixlog .istep.run{border-color:var(--accent);background:var(--accent-soft)}.fixlog .istep.done{border-color:var(--ok)}.fixlog .istep.fail{border-color:var(--bad)}.fixlog .st{font-size:12px;font-weight:600;color:var(--muted)}
+.fixlog .err{color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 12px;font-size:13px}
+.fixlog pre.log{margin:0;max-height:260px;overflow:auto;font:12px/1.5 var(--mono);background:var(--sunk);border-radius:8px;padding:10px 12px;white-space:pre-wrap;word-break:break-all}
+.checks{padding:4px 8px}.checks li{padding:10px 10px;border-radius:6px}.checks li.bad{background:var(--bad-soft)}.checks li.bad .d{color:var(--bad)}
+.sh h2 .tid{font-size:14px;margin-left:4px}
+details.same-wrap>summary{cursor:pointer;padding:12px 18px;font-weight:600;font-size:14px;list-style:none;color:var(--muted)}
+details.same-wrap>summary::-webkit-details-marker{display:none}details.same-wrap>summary::before{content:"▸ ";color:var(--faint)}details.same-wrap[open]>summary::before{content:"▾ "}
+details.same-wrap[open]>summary{border-bottom:1px solid var(--line)}
+.diff .ttl .tt{font-weight:600;font-size:15px}
+"""
+
+
+def fragment(kind: str, title: str, body: str, *, css: str = "", js: str = "", data: tuple[str, Any] | None = None) -> dict[str, Any]:
+    ds = f"<script type='application/json' id='{data[0]}'>{json.dumps(data[1], ensure_ascii=False).replace('</', '<\\/')}</script>" if data else ""
+    return {"kind": kind, "title": title, "html": f"<main>{body}</main>{ds}", "css": scope_css(css, f".pg-{kind}") if css else "", "js": js}
+
+
+def assemble(frag: dict[str, Any]) -> str:
+    """조각 → 혼자 열리는 문서 (테스트, /page/… 직접 접속). body 가 조각의 컨테이너 역할을 한다."""
+    script = f"<script>{STANDALONE_CTX}(function(root, ctx){{\n{frag['js']}\n}})(document.body, __ctx);</script>" if frag.get("js") else ""
     return (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>"
-            f"<title>{_e(title)}</title>{FONTS}<style>{CSS}</style></head><body><main>{body}</main>{script}</body></html>")
+            f"<title>{_e(frag['title'])}</title>{FONTS}<style>{CSS}{frag.get('css', '')}</style></head><body class='pg pg-{frag['kind']}'>{frag['html']}{script}</body></html>")
 
 
 def _val(a: dict[str, Any], cls: str = "", old: dict[str, Any] | None = None) -> str:
@@ -204,10 +376,12 @@ def docstrings(tests_dir: Path | None) -> dict[str, str]:
 def _title(name: str, docs: dict[str, str]) -> str:
     base, _, param = name.partition("[")
     t = docs.get(base, base)
-    return t + (f" · {param.rstrip(']')}" if param else "")
+    # pytest 가 매개변수 id 의 한글을 \uXXXX 로 이스케이프한다 (골든 파일 이름도 그대로). 제목에서는 글자로 되돌린다
+    param = re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1), 16)), param.rstrip("]"))
+    return t + (f" · {param}" if param else "")
 
 
-# -- 승인 검토 ---------------------------------------------------------------------------
+# -- 시나리오 승인 ---------------------------------------------------------------------------
 ACTION = re.compile(r'^(\w+) "(.+?)"(?: = (.*))?$')
 
 
@@ -315,47 +489,83 @@ def _shot(name: str, junit: Path) -> str:
             f"<img class='shot' src='data:image/png;base64,{base64.b64encode(p.read_bytes()).decode()}' alt='실패 순간 화면'></details>")
 
 
-def render_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trusted: bool, runs: list[dict[str, Any]],
-                  muts: list[dict[str, Any]], tests_dir: Path | None = None, equivalent: bool = False, accepted_count: int = 0,
-                  coverage: list[dict[str, Any]] | None = None) -> str:
+def report_fragment(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trusted: bool, runs: list[dict[str, Any]],
+                    muts: list[dict[str, Any]], tests_dir: Path | None = None, equivalent: bool = False, accepted_count: int = 0,
+                    coverage: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """검증 보고서 조각. 순서 = 읽는 순서: 판정 칩 → 믿을 수 있는가 → 다른 점 → 승인된 차이 → 결함 탐지 → 업무 범위 → 같은 동작(접힘)."""
     docs = docstrings(tests_dir or Path("e2e") / oracle_dir.name)
     coverage = coverage or []
-    verdict_panel = ("<section><div class='sh'><h2>판정</h2></div><div class='panel' style='padding:14px 18px'>"
-         f"<div>증거 유효성: <b>{'유효' if trusted else '확인 필요'}</b></div>"
-         f"<div>실행한 시나리오 동등성: <b>{'모두 같음' if equivalent else '승인된 차이 포함' if accepted_count and all(c['status'] == 'pass' for r in runs for c in r['cases']) else '차이 또는 실패 있음'}</b></div>"
-         f"<div>등록된 업무 범위: <b>{'모두 통과' if coverage and all(x['ok'] for x in coverage) else '미등록 또는 미완료'}</b></div></div></section>")
-    coverage_panel = ("<section><div class='sh'><h2>업무 검증 범위</h2><p>oracle.json에 등록한 경우</p></div><div class='panel'><ul class='checks'>"
-             + ("".join(f"<li><span class='dot {'ok' if x['ok'] else 'bad'}'></span><span>{_e(x['case'])}</span><span class='d'>{_e(', '.join(x['tests']))}</span></li>" for x in coverage)
-                if coverage else "<li>등록된 업무 경우가 없습니다.</li>") + "</ul></div></section>")
-    B = []
-    for r in runs:
-        cases = r["cases"]
-        setup = cases[0].get("setup", {}) if cases else {}
-        build_ids = sorted({bid for c in cases for bid in c.get("build_ids", [])})
-        fails = [c for c in cases if c["status"] == "fail"]
-        target = r["props"].get("base_url") or Path(r["path"]).stem.removeprefix("junit-")
-        if not trusted:
-            stamp = ("warn", "판정 보류", "믿을 수 없는 실행")
-            lede = "아래 '믿을 수 있는가'에서 빨간 항목을 먼저 해결하세요."
-        elif fails:
-            stamp = ("bad", f"차이 {len(fails)}건", f"{len(cases)}개 중 {len(cases) - len(fails)}개 동일")
-            lede = "to-be가 as-is와 다르게 동작한 곳입니다. 결함이면 수정 요청, 의도한 변경이면 기준 변경을 결정하세요."
-        elif any(c.get("accepted_differences") for c in cases):
-            stamp = ("warn", "승인된 차이", f"{len(cases)}개 시나리오")
-            lede = "승인한 차이가 포함되어 있습니다. 아래 사유와 범위를 확인하세요."
-        else:
-            stamp = ("ok", "동일", f"{len(cases)}개 모두 같음")
-            lede = "to-be가 as-is와 같게 동작합니다."
-        B.append(f"<header class='head'><div class='eyebrow'>검증 결과</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
-                 f"<h1>{_e(oracle_dir.name)}</h1><p class='lede'>{lede}</p>"
-                 f"<div class='prov'><span><b>비교 대상</b> {_e(target)}</span><span><b>생성</b> {time.strftime('%Y-%m-%d %H:%M')}</span>"
-                 f"<span><b>기준 폴더</b> {_e(oracle_dir)}</span><span><b>실행 조건</b> {_e(json.dumps(setup, ensure_ascii=False, sort_keys=True))}</span>"
-                 f"<span><b>배포 ID</b> {_e(', '.join(build_ids) or '헤더 없음')}</span></div></header>")
-        if len(B) == 1:
-            B.extend((verdict_panel, coverage_panel))
+    cases = [c for r in runs for c in r["cases"]]
+    fails = [c for c in cases if c["status"] == "fail"]
+    accepted = [(c["name"], item) for c in cases for item in c.get("accepted_differences", [])]
+    same = [c for c in cases if c["status"] == "pass" and not c.get("accepted_differences")]
+    bad_checks = [c for c in checks if not c[1]]
+    gold = [m for m in muts if m["mode"] == "expects+golden"]
+    cov_done = sum(1 for x in coverage if x["ok"])
+
+    # -- 머리의 칩: 한 줄로 판정 --
+    if not runs:
+        verdict = ("warn", "비교 실행 없음", "to-be 비교를 돌린 뒤 여기서 봅니다")
+    elif not trusted:
+        verdict = ("warn", "판정 보류", f"믿을 수 없는 항목 {len(bad_checks)}개를 먼저 해결")
+    elif fails:
+        verdict = ("bad", "차이 있음", f"{len(cases)}개 중 {len(fails)}개가 as-is와 다름")
+    elif accepted:
+        verdict = ("accepted", "승인된 차이 포함", f"{len(cases)}개 시나리오")
+    else:
+        verdict = ("ok", "동일", f"{len(cases)}개 모두 as-is와 같음")
+    chips = [chip(verdict[0], verdict[1], sub=verdict[2], lead=True)]
+    if runs:
+        chips.append(chip("ok", "같음", len(same)))
         if fails:
-            cards = []
-            for c in fails:
+            chips.append(chip("bad", "다름", len(fails)))
+        if accepted:
+            chips.append(chip("accepted", "승인된 차이", len(accepted)))
+    chips.append(chip("ok" if not bad_checks else "bad", "신뢰 확인", f"{len(checks) - len(bad_checks)}/{len(checks)}", title="산출물에서 자동으로 확인한 항목"))
+    chips.append(chip("ok" if coverage and cov_done == len(coverage) else ("warn" if coverage else "none"), "업무 범위",
+                      f"{cov_done}/{len(coverage)}" if coverage else "미등록", title="oracle.json 의 coverage"))
+    for m in gold:
+        score = m.get("score") or 0
+        chips.append(chip("ok" if score >= 0.8 else "bad", "결함 탐지", f"{score:.0%}", sub=f"{m['killed']}/{m['total']}"))
+    if not gold:
+        chips.append(chip("none", "결함 탐지", "없음", title="eastshift mutate --compare 결과 없음"))
+
+    prov = []
+    for r in runs:
+        cs = r["cases"]
+        setup = cs[0].get("setup", {}) if cs else {}
+        build_ids = sorted({bid for c in cs for bid in c.get("build_ids", [])})
+        target = r["props"].get("base_url") or Path(r["path"]).stem.removeprefix("junit-")
+        prov += [f"<span><b>비교 대상</b> {_e(target)}</span>", f"<span><b>실행 조건</b> {_e(json.dumps(setup, ensure_ascii=False, sort_keys=True))}</span>",
+                 f"<span><b>배포 ID</b> {_e(', '.join(build_ids) or '헤더 없음')}</span>"]
+    prov += [f"<span><b>기준 폴더</b> {_e(oracle_dir)}</span>", f"<span><b>생성</b> {time.strftime('%Y-%m-%d %H:%M')}</span>"]
+    B = [head(chips, info="산출물(승인 상태, JUnit, 결함 주입 결과)에서만 만든 보고서입니다. 서술은 넣지 않습니다. 같은 내용의 markdown 은 eastshift report 로 만듭니다.", facts=prov)]
+
+    # -- 믿을 수 있는가: 실패 항목을 먼저 --
+    ordered = sorted(checks, key=lambda c: c[1])
+    unapproved = any(name == "기준이 승인됨" and not ok for name, ok, _ in checks)
+
+    def fix_btn(name: str, ok: bool) -> str:
+        """빨간 항목 옆의 '바로 해결' 버튼: 실행으로 풀리는 것만 (비교 다시 실행, 결함 탐지 측정, 승인 탭으로)."""
+        if ok:
+            return "<span></span>"
+        kind, label = FIX.get(name, ("compare", "to-be 비교 다시 실행") if name in COMPARE_FIX else (None, None))
+        if not kind:
+            return "<span class='d'>사람이 판단</span>"
+        locked = unapproved and kind != "review"
+        return (f"<button type='button' class='fix' data-fix='{kind}'" + (" disabled data-locked='1' title='먼저 골든을 승인해야 돌릴 수 있습니다'" if locked else "")
+                + f">{label}</button>")
+    B.append("<section><div class='sh'><h2>믿을 수 있는가</h2><p>산출물에서 자동으로 확인한 항목" + (f" · <b style='color:var(--bad)'>{len(bad_checks)}개 확인 필요</b>" if bad_checks else " · 모두 통과") + "</p></div><div class='panel'><ul class='checks'>"
+             + "".join(f"<li class='{'' if ok else 'bad'}'><span class='dot {'ok' if ok else 'bad'}'></span><span>{_e(name)}</span><span class='d'>{_e(detail)}</span>{fix_btn(name, ok)}</li>"
+                       for name, ok, detail in ordered) + f"</ul></div><div class='fixlog' id='fixlog' data-app='{_e(oracle_dir.name)}' hidden></div></section>")
+
+    # -- 다른 점 --
+    if fails:
+        cards = []
+        for r in runs:
+            for c in r["cases"]:
+                if c["status"] != "fail":
+                    continue
                 rows, notes = rows_for(c["messages"])
                 table = ("<div class='tbl'><table><tr><th>무엇이</th><th>as-is 기준</th><th>to-be</th></tr>"
                          + "".join(f"<tr><td>{_e(i)}</td><td class='m was'>{_e(a)}</td><td class='m now'>{_e(b)}</td></tr>" for i, a, b in rows[:10])
@@ -365,33 +575,38 @@ def render_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trus
                              + "".join(f"<div><span class='pill warn'>기대값 변경</span> {_e(n)}</div>" for n in notes) + table + more
                              + _shot(c["name"], Path(r["path"]))
                              + f"<details class='more'><summary>원본 로그</summary><pre>{_e(chr(10).join(c['messages']))}</pre></details></div>")
-            B.append("<section><div class='sh'><h2>다른 점</h2><p>무엇이 · as-is 기준 · to-be</p></div>" + "".join(cards) + "</section>")
-        same = [c for c in cases if c["status"] == "pass" and not c.get("accepted_differences")]
-        if same:
-            B.append("<section><div class='sh'><h2>같은 동작</h2></div><div class='panel same'>"
-                     + "".join(f"<span>{_e(_title(c['name'], docs))}</span>" for c in same) + "</div></section>")
-        accepted = [(c["name"], item) for c in cases for item in c.get("accepted_differences", [])]
-        if accepted:
-            B.append("<section><div class='sh'><h2>승인된 차이</h2></div><div class='panel same'>"
-                     + "".join(f"<div>{_e(name)} · {item['step']}단계 · {_e(item['reason'])}</div>" for name, item in accepted)
-                     + "</div></section>")
+        B.append(f"<section><div class='sh'><h2>다른 점 <span class='tid'>{len(fails)}</span></h2><p>결함이면 수정 요청, 의도한 변경이면 기준 변경을 결정</p></div>" + "".join(cards) + "</section>")
+    if accepted:
+        B.append("<section><div class='sh'><h2>승인된 차이</h2><p>oracle.json 의 allowed_differences</p></div><div class='panel same'>"
+                 + "".join(f"<div>{_e(_title(name, docs))} · {item['step']}단계 · {_e(item['reason'])}</div>" for name, item in accepted) + "</div></section>")
 
-    if not runs:
-        B.extend((verdict_panel, coverage_panel))
-    B.append("<section><div class='sh'><h2>믿을 수 있는가</h2><p>산출물에서 자동으로 확인한 항목</p></div><div class='panel'><ul class='checks'>"
-             + "".join(f"<li><span class='dot {'ok' if ok else 'bad'}'></span><span>{_e(name)}</span><span class='d'>{_e(detail)}</span></li>"
-                       for name, ok, detail in checks) + "</ul></div></section>")
-    for m in muts:
-        if m["mode"] != "expects+golden":
-            continue
+    # -- 결함 탐지 --
+    for m in gold:
         surv = [x for x in m["mutants"] if not x["killed"]]
         core_total = sum(v["total"] for op, v in m.get("by_op", {}).items() if op != "label")
         core_killed = sum(v["killed"] for op, v in m.get("by_op", {}).items() if op != "label")
         score = m.get("score") or 0
-        B.append(f"<section><div class='sh'><h2>테스트가 결함을 잡는 능력</h2><p>일부러 넣은 결함을 몇 개나 잡았는지</p></div>"
+        B.append(f"<section><div class='sh'><h2>테스트가 결함을 잡는 능력</h2><p>일부러 넣은 결함 {m['total']}개 중 몇 개를 잡았는지 · {_e((m.get('generated_at') or '')[:16])}</p></div>"
                  f"<div class='panel meter'><span class='n'>{score:.0%}</span> <span class='tid'>{m['killed']} / {m['total']}</span>"
                  f"<div class='bar'><i style='width:{score * 100:.0f}%'></i></div>"
                  f"<div class='tid'>라벨 변경 제외: {core_killed}/{core_total} 탐지 · 생성한 결함에 대한 비율</div>"
-                 + "".join(f"<div class='tid' style='margin-top:8px'>못 잡음 · {_e(x['path'])} · {_e(x['desc'][:90])}</div>" for x in surv[:5])
-                 + "</div></section>")
-    return _page(f"{oracle_dir.name} 검증 결과", "".join(B))
+                 + (f"<div class='tid' style='margin-top:10px'><b>못 잡은 결함 {len(surv)}개</b> (테스트 빈틈인지, 화면에 안 나타나는 결함인지 사람이 판정)</div>" if surv else "")
+                 + "".join(f"<div class='tid'>· {_e(x['path'])} · {_e(x['desc'][:90])}</div>" for x in surv[:5])
+                 + (f"<div class='tid'>외 {len(surv) - 5}개</div>" if len(surv) > 5 else "") + "</div></section>")
+
+    # -- 업무 범위 --
+    B.append("<section><div class='sh'><h2>업무 검증 범위</h2><p>oracle.json 에 등록한 업무 경우와 연결된 테스트</p></div><div class='panel'>"
+             + (("<ul class='checks'>" + "".join(f"<li class='{'' if x['ok'] else 'bad'}'><span class='dot {'ok' if x['ok'] else 'bad'}'></span><span>{_e(x['case'])}</span><span class='d'>{_e(', '.join(x['tests']))}</span></li>" for x in coverage) + "</ul>")
+                if coverage else "<div class='empty'>등록된 업무 경우가 없습니다. golden/&lt;app&gt;/oracle.json 의 coverage 에 업무 경우와 테스트를 적으면 여기서 통과 여부를 봅니다.</div>")
+             + "</div></section>")
+
+    # -- 같은 동작: 접어 둔다 --
+    if same:
+        B.append(f"<section><details class='panel same-wrap'><summary>같은 동작 {len(same)}개 · 펼쳐 보기</summary><div class='same'>"
+                 + "".join(f"<span>{_e(_title(c['name'], docs))}</span>" for c in same) + "</div></details></section>")
+    return fragment("report", f"{oracle_dir.name} 검증 보고서", "".join(B), css=REPORT_CSS, js=REPORT_JS)
+
+
+def render_report(**kw: Any) -> str:
+    """검증 보고서를 혼자 열리는 문서로 (report_fragment 와 같은 인자)."""
+    return assemble(report_fragment(**kw))

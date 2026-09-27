@@ -1,4 +1,4 @@
-"""통합 화면 (eastshift ui): 프로젝트 목록에서 시작해, 프로젝트마다 사람이 보는 화면 네 장(개요·승인 검토·화면 지도·검증 보고서)과 실행 이력을 한 화면에서 본다.
+"""통합 화면 (eastshift ui): 프로젝트 목록에서 시작해, 프로젝트마다 사람이 보는 화면 네 장(개요·시나리오 승인·화면 지도·검증 보고서)과 실행 이력을 한 화면에서 본다.
 사람이 보는 화면은 전부 여기서만 만든다 (파일로 따로 떨구지 않는다). 승인도 여기서만 한다.
 
 uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
@@ -14,13 +14,16 @@ uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:87
   /api/app/<app>                    시나리오, 실행 이력(지난 실행 대비 변화 포함), 결함 주입 결과
   POST /api/app/<app>/approve       웹 승인 {by, fingerprint}. 통합 검토 화면에서 바로 승인한다
   POST /api/app/<app>/init          골든 시나리오 지도 초기화: 골든이 없는 프로젝트를 as-is에서 탐색(crawl) → 시나리오 초안 → 기록 {depth} (승인은 하지 않는다)
-  POST /api/app/<app>/crawl         탐색 지도: as-is 또는 to-be를 eastshift crawl 로 훑는다 {side: asis|tobe, depth}
-  GET  /api/app/<app>/job           위 작업의 진행 (단계·로그). /init 도 같은 것
+  POST /api/app/<app>/crawl         탐색 지도: as-is 또는 to-be를 eastshift crawl 로 훑는다 {side: asis|tobe, depth}. 소스 위치가 있으면 이어서 eastshift routes 로
+                                    라우트 목록(crawl/<app>[-tobe]/routes.json)을 뽑는다 → 지도가 '코드에만 있는 화면'을 회색으로 표시
+  POST /api/app/<app>/compare       to-be 비교 다시 실행 (pytest --compare, 보고서의 '바로 해결' 버튼)
+  POST /api/app/<app>/mutate        결함 탐지 측정 실행 (eastshift mutate --compare, 보고서의 '바로 해결' 버튼)
+  GET  /api/app/<app>/job           위 작업의 진행 (단계·로그). /init 도 같은 것. 앱마다 한 번에 하나
   POST /api/projects                프로젝트 추가 {name, asis:{src,url}, tobe:{src,url}, note}
   POST /api/projects/<app>          프로젝트 설정 변경 (같은 본문)
   POST /api/projects/<app>/delete   등록 해제 (산출물은 남긴다)
   /api/fs?path=                     폴더 고르기용 하위 폴더 목록 (작업 디렉터리·홈 아래만)
-  /page/<app>/catalog|review        개요(골든 관리), 승인 검토
+  /page/<app>/catalog|review        개요(골든 관리), 시나리오 승인
   /page/<app>/map?src=compare&run=<시각>   화면 지도 셋 중 하나: src=asis|tobe 는 탐색 결과(crawl/<app>, crawl/<app>-tobe), compare 는 as-is 기준 to-be 비교
                                     (골든 + 그 실행의 다름(빨강) + to-be 탐색으로 미개발(노랑)·새 화면(파랑), 캡처는 to-be 우선)
   /page/<app>/report?run=<시각>      검증 보고서 (그 실행의 JUnit + 현재 승인본의 결함 주입 결과)
@@ -134,8 +137,13 @@ class Hub:
         url = self._side_url(app, side)
         depth = max(1, min(int(depth or 3), 5))
         out = self.crawl_dir(app, side)
-        return [{"step": "crawl", "label": f"{'as-is' if side == 'asis' else 'to-be'}({url}) 화면 탐색 (깊이 {depth}) → {out}",
-                 "cmd": [sys.executable, "-m", "eastshift.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]}]
+        steps = [{"step": "crawl", "label": f"{'as-is' if side == 'asis' else 'to-be'}({url}) 화면 탐색 (깊이 {depth}) → {out}",
+                  "cmd": [sys.executable, "-m", "eastshift.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]}]
+        src = ((projects.load(self.projects_file).get(app) or {}).get(side) or {}).get("src") or ""
+        if src and Path(src).expanduser().exists():  # 소스가 있으면 라우트 목록도 뽑아 지도의 잣대로 (코드에만 있는 화면을 회색으로)
+            steps.append({"step": "routes", "label": f"소스 {src} 에서 라우트 목록 → {out / 'routes.json'} (코드에는 있는데 탐색이 못 간 화면의 잣대)",
+                          "cmd": [sys.executable, "-m", "eastshift.cli", "routes", src, "--out", str(out / "routes.json")]})
+        return steps
 
     def init_plan(self, app: str, depth: int = 3) -> list[dict[str, Any]]:
         """골든 시나리오 비교 지도 초기화 단계 (실행하지 않는다). 시나리오가 없으면 탐색(이미 탐색했으면 건너뜀) → 초안 옮기기 → 기록, 있으면 기록만. 승인은 여기 없다 — 사람이 한다."""
@@ -169,13 +177,40 @@ class Hub:
     def init_project(self, app: str, depth: int = 3) -> dict[str, Any]:
         """골든 시나리오 비교 지도 초기화를 백그라운드로 시작한다."""
         return self._start_job(app, "init", self.init_plan(app, depth), check=lambda: self._has_golden(app),
-                               done_msg="== 끝. 화면 지도를 그립니다. 승인은 승인 검토 탭에서 (사람)",
+                               done_msg="== 끝. Screen Map을 그립니다. 승인은 시나리오 승인 탭에서 (사람)",
                                missing_msg="기록이 끝났지만 골든 파일이 없습니다 (시나리오가 하나도 통과하지 못했는지 로그를 보세요)")
 
     def start_crawl(self, app: str, side: str, depth: int = 3) -> dict[str, Any]:
         """as-is 또는 to-be 탐색 지도를 백그라운드로 만든다."""
         return self._start_job(app, side, self.crawl_plan(app, side, depth), check=lambda: (self.crawl_dir(app, side) / "graph.json").exists(),
                                done_msg="== 끝. 탐색 지도를 그립니다.", missing_msg="탐색이 끝났지만 graph.json이 없습니다 (로그를 보세요)")
+
+    # ---- 보고서의 '바로 해결' 버튼: to-be 비교 다시 실행, 결함 탐지 측정. 둘 다 승인된 골든이 있어야 돈다 (pytest·mutate 가 스스로 거부한다) ----
+    def compare_plan(self, app: str) -> list[dict[str, Any]]:
+        """to-be 비교 한 번: pytest --compare (원장·JUnit 사본은 플러그인이 남긴다). 다른 결과(exit 1)도 정상 종료다."""
+        self._golden(app)
+        url = self._side_url(app, "tobe")
+        junit = Path("reports") / f"junit-{app}.xml"
+        return [{"step": "compare", "label": f"to-be({url}) 비교 → runs/{app}/ 원장 + {junit}", "ok_exit": (0, 1),
+                 "cmd": [sys.executable, "-m", "pytest", str(self.tests_root / app), "--base-url", url, "--compare", str(self.golden_root / app),
+                         "--junitxml", str(junit), "-q", "-p", "no:cacheprovider"]}]
+
+    def mutate_plan(self, app: str) -> list[dict[str, Any]]:
+        """결함 탐지 측정: eastshift mutate --compare (결과는 runs/<app>/mutations/ 에도 복사된다). as-is 에서 돈다."""
+        self._golden(app)
+        url = self._side_url(app, "asis")
+        return [{"step": "mutate", "label": f"as-is({url})에 결함을 하나씩 넣어 테스트가 잡는지 측정 (시나리오 수에 따라 몇 분~수십 분)",
+                 "cmd": [sys.executable, "-m", "eastshift.cli", "mutate", str(self.tests_root / app), "--base-url", url, "--compare", str(self.golden_root / app), "--max-per-op", "100"]}]
+
+    def start_compare(self, app: str) -> dict[str, Any]:
+        before = len(ledger.load_runs(app))
+        return self._start_job(app, "compare", self.compare_plan(app), check=lambda: len(ledger.load_runs(app)) > before,
+                               done_msg="== 끝. 새 실행이 원장에 남았습니다. 보고서와 지도를 새로 그립니다.", missing_msg="비교가 끝났지만 원장에 새 실행이 없습니다 (로그를 보세요: 승인되지 않은 골든이면 거부됩니다)")
+
+    def start_mutate(self, app: str) -> dict[str, Any]:
+        st = oracle.status(self.golden_root / app)
+        return self._start_job(app, "mutate", self.mutate_plan(app), check=lambda: ledger.mutation_for(app, st.get("approved_at"), st.get("approval_id")) is not None,
+                               done_msg="== 끝. 현재 승인본의 결함 탐지 결과가 원장에 남았습니다. 보고서를 새로 그립니다.", missing_msg="측정이 끝났지만 현재 승인본의 결과가 없습니다 (로그를 보세요)")
 
     def _start_job(self, app: str, kind: str, steps: list[dict[str, Any]], *, check, done_msg: str, missing_msg: str) -> dict[str, Any]:
         job = self.jobs.get(app)
@@ -209,7 +244,7 @@ class Hub:
                         proc = subprocess.Popen(s["cmd"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env={**os.environ, "PYTHONUNBUFFERED": "1"})
                         for line in proc.stdout or []:
                             log(line)
-                        if proc.wait() != 0:
+                        if proc.wait() not in s.get("ok_exit", (0,)):
                             raise RuntimeError(f"{s['step']} 실패 (exit {proc.returncode})")
                     st["state"] = "done"
                 if not check():
@@ -287,8 +322,9 @@ class Hub:
                 "maps": self.maps(app), "oracle": st, "tests": tests, "runs": runs, "mutations": muts, "kind_label": catalog.KIND_LABEL}
 
     # ---- 화면 만들기 ----
-    def page(self, app: str, kind: str, run: str | None = None, src: str = "compare") -> str:
-        """src: 화면 지도의 출처 — compare(골든 시나리오 + 실행), asis/tobe(탐색 결과)."""
+    def page(self, app: str, kind: str, run: str | None = None, src: str = "compare") -> dict[str, Any]:
+        """화면 조각 (html.fragment 형식: kind·title·html·css·js). 통합 화면이 한 문서 안에 끼우고, /page/… 직접 접속은 html.assemble 로 문서를 만든다.
+        src: 화면 지도의 출처 — compare(골든 시나리오 + 실행), asis/tobe(탐색 결과)."""
         self._check(app)
         if kind not in PAGES:
             raise KeyError(kind)
@@ -296,15 +332,15 @@ class Hub:
             cd = self.crawl_dir(app, src)
             if not (cd / "graph.json").exists():
                 who = "as-is" if src == "asis" else "to-be"
-                body = (f"<header class='head'><div class='eyebrow'>화면 지도 · {who} 탐색</div><h1>{html._e(app)}</h1>"
+                body = (f"<header class='head'><div class='eyebrow'>Screen Map · {who} 탐색</div><h1>{html._e(app)}</h1>"
                         f"<p class='lede'>{who}를 아직 탐색하지 않았습니다. 통합 화면의 \"{who} 탐색\" 버튼이나 <code>uv run eastshift crawl &lt;{who} 주소&gt; --out {html._e(str(cd))}</code></p></header>")
-                return html._page(f"{app} map", body)
+                return html.fragment("map", f"{app} map", body)
             key, sig = (app, kind, src), self._sig(app)
             with self._lock:
                 hit = self._cache.get(key)
                 if hit and hit[0] == sig:
                     return hit[1]
-            page = screen_map.render(screen_map.build_from_crawl(app, cd, src))
+            page = screen_map.fragment(screen_map.build_from_crawl(app, cd, src))
             with self._lock:
                 self._cache[key] = (sig, page)
             return page
@@ -313,10 +349,10 @@ class Hub:
             spec = projects.load(self.projects_file).get(app) or {}
             asis = (spec.get("asis") or {}).get("url") or "<as-is 주소>"
             body = (f"<header class='head'><div class='eyebrow'>{html._e(app)}</div><h1>골든이 아직 없습니다</h1>"
-                    f"<p class='lede'>시나리오를 as-is에서 기록해야 개요·승인 검토·지도·보고서가 생깁니다.</p></header>"
+                    f"<p class='lede'>시나리오를 as-is에서 기록해야 개요·시나리오 승인·지도·보고서가 생깁니다.</p></header>"
                     f"<section><pre><code>uv run eastshift crawl {html._e(asis)} --out crawl/{html._e(app)}   # 화면을 훑어 시나리오 초안\n"
                     f"uv run pytest e2e/{html._e(app)} --base-url {html._e(asis)} --record golden/{html._e(app)}   # as-is에서 기록</code></pre></section>")
-            return html._page(f"{app} {kind}", body)
+            return html.fragment(kind, f"{app} {kind}", body)
         key, sig = (app, kind, run), self._sig(app)
         with self._lock:
             hit = self._cache.get(key)
@@ -325,22 +361,22 @@ class Hub:
         tests_dir = self.tests_root / app
         junit = ledger.run_dir(app) / run / "junit.xml" if run else None
         if run and (junit is None or not junit.exists()):
-            body = (f"<header class='head'><div class='eyebrow'>{'화면 지도' if kind == 'map' else '검증 보고서'}</div><h1>{html._e(app)}</h1>"
+            body = (f"<header class='head'><div class='eyebrow'>{'Screen Map' if kind == 'map' else '검증 보고서'}</div><h1>{html._e(app)}</h1>"
                     f"<p class='lede'>실행 {html._e(run)}의 JUnit 사본이 없습니다. 이 실행은 원장에 JUnit을 남기기 전 것이거나, "
                     f"<code>--junitxml</code> 없이 실행됐습니다. 다시 비교하면 지도와 보고서가 나옵니다.</p></header>")
-            return html._page(f"{app} {kind}", body)
+            return html.fragment(kind, f"{app} {kind}", body)
         if kind == "catalog":
-            page = catalog.render(catalog.build(d, tests_dir))
+            page = catalog.fragment(catalog.build(d, tests_dir))
         elif kind == "review":
-            page = review.render(review.build(d, tests_dir))
+            page = review.fragment(review.build(d, tests_dir))
         elif kind == "map":
             ca, ct = self.crawl_dir(app, "asis"), self.crawl_dir(app, "tobe")
-            page = screen_map.render(screen_map.build(d, junit, tests_dir, ca if (ca / "graph.json").exists() else None, ct if (ct / "graph.json").exists() else None))
+            page = screen_map.fragment(screen_map.build(d, junit, tests_dir, ca if (ca / "graph.json").exists() else None, ct if (ct / "graph.json").exists() else None))
         else:
             st = oracle.status(d)
             mut = ledger.mutation_for(app, st.get("approved_at"), st.get("approval_id"))
             b = report.build(oracle_dir=d, junits=[junit] if junit else [], mutations=[mut] if mut else [])
-            page = report.render_html(d, b, tests_dir)
+            page = report.render_fragment(d, b, tests_dir)
         with self._lock:
             self._cache[key] = (sig, page)
         return page
@@ -389,7 +425,10 @@ class Handler(BaseHTTPRequestHandler):
             if len(parts) == 3 and parts[:2] == ["api", "app"]:
                 return self._json(self.hub.app(parts[2]))
             if len(parts) == 3 and parts[0] == "page":
-                return self._send(self.hub.page(parts[1], parts[2], (q.get("run") or [None])[0], (q.get("src") or ["compare"])[0]).encode("utf-8"))
+                frag = self.hub.page(parts[1], parts[2], (q.get("run") or [None])[0], (q.get("src") or ["compare"])[0])
+                if q.get("fragment"):  # 통합 화면이 iframe 없이 끼워 넣을 조각
+                    return self._json(frag)
+                return self._send(html.assemble(frag).encode("utf-8"))
             if parts == ["file"]:
                 p = self.hub.file((q.get("p") or [""])[0])
                 if p is None:
@@ -423,6 +462,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(self.hub.init_project(parts[2], depth=int(body.get("depth") or 3)))
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "crawl":
                 return self._json(self.hub.start_crawl(parts[2], str(body.get("side") or "asis"), depth=int(body.get("depth") or 3)))
+            if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "compare":
+                return self._json(self.hub.start_compare(parts[2]))
+            if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "mutate":
+                return self._json(self.hub.start_mutate(parts[2]))
             if parts == ["api", "projects"]:
                 return self._json(self.hub.add_project(str(body.get("name", "")).strip(), body))
             if len(parts) == 3 and parts[:2] == ["api", "projects"]:
@@ -459,6 +502,9 @@ html,body{height:100%}
 body.hub{display:flex;flex-direction:column;overflow:hidden}
 .top{display:flex;align-items:center;gap:14px;padding:0 20px;height:54px;border-bottom:1px solid var(--line);background:var(--surface);flex:none}
 .brand{font-weight:700;font-size:16px;letter-spacing:-.01em;color:var(--ink);text-decoration:none;cursor:pointer}
+.top{position:relative}
+.where{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);white-space:nowrap;pointer-events:none}
+.where b{color:var(--ink);font-weight:700;font-size:15px}
 .crumb{display:flex;align-items:center;gap:10px;flex:1;min-width:0;font-size:14px;color:var(--muted)}
 .crumb .sepc{color:var(--faint)}.crumb b{color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crumb select{font:inherit;font-size:13.5px;font-weight:600;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
@@ -471,13 +517,10 @@ body.hub{display:flex;flex-direction:column;overflow:hidden}
 .side a small{margin-left:auto;font-size:11.5px;color:var(--faint);font-family:var(--mono)}
 .side .sep{margin:10px 12px 6px;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--faint)}
 #view{flex:1;min-width:0;position:relative;background:var(--bg)}
-#view iframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
-#view main{height:100%;overflow:auto;max-width:none;padding-block:28px 80px;gap:28px}
-.hist h2{font-size:17px;font-weight:600}
-.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-.strip .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
-.strip .k{font-size:12px;color:var(--muted)}.strip .v{font:600 22px/1.25 var(--mono);margin-top:4px}.strip .v small{display:block;font:12px/1.4 var(--sans);color:var(--muted);margin-top:2px}
-.strip .card.ok .v{color:var(--ok)}.strip .card.bad .v{color:var(--bad)}.strip .card.warn .v{color:var(--warn)}
+#view > main{height:100%;overflow:auto;max-width:none;padding-block:22px 60px;gap:22px}
+/* 화면 조각 컨테이너 (iframe 대신): 탭 하나가 이 안에 들어간다. 조각의 CSS 는 .pg-<kind> 로 가둬져 있다 */
+.pg{height:100%;overflow:auto;position:relative;background:var(--bg)}.pg.loading{display:flex;align-items:center;justify-content:center;color:var(--muted)}
+main.hist h2{font-size:16px;font-weight:600}
 .tbl{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:auto}
 .tbl table{width:100%;border-collapse:collapse;font-size:13.5px}
 .tbl th{text-align:left;font-weight:600;font-size:12px;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line);background:var(--sunk);white-space:nowrap;letter-spacing:0}
@@ -525,11 +568,12 @@ pre.log{margin:0;background:var(--sunk);border-radius:10px;padding:12px 14px;fon
 /* 화면 지도 출처 바 */
 .mapwrap{display:flex;flex-direction:column;height:100%}
 .srcbar{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--surface);flex:none}
-.srcbar button:not(.btn){font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
-.srcbar button:not(.btn):hover{border-color:var(--accent);color:var(--accent)}.srcbar button.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
-.srcbar button i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--faint);display:inline-block}.srcbar button i.has{background:var(--ok);border-color:var(--ok)}
+.srcbar > button:not(.btn){font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.srcbar > button:not(.btn):hover{border-color:var(--accent);color:var(--accent)}.srcbar > button.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.srcbar > button small{font-size:11px;font-weight:500;color:var(--faint)}
 .srcbar .sp{flex:1}
-.mapbody{flex:1;min-height:0;position:relative}.mapbody iframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
+.srcbar .slot{display:flex;align-items:center;margin-left:6px}.srcbar .slot .pgh{flex-wrap:nowrap}.srcbar .slot .chips{flex-wrap:nowrap}
+.mapbody{flex:1;min-height:0;position:relative}.mapbody .pg{height:100%}
 .mapbody main.init{height:100%;overflow:auto;padding-block:28px 60px;box-sizing:border-box}
 /* 프로젝트 목록 */
 .plist{display:flex;flex-direction:column;gap:22px;max-width:1180px;margin:0 auto;padding:0 24px}
@@ -576,14 +620,66 @@ pre.log{margin:0;background:var(--sunk);border-radius:10px;padding:12px 14px;fon
 HUB_JS = r"""
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const TABS = [['map','화면 지도'],['overview','개요'],['history','이력'],['review','승인 검토'],['report','검증 보고서']];
+const TABS = [['overview','개요'],['map','Screen Map'],['review','시나리오 승인'],['report','검증 보고서'],['history','이력']];  // 왼쪽 메뉴 순서. 첫 탭(개요)이 프로젝트를 열 때의 기본
+// 위 막대 가운데: 앱 이름 › 탭 (지도는 출처까지). 페이지 조각에는 제목이 없다
+function setWhere(extra){
+  const tab = (TABS.find(t => t[0] === state.tab) || ['', ''])[1];
+  $('#where').innerHTML = state.app ? `<b>${esc(state.app)}</b><span class="sepc">›</span><span>${esc(tab)}</span>${extra ? `<span class="sepc">·</span><span>${esc(extra)}</span>` : ''}` : '';
+}
+// 쪽 나누기: items 를 per 개씩 보이고 after 뒤에 ‹ 1 2 3 › 를 붙인다. focus 요소가 있으면 그 요소가 있는 쪽부터. 스크롤이 길어지지 않게
+function pager(items, per, after, focus){
+  if (items.length <= per) return;
+  const n = Math.ceil(items.length / per);
+  let page = focus ? Math.floor(items.indexOf(focus) / per) : 0;
+  const foot = document.createElement('div'); foot.className = 'pager'; after.after(foot);
+  function draw(){
+    items.forEach((el, i) => { el.hidden = Math.floor(i / per) !== page; });
+    const nums = [...Array(n).keys()].filter(i => n <= 7 || i === 0 || i === n - 1 || Math.abs(i - page) <= 1);
+    let last = -1, btns = '';
+    for (const i of nums){ if (i - last > 1) btns += '<span class="gap">…</span>'; btns += `<button type="button" class="${i === page ? 'on' : ''}" data-p="${i}">${i + 1}</button>`; last = i; }
+    foot.innerHTML = `<span class="rng">${page * per + 1}–${Math.min((page + 1) * per, items.length)} / ${items.length}</span>`
+      + `<button type="button" data-d="-1" ${page === 0 ? 'disabled' : ''} aria-label="이전 쪽">‹</button>${btns}<button type="button" data-d="1" ${page === n - 1 ? 'disabled' : ''} aria-label="다음 쪽">›</button>`;
+    foot.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { page = +b.dataset.p; draw(); });
+    foot.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { page = Math.max(0, Math.min(n - 1, page + +b.dataset.d)); draw(); });
+  }
+  draw();
+}
+// 머리의 상태 칩 (화면 조각들과 같은 모양: html.chip)
+const chip = (cls, label, n, sub, lead, title) => `<span class="fchip ${cls}${lead ? ' lead' : ''}"${title ? ` title="${esc(title)}"` : ''}>${cls === 'info' ? '' : '<i></i>'}${esc(label)}${n != null ? `<b>${esc(n)}</b>` : ''}${sub ? `<small>${esc(sub)}</small>` : ''}</span>`;
 const KIND = {golden_diff:'as-is와 다름', assert:'확인 값 실패', drift:'기대값 변경', error:'실행 못 함', same:'같음', accepted_diff:'승인된 차이'};
 const casePill = c => c.kind === 'accepted_diff' ? '<span class="pill warn">승인된 차이</span>' : c.status === 'pass' ? '<span class="pill ok">같음</span>' : `<span class="pill bad">${esc(KIND[c.kind]||c.kind)}</span>`;
-let apps = [], state = {app:null, tab:'map', run:null, src:null}, data = null, initTimer = null;
+let apps = [], state = {app:null, tab:'map', run:null, src:null, sub:''}, data = null, initTimer = null;
 
 const SRC = [['asis','as-is 탐색'],['tobe','to-be 탐색'],['compare','to-be 비교 (as-is 기준)']];
-function parseHash(){ const [app, tab, run, src] = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent); return {app: app||null, tab: tab||'map', run: run && run !== '-' ? run : null, src: src||null}; }
-function setHash(){ const parts = [state.app, state.tab, state.run || '-', state.src]; while (parts.length && !parts[parts.length-1]) parts.pop(); location.hash = parts.map(encodeURIComponent).join('/'); }
+// 해시 = #app/tab/run/src[/sub…]. sub 는 끼워 넣은 화면 조각의 안쪽 이동(지도의 상세 라우트, 검토의 시나리오)으로, 조각이 ctx.setSub 로 쓰고 ctx.getSub 로 읽는다 (인코딩된 그대로)
+function parseHash(){ const parts = location.hash.replace(/^#\/?/, '').split('/'); const [app, tab, run, src] = parts.slice(0, 4).map(decodeURIComponent); return {app: app||null, tab: tab||'overview', run: run && run !== '-' ? run : null, src: src && src !== '-' ? src : null, sub: parts.slice(4).join('/')}; }
+function setHash(){ const parts = [state.app, state.tab, state.run || '-', state.src || (state.sub ? '-' : null)]; while (parts.length && !parts[parts.length-1]) parts.pop(); const h = parts.map(encodeURIComponent).join('/') + (state.sub ? '/' + state.sub : ''); if (location.hash.replace(/^#\/?/, '') !== h) location.hash = h; }
+
+// ---- 화면 조각 끼우기 (iframe 대신): 서버의 /page/<app>/<kind>?fragment=1 이 {html, css, js} 를 주고, css 는 .pg-<kind> 로 가둬져 있고 js 는 (root, ctx) 함수 본문이다 ----
+let mounted = null, mountSeq = 0;
+function destroyPage(){ if (mounted){ for (const f of mounted.cleanups) { try { f(); } catch (_) {} } mounted = null; } }
+async function mountPage(container, kind, q){
+  destroyPage();
+  const seq = ++mountSeq;
+  container.innerHTML = '<div class="pg loading">불러오는 중…</div>';
+  let frag;
+  try { const r = await fetch(`/page/${encodeURIComponent(state.app)}/${kind}${q}${q ? '&' : '?'}fragment=1`); if (!r.ok) throw new Error(await r.text()); frag = await r.json(); }
+  catch (e) { if (seq === mountSeq) container.innerHTML = `<div class="empty">화면을 불러오지 못했습니다: ${esc(e.message)}</div>`; return; }
+  if (seq !== mountSeq) return;  // 기다리는 동안 다른 탭으로 갔다
+  let st = document.getElementById('css-' + kind); if (!st){ st = document.createElement('style'); st.id = 'css-' + kind; document.head.appendChild(st); } st.textContent = frag.css || '';
+  const root = document.createElement('div'); root.className = 'pg pg-' + kind; root.innerHTML = frag.html;
+  container.innerHTML = ''; container.appendChild(root);
+  const cleanups = [], subs = [];
+  const ctx = {getSub: () => state.sub || '', setSub: s => { state.sub = s || ''; setHash(); }, onSub: fn => subs.push(fn),
+    listen: (t, ev, fn, o) => { t.addEventListener(ev, fn, o); cleanups.push(() => t.removeEventListener(ev, fn, o)); },
+    onDestroy: fn => cleanups.push(fn), approved: () => loadApps().then(route),
+    go: tab => { state.tab = tab; state.sub = ''; setHash(); },  // 다른 탭으로
+    refresh: () => loadApps().then(() => { state.run = null; return loadApp(); }).then(render),  // 새 실행이 생겼을 때: 최신 실행으로 다시 그린다
+    app: state.app,
+    slot: container.closest('.mapwrap') ? container.closest('.mapwrap').querySelector('#mapslot') : null};  // 조각이 머리 칩을 붙일 자리 (출처 바 오른쪽)
+  mounted = {kind, root, subs, cleanups, at: {app: state.app, tab: state.tab, run: state.run || null, src: state.src || null}};  // 어느 상태로 끼웠는지 (route 가 다시 만들지 판단)
+  if (frag.js){ try { new Function('root', 'ctx', frag.js)(root, ctx); } catch (e) { console.error(e); } }
+}
 function mapSrc(){ return state.src && data.maps && (state.src in data.maps) ? state.src : (data.golden ? 'compare' : (data.maps && data.maps.asis ? 'asis' : (data.maps && data.maps.tobe ? 'tobe' : 'asis'))); }
 function runLabel(r){ return `${r.finished.slice(5,16)} · ${r.target.replace(/^https?:\/\//,'')} · ${r.totals.fail ? r.totals.fail + ' 다름' : '모두 같음'}`; }
 async function api(path, body){
@@ -598,10 +694,11 @@ async function loadApps(){ apps = await api('/api/apps'); }
 // ---- 머리: 프로젝트 목록에서는 이름만, 프로젝트 안에서는 빵부스러기 + 실행 선택 ----
 function renderTop(){
   const c = $('#crumb');
-  if (!state.app){ c.innerHTML = '<span class="sepc">›</span><b>프로젝트</b>'; $('#runsel').hidden = true; return; }
+  if (!state.app){ c.innerHTML = '<span class="sepc">›</span><b>프로젝트</b>'; $('#where').innerHTML = ''; $('#runsel').hidden = true; return; }
   c.innerHTML = `<span class="sepc">›</span><select id="switch" aria-label="프로젝트 바꾸기">${apps.map(a => `<option value="${esc(a.app)}" ${a.app === state.app ? 'selected' : ''}>${esc(a.app)}</option>`).join('')}</select>`;
-  $('#switch').onchange = e => { state.app = e.target.value; state.run = null; state.src = null; setHash(); };
-  $('#runsel').hidden = false;
+  $('#switch').onchange = e => { state.app = e.target.value; state.run = null; state.src = null; state.sub = ''; setHash(); };
+  setWhere();
+  // 실행 선택의 보이기/숨기기는 loadApp·renderMap 이 정한다 (여기서 먼저 보이게 하면 자료를 받는 동안 깜빡인다)
 }
 
 // ---- 프로젝트 목록 ----
@@ -614,9 +711,9 @@ function projCard(a){
   const last = a.last ? `${a.last.totals.fail ? `<b style="color:var(--bad)">${a.last.totals.fail} 다름</b>` : '<b style="color:var(--ok)">모두 같음</b>'} <span>${esc(a.last.finished.slice(5,16))}</span>` : '<b>—</b>';
   let next = '';
   const asis = (a.asis||{}).url || '<as-is 주소>', tobe = (a.tobe||{}).url || '<to-be 주소>';
-  if (!a.golden) next = `<div class="next"><div class="nx"><span>다음: 화면 지도 만들기 — as-is를 ${a.scenarios ? '기록' : '탐색해 시나리오 초안을 만들고 기록'}합니다</span><button class="btn primary sm" data-init>화면 지도 만들기</button></div>`
+  if (!a.golden) next = `<div class="next"><div class="nx"><span>다음: Screen Map 만들기 — as-is를 ${a.scenarios ? '기록' : '탐색해 시나리오 초안을 만들고 기록'}합니다</span><button class="btn primary sm" data-init>Screen Map 만들기</button></div>`
     + `<code>${a.scenarios ? '' : `uv run eastshift crawl ${esc(asis)} --out crawl/${esc(a.app)}\n`}uv run pytest e2e/${esc(a.app)} --base-url ${esc(asis)} --record golden/${esc(a.app)}</code></div>`;
-  else if (!a.ok) next = `<div class="next">다음: 승인 검토 탭에서 시나리오를 확인하고 이름을 입력해 승인 (사람)</div>`;
+  else if (!a.ok) next = `<div class="next">다음: 시나리오 승인 탭에서 시나리오를 확인하고 이름을 입력해 승인 (사람)</div>`;
   else if (!a.runs) next = `<div class="next">다음: to-be 비교<code>uv run pytest e2e/${esc(a.app)} --base-url ${esc(tobe)} --compare golden/${esc(a.app)} --junitxml reports/junit-${esc(a.app)}.xml</code></div>`;
   return `<div class="proj" data-app="${esc(a.app)}"><div class="hd"><b data-open>${esc(a.app)}</b>${pill}<span class="sp"></span>${a.registered ? '' : '<span class="pill warn" title="eastshift.json에 없음. golden/ 또는 e2e/ 에서 발견">미등록</span>'}</div>
     <div class="sides">${side('AS-IS', a.asis)}${side('TO-BE', a.tobe)}</div>
@@ -633,7 +730,7 @@ function renderList(v){
   $('#add').onclick = () => openEditor(null);
   for (const card of v.querySelectorAll('.proj')){
     const name = card.dataset.app, a = apps.find(x => x.app === name);
-    for (const el of card.querySelectorAll('[data-open], [data-init]')) el.onclick = () => { state.app = name; state.tab = 'map'; state.run = null; setHash(); };
+    for (const el of card.querySelectorAll('[data-open], [data-init]')) el.onclick = () => { state.app = name; state.tab = el.hasAttribute('data-init') ? 'map' : 'overview'; state.run = null; state.sub = ''; setHash(); };
     card.querySelector('[data-edit]').onclick = () => openEditor(a);
     const del = card.querySelector('[data-del]');
     if (del) del.onclick = () => { card.querySelector('.confirm').hidden = false; };
@@ -712,8 +809,8 @@ async function loadApp(){
     const n = k === 'history' ? data.runs.length : (k === 'overview' ? data.tests.length : '');
     return `<a data-tab="${k}" class="${k === state.tab ? 'on' : ''}"><span>${l}</span>${n !== '' ? `<small>${n}</small>` : ''}</a>`;
   }).join('');
-  for (const a of $('#tabs').querySelectorAll('a[data-tab]')) a.onclick = () => { state.tab = a.dataset.tab; setHash(); };
-  $('#tabs a[data-back]').onclick = () => { state = {app:null, tab:'map', run:null, src:null}; location.hash = ''; };
+  for (const a of $('#tabs').querySelectorAll('a[data-tab]')) a.onclick = () => { state.tab = a.dataset.tab; state.sub = ''; setHash(); };
+  $('#tabs a[data-back]').onclick = () => { state = {app:null, tab:'map', run:null, src:null, sub:''}; location.hash = ''; };
 }
 
 function render(){
@@ -723,23 +820,24 @@ function render(){
   if (state.tab === 'map'){ renderMap(v); return; }
   const q = state.run ? '?run=' + encodeURIComponent(state.run) : '';
   const page = {overview:'catalog', review:'review', map:'map', report:'report'}[state.tab];
-  if (page){ v.innerHTML = `<iframe title="${state.tab}" src="/page/${encodeURIComponent(state.app)}/${page}${q}"></iframe>`; return; }
+  if (page){ mountPage(v, page, q); return; }
   renderHistory(v);
 }
 
 // ---- 화면 지도: 출처 셋. as-is 탐색 / to-be 탐색 은 crawl 결과, to-be 비교 는 골든 + 선택한 실행 + 두 탐색(미개발·새 화면). 없으면 만드는 화면 ----
 function renderMap(v){
   const src = mapSrc(), m = data.maps || {};
-  const bar = `<div class="srcbar">${SRC.map(([k, l]) => `<button class="${k === src ? 'on' : ''}" data-src="${k}"><i class="${m[k] ? 'has' : ''}"></i>${l}</button>`).join('')}
-    <span class="sp"></span>${src !== 'compare' && m[src] ? `<button class="btn sm" data-recrawl>다시 탐색</button>` : ''}</div>`;
+  const bar = `<div class="srcbar">${SRC.map(([k, l]) => `<button class="${k === src ? 'on' : ''}" data-src="${k}">${l}${m[k] ? '' : `<small>${k === 'compare' ? '골든 전' : '탐색 전'}</small>`}</button>`).join('')}
+    <span class="sp"></span>${src !== 'compare' && m[src] ? `<button class="btn sm" data-recrawl>다시 탐색</button>` : ''}<div class="slot" id="mapslot"></div></div>`;  // slot: 지도 조각이 자기 상태 칩·(i) 를 여기로 옮겨 놓는다
   v.innerHTML = `<div class="mapwrap">${bar}<div class="mapbody" id="mapbody"></div></div>`;
-  for (const b of v.querySelectorAll('[data-src]')) b.onclick = () => { state.src = b.dataset.src; setHash(); };
+  for (const b of v.querySelectorAll('[data-src]')) b.onclick = () => { state.src = b.dataset.src; state.sub = ''; setHash(); };
   const rc = v.querySelector('[data-recrawl]'); if (rc) rc.onclick = () => renderJob($('#mapbody'), src, true);
   $('#runsel').hidden = !data.runs.length || src !== 'compare';
   const body = $('#mapbody');
   if (src === 'compare' ? !data.golden : !m[src]){ renderJob(body, src === 'compare' ? 'init' : src, false); return; }
   const q = '?src=' + src + (src === 'compare' && state.run ? '&run=' + encodeURIComponent(state.run) : '');
-  body.innerHTML = `<iframe title="map ${src}" src="/page/${encodeURIComponent(state.app)}/map${q}"></iframe>`;
+  setWhere(SRC.find(x => x[0] === src)[1]);
+  mountPage(body, 'map', q);
 }
 
 // 작업 화면: kind = init (골든 시나리오 지도: 탐색 → 초안 → 기록) | asis | tobe (탐색만). 서버가 순서대로 돌리고 단계·로그를 2초마다 보여준다
@@ -756,18 +854,18 @@ async function renderJob(v, kind, force){
     : [{state: 'wait', label: `${who}(${url || '주소 없음'}) 화면 탐색 (crawl) → ${crawlDir}`}];
   const title = kind === 'init' ? '아직 to-be 비교 지도가 없습니다' : (force ? `${who}를 다시 탐색합니다` : `아직 ${who} 탐색 지도가 없습니다`);
   const lede = kind === 'init'
-    ? '이 지도는 as-is에서 기록한 골든 시나리오를 뼈대로, 비교 실행에서 다르게 동작한 화면(빨강)·to-be 탐색에 없는 미개발 화면(노랑)·to-be에만 있는 새 화면(파랑)을 표시합니다. 아래 순서를 서버가 대신 돌립니다. 기록이 끝나면 지도가 바로 보이고, <b>승인</b>은 그 뒤 사람이 승인 검토 탭에서 합니다.'
+    ? '이 지도는 as-is에서 기록한 골든 시나리오를 뼈대로, 비교 실행에서 다르게 동작한 화면(빨강)·to-be 탐색에 없는 미개발 화면(노랑)·to-be에만 있는 새 화면(파랑)을 표시합니다. 아래 순서를 서버가 대신 돌립니다. 기록이 끝나면 지도가 바로 보이고, <b>승인</b>은 그 뒤 사람이 시나리오 승인 탭에서 합니다.'
     : `이 지도는 ${who}를 탐색(eastshift crawl)해 찾은 화면을 그대로 잇습니다. 시나리오나 비교와 무관하게 ${who}에 어떤 화면·팝업·드로워가 있는지 봅니다.`;
   const needCrawl = kind !== 'init' || !(data.scenarios || (data.maps||{}).asis);
   const running = job.running, busyOther = running && !mine;
-  v.innerHTML = `<main class="init"><div class="card"><div class="eyebrow">화면 지도 · ${esc(SRC.find(x => x[0] === (kind === 'init' ? 'compare' : kind))[1])}</div><h1>${title}</h1>
+  v.innerHTML = `<main class="init"><div class="card"><div class="eyebrow">Screen Map · ${esc(SRC.find(x => x[0] === (kind === 'init' ? 'compare' : kind))[1])}</div><h1>${title}</h1>
     <p class="lede">${lede}</p>
     <div id="isteps">${stepsHtml(mine && job.steps ? job.steps : plan)}</div>
     <div class="irow"><label>${who} 주소</label>${url ? `<b class="mono">${esc(url)}</b>` : `<span class="pill warn">없음 — 프로젝트 설정에서 적으세요</span> <button class="btn sm" id="goset">설정</button>`}
       <label>탐색 깊이</label><select id="depth" ${needCrawl ? '' : 'disabled'}><option value="2">2 (빠름)</option><option value="3" selected>3 (기본)</option><option value="4">4 (넓게)</option></select></div>
     ${needCrawl ? `<div class="notice"><b>주의</b> 탐색은 저장·확정 버튼도 실제로 누릅니다. 테스트 DB·테스트 계정의 ${who}에서만 돌리세요. 삭제·결제·발송 같은 버튼은 기본 금지 목록으로 누르지 않습니다.</div>` : ''}
     ${busyOther ? `<div class="notice">다른 작업(${esc(job.kind)})이 실행 중입니다. 끝나면 다시 누르세요.</div>` : ''}
-    <div class="irow"><button class="btn primary" id="doinit" ${!url || running ? 'disabled' : ''}>${running && mine ? '실행 중…' : (kind === 'init' ? '화면 지도 만들기' : `${who} 탐색`)}</button></div>
+    <div class="irow"><button class="btn primary" id="doinit" ${!url || running ? 'disabled' : ''}>${running && mine ? '실행 중…' : (kind === 'init' ? 'Screen Map 만들기' : `${who} 탐색`)}</button></div>
     <div id="ierr" class="err">${esc(mine && job.error || '')}</div>
     <pre class="log" id="ilog" ${mine && (job.log||[]).length ? '' : 'hidden'}>${esc(mine ? (job.log||[]).join('\n') : '')}</pre></div></main>`;
   const goset = $('#goset'); if (goset) goset.onclick = () => openEditor(apps.find(a => a.app === state.app));
@@ -797,13 +895,13 @@ function renderHistory(v){
   const mut = d.mutations.find(m => m.current);
   const last = runs[runs.length-1];
   const stale = last && st.approval_id && last.approval_id !== st.approval_id;
-  const cards = [
-    ['승인', st.ok ? `${esc(st.approved_by)}<small>${esc((st.approved_at||'').slice(0,16))}</small>` : (d.golden ? '없음<small>승인 필요</small>' : '없음<small>골든 없음</small>'), st.ok ? 'ok' : 'warn'],
-    ['비교 실행', `${runs.length}회<small>${last ? esc(last.finished.slice(0,16)) : '아직 없음'}</small>`, ''],
-    ['마지막 결과', last ? `${last.totals.pass} 같음 · ${last.totals.fail} 다름` : '—', last ? (last.totals.fail ? 'bad' : 'ok') : ''],
-    ['결함 탐지', mut ? `${Math.round(mut.score*100)}%<small>${mut.killed}/${mut.total} · ${esc((mut.generated_at||'').slice(0,16))}</small>` : '없음<small>현재 승인본으로 측정한 결과 없음</small>', mut ? (mut.score >= .8 ? 'ok' : 'bad') : 'warn'],
+  const chips = [
+    st.ok ? chip('ok', '승인됨', null, `${st.approved_by} · ${(st.approved_at||'').slice(0,16)}`, true) : chip('warn', d.golden ? '승인 필요' : '골든 없음', null, d.golden ? '시나리오 승인 탭에서' : '', true),
+    chip('info', '비교 실행', runs.length + '회', last ? '마지막 ' + last.finished.slice(5,16) : '아직 없음'),
+    last ? (last.totals.fail ? chip('bad', '다름', last.totals.fail, `${last.totals.pass + last.totals.fail}개 중`) : chip('ok', '모두 같음', last.totals.pass)) : '',
+    mut ? chip(mut.score >= .8 ? 'ok' : 'bad', '결함 탐지', Math.round(mut.score*100) + '%', `${mut.killed}/${mut.total}`) : chip('none', '결함 탐지', '없음', '', false, '현재 승인본으로 측정한 결과 없음'),
   ];
-  let h = `<main class="hist"><div class="strip">${cards.map(([k,val,c]) => `<div class="card ${c}"><div class="k">${k}</div><div class="v">${val}</div></div>`).join('')}</div>`;
+  let h = `<main class="hist"><header class="pgh"><div class="chips">${chips.join('')}</div><span class="ihelp" tabindex="0" role="note" aria-label="설명"><i>i</i><span class="tip"><p>to-be 비교 실행마다 원장에 결과가 남고, JUnit·스크린샷 사본으로 그 실행 기준의 지도와 보고서를 다시 그립니다. 행을 누르면 그 실행이 선택되고, 격자의 열 번호를 눌러도 됩니다.</p><div class="facts"><span><b>원장</b> runs/${esc(d.app)}</span></div></span></span></header>`;
   if (stale) h += `<div class="notice"><b>주의</b> 마지막 비교는 이전 승인본(${esc(last.approved_at||'없음')})으로 실행됐습니다. 현재 승인본으로 다시 비교하세요.</div>`;
   if (!runs.length){
     const tobe = ((d.project||{}).tobe||{}).url || '<to-be>';
@@ -856,20 +954,28 @@ function renderHistory(v){
   h += `</main>`;
   v.innerHTML = h;
   for (const el of v.querySelectorAll('[data-run]')){
-    el.addEventListener('click', e => { const go = e.target.dataset.go; state.run = el.dataset.run; if (go) state.tab = go; setHash(); });
+    el.addEventListener('click', e => { const go = e.target.dataset.go; state.run = el.dataset.run; if (go) state.tab = go; state.sub = ''; setHash(); });
   }
+  // 표는 10줄씩: 실행 표(선택한 실행이 있는 쪽을 먼저), 시나리오 × 실행, 실행 상세
+  for (const t of v.querySelectorAll('.tbl')) pager([...t.querySelectorAll('tbody tr')], 10, t, t.querySelector('tbody tr.on'));
+  const cases = [...v.querySelectorAll('.case')];
+  if (cases.length) pager(cases, 10, cases[cases.length - 1].parentElement, cases.find(c => c.classList.contains('fail')));
 }
 
 async function route(){
   const h = parseHash();
   if (h.app && !apps.some(a => a.app === h.app)) h.app = null;  // 모르는 이름이면 목록으로
-  state = {app: h.app, tab: h.tab, run: h.run, src: h.src};
+  // 끼운 조각의 안쪽 이동(sub)만 바뀐 것이면 조각을 다시 만들지 않고 조각에게만 알린다. 비교 기준은 조각을 끼울 때의 상태 (탭 버튼 등은 setHash 전에 state 를 먼저 바꾼다)
+  const same = mounted && mounted.at.app === h.app && mounted.at.tab === h.tab && mounted.at.run === (h.run || null) && mounted.at.src === (h.src || null);
+  state = {app: h.app, tab: h.tab, run: h.run, src: h.src, sub: h.sub || ''};
   renderTop();
+  if (same){ for (const f of mounted.subs) f(); return; }
+  destroyPage();
   if (state.app) await loadApp();
   render();
   if (!apps.length && !document.querySelector('.modal')) openEditor(null);  // 첫 방문: 바로 추가 창
 }
-$('#run').addEventListener('change', e => { state.run = e.target.value || null; setHash(); });
+$('#run').addEventListener('change', e => { state.run = e.target.value || null; state.sub = ''; setHash(); });
 $('#brand').addEventListener('click', e => { e.preventDefault(); location.hash = ''; });
 window.addEventListener('message', e => { if (e.data && e.data.eastshift === 'approved') loadApps().then(route); });  // 검토 화면에서 승인되면 상태 갱신
 window.addEventListener('hashchange', route);
@@ -878,7 +984,7 @@ loadApps().then(route);
 
 SHELL = (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>"
          f"<title>EastShift</title>{html.FONTS}<style>{html.CSS}{HUB_CSS}</style></head><body class='hub'>"
-         "<header class='top'><a class='brand' id='brand' href='#'>EastShift</a><div class='crumb' id='crumb'></div>"
+         "<header class='top'><a class='brand' id='brand' href='#'>EastShift</a><div class='crumb' id='crumb'></div><div class='where' id='where'></div>"
          "<div class='runsel' id='runsel' hidden><label for='run'>실행</label><select id='run' aria-label='실행 선택'></select></div></header>"
          "<div class='frame'><nav class='side' id='tabs' aria-label='화면' hidden></nav><div id='view'></div></div>"
          f"<script>{HUB_JS}</script></body></html>")

@@ -2,7 +2,7 @@
 
 막는 것
 - Edit/Write/MultiEdit/NotebookEdit 로 golden/ 아래 파일을 쓰는 것
-- Bash 로 APPROVED.json 을 쓰는 것 (읽기는 된다). 승인은 사람이 eastshift ui 의 승인 검토 탭에서만 한다 (터미널 승인 명령은 없다. 옛 `eastshift approve` 호출도 계속 막는다).
+- Bash 로 APPROVED.json 을 쓰는 것 (읽기는 된다). 승인은 사람이 eastshift ui 의 시나리오 승인 탭에서만 한다 (터미널 승인 명령은 없다. 옛 `eastshift approve` 호출도 계속 막는다).
 - Bash 로 golden/ 아래를 지우거나 옮기거나 덮어쓰는 것 (rm, mv, cp, sed -i, tee, >, truncate …)
 허용하는 것: 읽기, `pytest … --record/--compare golden/…`, `eastshift mutate/report/oracle-status`.
 --record 로 기록하면 해시가 바뀌어 사람이 다시 승인해야 비교가 돈다 (APPROVED.json이 진짜 안전장치, 이 hook은 앞단 차단).
@@ -14,7 +14,7 @@ import sys
 
 REASON = ("golden/ is the approved oracle: agents do not edit it or approve it. "
           "Propose the change to the user (what and why); a person edits oracle.json / name maps and approves "
-          "in `uv run eastshift ui` (승인 검토 tab), started in their own terminal.")
+          "in `uv run eastshift ui` (시나리오 승인 tab), started in their own terminal.")
 ALLOWED_FLAGS = re.compile(r"--(?:record|compare|oracle|name-map)[ =]\S*golden/\S*")
 PY_WRITE = re.compile(r"\b(?:write_text|write_bytes|open\(|json\.dump\b|shutil\.|os\.(?:remove|unlink|rename|replace|rmdir)|\.unlink\(|\.rename\(|\.replace\(|rmtree|\.touch\(|\.mkdir\()")
 WRITE_VERBS = re.compile(r"(^|[\s;&|(])(rm|mv|cp|tee|truncate|ln|chmod|sed\s+-i|perl\s+-[pi]|dd)\b"  # golden/ 인자가 있는 쓰기 명령

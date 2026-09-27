@@ -20,7 +20,7 @@ from .map import _plain
 KIND_LABEL = {"same": "같음", "accepted_diff": "승인된 차이", "drift": "기대값 바뀜", "golden_diff": "as-is와 다름", "assert": "확인 값 실패", "error": "실행 못 함"}
 
 CSS = """
-main{max-width:1240px;gap:22px}
+main{max-width:none;gap:22px;padding-block:22px 60px}
 .head{gap:6px 24px}.head h1{font-size:26px}
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
@@ -38,6 +38,8 @@ main{max-width:1240px;gap:22px}
 .tbl tr:last-child td{border-bottom:0}.tbl tbody tr{cursor:pointer}.tbl tbody tr:hover td{background:var(--accent-soft)}
 .tbl tr.dim{display:none}
 .tbl .t b{display:block;font-size:14.5px}.tbl .t small{font:11.5px var(--mono);color:var(--faint)}
+.tbl .r{white-space:nowrap}.tbl .r small{display:block;font:11.5px var(--mono);color:var(--bad);white-space:normal;max-width:360px;margin-top:3px}
+.tbl tr[data-state='fail'] td:first-child{box-shadow:inset 3px 0 var(--bad)}
 .tbl .n{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
 .hist{display:inline-flex;gap:3px;align-items:center}.hist i{width:10px;height:10px;border-radius:3px;background:var(--line);display:inline-block}
 .hist i.p{background:var(--ok)}.hist i.f{background:var(--bad)}.hist i.cur{outline:2px solid var(--ink);outline-offset:1px}
@@ -71,17 +73,18 @@ main{max-width:1240px;gap:22px}
 .lb .cap{color:#fff;margin-top:12px;font-size:14px;text-align:center}
 """
 
-JS = r"""<script>
-const D = JSON.parse(document.getElementById('d').textContent);
+JS = r"""
+const $ = s => root.querySelector(s), $$ = s => root.querySelectorAll(s);
+const D = JSON.parse($('#d').textContent);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const modal = document.getElementById('modal'), lb = document.getElementById('lb');
+const modal = $('#modal'), lb = $('#lb');
 const KIND = D.kind_label;
 const resultPill = r => r.kind === 'accepted_diff' ? '<span class="pill warn">승인된 차이</span>' : r.status === 'pass' ? '<span class="pill ok">같음</span>' : `<span class="pill bad">${esc(KIND[r.kind] || '실패')}</span>`;
 function openLb(src, cap){ if(!src) return; lb.querySelector('img').src = src; lb.querySelector('.cap').textContent = cap || ''; lb.classList.add('on'); }
 lb.addEventListener('click', () => lb.classList.remove('on'));
 function closeModal(){ modal.classList.remove('on'); }
 modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
-addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else closeModal(); });
+ctx.listen(window, 'keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else closeModal(); });
 function openTest(name){
   const t = D.tests[name]; if(!t) return;
   const last = t.last, pill = !last ? '<span class="pill none">비교 전</span>' : resultPill(last);
@@ -102,18 +105,39 @@ function openTest(name){
   modal.querySelector('#closeModal').addEventListener('click', closeModal);
   modal.querySelectorAll('[data-lb]').forEach(b => b.addEventListener('click', () => openLb(D.shots[b.dataset.lb], b.dataset.cap)));
 }
-document.querySelectorAll('tbody tr[data-test]').forEach(tr => tr.addEventListener('click', () => openTest(tr.dataset.test)));
-const q = document.getElementById('q'), f = document.getElementById('f');
-function filter(){
-  const s = q.value.trim().toLowerCase(), st = f.value;
-  document.querySelectorAll('tbody tr[data-test]').forEach(tr => {
+$$('tbody tr[data-test]').forEach(tr => tr.addEventListener('click', () => openTest(tr.dataset.test)));
+const q = $('#q');
+let st = '';  // 머리 칩으로 고른 결과 ('' = 전부)
+// 쪽 나누기: 걸러진 행을 10줄씩. 검색·칩이 바뀌면 1쪽으로
+const PER = 10; let page = 0;
+const foot = document.createElement('div'); foot.className = 'pager'; $('.tbl').after(foot);
+function filter(resetPage){
+  if(resetPage) page = 0;
+  const s = q.value.trim().toLowerCase();
+  const rows = [...$$('tbody tr[data-test]')], hits = [];
+  rows.forEach(tr => {
     const t = D.tests[tr.dataset.test];
     const hit = (!s || t.title.toLowerCase().includes(s) || tr.dataset.test.toLowerCase().includes(s)) && (!st || tr.dataset.state === st);
-    tr.classList.toggle('dim', !hit);
+    tr.classList.toggle('dim', !hit); if(hit) hits.push(tr);
   });
+  const n = Math.max(1, Math.ceil(hits.length / PER)); page = Math.min(page, n - 1);
+  hits.forEach((tr, i) => tr.classList.toggle('dim', Math.floor(i / PER) !== page));
+  if(hits.length <= PER){ foot.innerHTML = hits.length ? '' : '<span class="rng">맞는 시나리오가 없습니다</span>'; return; }
+  const nums = [...Array(n).keys()].filter(i => n <= 7 || i === 0 || i === n - 1 || Math.abs(i - page) <= 1);
+  let last = -1, btns = '';
+  for(const i of nums){ if(i - last > 1) btns += '<span class="gap">…</span>'; btns += `<button type="button" class="${i === page ? 'on' : ''}" data-p="${i}">${i + 1}</button>`; last = i; }
+  foot.innerHTML = `<span class="rng">${page * PER + 1}–${Math.min((page + 1) * PER, hits.length)} / ${hits.length}</span><button type="button" data-d="-1" ${page === 0 ? 'disabled' : ''} aria-label="이전 쪽">‹</button>${btns}<button type="button" data-d="1" ${page === n - 1 ? 'disabled' : ''} aria-label="다음 쪽">›</button>`;
+  foot.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { page = +b.dataset.p; filter(); });
+  foot.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { page += +b.dataset.d; filter(); });
 }
-q.addEventListener('input', filter); f.addEventListener('change', filter);
-</script>"""
+filter();
+q.addEventListener('input', () => filter(true));
+$$('#chips .fchip[data-st]').forEach(b => b.addEventListener('click', () => {
+  st = (b.dataset.st && st !== b.dataset.st) ? b.dataset.st : '';
+  $$('#chips .fchip[data-st]').forEach(x => x.classList.toggle('on', x.dataset.st === st));
+  filter(true);
+}));
+"""
 
 
 def _img(p: Path) -> str:
@@ -160,48 +184,61 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
             "tests": tests, "shots": shots, "kind_label": KIND_LABEL}
 
 
-def render(g: dict[str, Any]) -> str:
+def fragment(g: dict[str, Any]) -> dict[str, Any]:
+    """골든 관리(개요) 조각 (html.fragment 형식). 머리의 칩이 상태 요약이자 거르기, 표는 다른 것부터."""
     st, runs, tests = g["oracle"], g["runs"], g["tests"]
     latest = runs[-1] if runs else None
-    n_fail = sum(1 for t in tests.values() if t["last"] and t["last"]["status"] != "pass")
-    n_pass = sum(1 for t in tests.values() if t["last"] and t["last"]["status"] == "pass")
-    n_accepted = sum(1 for t in tests.values() if t["last"] and t["last"].get("kind") == "accepted_diff")
-    n_never = len(tests) - n_fail - n_pass
-    if not st["ok"]:
-        stamp = ("warn", "승인 필요", "기준이 승인되지 않음")
-    elif not latest:
-        stamp = ("ok", "승인됨", "to-be 비교 전")
-    elif n_fail:
-        stamp = ("bad", f"남은 실패 {n_fail}", f"{len(tests)}개 중")
-    else:
-        stamp = ("ok", "승인된 차이 포함" if n_accepted else "모두 같음", f"{len(tests)}개 시나리오")
-    stale = bool(latest and st.get("approval_id") and latest.get("approval_id") != st.get("approval_id"))
-    cards = [("승인", (st.get("approved_by") or "없음") + (f"<small>{html._e((st.get('approved_at') or '')[:16])}</small>" if st["ok"] else ""), "ok" if st["ok"] else "warn"),
-             ("시나리오", f"{len(tests)}<small>확인 값 {sum(t['assertions'] for t in tests.values())}</small>", ""),
-             ("마지막 비교", (f"{html._e(latest['finished'][:16])}<small>{html._e(latest['target'])}</small>" if latest else "없음"), "warn" if stale else ""),
-             ("결과", (f"{n_pass - n_accepted} 같음 · {n_accepted} 승인된 차이 · {n_fail} 다름" + (f" · {n_never} 비교 전" if n_never else "")) if latest else "비교 전", "bad" if n_fail else ("ok" if latest else ""))]
-    summary = "<div class='summary'>" + "".join(f"<div class='card {c}'><div class='k'>{k}</div><div class='v'>{v}</div></div>" for k, v, c in cards) + "</div>"
-    if stale:
-        summary += f"<div class='notice'><b>주의</b> 마지막 비교는 이전 승인본({html._e(latest['approved_at'] or '없음')})으로 실행됐습니다. 현재 승인본으로 다시 비교하세요.</div>"
-    rows = []
-    for name, t in tests.items():
+
+    def state_of(t: dict[str, Any]) -> str:
         last = t["last"]
-        state = "never" if not last else ("pass" if last["status"] == "pass" else "fail")
-        pill = "<span class='pill none'>비교 전</span>" if not last else (f"<span class='pill warn'>{html._e(KIND_LABEL['accepted_diff'])}</span>" if last.get("kind") == "accepted_diff" else ("<span class='pill ok'>같음</span>" if last["status"] == "pass" else f"<span class='pill bad'>{html._e(KIND_LABEL.get(last['kind'], '실패'))}</span>"))
+        if not last:
+            return "never"
+        if last.get("kind") == "accepted_diff":
+            return "accepted"
+        return "pass" if last["status"] == "pass" else "fail"
+
+    states = {n: state_of(t) for n, t in tests.items()}
+    n = {k: sum(1 for s in states.values() if s == k) for k in ("pass", "fail", "accepted", "never")}
+    stale = bool(latest and st.get("approval_id") and latest.get("approval_id") != st.get("approval_id"))
+    chips = []
+    if st["ok"]:
+        chips.append(html.chip("ok", "승인됨", sub=f"{st.get('approved_by')} · {(st.get('approved_at') or '')[:16]}", lead=True))
+    elif st.get("approved_by"):
+        chips.append(html.chip("warn", "재승인 필요", sub="승인 후 기록이 바뀜", lead=True))
+    else:
+        chips.append(html.chip("warn", "승인 필요", sub="시나리오 승인 탭에서", lead=True))
+    chips.append(f"<button type='button' class='fchip all on' data-st=''>시나리오<b>{len(tests)}</b></button>")
+    for k, label, cls in (("fail", "다름", "bad"), ("accepted", "승인된 차이", "accepted"), ("pass", "같음", "ok"), ("never", "비교 전", "none")):
+        if n[k]:
+            chips.append(f"<button type='button' class='fchip {cls}' data-st='{k}' title='이 결과의 시나리오만 보기'><i></i>{label}<b>{n[k]}</b></button>")
+    if latest:
+        chips.append(html.chip("warn" if stale else "info", f"마지막 비교 {latest['finished'][5:16]}", sub=latest["target"].replace("http://", "") + (" · 이전 승인본" if stale else "")))
+    else:
+        chips.append(html.chip("info", "to-be 비교 전"))
+    notice = (f"<div class='notice'><b>주의</b> 마지막 비교는 이전 승인본({html._e(latest['approved_at'] or '없음')})으로 실행됐습니다. 현재 승인본으로 다시 비교하세요.</div>" if stale else "")
+
+    order = {"fail": 0, "accepted": 1, "never": 2, "pass": 3}
+    rows = []
+    for name in sorted(tests, key=lambda x: (order[states[x]], x)):
+        t, state, last = tests[name], states[name], tests[name]["last"]
+        pill = ("<span class='pill none'>비교 전</span>" if state == "never" else f"<span class='pill warn'>{html._e(KIND_LABEL['accepted_diff'])}</span>" if state == "accepted"
+                else "<span class='pill ok'>같음</span>" if state == "pass" else f"<span class='pill bad'>{html._e(KIND_LABEL.get(last['kind'], '실패'))}</span>")
+        summary = html._e((last or {}).get("summary") or "")[:90] if state == "fail" else ""
         hist = "".join(f"<i class='{'p' if h['status'] == 'pass' else 'f'}{' cur' if i == len(t['history']) - 1 else ''}' title='{html._e(h['finished'])} · {html._e(h['target'])}'></i>"
                        for i, h in enumerate(t["history"][-12:]))
-        rows.append(f"<tr data-test='{html._e(name)}' data-state='{state}'><td class='t'><b>{html._e(t['title'])}</b><small>{html._e(name)}</small></td>"
-                    f"<td class='n'>{len(t['steps'])}</td><td class='n'>{t['assertions']}</td><td>{pill}</td>"
+        rows.append(f"<tr data-test='{html._e(name)}' data-state='{state}'><td class='t'><b>{html._e(t['title'])}</b><small>{html._e(name)} · {len(t['steps'])}단계 · 확인 값 {t['assertions']}</small></td>"
+                    f"<td class='r'>{pill}{('<small>' + summary + '</small>') if summary else ''}</td>"
                     f"<td><span class='hist'>{hist or '<span class=tid>—</span>'}</span></td><td class='n'>{html._e((t['recorded_at'] or '')[:10])}</td></tr>")
-    body = (f"<header class='head'><div class='eyebrow'>골든 관리</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
-            f"<h1>{html._e(g['app'])}</h1><p class='lede'>이 앱의 골든 시나리오와 to-be 비교 현황입니다. 행을 누르면 시나리오 단계와 마지막 결과가 나옵니다.</p>"
-            f"<div class='prov'><span><b>기준 폴더</b> golden/{html._e(g['app'])}</span><span><b>실행 기록</b> runs/{html._e(g['app'])} · {len(runs)}회</span></div></header>"
-            f"{summary}"
-            f"<div class='tools'><input id='q' type='search' placeholder='시나리오 이름·ID로 찾기' aria-label='찾기'>"
-            f"<select id='f' aria-label='결과로 거르기'><option value=''>모든 결과</option><option value='fail'>다름만</option><option value='pass'>같음만</option><option value='never'>비교 전만</option></select></div>"
-            f"<div class='tbl'><table><thead><tr><th>시나리오</th><th>단계</th><th>확인 값</th><th>마지막 결과</th><th>이력 (오래된 → 최근)</th><th>기록일</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
+    body = (html.head(chips, chips_id="chips", info="이 앱의 골든 시나리오와 to-be 비교 현황입니다. 칩을 누르면 그 결과의 시나리오만 남고, 행을 누르면 단계·캡처·다른 점·실행 이력이 나옵니다.",
+                      facts=[f"<b>기준 폴더</b> golden/{html._e(g['app'])}", f"<b>실행 기록</b> runs/{html._e(g['app'])} · {len(runs)}회", f"<b>확인 값</b> {sum(t['assertions'] for t in tests.values())}개"])
+            + notice +
+            f"<div class='tools'><input id='q' type='search' placeholder='시나리오 제목·ID로 찾기' aria-label='찾기'></div>"
+            f"<div class='tbl'><table><thead><tr><th>시나리오</th><th>마지막 결과</th><th>이력 (오래된 → 최근)</th><th>기록일</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
             f"<div class='modal' id='modal' role='dialog' aria-label='시나리오 상세'><div class='box'></div></div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
-    data = json.dumps(g, ensure_ascii=False).replace("</", "<\\/")
-    page = html._page(f"{g['app']} 골든 관리", body, script=f"<script type='application/json' id='d'>{data}</script>{JS}")
-    return page.replace("</style>", CSS + "</style>", 1)
+    return html.fragment("catalog", f"{g['app']} 골든 관리", body, css=CSS, js=JS, data=("d", g))
+
+
+def render(g: dict[str, Any]) -> str:
+    """혼자 열리는 문서 (테스트, /page/… 직접 접속). 통합 화면은 fragment() 를 끼운다."""
+    return html.assemble(fragment(g))

@@ -1,6 +1,6 @@
 """pytest 플러그인: `ui` fixture와 as-is/to-be 비교 옵션. EastShift를 설치하면 자동 등록된다 (pyproject의 pytest11 entry point).
 
-uv run pytest e2e/<app> --base-url <as-is> --record golden/<app>     # as-is 골든 기록 → `eastshift ui`의 승인 검토 탭
+uv run pytest e2e/<app> --base-url <as-is> --record golden/<app>     # as-is 골든 기록 → `eastshift ui`의 시나리오 승인 탭
 uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app>    # to-be 비교 (승인된 오라클만). 끝나면 runs/<app>/ 원장에 결과를 남긴다 (ledger.py)
 
 비교 규칙(마스킹, 이름 매핑)은 오라클 디렉터리 안에만 둔다 (oracle.py). 테스트 코드나 명령행으로 바꿀 수 없다.
@@ -44,7 +44,7 @@ def pytest_collection_modifyitems(items):
 def pytest_addoption(parser):
     g = parser.getgroup("eastshift", "as-is/to-be E2E (eastshift.pwtest)")
     g.addoption("--base-url", default=os.environ.get("EASTSHIFT_BASE_URL"), help="대상 앱 기준 URL (기본 EASTSHIFT_BASE_URL)")
-    g.addoption("--record", type=Path, default=None, help="골든 기록 디렉터리 (as-is에서). 기록 후 사람이 eastshift ui 승인 검토 탭에서 승인")
+    g.addoption("--record", type=Path, default=None, help="골든 기록 디렉터리 (as-is에서). 기록 후 사람이 eastshift ui 시나리오 승인 탭에서 승인")
     g.addoption("--compare", type=Path, default=None, help="승인된 오라클 디렉터리와 비교 (to-be에서)")
     g.addoption("--name-map", type=Path, default=None, help="as-is 이름 → to-be 이름 JSON. --compare 디렉터리 안의 파일만")
     g.addoption("--allow-unapproved", action="store_true", help="승인 안 된 오라클로 비교 (결과에 UNAPPROVED로 남는다)")
@@ -68,7 +68,7 @@ def pytest_configure(config):
         st = oracle.status(compare)
         if not st["ok"] and not config.getoption("--allow-unapproved"):
             raise pytest.UsageError("oracle not approved, comparison refused:\n  " + "\n  ".join(st["problems"])
-                                    + "\nA person reviews and approves in `uv run eastshift ui` (승인 검토 tab).")
+                                    + "\nA person reviews and approves in `uv run eastshift ui` (시나리오 승인 tab).")
         config._jev_oracle = st
         recorded_setups = {json.dumps(json.loads(p.read_text(encoding="utf-8")).get("setup", {}), sort_keys=True)
                            for p in oracle._golden_files(compare)}
@@ -102,7 +102,7 @@ def pytest_sessionstart(session):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
-    """기록이 끝나면 골든 폴더를 정리하고 승인 위치를 알린다. 사람은 통합 화면의 승인 검토 탭에서 보고 승인한다."""
+    """기록이 끝나면 골든 폴더를 정리하고 승인 위치를 알린다. 사람은 통합 화면의 시나리오 승인 탭에서 보고 승인한다."""
     _ledger_summary_line(terminalreporter, config)
     record = config.getoption("--record")
     if not record or not record.exists():
@@ -114,7 +114,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             if d.is_dir() and d.name not in keep:
                 shutil.rmtree(d, ignore_errors=True)
     terminalreporter.write_line(f"\n골든 기록: {record}  (시나리오 {len(list(record.glob('*.json')))}개)")
-    terminalreporter.write_line("확인 후 승인: uv run eastshift ui → 승인 검토 탭 (사람)")
+    terminalreporter.write_line("확인 후 승인: uv run eastshift ui → 시나리오 승인 탭 (사람)")
 
 
 def _ledger_summary_line(terminalreporter, config):

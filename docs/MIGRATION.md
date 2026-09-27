@@ -28,7 +28,7 @@ as-is에 버그가 있으면 그 버그가 곧 기대값이다. Claude Code에�
 # 0) 같은 DB 스냅샷, 같은 기준 시각으로 as-is와 to-be를 띄운다 (데이터가 다르면 비교가 무의미)
 uv run pytest e2e/<app> --base-url $ASIS                                            # 2) 두 번 연속 통과
 uv run pytest e2e/<app> --base-url $ASIS --record golden/<app>                      # 3) 기록
-uv run eastshift ui                                                                    # 4) 승인 검토 탭에서 바로 승인
+uv run eastshift ui                                                                    # 4) 시나리오 승인 탭에서 바로 승인
 uv run eastshift mutate e2e/<app> --base-url $ASIS --compare golden/<app> --max-per-op 100   # 5)
 uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml   # 6)
 uv run eastshift status golden/<app>                                                    # 7) 남은 실패, 지난 실행 대비 변화
@@ -73,7 +73,7 @@ uv run eastshift ui            # http://127.0.0.1:8790 (골든 루트 golden/, �
 "프로젝트 추가"를 누르면 창이 뜨고 이름, as-is·to-be **소스 위치**(찾아보기: 작업 디렉터리·홈 아래 폴더만 서버가 보여준다), 실행 주소(선택), 메모를 넣는다. 저장하면 `eastshift.json`에 적히고 `e2e/<app>/` 자리가 생긴다.
 등록부에 없어도 `golden/<app>`이나 `e2e/<app>`이 있으면 목록에 "미등록"으로 나오고 설정에서 채울 수 있다. 삭제는 등록만 지우고 산출물은 남긴다. 프로젝트가 하나도 없으면 첫 방문에 추가 창이 바로 열린다.
 
-카드의 "열기"로 들어가면 **화면 지도**가 먼저 열리고, 왼쪽 탭으로 **개요**(골든 관리) · **이력** · **승인 검토** · **검증 보고서**를 오간다.
+카드의 "열기"로 들어가면 **개요**(골든 관리)가 먼저 열리고, 왼쪽 탭으로 **Screen Map** · **시나리오 승인** · **검증 보고서** · **이력**을 오간다. 골든이 없는 프로젝트의 "Screen Map 만들기" 버튼은 Screen Map 탭으로 간다.
 
 **화면 지도는 셋**이다. 지도 위의 출처 바로 오간다 (주소 `#<app>/map/<실행>/<출처>`).
 - **as-is 탐색**: `eastshift crawl`이 as-is를 훑어 찾은 화면을 그대로 잇는다 (`crawl/<app>/graph.json`). 시나리오·비교와 무관하게 as-is에 무엇이 있는지. 단위는 "경로"(탐색 경로).
@@ -83,19 +83,24 @@ uv run eastshift ui            # http://127.0.0.1:8790 (골든 루트 golden/, �
 
 탐색 지도가 없으면 그 자리에 "as-is 탐색" / "to-be 탐색" 버튼(깊이 선택)이 나오고 서버가 `eastshift crawl`을 돌려 지도를 그린다. "다시 탐색"으로 갱신한다.
 
-**화면 지도 만들기**: 골든이 아직 없는 프로젝트는 골든 시나리오 비교 지도 대신 초기화 화면이 나온다. 버튼 하나로 서버가 ① as-is 탐색(`eastshift crawl`, 깊이 선택) → ② 시나리오 초안을 `e2e/<app>/`로 → ③ as-is에서 골든 기록(`pytest --record`)을 순서대로 돌리고 로그를 보여준다. `e2e/<app>/`에 시나리오가 이미 있으면 ①②는 건너뛰고 기록만 하고, as-is 탐색 지도를 이미 만들었으면 ①은 건너뛰고 그 초안을 쓴다. 끝나면 지도가 바로 그려진다. **승인은 하지 않는다** — 그 뒤 사람이 승인 검토 탭에서. 골든이 이미 있으면 이 버튼은 없다(골든은 사람 승인물이라 화면에서 덮어쓰지 않는다). 탐색은 저장·확정 버튼도 실제로 누르므로 테스트 DB의 as-is에서만.
+**완전성 잣대 (코드에만 있는 화면).** 탐색은 "누를 수 있는 것을 다 눌렀다"까지만 보장한다. 무엇을 놓쳤는지는 탐색 자체로는 알 수 없으므로 잣대를 소스에서 뽑는다:
+프로젝트에 소스 위치가 있으면 탐색 뒤에 `eastshift routes <소스> --out crawl/<app>[-tobe]/routes.json`이 자동으로 돌아 라우팅 선언(Flask·FastAPI·Django, Spring·JAX-RS, Express·React/Vue 라우터·Next 파일 라우트, JSP·PHP 파일, Struts·web.xml, Rails, Go, ASP.NET, 표준 라이브러리 손 라우팅)에서 화면 주소 목록을 만든다. 실행하지 않고 정규식으로 읽는다.
+지도는 이 목록과 대조해 어떤 탐색 경로·시나리오도 닿지 않은 주소를 **회색**("코드에만 있음") 카드로 넣고, 머리에 "소스 화면 N개 중 M 도달"을 적는다. 회색 카드를 누르면 코드 위치(파일:줄)와 못 간 이유 후보(픽스처 값이 없는 입력칸, 금지 목록에 걸린 버튼, 로그인·권한, 특정 데이터가 있어야 보이는 화면, 탐색 예산)가 나온다. to-be 비교 지도는 as-is 소스의 목록을 쓴다.
+이 목록은 코드가 선언한 주소의 **하한**이다. 데이터 테이블에서 만드는 메뉴, 문자열을 이어 붙인 주소, 런타임 조건으로 갈리는 주소는 못 잡는다. 그러므로 회색이 있으면 확실히 놓친 것이고, 회색이 없다고 다 본 것은 아니다. "모든 경로"는 무한(되돌아가는 길)이므로 목표는 "모든 화면과 그 화면의 모든 동작"이다.
+
+**화면 지도 만들기**: 골든이 아직 없는 프로젝트는 골든 시나리오 비교 지도 대신 초기화 화면이 나온다. 버튼 하나로 서버가 ① as-is 탐색(`eastshift crawl`, 깊이 선택) → ② 시나리오 초안을 `e2e/<app>/`로 → ③ as-is에서 골든 기록(`pytest --record`)을 순서대로 돌리고 로그를 보여준다. `e2e/<app>/`에 시나리오가 이미 있으면 ①②는 건너뛰고 기록만 하고, as-is 탐색 지도를 이미 만들었으면 ①은 건너뛰고 그 초안을 쓴다. 끝나면 지도가 바로 그려진다. **승인은 하지 않는다** — 그 뒤 사람이 시나리오 승인 탭에서. 골든이 이미 있으면 이 버튼은 없다(골든은 사람 승인물이라 화면에서 덮어쓰지 않는다). 탐색은 저장·확정 버튼도 실제로 누르므로 테스트 DB의 as-is에서만.
 오른쪽 위 "실행" 선택으로 지난 실행을 고르면 지도와 보고서가 그 실행 기준으로 다시 그려진다 (원장이 실행마다 JUnit·스크린샷 사본을 `runs/<app>/<시각>/`에 남기기 때문).
 
 이력 탭: 승인·실행 수·마지막 결과·결함 탐지율 카드, 실행 목록(대상, 어느 승인본으로, 결과, 지난 실행 대비 +통과로/−새로 실패/계속 실패, 지도·보고서 버튼),
 시나리오 × 실행 격자(초록/빨강, 열을 누르면 그 실행 선택), 선택한 실행의 테스트별 상세(종류, 첫 오류 줄, 무엇이·as-is·to-be 표, 실패 순간 화면), 결함 탐지 측정 목록(현재 승인본인지).
 새로 판단하는 것은 없다. 서버는 127.0.0.1에만 열리고 `runs/`·골든 루트 밖의 파일은 주지 않는다.
 
-**웹 승인**: `eastshift ui`의 승인 검토 탭에서 모든 시나리오를 확인하면 이름 입력란과 승인 버튼이 나온다. 승인하면 `APPROVED.json`이 생긴다. 터미널 코드나 TTY는 필요 없다. 검토 도중 기준 파일이 바뀌면 승인 요청은 거부된다. 이름은 기록용이며 신원 인증은 아니다. 서버는 로컬(127.0.0.1)에만 연다.
+**웹 승인**: `eastshift ui`의 시나리오 승인 탭에서 모든 시나리오를 확인하면 이름 입력란과 승인 버튼이 나온다. 승인하면 `APPROVED.json`이 생긴다. 터미널 코드나 TTY는 필요 없다. 검토 도중 기준 파일이 바뀌면 승인 요청은 거부된다. 이름은 기록용이며 신원 인증은 아니다. 서버는 로컬(127.0.0.1)에만 연다.
 
 ### 화면 네 장 (통합 화면 안에서만)
 
 사람이 보는 화면은 통합 화면의 탭이 전부다. 서버가 요청 때마다 산출물에서 만들고, 파일로 따로 떨구는 명령은 없다 (모두 산출물만 읽고 새로 판단하지 않는다). 각 탭의 모습은 `docs/samples/ui-*.png`.
-- **승인 검토** (`eastshift/pwtest/review.py`): 왼쪽 시나리오 목록(확인 체크, 지난 승인 이후 바뀐 것·새 것 표시, 전체/미확인/바뀐 것 필터), 가운데 선택한 시나리오의 단계별 큰 as-is 캡처(`golden/<app>/shots/`, 승인 해시에 포함)와 동작·새로 나타난 내용·알림창·그 시점에 확인한 값(바뀐 값은 이전 값도), 오른쪽 규칙(가리는 값과 실제로 가린 값, 이름 변경, 동등 결함).
+- **시나리오 승인** (`eastshift/pwtest/review.py`): 왼쪽 시나리오 목록(확인 체크, 지난 승인 이후 바뀐 것·새 것 표시, 전체/미확인/바뀐 것 필터), 가운데 선택한 시나리오의 단계별 큰 as-is 캡처(`golden/<app>/shots/`, 승인 해시에 포함)와 동작·새로 나타난 내용·알림창·그 시점에 확인한 값(바뀐 값은 이전 값도), 오른쪽 규칙(가리는 값과 실제로 가린 값, 이름 변경, 동등 결함).
   확인 체크는 브라우저에 남고(localStorage, 골든 해시별), 전부 확인하면 이름 입력란과 승인 버튼이 나온다. 캡처 `docs/samples/ui-approve.png`.
 - **검증 보고서** (`report.py` + `html.render_report`): 결론, 다른 점(무엇이 · as-is · to-be), 신뢰 확인, 결함 탐지 능력. 고른 실행의 JUnit과 현재 승인본의 결함 주입 결과로 그린다.
   같은 내용의 markdown은 `eastshift report … --out reports/verification-<app>.md`로 만든다. 이건 에이전트와 CI가 판정 줄을 읽는 용도다.
@@ -114,7 +119,7 @@ uv run eastshift ui            # http://127.0.0.1:8790 (골든 루트 golden/, �
 
 ```bash
 uv run eastshift oracle-status golden/<app>                          # 승인 상태, 마스킹 감사 (누구나, 터미널)
-uv run eastshift ui                                                  # 승인 검토 탭에서 사람이 승인. 화면 네 장도 여기
+uv run eastshift ui                                                  # 시나리오 승인 탭에서 사람이 승인. 화면 네 장도 여기
 uv run eastshift mutate e2e/<app> --base-url $ASIS --compare golden/<app> --max-per-op 100
 uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
 uv run eastshift report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md   # markdown
@@ -159,7 +164,7 @@ heading level, 구분자(`|`), 컨테이너의 aria-label 차이는 무시된다
 
 `redact_fields`에 지정한 입력칸, 비밀번호·토큰 이름의 입력칸, `redact_patterns`에 맞는 문자열은 저장 전에 `<redacted>`로 바뀐다. 비밀 입력이나 패턴이 쓰인 실행에서는 단계 화면과 실패 캡처를 저장하지 않는다. 이 규칙은 해당 값의 동등성 검사도 가리므로 구체적인 범위로 작성한다.
 
-`api_compare`는 화면에 보이지 않는 응답 결과를 비교할 API 경로의 정규식이다. `fetch`/XHR 응답의 경로·메서드·상태·본문을 동작 단계에 묶어 기록하고 승인 검토 화면에 보여 준다. as-is와 to-be가 같은 API 경로를 쓸 때 적용하며, 매번 바뀌는 응답 값은 `redact_patterns`로 가린다. API 응답은 골든에 저장되므로 이 규칙과 민감정보 제거 규칙을 **골든 기록 전에** 설정한다. 나중에 추가했으면 as-is에서 다시 기록하고 재승인한다.
+`api_compare`는 화면에 보이지 않는 응답 결과를 비교할 API 경로의 정규식이다. `fetch`/XHR 응답의 경로·메서드·상태·본문을 동작 단계에 묶어 기록하고 시나리오 승인 화면에 보여 준다. as-is와 to-be가 같은 API 경로를 쓸 때 적용하며, 매번 바뀌는 응답 값은 `redact_patterns`로 가린다. API 응답은 골든에 저장되므로 이 규칙과 민감정보 제거 규칙을 **골든 기록 전에** 설정한다. 나중에 추가했으면 as-is에서 다시 기록하고 재승인한다.
 
 보고서는 **증거 유효성**, **실행한 시나리오의 동등성**, **등록된 업무 범위**를 별도로 보여준다. 전체 결함 탐지율은 생성한 결함에만 대한 점수이므로 라벨 변경을 제외한 탐지율도 별도 기준으로 확인한다.
 골든에는 스냅샷 원문이 들어 있어서 ignore나 정규화 규칙을 바꿔도 as-is를 다시 기록할 필요가 없다.
@@ -210,7 +215,7 @@ python demo-app/portal_app.py 8824 tobe-custom &   # 신규 주문 팝업의 품
 python demo-app/portal_app.py 8825 tobe-modern &   # 새 룩: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭. 글자·역할·동작은 같음 (프로젝트의 to-be 주소)
 python demo-app/portal_app.py 8826 tobe-wip &      # 개발 중: 새 룩 + 설정 화면 없음(미개발) + 보고서 화면 새로(새 화면) + 부가세 반올림(다름). 비교 지도 색 데모
 uv run pytest e2e/portal --base-url http://127.0.0.1:8820 --record golden/portal
-uv run eastshift ui                                                                 # 사람: 승인 검토 탭에서 승인
+uv run eastshift ui                                                                 # 사람: 시나리오 승인 탭에서 승인
 uv run eastshift mutate e2e/portal --base-url http://127.0.0.1:8820 --compare golden/portal --max-per-op 100
 uv run pytest e2e/portal --base-url http://127.0.0.1:8822 --compare golden/portal --junitxml reports/junit-portal.xml
 uv run eastshift ui

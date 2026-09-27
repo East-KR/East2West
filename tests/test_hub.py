@@ -8,7 +8,7 @@ from urllib.request import urlopen
 
 import pytest
 
-from eastshift.pwtest import hub, ledger
+from eastshift.pwtest import html, hub, ledger
 
 GOLDEN = Path("golden")
 
@@ -56,9 +56,12 @@ def test_hub_api_and_pages(runs):
     assert d["runs"][0]["cases"]["test_order_save"]["screenshot"].startswith("/file?p=")
     assert d["mutations"] and d["mutations"][0]["current"] == (d["oracle"].get("approved_at") == "x")
     for kind in hub.PAGES:
-        page = h.page("legacy", kind, stamps[0] if kind in ("map", "report") else None)
-        assert "<html" in page and "legacy" in page
-    assert "JUnit 사본이 없습니다" in h.page("legacy", "map", "19990101-000000")
+        frag = h.page("legacy", kind, stamps[0] if kind in ("map", "report") else None)
+        assert frag["kind"] == kind and "legacy" in frag["html"] and "<main>" in frag["html"]  # iframe 없이 끼우는 조각
+        if frag["css"]:
+            assert f".pg-{kind} " in frag["css"] and "\nbody" not in frag["css"]  # 조각 CSS 는 컨테이너 안으로 가둬진다
+        assert "<html" in html.assemble(frag) and f"class='pg pg-{kind}'" in html.assemble(frag)
+    assert "JUnit 사본이 없습니다" in h.page("legacy", "map", "19990101-000000")["html"]
     assert h.page("legacy", "catalog") is h.page("legacy", "catalog")  # 캐시: 산출물이 안 바뀌면 같은 객체
     # 파일 접근은 runs/ 와 golden/ 아래만
     from urllib.parse import unquote
@@ -66,6 +69,20 @@ def test_hub_api_and_pages(runs):
     assert h.file(shot) is not None
     assert h.file("../.env") is None and h.file(".env") is None and h.file("/etc/passwd") is None and h.file("") is None
     assert h.file(str(runs / "legacy" / "../../.env")) is None
+
+
+@pytest.mark.skipif(not (GOLDEN / "legacy").is_dir(), reason="golden/legacy 없음")
+def test_report_fix_plans(runs):
+    """보고서의 '바로 해결': to-be 비교 다시(pytest --compare, exit 1 도 정상), 결함 탐지 측정(mutate --compare). 주소가 없으면 거부."""
+    h = hub.Hub(GOLDEN, Path("e2e"))
+    plan = h.compare_plan("legacy")
+    assert plan[0]["cmd"][-9:-2] == ["--base-url", "http://127.0.0.1:8802", "--compare", "golden/legacy", "--junitxml", "reports/junit-legacy.xml", "-q"] and plan[0]["ok_exit"] == (0, 1)
+    plan = h.mutate_plan("legacy")
+    assert "mutate" in plan[0]["cmd"] and plan[0]["cmd"][-6:] == ["--base-url", "http://127.0.0.1:8801", "--compare", "golden/legacy", "--max-per-op", "100"]
+    with pytest.raises(ValueError, match="to-be 실행 주소"):
+        h.compare_plan("reservation")
+    frag = h.page("legacy", "report", runs and None)
+    assert "data-fix=" in frag["html"] and "fetch(`/api/app/" in frag["js"]  # 빨간 항목 옆 버튼과 실행 스크립트
 
 
 @pytest.mark.skipif(not (GOLDEN / "legacy").is_dir(), reason="golden/legacy 없음")
@@ -77,8 +94,8 @@ def test_web_approval_rules(tmp_path, runs):
     (root / "legacy" / oracle.MANIFEST).unlink()
     h = hub.Hub(root, Path("e2e"))
     fp = oracle.fingerprint(root / "legacy")
-    page = h.page("legacy", "review")
-    assert 'name="code"' not in page and 'name="by"' in page
+    frag = h.page("legacy", "review")
+    assert 'name="code"' not in frag["html"] + frag["js"] and 'name="by"' in frag["js"]  # 승인 폼은 이름만 받는다 (터미널 코드 없음)
     with pytest.raises(ValueError):
         h.approve("legacy", by="east", fingerprint="stale")
     with pytest.raises(ValueError):
@@ -124,6 +141,8 @@ def test_hub_http(runs):
         apps = json.loads(urlopen(base + "/api/apps").read())
         assert apps[0]["app"]
         assert urlopen(base + "/page/legacy/catalog").status == 200
+        frag = json.loads(urlopen(base + "/page/legacy/catalog?fragment=1").read())  # 통합 화면이 끼우는 조각
+        assert frag["kind"] == "catalog" and "<main>" in frag["html"] and "root.querySelector" in frag["js"]
         with pytest.raises(Exception):
             urlopen(base + "/page/legacy/nope")
         with pytest.raises(Exception):

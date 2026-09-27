@@ -46,7 +46,7 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--triage", action="store_true", help="실패·diff 스텝의 원인을 Jev로 분류 (ui_changed|real_defect|environment|timing|test_bug). API 키 필요, --replay-only와 같이 못 씀")
     tr = sub.add_parser("triage", help="이미 만들어진 리포트 JSON의 실패·diff 스텝 원인을 Jev로 분류 (브라우저 없이). <리포트>-triage.json에 저장")
     tr.add_argument("reports", nargs="+", type=Path, help="eastshift run이 남긴 reports/<stem>-<시각>.json")
-    ap_status = sub.add_parser("oracle-status", help="오라클 승인 상태와 마스킹 규칙 감사 (승인은 eastshift ui 의 승인 검토 탭에서)")
+    ap_status = sub.add_parser("oracle-status", help="오라클 승인 상태와 마스킹 규칙 감사 (승인은 eastshift ui 의 시나리오 승인 탭에서)")
     ap_status.add_argument("oracle_dir", type=Path)
     mut = sub.add_parser("mutate", help="결함 주입으로 Playwright 테스트의 탐지력 측정")
     mut.add_argument("targets", nargs="+", help="pytest 대상 (e2e/<app>)")
@@ -61,6 +61,9 @@ def main(argv: list[str] | None = None) -> int:
     rep.add_argument("--junit", type=Path, action="append", default=[], help="pytest --junitxml 결과 (여러 개 가능)")
     rep.add_argument("--mutation", type=Path, action="append", default=[], help="eastshift mutate 결과 JSON (여러 개 가능)")
     rep.add_argument("--out", type=Path, required=True, help="보고서 markdown 경로")
+    rt = sub.add_parser("routes", help="소스에서 라우트(화면 주소) 목록을 뽑는다 (실행 없이 정규식). 화면 지도가 '코드에는 있는데 탐색·시나리오가 못 간 화면'을 회색으로 표시하는 잣대")
+    rt.add_argument("src", type=Path, help="as-is 또는 to-be 소스 폴더 (단일 파일 앱이면 파일)")
+    rt.add_argument("--out", type=Path, required=True, help="crawl/<app>/routes.json (as-is) 또는 crawl/<app>-tobe/routes.json (to-be)")
     cr = sub.add_parser("crawl", help="시작 화면에서 동작을 모두 눌러 보고 흐름 그래프와 시나리오를 만든다 (Jev 호출 없음)")
     cr.add_argument("start", help="시작 URL (상대 경로면 --base-url 기준, 시나리오 goto에 그대로 쓴다)")
     cr.add_argument("--out", type=Path, required=True, help="graph.json, graph.md, 스크린샷, 시나리오 YAML을 둘 디렉터리")
@@ -87,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
     tg.add_argument("--storage-state", type=Path, default=None)
     stt = sub.add_parser("status", help="수정 → 재실행 루프용: 마지막 to-be 비교의 남은 실패, 종류, 지난 실행 대비 변화 (runs/<app>/ 원장)")
     stt.add_argument("oracle_dir", type=Path)
-    ui = sub.add_parser("ui", help="통합 화면: 프로젝트마다 화면 지도·개요·이력·승인 검토·검증 보고서를 한 화면에서 (로컬 서버, 산출물만 읽음). 사람이 보는 화면은 전부 여기")
+    ui = sub.add_parser("ui", help="통합 화면: 프로젝트마다 화면 지도·개요·이력·시나리오 승인·검증 보고서를 한 화면에서 (로컬 서버, 산출물만 읽음). 사람이 보는 화면은 전부 여기")
     ui.add_argument("--golden", type=Path, default=Path("golden"), help="오라클 루트 (기본 golden/)")
     ui.add_argument("--tests", type=Path, default=Path("e2e"), help="테스트 루트 (제목용, 기본 e2e/)")
     ui.add_argument("--port", type=int, default=8790)
@@ -100,6 +103,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "status":
         from .pwtest import ledger, oracle
         print(ledger.status_text(args.oracle_dir.name, oracle.status(args.oracle_dir)))
+        return 0
+    if args.cmd == "routes":
+        from . import routes as _routes
+        if not args.src.exists():
+            ap.error(f"소스 위치가 없습니다: {args.src}")
+        data = _routes.write(args.src, args.out)
+        print(_routes.summary(data))
+        print(f"-> {args.out}  (eastshift ui 의 화면 지도가 이 목록과 대조해 못 간 화면을 회색으로 표시)")
         return 0
     if args.cmd == "targets":
         from . import targets

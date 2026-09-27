@@ -1,4 +1,4 @@
-"""승인 검토 화면 (eastshift ui 의 승인 검토 탭): 검토자가 골든 시나리오를 하나씩 보고 "as-is 동작이 맞다"고 확인한 뒤 이름을 입력해 승인한다.
+"""시나리오 승인 화면 (eastshift ui 의 시나리오 승인 탭): 검토자가 골든 시나리오를 하나씩 보고 "as-is 동작이 맞다"고 확인한 뒤 이름을 입력해 승인한다.
 
 hub.py 가 /page/<app>/review 요청에 render(build(golden/<app>)) 로 만든다.
 
@@ -21,6 +21,7 @@ CSS = """
 main{max-width:none;padding-block:22px 40px;gap:18px}
 .head{gap:6px 24px}.head h1{font-size:26px}
 .stage{display:grid;grid-template-columns:300px minmax(0,1fr) 340px;gap:14px;height:calc(100vh - 210px);min-height:600px}
+.stage.norules{grid-template-columns:300px minmax(0,1fr)}
 .pane{background:var(--surface);border:1px solid var(--line);border-radius:12px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .pane>h2{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:600;letter-spacing:.06em;color:var(--muted);padding:12px 14px 10px;border-bottom:1px solid var(--line);margin:0}
 .pane>h2 span{font-weight:400;letter-spacing:0}
@@ -44,8 +45,17 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 .center .sub{grid-column:1/-1;font:12.5px var(--mono);color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
 .okbtn{font:600 14px var(--sans);border:1.5px solid var(--ok);color:var(--ok);background:var(--surface);border-radius:8px;padding:7px 14px;cursor:pointer;white-space:nowrap}
 .okbtn.on{background:var(--ok);color:#fff}
-.stepv{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;padding:16px 0;border-bottom:1px dashed var(--line)}
-.stepv:last-child{border-bottom:0}
+.stepv{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;padding:16px 0}
+/* 단계 넘기기: 좌우 버튼 + 필름스트립 + k/N */
+.stepnav{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.nv{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 20px/1 var(--sans);cursor:pointer;display:grid;place-items:center}
+.nv:hover{border-color:var(--accent);color:var(--accent)}.nv:disabled{opacity:.3;cursor:default;border-color:var(--line);color:var(--ink)}
+.stepnav .cnt{flex:none;font:600 12.5px var(--mono);color:var(--muted);min-width:44px;text-align:center}
+.film{flex:1;display:flex;gap:6px;overflow-x:auto;min-width:0;scroll-snap-type:x proximity;padding:2px}
+.film button{flex:none;width:84px;height:56px;border:2px solid var(--line);border-radius:6px;padding:0;background:#fff;cursor:pointer;position:relative;overflow:hidden;scroll-snap-align:start}
+.film button img{width:100%;height:100%;object-fit:cover;object-position:top left;display:block}
+.film button .k{position:absolute;left:3px;top:3px;font:600 10.5px var(--mono);background:rgba(15,20,19,.7);color:#fff;border-radius:3px;padding:0 4px}
+.film button:hover{border-color:var(--ink)}.film button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
 .shot{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;cursor:zoom-in}.shot img{width:100%;display:block}
 .noshot{aspect-ratio:16/10;border:1px dashed var(--line);border-radius:8px;display:grid;place-items:center;color:var(--faint);font-size:13px}
 .act{font-size:16px;display:flex;gap:10px;align-items:baseline}.act .no{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);font:600 13px/24px var(--mono);text-align:center}
@@ -69,14 +79,11 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 .warnchip{color:var(--warn);font-weight:600;font-size:12.5px}
 .notice{padding:10px 14px;border-radius:10px;background:var(--warn-soft);font-size:14px}.notice b{color:var(--warn)}
 /* 하단 승인 막대 */
-.bar-approve{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:12px clamp(16px,4vw,32px) calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgba(15,20,19,.06);z-index:5}
-.bar-approve .in{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
-.bar-approve p{margin:0;font-size:14px;flex:1 1 280px}.bar-approve b{color:var(--accent)}
 .prog{height:8px;border-radius:99px;background:var(--sunk);flex:1 1 160px;overflow:hidden;max-width:260px}.prog i{display:block;height:100%;background:var(--ok)}
 .cmd{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden;max-width:100%}
 .cmd code{padding:8px 12px;font-size:13px;background:var(--sunk);white-space:nowrap;overflow-x:auto;max-width:60vw}
 .cmd button{border:0;background:var(--accent);color:#fff;font:600 13px var(--sans);padding:8px 14px;cursor:pointer}
-.af{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.abox:empty{display:none}.af{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center;margin-left:6px}
 .af input{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:150px}
 .af button{border:0;background:var(--accent);color:#fff;font:600 14px var(--sans);padding:8px 16px;border-radius:8px;cursor:pointer}
 .af .msg{font-size:13px;color:var(--muted)}.af .msg.bad{color:var(--bad);font-weight:600}
@@ -87,76 +94,99 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 @media (max-width:720px){.stage{grid-template-columns:1fr}}
 """
 
-JS = r"""<script>
-const D = JSON.parse(document.getElementById('d').textContent);
+JS = r"""
+const $ = s => root.querySelector(s), $$ = s => root.querySelectorAll(s);
+const D = JSON.parse($('#d').textContent);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const KEY = 'eastshift-review:' + D.app + ':' + D.fingerprint;  // 기록이 바뀌면 확인 표시도 새로 한다
 let done = new Set();
 try { done = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch(e) {}
 function save(){ try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch(e) {} }
-const center = document.getElementById('center'), lb = document.getElementById('lb');
+const center = $('#center'), lb = $('#lb');
 function openLb(src, cap){ if(!src) return; lb.querySelector('img').src = src; lb.querySelector('.cap').textContent = cap || ''; lb.classList.add('on'); }
 lb.addEventListener('click', () => lb.classList.remove('on'));
-addEventListener('keydown', e => { if(e.key === 'Escape') lb.classList.remove('on'); });
+ctx.listen(window, 'keydown', e => { if(e.key === 'Escape') lb.classList.remove('on'); });
 let current = null;
 function refresh(){
-  document.querySelectorAll('.item').forEach(el => { el.classList.toggle('done', done.has(el.dataset.test)); el.classList.toggle('sel', el.dataset.test === current); });
+  $$('.item').forEach(el => { el.classList.toggle('done', done.has(el.dataset.test)); el.classList.toggle('sel', el.dataset.test === current); });
   const n = D.order.length, k = D.order.filter(t => done.has(t)).length;
-  document.getElementById('cnt').textContent = `${k}/${n} 확인`;
-  const bar = document.getElementById('bar');
-  if(approved) bar.innerHTML = `<p><b>승인됨</b> · ${esc(approved.approved_by)} · ${esc(approved.approved_at)}. 이제 to-be 비교에 이 기준을 씁니다.</p>`;
-  else if(k === n && n) bar.innerHTML = `<p><b>모든 시나리오를 확인했습니다.</b> 이름을 입력하고 이 화면에서 승인하세요.</p>`
-    + `<form class="af" id="af"><input name="by" placeholder="승인자 이름" required autocomplete="name"><button type="submit">승인</button><span class="msg" id="amsg"></span></form>`;
-  else bar.innerHTML = `<p>확인하지 않은 시나리오 <b>${n - k}개</b>. 각 시나리오를 보고 as-is 동작이 맞으면 "확인함"을 누르세요. 틀린 것이 있으면 승인하지 말고 담당자에게 알려 주세요.</p><div class="prog"><i style="width:${n ? k / n * 100 : 0}%"></i></div>`;
-  const af = document.getElementById('af'); if(af) af.onsubmit = async e => {
-    e.preventDefault(); const msg = document.getElementById('amsg'); msg.textContent = '승인 중…'; msg.className = 'msg';
+  $('#cnt').textContent = `${k}/${n} 확인`;
+  const chk = $('#chk'); if(chk){ chk.querySelector('b').textContent = `${k}/${n}`; chk.className = 'fchip ' + (n && k === n ? 'ok' : k ? 'warn' : 'none'); }
+  // 승인 폼은 머리의 칩 줄 끝에: 모든 시나리오를 확인했고 아직 승인 전일 때만. 승인 상태와 진행은 칩(승인됨 / 확인 k/N)이 보여 준다
+  const bar = $('#bar');
+  if(!approved && k === n && n) bar.innerHTML = `<form class="af" id="af"><input name="by" placeholder="승인자 이름" required autocomplete="name"><button type="submit">승인</button><span class="msg" id="amsg"></span></form>`;
+  else bar.innerHTML = '';
+  const af = $('#af'); if(af) af.onsubmit = async e => {
+    e.preventDefault(); const msg = $('#amsg'); msg.textContent = '승인 중…'; msg.className = 'msg';
     try {
       const r = await fetch(`/api/app/${encodeURIComponent(D.app)}/approve`, {method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({by: af.by.value, fingerprint: D.fingerprint})});
       const j = await r.json();
       if(!r.ok || j.error){ msg.textContent = j.error || `실패 (${r.status})`; msg.className = 'msg bad'; return; }
       approved = j; refresh();
-      const st = document.querySelector('.stamp'); if(st){ st.className = 'stamp ok'; st.innerHTML = `승인됨<small>${esc(j.approved_by)} · ${esc(j.approved_at.slice(0, 16))}</small>`; }
-      try { parent.postMessage({eastshift: 'approved', app: D.app}, '*'); } catch(_) {}
+      const lead = $('.fchip.lead'); if(lead){ lead.className = 'fchip ok lead'; lead.innerHTML = `<i></i>승인됨<small>${esc(j.approved_by)} · ${esc(j.approved_at.slice(0, 16))}</small>`; }
+      try { ctx.approved(); } catch(_) {}  // 통합 화면에 알려 프로젝트 목록·카드의 승인 상태를 갱신한다
     } catch(err){ msg.textContent = '서버에 연결할 수 없습니다: ' + err; msg.className = 'msg bad'; }
   };
   filter();
 }
 let approved = D.status && D.status.ok ? {approved_by: D.status.approved_by, approved_at: D.status.approved_at} : null;  // 이미 승인된 기준이면 폼 대신 승인 표시
+let stepIdx = 0, stepOf = null, stepGo = null;  // 가운데 화면의 현재 단계
+ctx.listen(window, 'keydown', e => {  // ← → 로 단계 넘기기 (입력칸에 있을 때는 제외)
+  if(!stepGo || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || '')) return;
+  e.preventDefault(); stepGo(e.key === 'ArrowLeft' ? -1 : 1);
+});
 function show(name){
   const t = D.tests[name]; if(!t) return;
   current = name;
   let h = `<div class="dh"><h3>${esc(t.title)}${t.flag ? ` <span class="flag ${t.flag}">${t.flag === 'chg' ? '기대값 바뀜' : '새 시나리오'}</span>` : ''}</h3>`
     + `<button type="button" class="okbtn ${done.has(name) ? 'on' : ''}" id="ok">${done.has(name) ? '✓ 확인함' : 'as-is 동작이 맞음 · 확인함'}</button>`
     + `<div class="sub"><span>${esc(name)}</span><span>${t.steps.length}단계</span><span>${esc(t.base_url)}에서 ${esc(t.recorded_at || '')} 기록</span></div></div>`;
-  t.steps.forEach(s => {
-    h += `<div class="stepv"><div>` + (s.shot ? `<div class="shot" data-lb="${s.shot}" data-cap="${s.index + 1}단계 · ${esc(s.action_text)}"><img src="${D.shots[s.shot]}" alt="${s.index + 1}단계 화면" loading="lazy"></div>` : `<div class="noshot">캡처 없음</div>`) + `</div><div>`;
-    h += `<div class="act"><span class="no">${s.index + 1}</span><span>${s.action}</span></div>`;
-    if(s.seen.length) h += `<div class="seen"><span class="lab">나타남</span>${s.seen.map(x => `<span class="it">${esc(x)}</span>`).join('')}</div>`;
-    s.dialogs.forEach(d => { h += `<div class="dlg"><span class="verb">${d.type === 'confirm' ? '확인창' : '알림창'}</span><b>${esc(d.message)}</b><span class="ans">→ ${d.action === 'accept' ? '확인' : '취소'}</span></div>`; });
-    (s.api || []).forEach(a => { h += `<details class="dlg"><summary>API ${esc(a.method)} ${esc(a.path)} · ${a.status}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(a.body)}</pre></details>`; });
-    if(s.checks.length) h += `<div class="checks">` + s.checks.map(c => `<div class="check ${c.cls}"><span>✓</span><span class="k">${esc(c.k)}</span><span class="v">${esc(c.v)}</span>${c.old ? `<s>${esc(c.old)}</s>` : ''}</div>`).join('') + `</div>`;
-    h += `</div></div>`;
-  });
+  // 단계는 한 번에 하나: 좌우 버튼(←/→ 키)으로 넘기고, 필름스트립으로 바로 간다
+  if(name !== stepOf) { stepIdx = 0; stepOf = name; }
+  h += `<div class="stepnav"><button type="button" class="nv" id="prev" aria-label="이전 단계">‹</button><div class="film" id="film">`
+    + t.steps.map((s, i) => `<button type="button" data-i="${i}" title="${s.index + 1}단계 · ${esc(s.action_text)}">${s.shot ? `<img src="${D.shots[s.shot]}" alt="">` : ''}<span class="k">${s.index + 1}</span></button>`).join('')
+    + `</div><span class="cnt" id="scnt"></span><button type="button" class="nv" id="next" aria-label="다음 단계">›</button></div><div id="stepbox"></div>`;
   center.innerHTML = h; center.scrollTop = 0;
   center.querySelector('#ok').addEventListener('click', () => { done.has(name) ? done.delete(name) : done.add(name); save(); show(name); refresh(); });
-  center.querySelectorAll('[data-lb]').forEach(el => el.addEventListener('click', () => openLb(D.shots[el.dataset.lb], el.dataset.cap)));
+  const box = center.querySelector('#stepbox'), film = center.querySelector('#film');
+  function draw(){
+    const s = t.steps[stepIdx];
+    let b = `<div class="stepv"><div>` + (s.shot ? `<div class="shot" data-lb="${s.shot}" data-cap="${s.index + 1}단계 · ${esc(s.action_text)}"><img src="${D.shots[s.shot]}" alt="${s.index + 1}단계 화면"></div>` : `<div class="noshot">캡처 없음</div>`) + `</div><div>`;
+    b += `<div class="act"><span class="no">${s.index + 1}</span><span>${s.action}</span></div>`;
+    if(s.seen.length) b += `<div class="seen"><span class="lab">나타남</span>${s.seen.map(x => `<span class="it">${esc(x)}</span>`).join('')}</div>`;
+    s.dialogs.forEach(d => { b += `<div class="dlg"><span class="verb">${d.type === 'confirm' ? '확인창' : '알림창'}</span><b>${esc(d.message)}</b><span class="ans">→ ${d.action === 'accept' ? '확인' : '취소'}</span></div>`; });
+    (s.api || []).forEach(a => { b += `<details class="dlg"><summary>API ${esc(a.method)} ${esc(a.path)} · ${a.status}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(a.body)}</pre></details>`; });
+    if(s.checks.length) b += `<div class="checks">` + s.checks.map(c => `<div class="check ${c.cls}"><span>✓</span><span class="k">${esc(c.k)}</span><span class="v">${esc(c.v)}</span>${c.old ? `<s>${esc(c.old)}</s>` : ''}</div>`).join('') + `</div>`;
+    b += `</div></div>`;
+    box.innerHTML = b;
+    box.querySelectorAll('[data-lb]').forEach(el => el.addEventListener('click', () => openLb(D.shots[el.dataset.lb], el.dataset.cap)));
+    film.querySelectorAll('button').forEach(f => f.classList.toggle('on', +f.dataset.i === stepIdx));
+    const on = film.querySelector('button.on'); if(on) on.scrollIntoView({block: 'nearest', inline: 'nearest'});
+    center.querySelector('#scnt').textContent = `${stepIdx + 1} / ${t.steps.length}`;
+    center.querySelector('#prev').disabled = stepIdx === 0; center.querySelector('#next').disabled = stepIdx >= t.steps.length - 1;
+  }
+  stepGo = d => { const n = stepIdx + d; if(n < 0 || n >= t.steps.length) return; stepIdx = n; draw(); };
+  center.querySelector('#prev').addEventListener('click', () => stepGo(-1));
+  center.querySelector('#next').addEventListener('click', () => stepGo(1));
+  film.querySelectorAll('button').forEach(f => f.addEventListener('click', () => { stepIdx = +f.dataset.i; draw(); }));
+  draw();
   refresh();
   try { history.replaceState(null, '', '#' + encodeURIComponent(name)); } catch(e) {}
 }
 let mode = 'all';
 function filter(){
-  document.querySelectorAll('.item').forEach(el => {
+  $$('.item').forEach(el => {
     const t = D.tests[el.dataset.test];
     const hit = mode === 'all' || (mode === 'todo' && !done.has(el.dataset.test)) || (mode === 'chg' && t.flag);
     el.classList.toggle('dim', !hit);
   });
 }
-document.querySelectorAll('.filters button').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; document.querySelectorAll('.filters button').forEach(x => x.classList.toggle('on', x === b)); filter(); }));
-document.querySelectorAll('.item').forEach(el => el.addEventListener('click', () => show(el.dataset.test)));
-const first = decodeURIComponent((location.hash || '').slice(1));
+$$('.filters button').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; $$('.filters button').forEach(x => x.classList.toggle('on', x === b)); filter(); }));
+$$('.item').forEach(el => el.addEventListener('click', () => show(el.dataset.test)));
+const first = decodeURIComponent(ctx.getSub() || '');
 show(D.tests[first] ? first : (D.order.find(t => D.tests[t].flag) || D.order.find(t => !done.has(t)) || D.order[0]));
-</script>"""
+"""
 
 
 def _img(p: Path) -> str:
@@ -228,45 +258,64 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
             "fingerprint": oracle.fingerprint(d)}
 
 
-def render(g: dict[str, Any]) -> str:
-    """모든 시나리오를 확인하면 승인 폼이 나온다 (통합 화면 안에서만 열리므로 서버가 늘 있다)."""
+def fragment(g: dict[str, Any]) -> dict[str, Any]:
+    """시나리오 승인 조각 (html.fragment 형식). 왼쪽 시나리오 목록 · 가운데 단계 화면 · 오른쪽 규칙(있을 때만). 모든 시나리오를 확인하면 승인 폼이 나온다."""
     st = g["status"]
-    if st["ok"]:
-        stamp = ("ok", "승인됨", f"{html._e(st['approved_by'])} · {html._e((st['approved_at'] or '')[:16])}")
-    elif st.get("approved_by"):
-        stamp = ("warn", "재승인 필요", "승인 후 기록이 바뀜")
-    else:
-        stamp = ("warn", "승인 필요", "처음 승인")
+    n_all = len(g["tests"])
     n_chg = sum(1 for t in g["tests"].values() if t["flag"] == "chg")
     n_new = sum(1 for t in g["tests"].values() if t["flag"] == "new")
+    chips = []
+    if st["ok"]:
+        chips.append(html.chip("ok", "승인됨", sub=f"{st['approved_by']} · {(st['approved_at'] or '')[:16]}", lead=True))
+    elif st.get("approved_by"):
+        chips.append(html.chip("warn", "재승인 필요", sub="승인 후 기록이 바뀜", lead=True))
+    else:
+        chips.append(html.chip("warn", "승인 필요", sub="처음 승인", lead=True))
+    chips.append(f"<span class='fchip info'>시나리오<b>{n_all}</b></span>")
+    chips.append(f"<span class='fchip none' id='chk' title='이 브라우저에서 확인함 표시를 한 시나리오'><i></i>확인<b>0/{n_all}</b></span>")
+    if n_chg:
+        chips.append(html.chip("warn", "기대값 바뀜", n_chg, title="지난 승인 이후 기대값이 바뀐 시나리오"))
+    if n_new:
+        chips.append(html.chip("accepted", "새 시나리오", n_new, title="지난 승인 이후 새로 기록된 시나리오"))
+    if g["removed"]:
+        chips.append(html.chip("none", "없어진 시나리오", len(g["removed"]), title=", ".join(g["removed"])))
+    chips.append("<span class='abox' id='bar'></span>")  # 모두 확인하면 여기에 승인 폼 (이름 + 승인)
     items = "".join(f"<button type='button' class='item' data-test='{html._e(n)}'><span class='box'></span><span class='t'>{html._e(t['title'])}"
                     + (f"<span class='flag {t['flag']}'>{'기대값 바뀜' if t['flag'] == 'chg' else '새 시나리오'}</span>" if t["flag"] else "")
                     + f"<small>{html._e(n)} · {len(t['steps'])}단계</small></span></button>" for n, t in g["tests"].items())
     notice = ""
-    if n_chg or n_new or g["removed"]:
-        notice = (f"<div class='notice'><b>지난 승인 이후</b> 기대값 바뀐 시나리오 {n_chg}개 · 새 시나리오 {n_new}개 · 없어진 시나리오 {len(g['removed'])}개"
-                  + (" (" + ", ".join(html._e(r) for r in g["removed"]) + ")" if g["removed"] else "") + ". 바뀐 것을 먼저 보세요.</div>")
     if st.get("problems") and st.get("approved_by"):
-        notice += "<div class='notice'><b>승인 후 변경된 파일</b> " + ", ".join(html._e(p) for p in st["problems"]) + "</div>"
-    masks = ("<table>" + "".join(f"<tr><td class='m'>{html._e(m['rule'])}</td><td>" + ("".join(f"<span class='chip'>{html._e(k)}</span>" for k, _ in m["samples"]) or "<span class='warnchip'>아무것도 가리지 않음</span>") + f"<br><span class='tid'>{m['total']}곳</span></td></tr>" for m in g["masks"]) + "</table>") if g["masks"] else "<div class='none'>없음</div>"
-    maps = ("<table>" + "".join(f"<tr><td>{html._e(a)}</td><td>→ <b>{html._e(b)}</b></td><td class='m'>{html._e(t)}</td></tr>" for t, m in g["maps"].items() for a, b in m.items()) + "</table>") if g["maps"] else "<div class='none'>없음</div>"
-    eqs = ("<table>" + "".join(f"<tr><td class='m'>{html._e(e.get('path'))}<br>{html._e(e.get('context'))}</td><td>{html._e(e.get('reason', ''))}</td></tr>" for e in g["eqs"]) + "</table>") if g["eqs"] else "<div class='none'>없음</div>"
-    allowed = ("<table>" + "".join(f"<tr><td class='m'>{html._e(e.get('test'))} · {html._e(e.get('step'))}단계</td><td>{html._e(e.get('reason'))}</td></tr>" for e in g["allowed"]) + "</table>") if g["allowed"] else "<div class='none'>없음</div>"
-    coverage = ("<table>" + "".join(f"<tr><td>{html._e(e.get('case'))}</td><td>{html._e(', '.join(e.get('tests', [])))}</td></tr>" for e in g["coverage"]) + "</table>") if g["coverage"] else "<div class='none'>없음</div>"
-    body = (f"<header class='head'><div class='eyebrow'>승인 검토</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
-            f"<h1>{html._e(g['app'])}</h1><p class='lede'>as-is에서 기록한 동작이 to-be의 정답이 됩니다. 시나리오마다 단계 화면과 확인 값이 실제 업무와 맞는지 보고 확인하세요.</p>"
-            f"<div class='prov'><span><b>기준 폴더</b> golden/{html._e(g['app'])}</span><span><b>시나리오</b> {len(g['tests'])}개</span></div></header>{notice}"
-            f"<div class='stage'><div class='pane left'><h2><span>시나리오</span><span id='cnt'></span></h2>"
+        notice = "<div class='notice'><b>승인 후 변경된 파일</b> " + ", ".join(html._e(p) for p in st["problems"]) + "</div>"
+
+    # 오른쪽 규칙: 내용이 있는 묶음만. 하나도 없으면 오른쪽 칸 자체를 없앤다
+    groups: list[tuple[str, str]] = []
+    if g["masks"]:
+        groups.append(("가리는 값 · 매번 바뀌는 값만", "<table>" + "".join(f"<tr><td class='m'>{html._e(m['rule'])}</td><td>" + ("".join(f"<span class='chip'>{html._e(k)}</span>" for k, _ in m["samples"]) or "<span class='warnchip'>아무것도 가리지 않음</span>") + f"<br><span class='tid'>{m['total']}곳</span></td></tr>" for m in g["masks"]) + "</table>"))
+    if g["api_paths"]:
+        groups.append(("비교하는 API 경로", "".join(f"<span class='chip'>{html._e(p)}</span>" for p in g["api_paths"])))
+    if g["redact_fields"] or g["redact_patterns"]:
+        groups.append(("민감정보 저장 제외", "".join(f"<span class='chip'>{html._e(p)}</span>" for p in g["redact_fields"] + g["redact_patterns"])))
+    if g["coverage"]:
+        groups.append(("필수 업무 경우", "<table>" + "".join(f"<tr><td>{html._e(e.get('case'))}</td><td>{html._e(', '.join(e.get('tests', [])))}</td></tr>" for e in g["coverage"]) + "</table>"))
+    if g["allowed"]:
+        groups.append(("승인된 차이", "<table>" + "".join(f"<tr><td class='m'>{html._e(e.get('test'))} · {html._e(e.get('step'))}단계</td><td>{html._e(e.get('reason'))}</td></tr>" for e in g["allowed"]) + "</table>"))
+    if g["maps"]:
+        groups.append(("이름 변경 · to-be에서 바뀌어도 되는 라벨", "<table>" + "".join(f"<tr><td>{html._e(a)}</td><td>→ <b>{html._e(b)}</b></td><td class='m'>{html._e(t)}</td></tr>" for t, m in g["maps"].items() for a, b in m.items()) + "</table>"))
+    if g["eqs"]:
+        groups.append(("동등 결함 · 탐지율에서 빼는 결함", "<table>" + "".join(f"<tr><td class='m'>{html._e(e.get('path'))}<br>{html._e(e.get('context'))}</td><td>{html._e(e.get('reason', ''))}</td></tr>" for e in g["eqs"]) + "</table>"))
+    rules = (f"<div class='pane right'><h2>규칙 <span>{len(groups)}묶음</span></h2><div class='scroll rules'>"
+             + "".join(f"<div><h4>{title}</h4>{content}</div>" for title, content in groups) + "</div></div>") if groups else ""
+    body = (html.head(chips, info="as-is에서 기록한 동작이 to-be의 정답이 됩니다. 시나리오마다 단계 화면과 확인 값이 실제 업무와 맞는지 보고 '확인함'을 누르세요. 모두 확인하면 아래 막대에 승인 폼이 나옵니다.",
+                      facts=[f"<b>기준 폴더</b> golden/{html._e(g['app'])}", f"<b>규칙</b> {len(groups)}묶음" if groups else "<b>규칙</b> 없음 (oracle.json 의 가림·이름 변경·동등 결함·승인된 차이가 오른쪽 칸에 보입니다)"])
+            + notice +
+            f"<div class='stage{' norules' if not groups else ''}'><div class='pane left'><h2><span>시나리오</span><span id='cnt'></span></h2>"
             f"<div class='filters'><button type='button' class='on' data-mode='all'>전체</button><button type='button' data-mode='todo'>미확인</button><button type='button' data-mode='chg'>바뀐 것</button></div>"
             f"<div class='scroll list'>{items}</div></div>"
-            f"<div class='pane center scroll' id='center'><div class='empty'>왼쪽에서 시나리오를 고르세요</div></div>"
-            f"<div class='pane right'><h2>규칙</h2><div class='scroll rules'><div><h4>가리는 값 · 매번 바뀌는 값만</h4>{masks}</div>"
-            f"<div><h4>비교하는 API 경로</h4>{''.join('<span class=chip>' + html._e(p) + '</span>' for p in g['api_paths']) or '<div class=none>없음</div>'}</div>"
-            f"<div><h4>민감정보 저장 제외</h4>{''.join('<span class=chip>' + html._e(p) + '</span>' for p in g['redact_fields'] + g['redact_patterns']) or '<div class=none>없음</div>'}</div>"
-            f"<div><h4>필수 업무 경우</h4>{coverage}</div><div><h4>승인된 차이</h4>{allowed}</div>"
-            f"<div><h4>이름 변경 · to-be에서 바뀌어도 되는 라벨</h4>{maps}</div><div><h4>동등 결함 · 탐지율에서 빼는 결함</h4>{eqs}</div></div></div></div>"
-            f"<div class='bar-approve'><div class='in' id='bar'></div></div>"
+            f"<div class='pane center scroll' id='center'><div class='empty'>왼쪽에서 시나리오를 고르세요</div></div>{rules}</div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
-    data = json.dumps(g, ensure_ascii=False).replace("</", "<\\/")
-    page = html._page(f"{g['app']} 기준 승인", body, script=f"<script type='application/json' id='d'>{data}</script>{JS}")
-    return page.replace("</style>", CSS + "</style>", 1)
+    return html.fragment("review", f"{g['app']} 기준 승인", body, css=CSS, js=JS, data=("d", g))
+
+
+def render(g: dict[str, Any]) -> str:
+    """혼자 열리는 문서 (테스트, /page/… 직접 접속). 통합 화면은 fragment() 를 끼운다."""
+    return html.assemble(fragment(g))

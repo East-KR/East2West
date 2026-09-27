@@ -51,8 +51,8 @@ def normalize(name: str, spec: dict[str, Any]) -> dict[str, Any]:
         if not src:
             raise ValueError(f"{'as-is' if side == 'asis' else 'to-be'} 소스 위치를 고르세요")
         p = Path(src).expanduser()
-        if not p.is_dir():
-            raise ValueError(f"{'as-is' if side == 'asis' else 'to-be'} 소스 위치가 폴더가 아닙니다: {src}")
+        if not p.exists():  # 폴더가 보통이지만 단일 파일 앱은 파일 하나도 된다 (eastshift routes 가 그 파일만 읽는다)
+            raise ValueError(f"{'as-is' if side == 'asis' else 'to-be'} 소스 위치가 없습니다: {src}")
         if url and not re.match(r"^https?://", url):
             raise ValueError(f"실행 주소는 http:// 또는 https:// 로 시작해야 합니다: {url}")
         out[side] = {"src": _rel(p), "url": url}

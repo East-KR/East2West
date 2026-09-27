@@ -90,7 +90,8 @@ def test_map_from_crawl_graph(tmp_path):
     assert set(g["routes"]) == {"/", "/orders"} and g["routes"]["/orders"]["kinds"] == {"dialog": 1}
     assert len(g["shots"]) == 3 and all(k.endswith(".png") for k in g["shots"])  # 파일 하나 = 항목 하나
     page = screen_map.render(g)
-    assert "to-be 탐색" in page and "모든 경로" in page and "id='detail'" in page
+    assert "to-be 탐색" in page and "경로 찾기" in page and "id='pl'" in page and "id='detail'" in page  # 셀렉트 대신 입력형 경로 고르기
+    assert "id='fsb'" in page and "id='fsbar'" in page  # 전체화면 버튼과 떠 있는 막대
 
 
 def _graph(tmp_path, name, urls, dead=()):

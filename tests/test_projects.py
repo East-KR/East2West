@@ -90,7 +90,7 @@ def test_hub_projects_without_golden(ws):
     d = h.app("shop")
     assert d["project"]["tobe"]["url"] == "http://127.0.0.1:8002" and d["tests"] == [] and d["runs"] == []
     for kind in hub.PAGES:
-        assert "골든이 아직 없습니다" in h.page("shop", kind) and "8001" in h.page("shop", kind)
+        assert "골든이 아직 없습니다" in h.page("shop", kind)["html"] and "8001" in h.page("shop", kind)["html"]
     with pytest.raises(KeyError):
         h.app("nope")
     with pytest.raises(KeyError):
@@ -172,7 +172,7 @@ def test_map_sources_and_crawl_plan(ws, monkeypatch, tmp_path):
     with pytest.raises(ValueError, match="asis|tobe"):
         h.crawl_plan("shop", "x")
     for src in ("asis", "tobe"):
-        assert "아직 탐색하지 않았습니다" in h.page("shop", "map", src=src)
+        assert "아직 탐색하지 않았습니다" in h.page("shop", "map", src=src)["html"]
     (tmp_path / "crawl" / "shop").mkdir(parents=True)
     (tmp_path / "crawl" / "shop" / "graph.json").write_text('{"start": "/", "nodes": [], "edges": []}', encoding="utf-8")
     (tmp_path / "crawl" / "shop" / "test_crawl.py").write_text("", encoding="utf-8")

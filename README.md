@@ -13,6 +13,7 @@ as-is 앱의 실제 동작을 기준으로 to-be 앱이 **버그까지 똑같이
 | **YAML 러너** (`eastshift run`) + `eastshift targets` | 시나리오 하나를 화면 목록에 돌림. 화면별 조회 버튼은 실행 전에 규칙으로 정하고 애매한 것만 사람이 고름 | 화면 수백 개를 넓게 훑는 스모크 |
 | **실패 분류** (`eastshift run --triage`, `eastshift triage`) | 실패·diff 스텝의 원인을 Jev가 분류표(ui_changed·real_defect·environment·timing·test_bug) 안에서 고른다. 낮은 margin만 사람 검토 | 스모크 결과 정리, 재실행 여부 판단 |
 | **탐색기** (`eastshift crawl`) | 화면의 동작을 모두 눌러 흐름 그래프, 시나리오, Playwright 테스트 초안 생성. 목록은 분기 열(상태·유형)의 값마다 대표 행만 누른다 (분기 열: 픽스처 > Jev 분류 > 규칙). 텍스트 생성 LLM 없음 | 흐름 지도, 스모크·테스트 초안 |
+| **라우트 대조** (`eastshift routes`) | 소스의 라우팅 선언(Flask·Spring·Express·JSP·Struts·손 라우팅 …)에서 화면 주소 목록을 뽑아 지도와 대조. 코드에는 있는데 탐색·시나리오가 못 간 화면이 회색으로 뜬다. 통합 화면의 탐색 버튼이 자동으로 돌린다 | 탐색 완전성 확인 |
 
 API 키 없이 모든 흐름이 돈다. Jev(요소 선택 모델)는 선택 사항이다 ([docs/YAML_RUNNER.md](docs/YAML_RUNNER.md)). 텍스트 생성 LLM은 쓰지 않는다. 입력값은 테스트에 고정하고, 검증은 결정론적이다. 테스트 작성은 Claude Code 스킬이 맡는다: `e2e-tests`(동등성 검증), `smoke`(전체 화면 스모크).
 
@@ -32,18 +33,18 @@ as-is 기록 → 웹 검토·승인 → 결함 주입(탐지율) → to-be 비�
 
 ```bash
 uv run pytest e2e/<app> --base-url $ASIS --record golden/<app>      # as-is 기록 → golden/<app>/
-uv run eastshift ui                                                       # 승인 검토 탭에서 각 시나리오 확인 → 이름 입력 → 승인
+uv run eastshift ui                                                       # 시나리오 승인 탭에서 각 시나리오 확인 → 이름 입력 → 승인
 uv run eastshift mutate e2e/<app> --base-url $ASIS --compare golden/<app>   # 테스트가 결함을 잡는지 측정
 uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
 uv run eastshift report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md   # 판정 markdown (에이전트·CI용)
 ```
 
-사람이 보는 화면(화면 지도·개요·이력·승인 검토·검증 보고서)은 전부 `eastshift ui` 한 곳이다. 파일로 따로 떨구는 명령은 없다.
+사람이 보는 화면(화면 지도·개요·이력·시나리오 승인·검증 보고서)은 전부 `eastshift ui` 한 곳이다. 파일로 따로 떨구는 명령은 없다.
 
 수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다):
 
 ```bash
-uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 화면 지도(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록)·개요·실행 이력·승인 검토·검증 보고서, 지난 실행도 골라 본다
+uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 개요(첫 탭)·Screen Map(as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록)·시나리오 승인·검증 보고서·실행 이력, 지난 실행도 골라 본다
 uv run eastshift status golden/<app>     # 터미널용: 남은 실패, 종류, 지난 실행 대비 변화 (통과로 바뀜 / 새로 실패)
 ```
 
@@ -63,6 +64,7 @@ uv run pytest e2e/<app> --base-url $ASIS --record golden/<app> --reset-path /tes
 uv run eastshift targets scenarios/<app>/screens.yaml --base-url $ASIS --out scenarios/<app>/screens.targets.yaml   # 조회 버튼 정하기 (누르지 않음)
 uv run eastshift run scenarios/<app>/screen_smoke_targets.yaml --base-url $TOBE --junit reports/junit-smoke.xml
 uv run eastshift crawl <시작 URL> --fixtures f.yaml --out crawl/<app> --dry-run   # 누를 버튼 확인 (저장·확정도 실제로 누른다)
+uv run eastshift routes <소스 폴더> --out crawl/<app>/routes.json                  # 소스가 선언한 화면 주소 → 지도가 못 간 화면을 회색으로 (완전성 잣대)
 ```
 
 ## 문서

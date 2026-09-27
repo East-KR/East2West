@@ -180,12 +180,18 @@ def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: P
     print(f"{'TRUSTED' if trusted else 'NOT TRUSTED'}: {out}  (화면: uv run eastshift ui → 검증 보고서 탭)")
 
 
-def render_html(oracle_dir: Path, b: dict[str, Any], tests_dir: Path | None = None) -> str:
+def render_fragment(oracle_dir: Path, b: dict[str, Any], tests_dir: Path | None = None) -> dict[str, Any]:
+    """통합 화면의 검증 보고서 탭 조각 (html.fragment 형식)."""
     from . import html
     checks = list(b["checks"])
     if not b["runs"]:
         checks.append(("비교 실행 결과", False, "JUnit 결과 없음"))
     if not b["gold"]:
         checks.append(("결함 탐지 측정", False, "결과 없음"))
-    return html.render_report(oracle_dir=oracle_dir, checks=checks, trusted=b["trusted"], runs=b["runs"], muts=b["muts"],
-                              tests_dir=tests_dir, equivalent=b["equivalent"], accepted_count=b["accepted_count"], coverage=b["coverage"])
+    return html.report_fragment(oracle_dir=oracle_dir, checks=checks, trusted=b["trusted"], runs=b["runs"], muts=b["muts"],
+                                tests_dir=tests_dir, equivalent=b["equivalent"], accepted_count=b["accepted_count"], coverage=b["coverage"])
+
+
+def render_html(oracle_dir: Path, b: dict[str, Any], tests_dir: Path | None = None) -> str:
+    from . import html
+    return html.assemble(render_fragment(oracle_dir, b, tests_dir))

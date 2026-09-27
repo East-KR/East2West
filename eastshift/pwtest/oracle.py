@@ -5,7 +5,7 @@ golden/<app>/
   oracle.json            {"ignore": [정규식…], "equivalent_mutants": [{path, op, context, reason}…]}
                          비교 전 마스킹 규칙 (주문번호, 날짜 등), 결함 주입에서 관찰 가능한 차이가 없다고 사람이 판정한 결함
   name_map.<target>.json {"as-is 이름": "to-be 이름"}  의도된 라벨 변경
-  APPROVED.json          위 파일들의 sha256, 승인자, 시각. 통합 화면(eastshift ui)의 승인 검토 탭에서 사람이 만든다
+  APPROVED.json          위 파일들의 sha256, 승인자, 시각. 통합 화면(eastshift ui)의 시나리오 승인 탭에서 사람이 만든다
 
 기록(--record) 뒤 파일 해시가 바뀌면 웹에서 다시 승인해야 비교가 돈다.
 """
@@ -37,7 +37,7 @@ def status(d: Path) -> dict[str, Any]:
     """승인 상태. ok=False면 problems에 이유."""
     m = d / MANIFEST
     if not m.exists():
-        return {"ok": False, "problems": [f"{d} has never been approved (a person approves in `eastshift ui`, 승인 검토 tab)"]}
+        return {"ok": False, "problems": [f"{d} has never been approved (a person approves in `eastshift ui`, 시나리오 승인 tab)"]}
     man = json.loads(m.read_text(encoding="utf-8"))
     now, then = oracle_files(d), man["files"]
     problems = [f"changed since approval: {n}" for n in sorted(now) if n in then and now[n] != then[n]]
