@@ -507,6 +507,9 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .pl button:last-child{border-bottom:0}.pl button:hover{background:var(--accent-soft)}.pl button>span:first-child{flex:1;min-width:0}
 .pl b{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl small{display:block;font:11px var(--mono);color:var(--faint)}
 .pl .more{padding:8px 12px;font-size:12px;color:var(--faint)}
+.strow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.strow .kinds{display:inline-flex;gap:4px;flex-wrap:wrap}
+.stbtn{font:600 13px var(--sans);padding:6px 12px;border:1px solid var(--accent);border-radius:999px;background:var(--surface);color:var(--accent);cursor:pointer;white-space:nowrap}.stbtn:hover{background:var(--accent);color:#fff}
+.mback{display:block;font:600 12.5px var(--sans);color:var(--accent);text-decoration:none;margin-bottom:3px}.mback:hover{text-decoration:underline}
 .mh .only{font:600 12px var(--sans);padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap}.mh .only:hover{color:var(--accent);border-color:var(--accent)}
 /* 전체화면: 지도만 화면 가득. 검색·목록·칩은 숨기고 떠 있는 막대의 버튼으로 켠다 */
 .fsb{font:600 13px var(--sans);padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;white-space:nowrap}.fsb:hover{border-color:var(--accent);color:var(--accent)}
@@ -528,7 +531,7 @@ body.fs.tools .chips{display:flex;justify-content:center}
 .fsbar .sep{width:1px;height:20px;background:var(--line);margin:0 2px}
 body.fs .detail{padding:16px 20px 60px;max-width:none}
 .zoom{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-left:auto}
-.zoom button{border:0;background:var(--surface);color:var(--ink);font:600 14px var(--sans);padding:7px 13px;cursor:pointer}
+.zoom button{border:0;background:var(--surface);color:var(--ink);font:600 15px/1 var(--sans);padding:9px 13px;min-width:38px;cursor:pointer}
 .zoom button+button{border-left:1px solid var(--line)}.zoom button:hover{background:var(--sunk)}
 
 [hidden]{display:none!important}
@@ -582,8 +585,9 @@ body.fs .detail{padding:16px 20px 60px;max-width:none}
 .node .meta b{font-family:var(--sans);font-weight:600;color:var(--muted)}
 .node .tag{position:absolute;top:12px;left:10px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--accent);color:#fff;border-radius:4px;padding:1px 7px}
 .node.bad .tag{background:var(--bad)}.node.undev .tag{background:var(--warn)}.node.new .tag{background:var(--new)}.node.accepted .tag{background:var(--accent)}
-.detail .side{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:8px}.detail .side button{border:0;background:var(--surface);color:var(--muted);font:600 12.5px var(--sans);padding:5px 12px;cursor:pointer}
-.detail .side button+button{border-left:1px solid var(--line)}.detail .side button.on{background:var(--accent-soft);color:var(--accent)}
+.detail .capsw{position:absolute;left:10px;top:10px;z-index:2;display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);box-shadow:0 4px 14px rgba(15,20,19,.18);opacity:0;transition:opacity .15s}
+.detail .prev:hover .capsw,.detail .prev:focus-within .capsw{opacity:1}.detail .capsw button{border:0;background:var(--surface);color:var(--muted);font:600 12.5px var(--sans);padding:5px 12px;cursor:pointer}
+.detail .capsw button+button{border-left:1px solid var(--line)}.detail .capsw button.on{background:var(--accent-soft);color:var(--accent)}
 
 /* 상세 페이지: 화면 하나. 지도로 돌아가는 링크, 큰 캡처 + 화면 안의 상태 그래프 | 오는 길·가는 길·테스트 */
 .detail{padding:0 0 30px}
@@ -661,6 +665,19 @@ body.fs .detail{padding:16px 20px 60px;max-width:none}
 @media (max-width:1180px){.stage,.stage.nol{grid-template-columns:220px minmax(0,1fr);height:auto}.canvas{height:60vh}}
 @media (max-width:1000px){.dgrid{grid-template-columns:1fr}}
 @media (max-width:760px){.stage,.stage.nol{grid-template-columns:1fr}.pane.left{max-height:40vh}.detail .dh{flex-direction:column;gap:10px}}
+/* 창 높이에 맞춤: 지도도 상세도 페이지 스크롤 없이. 상세의 목록은 5개까지 보이고 그 안에서 스크롤 */
+main{height:100%;display:flex;flex-direction:column;overflow:hidden;padding-block:14px 14px;gap:12px}
+#overview{flex:1;min-height:0}.toolbar{flex:none}
+.stage,.stage.nol{flex:1;min-height:0;height:auto}
+.detail{flex:1;min-height:0;display:flex;flex-direction:column;padding:0}
+.detail .dh{align-items:center;gap:14px;padding:0 0 10px;margin-bottom:12px;flex:none}
+.detail .dh>div{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap;min-width:0}
+.detail h3{font-size:19px}.detail .sub{margin-top:0}
+.detail .back{padding:5px 11px;margin-top:0}
+.dgrid{flex:1;min-height:0;align-items:stretch}
+.dgrid .col{min-height:0;overflow:auto;gap:16px;padding-right:2px}
+.detail .sec{flex:none}
+.routes{max-height:214px;overflow:auto;padding-right:2px}.trows{max-height:292px;overflow:auto;padding-right:2px}
 """.replace("__CW__", str(CARD_W)).replace("__CH__", str(CARD_H)).replace("__TH__", str(THUMB_H)).replace("__MW__", "150").replace("__MH__", "116").replace("__MT__", "72")
 
 MAP_JS = r"""
@@ -737,11 +754,12 @@ function show(rid, sid){
   // 기본 상태의 캡처: 비교 지도는 to-be 우선(미개발만 as-is). 둘 다 있으면 as-is/to-be 를 바꿔 볼 수 있다
   const both = !currentState && r.asis_shot && r.tobe_shot && r.asis_shot !== r.tobe_shot;
   const mainShot = currentState ? focus.shot : (r.shot || focus.shot), mainCap = currentState ? stateName(focus.id) : (r.tobe_shot && r.shot === r.tobe_shot ? 'to-be' : 'as-is');
-  h += both ? `<div class="side"><button type="button" data-side="${r.tobe_shot}" data-capn="to-be" class="${mainShot === r.tobe_shot ? 'on' : ''}">to-be 캡처</button><button type="button" data-side="${r.asis_shot}" data-capn="as-is" class="${mainShot === r.asis_shot ? 'on' : ''}">as-is 캡처</button></div>` : '';
-  h += mainShot ? `<div class="prev" title="크게 보기" data-lb="${mainShot}" data-cap="${mainCap}"><img src="${shot(mainShot)}" alt="${routeName(rid)} 화면"><span class="cap">${mainCap}</span></div>` : `<div class="empty">${r.status === 'unreached' ? '닿지 못한 화면 · 캡처 없음' : '캡처 없음'}</div>`;
+  // as-is/to-be 캡처 전환은 캡처 왼쪽 위에 겹쳐 두고 호버할 때만 보인다
+  const sw = both ? `<div class="capsw"><button type="button" data-side="${r.tobe_shot}" data-capn="to-be" class="${mainShot === r.tobe_shot ? 'on' : ''}">to-be 캡처</button><button type="button" data-side="${r.asis_shot}" data-capn="as-is" class="${mainShot === r.asis_shot ? 'on' : ''}">as-is 캡처</button></div>` : '';
+  h += mainShot ? `<div class="prev" title="크게 보기" data-lb="${mainShot}" data-cap="${mainCap}"><img src="${shot(mainShot)}" alt="${routeName(rid)} 화면">${sw}<span class="cap">${mainCap}</span></div>` : `<div class="empty">${r.status === 'unreached' ? '닿지 못한 화면 · 캡처 없음' : '캡처 없음'}</div>`;
   if(r.status === 'unreached') h += `<div class="sec"><h4>코드 위치 <span>${(r.evidence || []).length}곳${r.methods && r.methods.length ? ' · ' + r.methods.join(',') : ''}</span></h4><div class="tid">${(r.evidence || []).map(esc).join('<br>')}</div>`
     + `<p class="tid" style="margin-top:8px">소스 코드가 선언한 주소인데 어떤 탐색 경로·시나리오도 여기에 닿지 않았습니다. 막은 것이 무엇인지 확인하세요: 픽스처 값이 없는 입력칸, 금지 목록(deny)에 걸린 버튼, 로그인·권한, 특정 데이터가 있어야 보이는 화면, 탐색 예산(상태·동작·깊이). 그래도 갈 수 없는 화면이면 소스에서 실제로 쓰이는지 봅니다.</p></div>`;
-  else if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개 · 누르면 그 상태의 캡처와 ${G.unit}</span></h4>${miniGraph(rid)}</div>`;
+  else if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개</span></h4><div class="strow"><span class="kinds">${kinds}</span><button type="button" class="stbtn" data-states>상태 그래프 보기 ›</button></div></div>`;
   else h += `<div class="sec"><h4>이 화면 안의 상태</h4><div class="tid">기본 상태뿐 (팝업·드로워·탭 없음)</div></div>`;
   h += `</div><div class="col">`;
   if(G.paths[rid]) h += `<div class="sec"><h4>시작에서 오는 길 <span>${path.length - 1}번 이동</span></h4><div class="routes">`
@@ -760,7 +778,8 @@ function show(rid, sid){
   detail.querySelectorAll('[data-lb]').forEach(a => a.addEventListener('click', () => openLb(shot(a.dataset.lb), a.dataset.cap || r.name)));
   detail.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, rid)));
   detail.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => openState(rid, b.dataset.state)));
-  detail.querySelectorAll('[data-side]').forEach(b => b.addEventListener('click', () => { const pv = detail.querySelector('.prev'); if(!pv) return; pv.querySelector('img').src = shot(b.dataset.side); pv.querySelector('.cap').textContent = b.dataset.capn; pv.dataset.lb = b.dataset.side; pv.dataset.cap = b.dataset.capn; detail.querySelectorAll('[data-side]').forEach(x => x.classList.toggle('on', x === b)); }));
+  detail.querySelectorAll('[data-states]').forEach(b => b.addEventListener('click', () => openStates(rid)));
+  detail.querySelectorAll('[data-side]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const pv = detail.querySelector('.prev'); if(!pv) return; pv.querySelector('img').src = shot(b.dataset.side); pv.querySelector('.cap').textContent = b.dataset.capn; pv.dataset.lb = b.dataset.side; pv.dataset.cap = b.dataset.capn; detail.querySelectorAll('[data-side]').forEach(x => x.classList.toggle('on', x === b)); }));
   root.scrollTo({top: 0});
 }
 function back(){ if(ctx.getSub()) ctx.setSub(''); else showOverview(); }
@@ -777,7 +796,17 @@ function route(){
 }
 /* 시나리오 팝업: 필름스트립 + 단계 + (다르면) 무엇이 달랐는지 */
 /* 상태 팝업: 화면 안의 상태 하나 (팝업·드로워·탭·알림). 큰 캡처, 여기로 오는 동작, 여기서 가는 상태, 지나는 테스트(누르면 시나리오 팝업으로 바뀐다) */
-function openState(rid, sid){
+/* 상태 그래프 팝업: 화면 안의 상태를 그래프로. 상태를 누르면 같은 팝업이 그 상태의 상세로 바뀌고, ← 로 그래프에 돌아온다 */
+function openStates(rid){
+  const r = G.routes[rid]; if(!r) return;
+  currentState = null;
+  modal.querySelector('.box').innerHTML = `<div class="mh"><div><b>${routeName(rid)} › 화면 안의 상태</b><small>${esc(r.path)} · ${r.states.length}개 · 상태를 누르면 그 상태의 캡처·동작·${G.unit}</small></div><span></span><button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb">${miniGraph(rid)}</div>`;
+  modal.classList.add('on');
+  modal.querySelector('#closeModal').addEventListener('click', closeModal);
+  modal.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => openState(rid, b.dataset.state, true)));
+  modal.querySelector('.mb').scrollTop = 0;
+}
+function openState(rid, sid, fromGraph){
   const n = G.nodes[sid], r = G.routes[rid]; if(!n || !r) return;
   currentState = sid;  // 시나리오 팝업에서 이 상태의 단계를 강조하기 위해
   const ins = G.sedges.filter(e => e.dst === sid && e.src !== sid), outs = G.sedges.filter(e => e.src === sid && e.dst !== sid);
@@ -785,7 +814,7 @@ function openState(rid, sid){
   const failedIn = t => n.visits.some(v => v.test === t && v.failed);
   const kindPill = n.kind === 'base' ? '<span class="kd">기본</span>' : `<span class="kd ${n.kind}">${G.kind_ko[n.kind]}</span>`;
   const link = (e, other) => `<a class="route" data-state-go="${other}"><span class="act">${esc(e.actions.join(' · '))}</span><span class="nm">${stateName(other)}</span><span class="path">${esc(G.nodes[other].kind === 'base' ? '기본' : G.kind_ko[G.nodes[other].kind])}</span></a>`;
-  let h = `<div class="mh"><div><b>${routeName(rid)} › ${stateName(sid)}</b><small>${esc(r.path)} · ${G.unit} ${n.tests.length}개${n.failed && G.compared ? ' · as-is와 다름' : ''}</small></div>${kindPill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb sb">`;
+  let h = `<div class="mh"><div>${fromGraph ? '<a class="mback" href="#" data-graph>← 상태 그래프</a>' : ''}<b>${routeName(rid)} › ${stateName(sid)}</b><small>${esc(r.path)} · ${G.unit} ${n.tests.length}개${n.failed && G.compared ? ' · as-is와 다름' : ''}</small></div>${kindPill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb sb">`;
   h += n.shot ? `<div class="prev" title="크게 보기" data-lb="${n.shot}" data-cap="${stateName(sid)}"><img src="${shot(n.shot)}" alt="${stateName(sid)}"><span class="cap">${stateName(sid)}</span></div>` : `<div class="empty">캡처 없음</div>`;
   h += `<div class="sgrid"><div class="sec"><h4>이 상태로 오는 동작 <span>${ins.length}</span></h4><div class="routes">${ins.map(e => link(e, e.src)).join('') || '<span class="tid">기록에 없음 (이 상태로 바로 들어감)</span>'}</div></div>`
      + `<div class="sec"><h4>여기서 가는 상태 <span>${outs.length}</span></h4><div class="routes">${outs.map(e => link(e, e.dst)).join('') || '<span class="tid">없음</span>'}</div></div></div>`;
@@ -794,7 +823,8 @@ function openState(rid, sid){
   modal.classList.add('on');
   modal.querySelector('#closeModal').addEventListener('click', closeModal);
   modal.querySelectorAll('[data-lb]').forEach(b => b.addEventListener('click', () => openLb(shot(b.dataset.lb), b.dataset.cap)));
-  modal.querySelectorAll('[data-state-go]').forEach(a => a.addEventListener('click', () => openState(rid, a.dataset.stateGo)));
+  modal.querySelectorAll('[data-state-go]').forEach(a => a.addEventListener('click', () => openState(rid, a.dataset.stateGo, fromGraph)));
+  modal.querySelectorAll('[data-graph]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); openStates(rid); }));
   modal.querySelectorAll('[data-test]').forEach(b => b.addEventListener('click', () => openTest(b.dataset.test, rid)));
   modal.querySelector('.mb').scrollTop = 0;
 }
@@ -1004,10 +1034,10 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
     body = (html.head(chips, chips_id="chips", info=info, facts=facts, extra=legend) + "<div id='overview'>"
             f"<div class='toolbar'><input id='q' type='search' placeholder='화면 이름·주소·팝업 이름으로 찾기' aria-label='화면 찾기'>"
             f"<div class='pick' id='pick'><input id='f' type='search' placeholder='{unit} 찾기 · 제목이나 지나는 화면 이름' aria-label='{unit}로 거르기' autocomplete='off'><div class='pl' id='pl' hidden></div></div>"
-            f"<span class='zoom'><button type='button' id='zo' aria-label='축소'>－</button><button type='button' id='zf'>맞춤</button><button type='button' id='zi' aria-label='확대'>＋</button></span>"
+            f"<span class='zoom'><button type='button' id='zo' aria-label='축소'>−</button><button type='button' id='zf'>맞춤</button><button type='button' id='zi' aria-label='확대'>+</button></span>"
             f"<button type='button' class='fsb' id='fsb' title='지도만 화면 가득. 검색·목록은 버튼으로 켠다'>⛶ 전체화면</button></div>"
             f"<div class='fsbar' id='fsbar'><button type='button' id='fst' title='검색·화면 목록·상태 칩 보이기/숨기기'>검색·목록</button><span class='sep'></span>"
-            f"<button type='button' id='fzo' aria-label='축소'>－</button><button type='button' id='fzf'>맞춤</button><button type='button' id='fzi' aria-label='확대'>＋</button><span class='sep'></span>"
+            f"<button type='button' id='fzo' aria-label='축소'>−</button><button type='button' id='fzf'>맞춤</button><button type='button' id='fzi' aria-label='확대'>+</button><span class='sep'></span>"
             f"<button type='button' id='fsx' title='전체화면 나가기 (Esc)'>나가기</button></div>"
             f"<div class='stage' id='stage'><div class='pane left'><h2><span>화면 {len(g['routes'])}개</span><button class='ib' id='tl' type='button' aria-label='목록 접기'>‹</button></h2><div class='list'>{''.join(rows)}</div></div>"
             f"<div class='pane canvas' id='canvas'><div id='holder' style='position:relative;width:{w}px;height:{hgt}px'>"

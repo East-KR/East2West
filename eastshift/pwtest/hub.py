@@ -519,7 +519,9 @@ body.hub{display:flex;flex-direction:column;overflow:hidden}
 #view{flex:1;min-width:0;position:relative;background:var(--bg)}
 #view > main{height:100%;overflow:auto;max-width:none;padding-block:22px 60px;gap:22px}
 /* 화면 조각 컨테이너 (iframe 대신): 탭 하나가 이 안에 들어간다. 조각의 CSS 는 .pg-<kind> 로 가둬져 있다 */
-.pg{height:100%;overflow:auto;position:relative;background:var(--bg)}.pg.loading{display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.pg{height:100%;overflow:auto;position:relative;background:var(--bg)}
+.pg.inline{height:auto;overflow:visible}.pg.inline main{padding:0;height:auto}.rslot{display:block}
+.fold summary{cursor:pointer;font-weight:600;font-size:16px;padding:6px 0;list-style:none}.fold summary::-webkit-details-marker{display:none}.fold summary::before{content:'▸ ';color:var(--muted)}.fold[open] summary::before{content:'▾ '}.fold summary small{font-weight:400;color:var(--faint);margin-left:8px}.fold .tbl{margin-top:10px}.pg.loading{display:flex;align-items:center;justify-content:center;color:var(--muted)}
 main.hist h2{font-size:16px;font-weight:600}
 .tbl{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:auto}
 .tbl table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -620,7 +622,7 @@ pre.log{margin:0;background:var(--sunk);border-radius:10px;padding:12px 14px;fon
 HUB_JS = r"""
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const TABS = [['map','Screen Map'],['overview','시나리오'],['review','시나리오 승인'],['report','검증 보고서'],['history','이력']];  // 왼쪽 메뉴 순서. 첫 탭(Screen Map)이 프로젝트를 열 때의 기본
+const TABS = [['map','Screen Map'],['overview','시나리오'],['review','시나리오 승인'],['runs','실행']];  // 실행 = 실행 목록 + 고른 실행의 판정(옛 이력·검증 보고서)  // 왼쪽 메뉴 순서. 첫 탭(Screen Map)이 프로젝트를 열 때의 기본
 // 위 막대 가운데: 앱 이름 › 탭 (지도는 출처까지). 페이지 조각에는 제목이 없다
 function setWhere(extra){
   const tab = (TABS.find(t => t[0] === state.tab) || ['', ''])[1];
@@ -652,13 +654,13 @@ let apps = [], state = {app:null, tab:'map', run:null, src:null, sub:''}, data =
 
 const SRC = [['asis','as-is 탐색'],['tobe','to-be 탐색'],['compare','to-be 비교 (as-is 기준)']];
 // 해시 = #app/tab/run/src[/sub…]. sub 는 끼워 넣은 화면 조각의 안쪽 이동(지도의 상세 라우트, 검토의 시나리오)으로, 조각이 ctx.setSub 로 쓰고 ctx.getSub 로 읽는다 (인코딩된 그대로)
-function parseHash(){ const parts = location.hash.replace(/^#\/?/, '').split('/'); const [app, tab, run, src] = parts.slice(0, 4).map(decodeURIComponent); return {app: app||null, tab: tab||'map', run: run && run !== '-' ? run : null, src: src && src !== '-' ? src : null, sub: parts.slice(4).join('/')}; }
+function parseHash(){ const parts = location.hash.replace(/^#\/?/, '').split('/'); const [app, tab, run, src] = parts.slice(0, 4).map(decodeURIComponent); return {app: app||null, tab: ({history:'runs', report:'runs'})[tab] || tab || 'map', run: run && run !== '-' ? run : null, src: src && src !== '-' ? src : null, sub: parts.slice(4).join('/')}; }
 function setHash(){ const parts = [state.app, state.tab, state.run || '-', state.src || (state.sub ? '-' : null)]; while (parts.length && !parts[parts.length-1]) parts.pop(); const h = parts.map(encodeURIComponent).join('/') + (state.sub ? '/' + state.sub : ''); if (location.hash.replace(/^#\/?/, '') !== h) location.hash = h; }
 
 // ---- 화면 조각 끼우기 (iframe 대신): 서버의 /page/<app>/<kind>?fragment=1 이 {html, css, js} 를 주고, css 는 .pg-<kind> 로 가둬져 있고 js 는 (root, ctx) 함수 본문이다 ----
 let mounted = null, mountSeq = 0;
 function destroyPage(){ if (mounted){ for (const f of mounted.cleanups) { try { f(); } catch (_) {} } mounted = null; } }
-async function mountPage(container, kind, q){
+async function mountPage(container, kind, q, inline){
   destroyPage();
   const seq = ++mountSeq;
   container.innerHTML = '<div class="pg loading">불러오는 중…</div>';
@@ -667,7 +669,7 @@ async function mountPage(container, kind, q){
   catch (e) { if (seq === mountSeq) container.innerHTML = `<div class="empty">화면을 불러오지 못했습니다: ${esc(e.message)}</div>`; return; }
   if (seq !== mountSeq) return;  // 기다리는 동안 다른 탭으로 갔다
   let st = document.getElementById('css-' + kind); if (!st){ st = document.createElement('style'); st.id = 'css-' + kind; document.head.appendChild(st); } st.textContent = frag.css || '';
-  const root = document.createElement('div'); root.className = 'pg pg-' + kind; root.innerHTML = frag.html;
+  const root = document.createElement('div'); root.className = 'pg pg-' + kind + (inline ? ' inline' : ''); root.innerHTML = frag.html;
   container.innerHTML = ''; container.appendChild(root);
   const cleanups = [], subs = [];
   const ctx = {getSub: () => state.sub || '', setSub: s => { state.sub = s || ''; setHash(); }, onSub: fn => subs.push(fn),
@@ -806,7 +808,7 @@ async function loadApp(){
   sel.value = state.run || ''; sel.disabled = !data.runs.length; $('#runsel').hidden = !data.runs.length || (state.tab === 'map' && mapSrc() !== 'compare');
   $('#tabs').hidden = false;
   $('#tabs').innerHTML = `<a data-back><span>← 프로젝트</span></a><div class="sep">${esc(state.app)}</div>` + TABS.map(([k, l]) => {
-    const n = k === 'history' ? data.runs.length : (k === 'overview' ? data.tests.length : '');
+    const n = k === 'runs' ? data.runs.length : (k === 'overview' ? data.tests.length : '');
     return `<a data-tab="${k}" class="${k === state.tab ? 'on' : ''}"><span>${l}</span>${n !== '' ? `<small>${n}</small>` : ''}</a>`;
   }).join('');
   for (const a of $('#tabs').querySelectorAll('a[data-tab]')) a.onclick = () => { state.tab = a.dataset.tab; state.sub = ''; setHash(); };
@@ -819,9 +821,9 @@ function render(){
   if (!state.app){ renderList(v); return; }
   if (state.tab === 'map'){ renderMap(v); return; }
   const q = state.run ? '?run=' + encodeURIComponent(state.run) : '';
-  const page = {overview:'catalog', review:'review', map:'map', report:'report'}[state.tab];
+  const page = {overview:'catalog', review:'review'}[state.tab];
   if (page){ mountPage(v, page, q); return; }
-  renderHistory(v);
+  renderRuns(v);
 }
 
 // ---- 화면 지도: 출처 셋. as-is 탐색 / to-be 탐색 은 crawl 결과, to-be 비교 는 골든 + 선택한 실행 + 두 탐색(미개발·새 화면). 없으면 만드는 화면 ----
@@ -890,24 +892,22 @@ async function renderJob(v, kind, force){
   if (running && mine) poll();
 }
 
-function renderHistory(v){
-  const d = data, st = d.oracle, runs = d.runs, cur = runs.find(r => r.stamp === state.run);
-  const mut = d.mutations.find(m => m.current);
+function renderRuns(v){
+  const d = data, st = d.oracle, runs = d.runs;
   const last = runs[runs.length-1];
   const stale = last && st.approval_id && last.approval_id !== st.approval_id;
   const chips = [
     st.ok ? chip('ok', '승인됨', null, `${st.approved_by} · ${(st.approved_at||'').slice(0,16)}`, true) : chip('warn', d.golden ? '승인 필요' : '골든 없음', null, d.golden ? '시나리오 승인 탭에서' : '', true),
     chip('info', '비교 실행', runs.length + '회', last ? '마지막 ' + last.finished.slice(5,16) : '아직 없음'),
-    last ? (last.totals.fail ? chip('bad', '다름', last.totals.fail, `${last.totals.pass + last.totals.fail}개 중`) : chip('ok', '모두 같음', last.totals.pass)) : '',
-    mut ? chip(mut.score >= .8 ? 'ok' : 'bad', '결함 탐지', Math.round(mut.score*100) + '%', `${mut.killed}/${mut.total}`) : chip('none', '결함 탐지', '없음', '', false, '현재 승인본으로 측정한 결과 없음'),
   ];
-  let h = `<main class="hist"><header class="pgh"><div class="chips">${chips.join('')}</div><span class="ihelp" tabindex="0" role="note" aria-label="설명"><i>i</i><span class="tip"><p>to-be 비교 실행마다 원장에 결과가 남고, JUnit·스크린샷 사본으로 그 실행 기준의 지도와 보고서를 다시 그립니다. 행을 누르면 그 실행이 선택되고, 격자의 열 번호를 눌러도 됩니다.</p><div class="facts"><span><b>원장</b> runs/${esc(d.app)}</span></div></span></span></header>`;
+  let h = `<main class="hist"><header class="pgh"><div class="chips">${chips.join('')}</div><span class="ihelp" tabindex="0" role="note" aria-label="설명"><i>i</i><span class="tip"><p>to-be 비교 실행마다 원장에 결과가 남습니다. 표에서 실행을 고르면 그 실행의 판정(믿을 수 있는가 → 다른 점 → 결함 탐지 → 업무 범위)이 아래에 나오고, Screen Map 도 그 실행 기준으로 그려집니다.</p><div class="facts"><span><b>원장</b> runs/${esc(d.app)}</span><span><b>파일</b> 같은 판정을 markdown 으로: eastshift report (에이전트·CI용)</span></div></span></span></header>`;
   if (stale) h += `<div class="notice"><b>주의</b> 마지막 비교는 이전 승인본(${esc(last.approved_at||'없음')})으로 실행됐습니다. 현재 승인본으로 다시 비교하세요.</div>`;
   if (!runs.length){
     const tobe = ((d.project||{}).tobe||{}).url || '<to-be>';
     h += `<div class="empty">to-be 비교 실행 기록이 없습니다.<br><code>uv run pytest e2e/${esc(d.app)} --base-url ${esc(tobe)} --compare golden/${esc(d.app)} --junitxml reports/junit-${esc(d.app)}.xml</code></div></main>`; v.innerHTML = h; return; }
 
-  h += `<section><h2>실행 이력 <small class="mono" style="color:var(--faint);font-weight:400">오래된 → 최근</small></h2><div class="tbl"><table><thead><tr><th>#</th><th>끝난 시각</th><th>대상</th><th>승인본</th><th>결과</th><th>지난 실행 대비</th><th></th></tr></thead><tbody>`;
+  h += `<section><h2>실행 <small class="mono" style="color:var(--faint);font-weight:400">최근 → 오래된 · 번호는 실행 순서 · 행을 누르면 아래에 그 실행의 판정</small></h2><div class="tbl"><table><thead><tr><th>#</th><th>끝난 시각</th><th>대상</th><th>승인본</th><th>결과</th><th>지난 실행 대비</th><th></th></tr></thead><tbody>`;
+  const rrows = [];  // 최근 실행이 맨 위 (지난 실행 대비·번호는 시간순 그대로)
   runs.forEach((r, i) => {
     const dl = r.delta, chips = [];
     if (i > 0){
@@ -918,48 +918,36 @@ function renderHistory(v){
       if (!chips.length) chips.push('<span class="chip same">변화 없음</span>');
     } else chips.push('<span class="chip same">첫 실행</span>');
     const ap = r.approval_id && r.approval_id === st.approval_id ? `<span class="pill ok">현재</span>` : `<span class="pill warn" title="${esc(r.approved_at||'승인 없음')}">이전 승인본</span>`;
-    h += `<tr class="rrow ${r.stamp === state.run ? 'on' : ''}" data-run="${r.stamp}"><td class="mono">${i+1}</td><td class="mono">${esc(r.finished)}</td><td class="mono">${esc(r.target)}</td><td>${ap}</td>`
+    rrows.push(`<tr class="rrow ${r.stamp === state.run ? 'on' : ''}" data-run="${r.stamp}"><td class="mono">${i+1}</td><td class="mono">${esc(r.finished)}</td><td class="mono">${esc(r.target)}</td><td>${ap}</td>`
        + `<td>${r.totals.fail ? `<span class="pill bad">${r.totals.fail} 다름</span>` : Object.values(r.cases).some(c => c.kind === 'accepted_diff') ? '<span class="pill warn">승인된 차이 포함</span>' : '<span class="pill ok">모두 같음</span>'} <span class="mono" style="color:var(--faint);font-size:12px">/ ${r.totals.pass + r.totals.fail}</span></td>`
-       + `<td>${chips.join('')}</td><td><div class="actions">${r.junit ? `<button data-go="map" data-run="${r.stamp}">지도</button><button data-go="report" data-run="${r.stamp}">보고서</button>` : '<span style="color:var(--faint);font-size:12px">JUnit 없음</span>'}</div></td></tr>`;
+       + `<td>${chips.join('')}</td><td><div class="actions">${r.junit ? `<button data-go="map" data-run="${r.stamp}">Screen Map</button>` : '<span style="color:var(--faint);font-size:12px">JUnit 없음</span>'}</div></td></tr>`);
   });
+  h += rrows.reverse().join('');
   h += `</tbody></table></div></section>`;
 
-  h += `<section><h2>시나리오 × 실행</h2><div class="tbl matrix"><table><thead><tr><th>시나리오</th>${runs.map((r,i) => `<th class="run ${r.stamp === state.run ? 'on' : ''}" data-run="${r.stamp}" title="${esc(r.finished)} · ${esc(r.target)}">${i+1}</th>`).join('')}<th>마지막</th></tr></thead><tbody>`;
+  // 고른 실행의 판정: 검증 보고서 조각을 여기에 끼운다 (믿을 수 있는가 · 다른 점 · 승인된 차이 · 결함 탐지 · 업무 범위)
+  h += `<section id="runreport" class="rslot"></section>`;
+
+  if (d.mutations.length){
+    h += `<section><h2>결함 탐지 측정 <small class="mono" style="color:var(--faint);font-weight:400">승인본마다 한 번 · 현재 승인본 결과가 위 판정에 쓰인다</small></h2><div class="tbl"><table><thead><tr><th>측정 시각</th><th>탐지율</th><th>오류</th><th>승인본</th></tr></thead><tbody>`
+       + d.mutations.map(m => `<tr><td class="mono">${esc(m.generated_at)}</td><td><b class="mono">${m.score == null ? '—' : Math.round(m.score*100) + '%'}</b> <span class="mono" style="color:var(--faint);font-size:12px">${m.killed}/${m.total}</span></td><td class="mono">${m.errors}</td><td>${m.current ? '<span class="pill ok">현재</span>' : `<span class="pill warn" title="${esc(m.approved_at||'')}">이전 승인본</span>`}</td></tr>`).join('')
+       + `</tbody></table></div></section>`;
+  }
+
+  h += `<details class="fold"><summary>시나리오 × 실행 격자 <small class="mono">${d.tests.length} × ${runs.length} · 열 번호를 누르면 그 실행 선택</small></summary><div class="tbl matrix"><table><thead><tr><th>시나리오</th>${runs.map((r,i) => `<th class="run ${r.stamp === state.run ? 'on' : ''}" data-run="${r.stamp}" title="${esc(r.finished)} · ${esc(r.target)}">${i+1}</th>`).join('')}<th>마지막</th></tr></thead><tbody>`;
   for (const t of d.tests){
     const cells = runs.map(r => { const c = r.cases[t.name]; return `<td class="c" title="${esc(r.finished)}${c ? ' · ' + esc(KIND[c.kind]||c.kind) : ''}"><i class="${c ? (c.status === 'pass' ? 'p' : 'f') : ''}"></i></td>`; }).join('');
     const lc = last.cases[t.name];
     h += `<tr><td class="t"><b>${esc(t.title)}</b><small>${esc(t.name)}</small></td>${cells}<td>${lc ? casePill(lc) : '<span class="pill none">비교 전</span>'}</td></tr>`;
   }
-  h += `</tbody></table></div></section>`;
-
-  if (cur){
-    const names = Object.keys(cur.cases).sort((a,b) => (cur.cases[a].status === 'pass') - (cur.cases[b].status === 'pass') || a.localeCompare(b));
-    h += `<section><h2>실행 ${runs.indexOf(cur)+1} 상세 <small class="mono" style="color:var(--faint);font-weight:400">${esc(cur.finished)} · ${esc(cur.target)}</small></h2><div style="display:flex;flex-direction:column;gap:10px">`;
-    for (const n of names){
-      const c = cur.cases[n], t = d.tests.find(x => x.name === n) || {title: n};
-      const rows = (c.rows||[]).map(([w,a,b]) => `<tr><td>${esc(w)}</td><td class="was">${esc(a)}</td><td class="now">${esc(b)}</td></tr>`).join('');
-      h += `<div class="case ${c.status}"><div class="ttl">${esc(t.title)}<small>${esc(n)}</small></div><div>${casePill(c)}</div>`
-         + (c.summary ? `<div class="sum">${esc(c.summary)}</div>` : '')
-         + (rows ? `<table><tr><th>무엇이</th><th>as-is 기준</th><th>to-be</th></tr>${rows}</table>` : '')
-         + (c.screenshot ? `<img src="${c.screenshot}" alt="실패 순간 화면" onclick="window.open(this.src)">` : '') + `</div>`;
-    }
-    h += `</div></section>`;
-  }
-
-  if (d.mutations.length){
-    h += `<section><h2>결함 탐지 측정</h2><div class="tbl"><table><thead><tr><th>측정 시각</th><th>탐지율</th><th>오류</th><th>승인본</th></tr></thead><tbody>`
-       + d.mutations.map(m => `<tr><td class="mono">${esc(m.generated_at)}</td><td><b class="mono">${m.score == null ? '—' : Math.round(m.score*100) + '%'}</b> <span class="mono" style="color:var(--faint);font-size:12px">${m.killed}/${m.total}</span></td><td class="mono">${m.errors}</td><td>${m.current ? '<span class="pill ok">현재</span>' : `<span class="pill warn" title="${esc(m.approved_at||'')}">이전 승인본</span>`}</td></tr>`).join('')
-       + `</tbody></table></div></section>`;
-  }
+  h += `</tbody></table></div></details>`;
   h += `</main>`;
   v.innerHTML = h;
   for (const el of v.querySelectorAll('[data-run]')){
     el.addEventListener('click', e => { const go = e.target.dataset.go; state.run = el.dataset.run; if (go) state.tab = go; state.sub = ''; setHash(); });
   }
-  // 표는 10줄씩: 실행 표(선택한 실행이 있는 쪽을 먼저), 시나리오 × 실행, 실행 상세
-  for (const t of v.querySelectorAll('.tbl')) pager([...t.querySelectorAll('tbody tr')], 10, t, t.querySelector('tbody tr.on'));
-  const cases = [...v.querySelectorAll('.case')];
-  if (cases.length) pager(cases, 10, cases[cases.length - 1].parentElement, cases.find(c => c.classList.contains('fail')));
+  for (const t of v.querySelectorAll('.tbl')) pager([...t.querySelectorAll('tbody tr')], 10, t, t.querySelector('tbody tr.on'));  // 표는 10줄씩
+  if (state.run) mountPage($('#runreport'), 'report', '?run=' + encodeURIComponent(state.run), true);
 }
 
 async function route(){

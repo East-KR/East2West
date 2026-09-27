@@ -1,0 +1,194 @@
+{
+ "app": "portal",
+ "target": "http://127.0.0.1:8825",
+ "started": "2026-09-27 15:51:15",
+ "finished": "2026-09-27 15:52:34",
+ "junit": "runs/portal/20260927-155234/junit.xml",
+ "oracle": {
+  "approved_by": "east",
+  "approved_at": "2026-09-25 22:43:43",
+  "approval_id": "3fa947344358566fbf9263ab35c4988a43927e30bb94dd9bf158d9085f66e6a3",
+  "ok": true
+ },
+ "cases": {
+  "test_portal_01": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_02": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_03": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_04": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_05": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_06": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_07": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_08": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_09": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_10": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_11": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_12": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_13": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_14": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_15": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_16": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_17": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_18": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_vat_truncation": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_cancel_twice": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_filter_by_status[\\uc811\\uc218-ORD-1 \\ub178\\ud2b8\\ubd81]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_filter_by_status[\\ubc30\\uc1a1\\uc911-ORD-2 \\ubcfc\\ud39c]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_filter_by_status[\\uc644\\ub8cc-0\\uac74]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_filter_by_status[\\ucde8\\uc18c-ORD-3 \\ub9c8\\uc6b0\\uc2a4]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  },
+  "test_portal_new_order_other_customer": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": []
+  }
+ },
+ "totals": {
+  "pass": 25,
+  "fail": 0
+ }
+}

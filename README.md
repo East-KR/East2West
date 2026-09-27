@@ -39,7 +39,7 @@ uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml repor
 uv run eastshift report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md   # 판정 markdown (에이전트·CI용)
 ```
 
-사람이 보는 화면(화면 지도·개요·이력·시나리오 승인·검증 보고서)은 전부 `eastshift ui` 한 곳이다. 파일로 따로 떨구는 명령은 없다.
+사람이 보는 화면(Screen Map·시나리오·시나리오 승인·실행)은 전부 `eastshift ui` 한 곳이다. 파일로 따로 떨구는 명령은 없다.
 
 수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다):
 
