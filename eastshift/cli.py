@@ -22,8 +22,8 @@ def load_dotenv(path: Path = Path(".env")) -> None:
         os.environ.setdefault(key.strip().removeprefix("export ").strip(), value.strip().strip("'\""))
 
 
-def main(argv: list[str] | None = None) -> int:
-    load_dotenv()
+def build_parser() -> argparse.ArgumentParser:
+    """명령 정의 전부. main 과 문서 대조 테스트(tests/test_docs.py)가 같이 쓴다."""
     ap = argparse.ArgumentParser(prog="eastshift", description="EastShift: Playwright as-is/to-be equivalence tests with an approved oracle, plus a natural-language YAML runner (Jev) and a crawler")
     sub = ap.add_subparsers(dest="cmd", required=True)
     run = sub.add_parser("run", help="run one or more scenario YAML files")
@@ -95,6 +95,12 @@ def main(argv: list[str] | None = None) -> int:
     ui.add_argument("--tests", type=Path, default=Path("e2e"), help="테스트 루트 (제목용, 기본 e2e/)")
     ui.add_argument("--port", type=int, default=8790)
     ui.add_argument("--no-open", action="store_true")
+    return ap
+
+
+def main(argv: list[str] | None = None) -> int:
+    load_dotenv()
+    ap = build_parser()
     args = ap.parse_args(argv)
     if args.cmd == "ui":
         from .pwtest import hub
