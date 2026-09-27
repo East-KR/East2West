@@ -1,6 +1,8 @@
 """화면 지도 데모: 홈에서 시작해 라우트 여러 개로 갈라지고, 화면 안에 팝업·드로워·탭이 있는 업무 포털. 표준 라이브러리만 사용.
 
 python demo-app/portal_app.py <port> asis          as-is (버그 포함)
+python demo-app/portal_app.py <port> asis-patched  as-is에 운영 패치가 들어온 뒤: 홈에 점검 안내 한 줄, 요약 카드 "미처리 주문" → "처리 대기".
+                                                   재기록하면 승인 탭에 "화면 바뀜"과 단계별 "지난 승인 대비"가 뜨는 데모 (기대값은 그대로)
 python demo-app/portal_app.py <port> tobe          to-be. as-is 동작을 버그까지 그대로 옮김
 python demo-app/portal_app.py <port> tobe-fixed    as-is 버그 두 개를 "고쳐버린" to-be (비교에서 잡혀야 하는 것)
 python demo-app/portal_app.py <port> tobe-renamed  라벨 변경("신규 주문"→"주문 등록", "수량"→"주문 수량") + 부가세 반올림. 라벨 뒤에 숨은 동작 차이까지 도달하는지
@@ -102,7 +104,7 @@ def page(title: str, body: str) -> bytes:
         links = "".join(f"<a href='{h}'><i aria-hidden='true'>{ICONS[t]}</i>{t}</a>" for h, t in menu)
         nav, css = f"<header><b>업무 포털</b>{links}</header>", CSS_MODERN
     else:
-        notices_link = "<a href='/notices'>공지사항</a>" if VARIANT == "asis" else ""  # as-is 에만 있는 화면 (to-be 미개발 데모)
+        notices_link = "<a href='/notices'>공지사항</a>" if VARIANT.startswith("asis") else ""  # as-is 에만 있는 화면 (to-be 미개발 데모)
         nav, css = f"<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a>{notices_link}</header>", CSS
     return (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>{title}</title><style>{css}</style><script>{JS}</script></head>"
             f"<body>{nav}<main>{body}</main></body></html>").encode()
@@ -124,10 +126,11 @@ def order_total(o: dict) -> tuple[int, int, int]:
 
 def home() -> bytes:
     open_n = sum(o["status"] not in ("취소", "완료") for o in DB()["orders"])
-    return page("홈", "<h1>포털 홈</h1><div class='cards'>"
-                f"<div class='card'>주문<b>{len(DB()["orders"])}건</b></div><div class='card'>미처리 주문<b>{open_n}건</b></div><div class='card'>고객<b>{len(DB()["customers"])}명</b></div></div>"
+    patched = VARIANT == "asis-patched"  # 운영 패치 데모: 점검 안내 + 카드 이름 변경
+    return page("홈", "<h1>포털 홈</h1>" + ("<p>9월 30일(화) 22시부터 시스템 점검이 있습니다</p>" if patched else "") + "<div class='cards'>"
+                f"<div class='card'>주문<b>{len(DB()["orders"])}건</b></div><div class='card'>{'처리 대기' if patched else '미처리 주문'}<b>{open_n}건</b></div><div class='card'>고객<b>{len(DB()["customers"])}명</b></div></div>"
                 "<h2>바로 가기</h2><ul><li><a href='/orders'>주문 목록 열기</a></li><li><a href='/customers'>고객 목록 열기</a></li><li><a href='/settings'>설정 열기</a></li>"
-                + ("<li><a href='/notices'>공지사항 열기</a></li>" if VARIANT == "asis" else "") + "</ul>")
+                + ("<li><a href='/notices'>공지사항 열기</a></li>" if VARIANT.startswith("asis") else "") + "</ul>")
 
 
 def orders_list(q: dict) -> bytes:
@@ -269,7 +272,7 @@ class Handler(BaseHTTPRequestHandler):
         if parts[0] == "customers" and len(parts) == 2 and parts[1].isdigit():
             c = next((x for x in DB()["customers"] if x["id"] == int(parts[1])), None)
             return self._send(customer_detail(c)) if c else self._send(page("없음", "<h1>고객이 없습니다</h1>"), HTTPStatus.NOT_FOUND)
-        if parts == ["notices"] and VARIANT == "asis":  # as-is 에만 있는 화면 (to-be 는 아직 미개발 → 비교 지도의 노랑)
+        if parts == ["notices"] and VARIANT.startswith("asis"):  # as-is 에만 있는 화면 (to-be 는 아직 미개발 → 비교 지도의 노랑)
             return self._send(notices())
         if parts == ["settings"] and VARIANT != "tobe-wip":  # tobe-wip: 설정 화면은 아직 개발 전
             return self._send(settings())
@@ -309,6 +312,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8820
     VARIANT = sys.argv[2] if len(sys.argv) > 2 else "asis"
-    assert VARIANT in ("asis", "tobe", "tobe-fixed", "tobe-renamed", "tobe-custom", "tobe-modern", "tobe-wip"), VARIANT
+    assert VARIANT in ("asis", "asis-patched", "tobe", "tobe-fixed", "tobe-renamed", "tobe-custom", "tobe-modern", "tobe-wip"), VARIANT
     print(f"portal demo ({VARIANT}) on http://127.0.0.1:{port}/")
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()

@@ -1,0 +1,231 @@
+{
+ "test": "test_portal_09",
+ "base_url": "http://127.0.0.1:8820",
+ "recorded_at": "2026-09-25 22:35:45",
+ "assertions": [
+  {
+   "step": 1,
+   "kind": "title",
+   "target": "홈",
+   "value": null
+  },
+  {
+   "step": 2,
+   "kind": "url_path",
+   "target": "/orders",
+   "value": null
+  },
+  {
+   "step": 2,
+   "kind": "text",
+   "target": "김철수",
+   "value": null
+  },
+  {
+   "step": 2,
+   "kind": "no_text",
+   "target": "포털 홈",
+   "value": null
+  },
+  {
+   "step": 3,
+   "kind": "url_contains",
+   "target": "/orders/",
+   "value": null
+  },
+  {
+   "step": 3,
+   "kind": "text_matches",
+   "target": "주문\\s+상세\\s+ORD\\-\\d+",
+   "value": null
+  },
+  {
+   "step": 3,
+   "kind": "no_text",
+   "target": "주문 목록",
+   "value": null
+  },
+  {
+   "step": 4,
+   "kind": "text_matches",
+   "target": "\\d+\\.\\s+접수",
+   "value": null
+  },
+  {
+   "step": 4,
+   "kind": "no_text",
+   "target": "볼펜",
+   "value": null
+  },
+  {
+   "step": 5,
+   "kind": "text",
+   "target": "볼펜",
+   "value": null
+  }
+ ],
+ "steps": [
+  {
+   "index": 0,
+   "kind": "goto",
+   "text": "/",
+   "url": "/",
+   "title": "홈",
+   "content": [
+    "text: 업무 포털",
+    "link \"홈\"",
+    "link \"주문 관리\"",
+    "link \"고객 관리\"",
+    "link \"설정\"",
+    "text: 포털 홈",
+    "text: 주문 3건 미처리 주문 2건 고객 2명",
+    "text: 바로 가기",
+    "link \"주문 목록 열기\"",
+    "link \"고객 목록 열기\"",
+    "link \"설정 열기\""
+   ],
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"포털 홈\" [level=1]\n  - text: 주문 3건 미처리 주문 2건 고객 2명\n  - heading \"바로 가기\" [level=2]\n  - list:\n    - listitem:\n      - link \"주문 목록 열기\":\n        - /url: /orders\n    - listitem:\n      - link \"고객 목록 열기\":\n        - /url: /customers\n    - listitem:\n      - link \"설정 열기\":\n        - /url: /settings",
+   "dialogs": [],
+   "shot": "shots/test_portal_09/00.jpg"
+  },
+  {
+   "index": 1,
+   "kind": "act",
+   "text": "link \"주문 관리\"",
+   "url": "/orders",
+   "title": "주문 목록",
+   "content": [
+    "text: 업무 포털",
+    "link \"홈\"",
+    "link \"주문 관리\"",
+    "link \"고객 관리\"",
+    "link \"설정\"",
+    "text: 주문 목록",
+    "button \"필터\"",
+    "button \"신규 주문\"",
+    "text: 3건",
+    "text: 주문",
+    "text: 고객",
+    "text: 수량",
+    "text: 합계",
+    "text: 상태",
+    "link \"ORD-1 노트북\"",
+    "text: 김철수",
+    "text: 1",
+    "text: 1,375,000원",
+    "text: 접수",
+    "link \"ORD-2 볼펜\"",
+    "text: 이영희",
+    "text: 4",
+    "text: 5,390원",
+    "text: 배송중",
+    "link \"ORD-3 마우스\"",
+    "text: 김철수",
+    "text: 2",
+    "text: 72,600원",
+    "text: 취소"
+   ],
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"",
+   "dialogs": [],
+   "shot": "shots/test_portal_09/01.jpg"
+  },
+  {
+   "index": 2,
+   "kind": "act",
+   "text": "link \"ORD-2 볼펜\"",
+   "url": "/orders/2",
+   "title": "주문 상세 ORD-2",
+   "content": [
+    "text: 업무 포털",
+    "link \"홈\"",
+    "link \"주문 관리\"",
+    "link \"고객 관리\"",
+    "link \"설정\"",
+    "text: 주문 상세 ORD-2",
+    "text: 상태:",
+    "text: 배송중",
+    "tab \"기본 정보\" [selected]",
+    "tab \"이력\"",
+    "text: 고객",
+    "link \"이영희\"",
+    "text: 품목",
+    "text: 볼펜",
+    "text: 수량",
+    "text: 4",
+    "text: 공급가액",
+    "text: 4,900원",
+    "text: 부가세",
+    "text: 490원",
+    "text: 합계",
+    "text: 5,390원",
+    "button \"주문 취소\"",
+    "link \"목록으로\""
+   ],
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 상세 ORD-2\" [level=1]\n  - paragraph:\n    - text: \"상태:\"\n    - strong: 배송중\n  - tablist:\n    - tab \"기본 정보\" [selected]\n    - tab \"이력\"\n  - tabpanel \"기본 정보\":\n    - table:\n      - rowgroup:\n        - row \"고객 이영희\":\n          - rowheader \"고객\"\n          - cell \"이영희\":\n            - link \"이영희\":\n              - /url: /customers/2\n        - row \"품목 볼펜\":\n          - rowheader \"품목\"\n          - cell \"볼펜\"\n        - row \"수량 4\":\n          - rowheader \"수량\"\n          - cell \"4\"\n        - row \"공급가액 4,900원\":\n          - rowheader \"공급가액\"\n          - cell \"4,900원\"\n        - row \"부가세 490원\":\n          - rowheader \"부가세\"\n          - cell \"490원\"\n        - row \"합계 5,390원\":\n          - rowheader \"합계\"\n          - cell \"5,390원\"\n  - button \"주문 취소\"\n  - link \"목록으로\":\n    - /url: /orders",
+   "dialogs": [],
+   "shot": "shots/test_portal_09/02.jpg"
+  },
+  {
+   "index": 3,
+   "kind": "act",
+   "text": "tab \"이력\"",
+   "url": "/orders/2",
+   "title": "주문 상세 ORD-2",
+   "content": [
+    "text: 업무 포털",
+    "link \"홈\"",
+    "link \"주문 관리\"",
+    "link \"고객 관리\"",
+    "link \"설정\"",
+    "text: 주문 상세 ORD-2",
+    "text: 상태:",
+    "text: 배송중",
+    "tab \"기본 정보\"",
+    "tab \"이력\" [selected]",
+    "text: 1. 접수",
+    "text: 2. 배송중",
+    "button \"주문 취소\"",
+    "link \"목록으로\""
+   ],
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 상세 ORD-2\" [level=1]\n  - paragraph:\n    - text: \"상태:\"\n    - strong: 배송중\n  - tablist:\n    - tab \"기본 정보\"\n    - tab \"이력\" [selected]\n  - tabpanel \"이력\":\n    - list:\n      - listitem: 1. 접수\n      - listitem: 2. 배송중\n  - button \"주문 취소\"\n  - link \"목록으로\":\n    - /url: /orders",
+   "dialogs": [],
+   "shot": "shots/test_portal_09/03.jpg"
+  },
+  {
+   "index": 4,
+   "kind": "act",
+   "text": "tab \"기본 정보\"",
+   "url": "/orders/2",
+   "title": "주문 상세 ORD-2",
+   "content": [
+    "text: 업무 포털",
+    "link \"홈\"",
+    "link \"주문 관리\"",
+    "link \"고객 관리\"",
+    "link \"설정\"",
+    "text: 주문 상세 ORD-2",
+    "text: 상태:",
+    "text: 배송중",
+    "tab \"기본 정보\" [selected]",
+    "tab \"이력\"",
+    "text: 고객",
+    "link \"이영희\"",
+    "text: 품목",
+    "text: 볼펜",
+    "text: 수량",
+    "text: 4",
+    "text: 공급가액",
+    "text: 4,900원",
+    "text: 부가세",
+    "text: 490원",
+    "text: 합계",
+    "text: 5,390원",
+    "button \"주문 취소\"",
+    "link \"목록으로\""
+   ],
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 상세 ORD-2\" [level=1]\n  - paragraph:\n    - text: \"상태:\"\n    - strong: 배송중\n  - tablist:\n    - tab \"기본 정보\" [selected]\n    - tab \"이력\"\n  - tabpanel \"기본 정보\":\n    - table:\n      - rowgroup:\n        - row \"고객 이영희\":\n          - rowheader \"고객\"\n          - cell \"이영희\":\n            - link \"이영희\":\n              - /url: /customers/2\n        - row \"품목 볼펜\":\n          - rowheader \"품목\"\n          - cell \"볼펜\"\n        - row \"수량 4\":\n          - rowheader \"수량\"\n          - cell \"4\"\n        - row \"공급가액 4,900원\":\n          - rowheader \"공급가액\"\n          - cell \"4,900원\"\n        - row \"부가세 490원\":\n          - rowheader \"부가세\"\n          - cell \"490원\"\n        - row \"합계 5,390원\":\n          - rowheader \"합계\"\n          - cell \"5,390원\"\n  - button \"주문 취소\"\n  - link \"목록으로\":\n    - /url: /orders",
+   "dialogs": [],
+   "shot": "shots/test_portal_09/04.jpg"
+  }
+ ]
+}
