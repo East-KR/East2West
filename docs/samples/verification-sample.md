@@ -1,6 +1,6 @@
 # 검증 보고서: portal
 
-생성 2026-09-25 23:10:10 · `parity report`가 아래 산출물에서만 만들었다.
+생성 2026-09-25 23:10:10 · `eastshift report`가 아래 산출물에서만 만들었다.
 
 ## 결과를 믿을 수 있는가
 
@@ -27,7 +27,7 @@
 - **test_portal_vat_truncation** — as-is와 다름
 
 ```
-ui = <parity.pwtest.ui.UI object at 0x109bd5610>
+ui = <eastshift.pwtest.ui.UI object at 0x109bd5610>
     def test_portal_vat_truncation(ui):
         """신규 주문 팝업에서 볼펜 3개 저장 → 상세의 부가세는 10원 절사 (as-is 동작 보존: 3,675원의 10%는 367.5원 → 360원)"""
         ui.goto('/orders')
@@ -45,7 +45,7 @@ ui = <parity.pwtest.ui.UI object at 0x109bd5610>
 - **test_portal_cancel_twice** — as-is와 다름
 
 ```
-ui = <parity.pwtest.ui.UI object at 0x109bafe00>
+ui = <eastshift.pwtest.ui.UI object at 0x109bafe00>
     def test_portal_cancel_twice(ui):
         """이미 취소된 주문을 다시 취소해도 막지 않고 이력에 취소가 한 번 더 쌓인다 (as-is 버그 보존)"""
         ui.goto('/orders')
@@ -55,7 +55,7 @@ ui = <parity.pwtest.ui.UI object at 0x109bafe00>
 >       ui.expect_dialog('이 주문을 취소할까요?')
 e2e/portal/test_portal.py:323:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-self = <parity.pwtest.ui.UI object at 0x109bafe00>, message = '이 주문을 취소할까요?'
+self = <eastshift.pwtest.ui.UI object at 0x109bafe00>, message = '이 주문을 취소할까요?'
     def expect_dialog(self, message: str) -> None:
 …
 ```

@@ -1,12 +1,12 @@
-# 화면 탐색으로 시나리오 만들기 (`parity crawl`, 프로토타입)
+# 화면 탐색으로 시나리오 만들기 (`eastshift crawl`, 프로토타입)
 
 시작 화면에서 누를 수 있는 동작을 모두 눌러 보고, 화면 상태 그래프를 만든 뒤, 그 그래프의 모든 전이를 지나는 시나리오 YAML을 만든다.
 Jev도 텍스트 생성 LLM도 부르지 않는다. 시나리오와 함께 재생 캐시를 쓰므로 첫 실행부터 Jev 호출 0으로 재생된다. UI가 바뀌면 그 스텝만 Jev가 다시 골라 캐시를 고친다.
 
 ```bash
-uv run parity crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --dry-run   # 누르기 전에 확인
-uv run parity crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --depth 4
-uv run parity run crawl/demo/crawl_*.yaml --cache-dir crawl/demo/cache --replay-only --base-url http://127.0.0.1:8787
+uv run eastshift crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --dry-run   # 누르기 전에 확인
+uv run eastshift crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --depth 4
+uv run eastshift run crawl/demo/crawl_*.yaml --cache-dir crawl/demo/cache --replay-only --base-url http://127.0.0.1:8787
 ```
 
 산출물 (`--out`): `graph.md` (mermaid 흐름도, 동작 표, 픽스처가 없는 입력칸), `graph.json`, `screens/n<id>.png`, `crawl_NN.yaml`, `cache/`,
@@ -45,7 +45,7 @@ crawl은 **흐름 지도와 초안**을 만든다. 최종 검증이 아니다.
   - 같은 URL 안에서 채운 뒤 도달한 상태는 따로 센다 ("(입력 후)"). 모달은 배경 폼의 값이 스냅샷에 안 나와서, 이렇게 구분하지 않으면 확정 시 성공/실패 경로가 하나로 합쳐진다.
 - **가지치기**: (프레임, 역할, 범위 라벨, 숫자를 가린 이름)이 같은 요소가 `--group-min`(3)개 이상이면 첫 요소만 누른다. 캘린더 31일은 1개, 행이 2개인 표는 둘 다 누른다.
   `--depth` (전이 수), `--max-states`, `--max-actions`로 상한을 둔다.
-- **목록 표본** (`parity/lists.py`): 목록 행은 링크 이름에 데이터가 들어가서(ORD-1 노트북, ORD-2 볼펜) 위 규칙으로는 안 묶이고, 행 1,000개면 1,000번 누르게 된다.
+- **목록 표본** (`eastshift/lists.py`): 목록 행은 링크 이름에 데이터가 들어가서(ORD-1 노트북, ORD-2 볼펜) 위 규칙으로는 안 묶이고, 행 1,000개면 1,000번 누르게 된다.
   그래서 표(`table`/`grid`)의 행과 목록(`list`)의 항목을 **템플릿**으로 보고 같은 열의 요소를 한 그룹으로 묶은 뒤, 행 몇 개만 대표로 누른다 (항목마다 링크 하나뿐인 목록은 메뉴라 전부 누른다).
   - **분기 열**: 값에 따라 상세가 달라질 수 있는 열. 픽스처 `pick`(사람) > **Jev 분류**(`--classify jev|auto`, 열마다 Choice: branch/key/measure/text/action, 캐시 `cache/lists.json`, margin < `--min-margin`이면 규칙으로 대신하고 graph.md에 **검토** 표시) > 규칙(값 종류 2~6, 숫자·날짜·긴 값 아님, 머리글에 상태·유형·등급 같은 말이 있으면 우선).
   - **대표 선택**: 분기 열 값 조합(층)마다 첫 행, 상한 `--reps`(3). 예산이 남으면 층마다 둘째 행. 분기 열이 없으면 첫 행과 끝 행.

@@ -1,10 +1,10 @@
-"""골든 관리 화면 (카탈로그): 한 앱의 골든 시나리오를 한눈에. 승인 상태, 마지막 to-be 결과, 실행 이력, 시나리오 상세, 화면 지도로 가는 링크.
+"""골든 관리 화면 (eastshift ui 의 개요 탭): 한 앱의 골든 시나리오를 한눈에. 승인 상태, 마지막 to-be 결과, 실행 이력, 시나리오 상세.
 
-parity catalog golden/<app> [--out reports/catalog-<app>.html]
+hub.py 가 /page/<app>/catalog 요청에 render(build(golden/<app>)) 로 만든다.
 
 읽는 것: golden/<app>/ (시나리오, 기대값, 캡처, 승인), runs/<app>/ (실행 원장). 새로 판단하는 것은 없다.
 화면: 위에 승인·마지막 실행 요약, 그 아래 시나리오 표 (제목, 단계 수, 확인 값, 마지막 결과, 이력 점). 행을 누르면 시나리오 팝업
-(필름스트립 + 단계 + 마지막 실행에서 다른 점). 오른쪽 위에 화면 지도·검증 보고서 링크.
+(필름스트립 + 단계 + 마지막 실행에서 다른 점). 다른 화면으로는 통합 화면의 탭으로 간다.
 """
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from typing import Any
 from . import html, ledger, oracle
 from .map import _plain
 
-KIND_LABEL = {"same": "같음", "drift": "기대값 바뀜", "golden_diff": "as-is와 다름", "assert": "확인 값 실패", "error": "실행 못 함"}
+KIND_LABEL = {"same": "같음", "accepted_diff": "승인된 차이", "drift": "기대값 바뀜", "golden_diff": "as-is와 다름", "assert": "확인 값 실패", "error": "실행 못 함"}
 
 CSS = """
 main{max-width:1240px;gap:22px}
@@ -76,6 +76,7 @@ const D = JSON.parse(document.getElementById('d').textContent);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const modal = document.getElementById('modal'), lb = document.getElementById('lb');
 const KIND = D.kind_label;
+const resultPill = r => r.kind === 'accepted_diff' ? '<span class="pill warn">승인된 차이</span>' : r.status === 'pass' ? '<span class="pill ok">같음</span>' : `<span class="pill bad">${esc(KIND[r.kind] || '실패')}</span>`;
 function openLb(src, cap){ if(!src) return; lb.querySelector('img').src = src; lb.querySelector('.cap').textContent = cap || ''; lb.classList.add('on'); }
 lb.addEventListener('click', () => lb.classList.remove('on'));
 function closeModal(){ modal.classList.remove('on'); }
@@ -83,7 +84,7 @@ modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
 addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else closeModal(); });
 function openTest(name){
   const t = D.tests[name]; if(!t) return;
-  const last = t.last, pill = !last ? '<span class="pill none">비교 전</span>' : last.status === 'pass' ? '<span class="pill ok">as-is와 같음</span>' : `<span class="pill bad">${esc(KIND[last.kind] || last.kind)}</span>`;
+  const last = t.last, pill = !last ? '<span class="pill none">비교 전</span>' : resultPill(last);
   let h = `<div class="mh"><div><b>${esc(t.title)}</b><small>${esc(name)} · ${t.steps.length}단계 · ${esc(t.recorded_at || '')} 기록</small></div>${pill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb">`;
   h += `<div class="film">` + t.steps.map(s => `<button type="button" class="${s.failed ? 'fail' : ''}" data-lb="${esc(s.shot)}" data-cap="${s.index + 1}단계 · ${esc(s.action_text)}" title="${esc(s.action_text)}">`
       + (s.shot ? `<img src="${D.shots[s.shot]}" alt="">` : '') + `<span class="k">${s.index + 1}</span><span class="cap">${esc(s.action_text)}</span></button>`).join('') + `</div>`;
@@ -94,7 +95,7 @@ function openTest(name){
       + last.rows.map(r => `<tr><td>${esc(r[0])}</td><td class="m was">${esc(r[1])}</td><td class="m now">${esc(r[2])}</td></tr>`).join('') + `</table></div></div>`;
   else if(last && last.status !== 'pass') h += `<div class="sec"><h4>마지막 비교</h4><div>${esc(last.summary)}</div></div>`;
   if(t.history.length) h += `<div class="sec"><h4>실행 이력</h4><div class="runs">` + t.history.slice().reverse().map(r =>
-      `<div class="run"><span class="d">${esc(r.finished)}</span><span class="s">${esc(r.target)} · 승인본 ${esc(r.approved_at || '없음')}</span>${r.status === 'pass' ? '<span class="pill ok">같음</span>' : `<span class="pill bad">${esc(KIND[r.kind] || '실패')}</span>`}</div>`).join('') + `</div></div>`;
+      `<div class="run"><span class="d">${esc(r.finished)}</span><span class="s">${esc(r.target)} · 승인본 ${esc(r.approved_at || '없음')}</span>${resultPill(r)}</div>`).join('') + `</div></div>`;
   h += `</div>`;
   modal.querySelector('.box').innerHTML = h;
   modal.classList.add('on');
@@ -154,16 +155,17 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
         tests[t["name"]] = {"title": html._title(t["name"], docs), "steps": steps, "assertions": len(t["assertions"]),
                             "recorded_at": t["recorded_at"], "last": last, "history": hist.get(t["name"], [])}
     return {"app": app, "oracle": st, "runs": [{"file": r["_file"], "finished": r["finished"], "target": r["target"], "totals": r["totals"],
-                                               "approved_at": r["oracle"].get("approved_at")} for r in runs],
+                                               "approved_at": r["oracle"].get("approved_at"),
+                                               "approval_id": r["oracle"].get("approval_id")} for r in runs],
             "tests": tests, "shots": shots, "kind_label": KIND_LABEL}
 
 
-def render(g: dict[str, Any], embed: bool = False) -> str:
-    """embed=True: 통합 화면(parity ui) 안에 들어갈 때. 다른 화면으로 가는 링크는 통합 화면의 탭이 맡는다."""
+def render(g: dict[str, Any]) -> str:
     st, runs, tests = g["oracle"], g["runs"], g["tests"]
     latest = runs[-1] if runs else None
     n_fail = sum(1 for t in tests.values() if t["last"] and t["last"]["status"] != "pass")
     n_pass = sum(1 for t in tests.values() if t["last"] and t["last"]["status"] == "pass")
+    n_accepted = sum(1 for t in tests.values() if t["last"] and t["last"].get("kind") == "accepted_diff")
     n_never = len(tests) - n_fail - n_pass
     if not st["ok"]:
         stamp = ("warn", "승인 필요", "기준이 승인되지 않음")
@@ -172,12 +174,12 @@ def render(g: dict[str, Any], embed: bool = False) -> str:
     elif n_fail:
         stamp = ("bad", f"남은 실패 {n_fail}", f"{len(tests)}개 중")
     else:
-        stamp = ("ok", "모두 같음", f"{len(tests)}개 시나리오")
-    stale = bool(latest and st.get("approved_at") and latest["approved_at"] != st.get("approved_at"))
+        stamp = ("ok", "승인된 차이 포함" if n_accepted else "모두 같음", f"{len(tests)}개 시나리오")
+    stale = bool(latest and st.get("approval_id") and latest.get("approval_id") != st.get("approval_id"))
     cards = [("승인", (st.get("approved_by") or "없음") + (f"<small>{html._e((st.get('approved_at') or '')[:16])}</small>" if st["ok"] else ""), "ok" if st["ok"] else "warn"),
              ("시나리오", f"{len(tests)}<small>확인 값 {sum(t['assertions'] for t in tests.values())}</small>", ""),
              ("마지막 비교", (f"{html._e(latest['finished'][:16])}<small>{html._e(latest['target'])}</small>" if latest else "없음"), "warn" if stale else ""),
-             ("결과", (f"{n_pass} 같음 · {n_fail} 다름" + (f" · {n_never} 비교 전" if n_never else "")) if latest else "비교 전", "bad" if n_fail else ("ok" if latest else ""))]
+             ("결과", (f"{n_pass - n_accepted} 같음 · {n_accepted} 승인된 차이 · {n_fail} 다름" + (f" · {n_never} 비교 전" if n_never else "")) if latest else "비교 전", "bad" if n_fail else ("ok" if latest else ""))]
     summary = "<div class='summary'>" + "".join(f"<div class='card {c}'><div class='k'>{k}</div><div class='v'>{v}</div></div>" for k, v, c in cards) + "</div>"
     if stale:
         summary += f"<div class='notice'><b>주의</b> 마지막 비교는 이전 승인본({html._e(latest['approved_at'] or '없음')})으로 실행됐습니다. 현재 승인본으로 다시 비교하세요.</div>"
@@ -185,18 +187,16 @@ def render(g: dict[str, Any], embed: bool = False) -> str:
     for name, t in tests.items():
         last = t["last"]
         state = "never" if not last else ("pass" if last["status"] == "pass" else "fail")
-        pill = "<span class='pill none'>비교 전</span>" if not last else ("<span class='pill ok'>같음</span>" if last["status"] == "pass" else f"<span class='pill bad'>{html._e(KIND_LABEL.get(last['kind'], '실패'))}</span>")
+        pill = "<span class='pill none'>비교 전</span>" if not last else (f"<span class='pill warn'>{html._e(KIND_LABEL['accepted_diff'])}</span>" if last.get("kind") == "accepted_diff" else ("<span class='pill ok'>같음</span>" if last["status"] == "pass" else f"<span class='pill bad'>{html._e(KIND_LABEL.get(last['kind'], '실패'))}</span>"))
         hist = "".join(f"<i class='{'p' if h['status'] == 'pass' else 'f'}{' cur' if i == len(t['history']) - 1 else ''}' title='{html._e(h['finished'])} · {html._e(h['target'])}'></i>"
                        for i, h in enumerate(t["history"][-12:]))
         rows.append(f"<tr data-test='{html._e(name)}' data-state='{state}'><td class='t'><b>{html._e(t['title'])}</b><small>{html._e(name)}</small></td>"
                     f"<td class='n'>{len(t['steps'])}</td><td class='n'>{t['assertions']}</td><td>{pill}</td>"
                     f"<td><span class='hist'>{hist or '<span class=tid>—</span>'}</span></td><td class='n'>{html._e((t['recorded_at'] or '')[:10])}</td></tr>")
-    links = (f"<div class='links'><a href='map-{html._e(g['app'])}.html'>화면 지도</a><a href='verification-{html._e(g['app'])}.html'>검증 보고서</a>"
-             f"<a href='review-{html._e(g['app'])}.html'>승인 검토</a></div>") if not embed else ""
     body = (f"<header class='head'><div class='eyebrow'>골든 관리</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
             f"<h1>{html._e(g['app'])}</h1><p class='lede'>이 앱의 골든 시나리오와 to-be 비교 현황입니다. 행을 누르면 시나리오 단계와 마지막 결과가 나옵니다.</p>"
             f"<div class='prov'><span><b>기준 폴더</b> golden/{html._e(g['app'])}</span><span><b>실행 기록</b> runs/{html._e(g['app'])} · {len(runs)}회</span></div></header>"
-            f"{summary}{links}"
+            f"{summary}"
             f"<div class='tools'><input id='q' type='search' placeholder='시나리오 이름·ID로 찾기' aria-label='찾기'>"
             f"<select id='f' aria-label='결과로 거르기'><option value=''>모든 결과</option><option value='fail'>다름만</option><option value='pass'>같음만</option><option value='never'>비교 전만</option></select></div>"
             f"<div class='tbl'><table><thead><tr><th>시나리오</th><th>단계</th><th>확인 값</th><th>마지막 결과</th><th>이력 (오래된 → 최근)</th><th>기록일</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
@@ -205,12 +205,3 @@ def render(g: dict[str, Any], embed: bool = False) -> str:
     data = json.dumps(g, ensure_ascii=False).replace("</", "<\\/")
     page = html._page(f"{g['app']} 골든 관리", body, script=f"<script type='application/json' id='d'>{data}</script>{JS}")
     return page.replace("</style>", CSS + "</style>", 1)
-
-
-def write(d: Path, out: Path, tests_dir: Path | None = None) -> Path:
-    g = build(d, tests_dir)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render(g), encoding="utf-8")
-    n_fail = sum(1 for t in g["tests"].values() if t["last"] and t["last"]["status"] != "pass")
-    print(f"{out} · 시나리오 {len(g['tests'])}, 실행 {len(g['runs'])}회, 남은 실패 {n_fail}")
-    return out

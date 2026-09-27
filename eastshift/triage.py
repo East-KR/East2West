@@ -139,7 +139,7 @@ def questions() -> dict[str, Any]:
 
 
 def classify(client: Any, state: dict[str, Any]) -> Triage:
-    """client는 parity.jev.JevClient (ask 메서드). Jev 오류는 예외로 올리지 않고 abstain + error로 기록한다: triage가 테스트 실행을 깨면 안 된다."""
+    """client는 eastshift.jev.JevClient (ask 메서드). Jev 오류는 예외로 올리지 않고 abstain + error로 기록한다: triage가 테스트 실행을 깨면 안 된다."""
     try:
         response, ms = client.ask(state=state, questions=questions())
         answers = response.answers

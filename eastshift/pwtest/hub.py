@@ -1,8 +1,9 @@
-"""통합 화면 (parity ui): 프로젝트 목록에서 시작해, 프로젝트마다 사람이 보는 HTML 네 장(개요·승인 검토·화면 지도·검증 보고서)과 실행 이력을 한 화면에서 본다.
+"""통합 화면 (eastshift ui): 프로젝트 목록에서 시작해, 프로젝트마다 사람이 보는 화면 네 장(개요·승인 검토·화면 지도·검증 보고서)과 실행 이력을 한 화면에서 본다.
+사람이 보는 화면은 전부 여기서만 만든다 (파일로 따로 떨구지 않는다). 승인도 여기서만 한다.
 
-uv run parity ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
+uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
 
-첫 화면은 프로젝트 목록(parity.json)이다. "프로젝트 추가"를 누르면 as-is와 to-be 소스 위치를 파일 시스템에서 고르는 창이 뜨고,
+첫 화면은 프로젝트 목록(eastshift.json)이다. "프로젝트 추가"를 누르면 as-is와 to-be 소스 위치를 파일 시스템에서 고르는 창이 뜨고,
 저장하면 등록부에 적히고 e2e/<app>/ 자리가 생긴다. 등록부에 없어도 golden/<app> 이나 e2e/<app> 이 있으면 목록에 나온다(경로 미설정).
 서버는 산출물(golden/<app>/, runs/<app>/)만 읽고, 요청이 올 때 기존 생성기(catalog·review·map·report)로 화면을 만든다.
 실행 원장이 실행마다 JUnit·스크린샷 사본을 남기므로 지난 실행의 지도·보고서도 다시 그릴 수 있다. 새로 판단하는 것은 없다.
@@ -11,9 +12,9 @@ uv run parity ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
   /                                 통합 화면 (프로젝트 목록 → 프로젝트 화면: 탭, 실행 선택)
   /api/apps                         프로젝트별 등록 정보·승인 상태·실행 수·마지막 결과
   /api/app/<app>                    시나리오, 실행 이력(지난 실행 대비 변화 포함), 결함 주입 결과
-  POST /api/app/<app>/approve       웹 승인 {by, code, fingerprint}. 사람이 터미널에서 띄운 서버만 코드를 만들고 그 터미널에 찍는다 (에이전트 서버는 403)
+  POST /api/app/<app>/approve       웹 승인 {by, fingerprint}. 통합 검토 화면에서 바로 승인한다
   POST /api/app/<app>/init          골든 시나리오 지도 초기화: 골든이 없는 프로젝트를 as-is에서 탐색(crawl) → 시나리오 초안 → 기록 {depth} (승인은 하지 않는다)
-  POST /api/app/<app>/crawl         탐색 지도: as-is 또는 to-be를 parity crawl 로 훑는다 {side: asis|tobe, depth}
+  POST /api/app/<app>/crawl         탐색 지도: as-is 또는 to-be를 eastshift crawl 로 훑는다 {side: asis|tobe, depth}
   GET  /api/app/<app>/job           위 작업의 진행 (단계·로그). /init 도 같은 것
   POST /api/projects                프로젝트 추가 {name, asis:{src,url}, tobe:{src,url}, note}
   POST /api/projects/<app>          프로젝트 설정 변경 (같은 본문)
@@ -27,11 +28,9 @@ uv run parity ui [--golden golden] [--port 8790]      → http://127.0.0.1:8790/
 """
 from __future__ import annotations
 
-import hmac
 import json
 import mimetypes
 import os
-import secrets
 import shutil
 import subprocess
 import sys
@@ -56,29 +55,13 @@ class Hub:
         self.projects_file = projects_file
         self._cache: dict[tuple, tuple[float, str]] = {}
         self._lock = threading.Lock()
-        self.approval_code: str | None = None  # 웹 승인 일회용 코드. 사람이 터미널에서 띄웠을 때만 만들어지고 그 터미널에만 찍힌다
-        self.attempts = 0
         self.jobs: dict[str, dict[str, Any]] = {}  # 화면 지도 초기화 작업 (앱별 하나)
 
     # ---- 웹 승인 ----
-    def new_code(self) -> str:
-        self.approval_code = "-".join(secrets.token_hex(2).upper() for _ in range(2))  # 예: 3F9A-C21B
-        self.attempts = 0
-        return self.approval_code
-
-    def approve(self, app: str, *, by: str, code: str, fingerprint: str, note: str = "") -> dict[str, Any]:
-        """검토 화면의 승인 폼. 코드는 터미널에 찍힌 것과 같아야 하고(5번 틀리면 잠김), 지문은 검토 화면을 만들 때의 기준과 같아야 한다."""
+    def approve(self, app: str, *, by: str, fingerprint: str, note: str = "") -> dict[str, Any]:
+        """검토 화면에서 직접 승인한다. 검토 당시의 기준 지문을 확인한다."""
         d = self._golden(app)
-        if not self.approval_code:
-            raise PermissionError("웹 승인이 꺼져 있습니다. 사람이 자기 터미널에서 `uv run parity ui`를 띄우면 터미널에 승인 코드가 찍힙니다. 또는 `uv run parity approve` (터미널)")
-        if self.attempts >= 5:
-            raise PermissionError("승인 코드를 5번 틀려 잠겼습니다. parity ui를 다시 띄우세요")
-        if not hmac.compare_digest((code or "").strip().upper(), self.approval_code):
-            self.attempts += 1
-            raise PermissionError(f"승인 코드가 다릅니다 (남은 시도 {5 - self.attempts})")
         rec = oracle.approve_from_review(d, by, note, fingerprint)
-        self.new_code()
-        print(f"\n승인됨: {app} · {rec['approved_by']} · {rec['approved_at']}\n다음 승인 코드: {self.approval_code}")
         with self._lock:
             self._cache.clear()
         return {"ok": True, "approved_by": rec["approved_by"], "approved_at": rec["approved_at"]}
@@ -144,7 +127,7 @@ class Hub:
         return url
 
     def crawl_plan(self, app: str, side: str, depth: int = 3) -> list[dict[str, Any]]:
-        """탐색 지도 한 쪽: parity crawl 한 번. 이미 있으면 덮어쓴다 (탐색 산출물은 도구 것이라 다시 만들어도 된다)."""
+        """탐색 지도 한 쪽: eastshift crawl 한 번. 이미 있으면 덮어쓴다 (탐색 산출물은 도구 것이라 다시 만들어도 된다)."""
         self._check(app)
         if side not in projects.SIDES:
             raise ValueError(f"side는 asis|tobe: {side}")
@@ -152,7 +135,7 @@ class Hub:
         depth = max(1, min(int(depth or 3), 5))
         out = self.crawl_dir(app, side)
         return [{"step": "crawl", "label": f"{'as-is' if side == 'asis' else 'to-be'}({url}) 화면 탐색 (깊이 {depth}) → {out}",
-                 "cmd": [sys.executable, "-m", "parity.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]}]
+                 "cmd": [sys.executable, "-m", "eastshift.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]}]
 
     def init_plan(self, app: str, depth: int = 3) -> list[dict[str, Any]]:
         """골든 시나리오 비교 지도 초기화 단계 (실행하지 않는다). 시나리오가 없으면 탐색(이미 탐색했으면 건너뜀) → 초안 옮기기 → 기록, 있으면 기록만. 승인은 여기 없다 — 사람이 한다."""
@@ -168,7 +151,7 @@ class Hub:
                 steps.append({"step": "crawl", "label": f"탐색 건너뜀 — {out}/ 에 as-is 탐색 결과가 이미 있음", "skip": True})
             else:
                 steps.append({"step": "crawl", "label": f"as-is 화면 탐색 (깊이 {depth}) → {out}",
-                              "cmd": [sys.executable, "-m", "parity.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]})
+                              "cmd": [sys.executable, "-m", "eastshift.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]})
             steps.append({"step": "tests", "label": f"시나리오 초안을 {self.tests_root / app}/ 로", "copy": [str(out / "test_crawl.py"), str(self.tests_root / app / "test_crawl.py")]})
         else:
             steps.append({"step": "crawl", "label": f"탐색 건너뜀 — {self.tests_root / app}/ 에 시나리오 {self._scenarios(app)}개", "skip": True})
@@ -291,11 +274,12 @@ class Hub:
                 shot = c.get("screenshot")
                 cases[name] = {**c, "screenshot": f"/file?p={quote(shot)}" if shot and Path(shot).exists() else None}
             runs.append({"stamp": r["_stamp"], "started": r.get("started"), "finished": r["finished"], "target": r["target"],
-                         "approved_at": r["oracle"].get("approved_at"), "approved_by": r["oracle"].get("approved_by"), "ok": r["oracle"].get("ok"),
+                         "approved_at": r["oracle"].get("approved_at"), "approval_id": r["oracle"].get("approval_id"),
+                         "approved_by": r["oracle"].get("approved_by"), "ok": r["oracle"].get("ok"),
                          "totals": r["totals"], "junit": bool(r.get("junit") and Path(r["junit"]).exists()),
                          "delta": ledger.compare_runs(r, previous), "cases": cases})
             previous = r
-        current = ledger.mutation_for(app, st.get("approved_at"))
+        current = ledger.mutation_for(app, st.get("approved_at"), st.get("approval_id"))
         muts = [{"file": m["_file"], "generated_at": m.get("generated_at"), "mode": m.get("mode"), "score": m.get("score"), "killed": m.get("killed"),
                  "total": m.get("total"), "errors": m.get("errors", 0), "approved_at": m.get("oracle_approved_at"),
                  "current": bool(current) and str(current) == m["_file"]} for m in ledger.load_mutations(app)]
@@ -313,7 +297,7 @@ class Hub:
             if not (cd / "graph.json").exists():
                 who = "as-is" if src == "asis" else "to-be"
                 body = (f"<header class='head'><div class='eyebrow'>화면 지도 · {who} 탐색</div><h1>{html._e(app)}</h1>"
-                        f"<p class='lede'>{who}를 아직 탐색하지 않았습니다. 통합 화면의 \"{who} 탐색\" 버튼이나 <code>uv run parity crawl &lt;{who} 주소&gt; --out {html._e(str(cd))}</code></p></header>")
+                        f"<p class='lede'>{who}를 아직 탐색하지 않았습니다. 통합 화면의 \"{who} 탐색\" 버튼이나 <code>uv run eastshift crawl &lt;{who} 주소&gt; --out {html._e(str(cd))}</code></p></header>")
                 return html._page(f"{app} map", body)
             key, sig = (app, kind, src), self._sig(app)
             with self._lock:
@@ -330,7 +314,7 @@ class Hub:
             asis = (spec.get("asis") or {}).get("url") or "<as-is 주소>"
             body = (f"<header class='head'><div class='eyebrow'>{html._e(app)}</div><h1>골든이 아직 없습니다</h1>"
                     f"<p class='lede'>시나리오를 as-is에서 기록해야 개요·승인 검토·지도·보고서가 생깁니다.</p></header>"
-                    f"<section><pre><code>uv run parity crawl {html._e(asis)} --out crawl/{html._e(app)}   # 화면을 훑어 시나리오 초안\n"
+                    f"<section><pre><code>uv run eastshift crawl {html._e(asis)} --out crawl/{html._e(app)}   # 화면을 훑어 시나리오 초안\n"
                     f"uv run pytest e2e/{html._e(app)} --base-url {html._e(asis)} --record golden/{html._e(app)}   # as-is에서 기록</code></pre></section>")
             return html._page(f"{app} {kind}", body)
         key, sig = (app, kind, run), self._sig(app)
@@ -346,15 +330,15 @@ class Hub:
                     f"<code>--junitxml</code> 없이 실행됐습니다. 다시 비교하면 지도와 보고서가 나옵니다.</p></header>")
             return html._page(f"{app} {kind}", body)
         if kind == "catalog":
-            page = catalog.render(catalog.build(d, tests_dir), embed=True)
+            page = catalog.render(catalog.build(d, tests_dir))
         elif kind == "review":
-            page = review.render(review.build(d, tests_dir), approve=self.approval_code is not None)
+            page = review.render(review.build(d, tests_dir))
         elif kind == "map":
             ca, ct = self.crawl_dir(app, "asis"), self.crawl_dir(app, "tobe")
             page = screen_map.render(screen_map.build(d, junit, tests_dir, ca if (ca / "graph.json").exists() else None, ct if (ct / "graph.json").exists() else None))
         else:
             st = oracle.status(d)
-            mut = ledger.mutation_for(app, st.get("approved_at"))
+            mut = ledger.mutation_for(app, st.get("approved_at"), st.get("approval_id"))
             b = report.build(oracle_dir=d, junits=[junit] if junit else [], mutations=[mut] if mut else [])
             page = report.render_html(d, b, tests_dir)
         with self._lock:
@@ -417,12 +401,23 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(f"unknown: {e}".encode(), "text/plain; charset=utf-8", 404)
         return self._send(b"not found", "text/plain", 404)
 
+    def _same_origin(self) -> bool:
+        """브라우저가 보내는 Origin 이 이 서버 자신이어야 한다. 같은 브라우저에 열린 다른 사이트가 127.0.0.1 로 POST 를 쏘는 것(탐색 시작, 프로젝트 삭제)을 막는다.
+        Origin 이 없는 요청(curl 등 비브라우저)은 그대로 둔다: 서버가 127.0.0.1 에만 열려 있어 로컬 사용자뿐이다."""
+        origin = self.headers.get("Origin")
+        if not origin:
+            return True
+        u = urlsplit(origin)
+        return u.hostname in ("127.0.0.1", "localhost", "::1") and (u.port or 80) == self.server.server_address[1]
+
     def do_POST(self):  # noqa: N802
         parts = [unquote(x) for x in urlsplit(self.path).path.strip("/").split("/") if x]
+        if not self._same_origin():
+            return self._json({"error": "다른 출처(origin)에서 온 요청은 받지 않습니다"}, 403)
         try:
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0)) or 0) or b"{}")
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "approve":
-                return self._json(self.hub.approve(parts[2], by=str(body.get("by", "")), code=str(body.get("code", "")),
+                return self._json(self.hub.approve(parts[2], by=str(body.get("by", "")),
                                                    fingerprint=str(body.get("fingerprint", "")), note=str(body.get("note", ""))))
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "init":
                 return self._json(self.hub.init_project(parts[2], depth=int(body.get("depth") or 3)))
@@ -447,12 +442,7 @@ def serve(golden_root: Path, *, port: int = 8790, tests_root: Path = Path("e2e")
     srv = ThreadingHTTPServer(("127.0.0.1", port), handler)
     url = f"http://127.0.0.1:{srv.server_address[1]}/"
     names = hub.names()
-    print(f"parity ui · {url}  (프로젝트 {len(names)}개{': ' + ', '.join(names) if names else ' — 첫 화면에서 추가'}) — Ctrl+C로 종료")
-    # 웹 승인은 사람이 터미널에서 띄웠을 때만. 에이전트 도구는 터미널이 없으므로 코드가 만들어지지 않고, 승인 요청은 403이다
-    if sys.stdin.isatty() and sys.stdout.isatty():
-        print(f"승인 코드: {hub.new_code()}   (검토 화면에서 모든 시나리오를 확인한 뒤 이름과 함께 입력. 이 터미널에만 보인다)")
-    else:
-        print("웹 승인 꺼짐: 터미널에서 띄운 것이 아닙니다. 승인은 사람이 자기 터미널에서 `parity ui` 또는 `parity approve`로.")
+    print(f"eastshift ui · {url}  (프로젝트 {len(names)}개{': ' + ', '.join(names) if names else ' — 첫 화면에서 추가'}) — Ctrl+C로 종료")
     if open_browser:
         threading.Timer(0.4, lambda: webbrowser.open(url)).start()
     try:
@@ -587,7 +577,8 @@ HUB_JS = r"""
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TABS = [['map','화면 지도'],['overview','개요'],['history','이력'],['review','승인 검토'],['report','검증 보고서']];
-const KIND = {golden_diff:'as-is와 다름', assert:'확인 값 실패', drift:'기대값 변경', error:'실행 못 함', same:'같음'};
+const KIND = {golden_diff:'as-is와 다름', assert:'확인 값 실패', drift:'기대값 변경', error:'실행 못 함', same:'같음', accepted_diff:'승인된 차이'};
+const casePill = c => c.kind === 'accepted_diff' ? '<span class="pill warn">승인된 차이</span>' : c.status === 'pass' ? '<span class="pill ok">같음</span>' : `<span class="pill bad">${esc(KIND[c.kind]||c.kind)}</span>`;
 let apps = [], state = {app:null, tab:'map', run:null, src:null}, data = null, initTimer = null;
 
 const SRC = [['asis','as-is 탐색'],['tobe','to-be 탐색'],['compare','to-be 비교 (as-is 기준)']];
@@ -624,10 +615,10 @@ function projCard(a){
   let next = '';
   const asis = (a.asis||{}).url || '<as-is 주소>', tobe = (a.tobe||{}).url || '<to-be 주소>';
   if (!a.golden) next = `<div class="next"><div class="nx"><span>다음: 화면 지도 만들기 — as-is를 ${a.scenarios ? '기록' : '탐색해 시나리오 초안을 만들고 기록'}합니다</span><button class="btn primary sm" data-init>화면 지도 만들기</button></div>`
-    + `<code>${a.scenarios ? '' : `uv run parity crawl ${esc(asis)} --out crawl/${esc(a.app)}\n`}uv run pytest e2e/${esc(a.app)} --base-url ${esc(asis)} --record golden/${esc(a.app)}</code></div>`;
-  else if (!a.ok) next = `<div class="next">다음: 승인 검토 탭에서 확인 후 승인 (터미널 코드 필요)</div>`;
+    + `<code>${a.scenarios ? '' : `uv run eastshift crawl ${esc(asis)} --out crawl/${esc(a.app)}\n`}uv run pytest e2e/${esc(a.app)} --base-url ${esc(asis)} --record golden/${esc(a.app)}</code></div>`;
+  else if (!a.ok) next = `<div class="next">다음: 승인 검토 탭에서 시나리오를 확인하고 이름을 입력해 승인 (사람)</div>`;
   else if (!a.runs) next = `<div class="next">다음: to-be 비교<code>uv run pytest e2e/${esc(a.app)} --base-url ${esc(tobe)} --compare golden/${esc(a.app)} --junitxml reports/junit-${esc(a.app)}.xml</code></div>`;
-  return `<div class="proj" data-app="${esc(a.app)}"><div class="hd"><b data-open>${esc(a.app)}</b>${pill}<span class="sp"></span>${a.registered ? '' : '<span class="pill warn" title="parity.json에 없음. golden/ 또는 e2e/ 에서 발견">미등록</span>'}</div>
+  return `<div class="proj" data-app="${esc(a.app)}"><div class="hd"><b data-open>${esc(a.app)}</b>${pill}<span class="sp"></span>${a.registered ? '' : '<span class="pill warn" title="eastshift.json에 없음. golden/ 또는 e2e/ 에서 발견">미등록</span>'}</div>
     <div class="sides">${side('AS-IS', a.asis)}${side('TO-BE', a.tobe)}</div>
     ${a.note ? `<div style="font-size:13px;color:var(--muted)">${esc(a.note)}</div>` : ''}
     <div class="stats"><span>시나리오 <b>${a.scenarios}</b></span><span>골든 <b>${a.tests}</b></span><span>비교 <b>${a.runs}</b>회</span><span>마지막 ${last}</span></div>
@@ -766,7 +757,7 @@ async function renderJob(v, kind, force){
   const title = kind === 'init' ? '아직 to-be 비교 지도가 없습니다' : (force ? `${who}를 다시 탐색합니다` : `아직 ${who} 탐색 지도가 없습니다`);
   const lede = kind === 'init'
     ? '이 지도는 as-is에서 기록한 골든 시나리오를 뼈대로, 비교 실행에서 다르게 동작한 화면(빨강)·to-be 탐색에 없는 미개발 화면(노랑)·to-be에만 있는 새 화면(파랑)을 표시합니다. 아래 순서를 서버가 대신 돌립니다. 기록이 끝나면 지도가 바로 보이고, <b>승인</b>은 그 뒤 사람이 승인 검토 탭에서 합니다.'
-    : `이 지도는 ${who}를 탐색(parity crawl)해 찾은 화면을 그대로 잇습니다. 시나리오나 비교와 무관하게 ${who}에 어떤 화면·팝업·드로워가 있는지 봅니다.`;
+    : `이 지도는 ${who}를 탐색(eastshift crawl)해 찾은 화면을 그대로 잇습니다. 시나리오나 비교와 무관하게 ${who}에 어떤 화면·팝업·드로워가 있는지 봅니다.`;
   const needCrawl = kind !== 'init' || !(data.scenarios || (data.maps||{}).asis);
   const running = job.running, busyOther = running && !mine;
   v.innerHTML = `<main class="init"><div class="card"><div class="eyebrow">화면 지도 · ${esc(SRC.find(x => x[0] === (kind === 'init' ? 'compare' : kind))[1])}</div><h1>${title}</h1>
@@ -805,7 +796,7 @@ function renderHistory(v){
   const d = data, st = d.oracle, runs = d.runs, cur = runs.find(r => r.stamp === state.run);
   const mut = d.mutations.find(m => m.current);
   const last = runs[runs.length-1];
-  const stale = last && st.approved_at && last.approved_at !== st.approved_at;
+  const stale = last && st.approval_id && last.approval_id !== st.approval_id;
   const cards = [
     ['승인', st.ok ? `${esc(st.approved_by)}<small>${esc((st.approved_at||'').slice(0,16))}</small>` : (d.golden ? '없음<small>승인 필요</small>' : '없음<small>골든 없음</small>'), st.ok ? 'ok' : 'warn'],
     ['비교 실행', `${runs.length}회<small>${last ? esc(last.finished.slice(0,16)) : '아직 없음'}</small>`, ''],
@@ -828,9 +819,9 @@ function renderHistory(v){
       if (dl.new_tests.length) chips.push(`<span class="chip same">새 테스트 ${dl.new_tests.length}</span>`);
       if (!chips.length) chips.push('<span class="chip same">변화 없음</span>');
     } else chips.push('<span class="chip same">첫 실행</span>');
-    const ap = r.approved_at === st.approved_at ? `<span class="pill ok">현재</span>` : `<span class="pill warn" title="${esc(r.approved_at||'승인 없음')}">이전 승인본</span>`;
+    const ap = r.approval_id && r.approval_id === st.approval_id ? `<span class="pill ok">현재</span>` : `<span class="pill warn" title="${esc(r.approved_at||'승인 없음')}">이전 승인본</span>`;
     h += `<tr class="rrow ${r.stamp === state.run ? 'on' : ''}" data-run="${r.stamp}"><td class="mono">${i+1}</td><td class="mono">${esc(r.finished)}</td><td class="mono">${esc(r.target)}</td><td>${ap}</td>`
-       + `<td>${r.totals.fail ? `<span class="pill bad">${r.totals.fail} 다름</span>` : '<span class="pill ok">모두 같음</span>'} <span class="mono" style="color:var(--faint);font-size:12px">/ ${r.totals.pass + r.totals.fail}</span></td>`
+       + `<td>${r.totals.fail ? `<span class="pill bad">${r.totals.fail} 다름</span>` : Object.values(r.cases).some(c => c.kind === 'accepted_diff') ? '<span class="pill warn">승인된 차이 포함</span>' : '<span class="pill ok">모두 같음</span>'} <span class="mono" style="color:var(--faint);font-size:12px">/ ${r.totals.pass + r.totals.fail}</span></td>`
        + `<td>${chips.join('')}</td><td><div class="actions">${r.junit ? `<button data-go="map" data-run="${r.stamp}">지도</button><button data-go="report" data-run="${r.stamp}">보고서</button>` : '<span style="color:var(--faint);font-size:12px">JUnit 없음</span>'}</div></td></tr>`;
   });
   h += `</tbody></table></div></section>`;
@@ -839,7 +830,7 @@ function renderHistory(v){
   for (const t of d.tests){
     const cells = runs.map(r => { const c = r.cases[t.name]; return `<td class="c" title="${esc(r.finished)}${c ? ' · ' + esc(KIND[c.kind]||c.kind) : ''}"><i class="${c ? (c.status === 'pass' ? 'p' : 'f') : ''}"></i></td>`; }).join('');
     const lc = last.cases[t.name];
-    h += `<tr><td class="t"><b>${esc(t.title)}</b><small>${esc(t.name)}</small></td>${cells}<td>${lc ? (lc.status === 'pass' ? '<span class="pill ok">같음</span>' : `<span class="pill bad">${esc(KIND[lc.kind]||'실패')}</span>`) : '<span class="pill none">비교 전</span>'}</td></tr>`;
+    h += `<tr><td class="t"><b>${esc(t.title)}</b><small>${esc(t.name)}</small></td>${cells}<td>${lc ? casePill(lc) : '<span class="pill none">비교 전</span>'}</td></tr>`;
   }
   h += `</tbody></table></div></section>`;
 
@@ -849,7 +840,7 @@ function renderHistory(v){
     for (const n of names){
       const c = cur.cases[n], t = d.tests.find(x => x.name === n) || {title: n};
       const rows = (c.rows||[]).map(([w,a,b]) => `<tr><td>${esc(w)}</td><td class="was">${esc(a)}</td><td class="now">${esc(b)}</td></tr>`).join('');
-      h += `<div class="case ${c.status}"><div class="ttl">${esc(t.title)}<small>${esc(n)}</small></div><div>${c.status === 'pass' ? '<span class="pill ok">같음</span>' : `<span class="pill bad">${esc(KIND[c.kind]||c.kind)}</span>`}</div>`
+      h += `<div class="case ${c.status}"><div class="ttl">${esc(t.title)}<small>${esc(n)}</small></div><div>${casePill(c)}</div>`
          + (c.summary ? `<div class="sum">${esc(c.summary)}</div>` : '')
          + (rows ? `<table><tr><th>무엇이</th><th>as-is 기준</th><th>to-be</th></tr>${rows}</table>` : '')
          + (c.screenshot ? `<img src="${c.screenshot}" alt="실패 순간 화면" onclick="window.open(this.src)">` : '') + `</div>`;
@@ -880,14 +871,14 @@ async function route(){
 }
 $('#run').addEventListener('change', e => { state.run = e.target.value || null; setHash(); });
 $('#brand').addEventListener('click', e => { e.preventDefault(); location.hash = ''; });
-window.addEventListener('message', e => { if (e.data && e.data.parity === 'approved') loadApps().then(route); });  // 검토 화면에서 승인되면 상태 갱신
+window.addEventListener('message', e => { if (e.data && e.data.eastshift === 'approved') loadApps().then(route); });  // 검토 화면에서 승인되면 상태 갱신
 window.addEventListener('hashchange', route);
 loadApps().then(route);
 """
 
 SHELL = (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>"
-         f"<title>parity</title>{html.FONTS}<style>{html.CSS}{HUB_CSS}</style></head><body class='hub'>"
-         "<header class='top'><a class='brand' id='brand' href='#'>parity</a><div class='crumb' id='crumb'></div>"
+         f"<title>EastShift</title>{html.FONTS}<style>{html.CSS}{HUB_CSS}</style></head><body class='hub'>"
+         "<header class='top'><a class='brand' id='brand' href='#'>EastShift</a><div class='crumb' id='crumb'></div>"
          "<div class='runsel' id='runsel' hidden><label for='run'>실행</label><select id='run' aria-label='실행 선택'></select></div></header>"
          "<div class='frame'><nav class='side' id='tabs' aria-label='화면' hidden></nav><div id='view'></div></div>"
          f"<script>{HUB_JS}</script></body></html>")

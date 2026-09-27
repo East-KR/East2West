@@ -1,10 +1,9 @@
-"""승인 검토 화면: 개발자가 골든 시나리오를 하나씩 보고 "as-is 동작이 맞다"고 확인한 뒤 터미널에서 승인한다.
+"""승인 검토 화면 (eastshift ui 의 승인 검토 탭): 검토자가 골든 시나리오를 하나씩 보고 "as-is 동작이 맞다"고 확인한 뒤 이름을 입력해 승인한다.
 
-parity review golden/<app>            (기록 `--record`가 끝날 때, `parity approve`가 열 때도 자동으로 만든다)
+hub.py 가 /page/<app>/review 요청에 render(build(golden/<app>)) 로 만든다.
 
 화면: 왼쪽 시나리오 목록(확인 여부, 지난 승인 이후 바뀐 것 표시) · 가운데 선택한 시나리오(단계별 큰 캡처, 동작·알림창·확인 값) · 오른쪽 규칙(가림·이름 변경·동등 결함).
-"확인함" 표시는 보는 사람 브라우저에만 저장된다(localStorage). 모든 시나리오가 확인되면 승인 명령이 나타나고,
-사람이 터미널에서 띄운 parity ui 안에서는 이름 + 터미널에 찍힌 승인 코드로 바로 승인할 수 있다 (hub.py). 에이전트가 띄운 서버(터미널 없음)는 웹 승인이 꺼진다.
+"확인함" 표시는 보는 사람 브라우저에만 저장된다(localStorage). 모든 시나리오가 확인되면 승인 폼이 나타나고, 승인은 POST /api/app/<app>/approve (oracle.approve_from_review).
 읽는 것: golden/<app>/ 뿐. 새로 판단하는 것은 없다.
 """
 from __future__ import annotations
@@ -79,7 +78,6 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 .cmd button{border:0;background:var(--accent);color:#fff;font:600 13px var(--sans);padding:8px 14px;cursor:pointer}
 .af{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .af input{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:150px}
-.af input[name=code]{font-family:var(--mono);letter-spacing:.08em;width:130px}
 .af button{border:0;background:var(--accent);color:#fff;font:600 14px var(--sans);padding:8px 16px;border-radius:8px;cursor:pointer}
 .af .msg{font-size:13px;color:var(--muted)}.af .msg.bad{color:var(--bad);font-weight:600}
 .lb{position:fixed;inset:0;background:rgba(15,20,19,.82);display:none;place-items:center;z-index:50;padding:24px;cursor:zoom-out}
@@ -92,7 +90,7 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 JS = r"""<script>
 const D = JSON.parse(document.getElementById('d').textContent);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const KEY = 'parity-review:' + D.app + ':' + D.fingerprint;  // 기록이 바뀌면 확인 표시도 새로 한다
+const KEY = 'eastshift-review:' + D.app + ':' + D.fingerprint;  // 기록이 바뀌면 확인 표시도 새로 한다
 let done = new Set();
 try { done = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch(e) {}
 function save(){ try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch(e) {} }
@@ -107,21 +105,19 @@ function refresh(){
   document.getElementById('cnt').textContent = `${k}/${n} 확인`;
   const bar = document.getElementById('bar');
   if(approved) bar.innerHTML = `<p><b>승인됨</b> · ${esc(approved.approved_by)} · ${esc(approved.approved_at)}. 이제 to-be 비교에 이 기준을 씁니다.</p>`;
-  else if(k === n && n && D.approve) bar.innerHTML = `<p><b>모든 시나리오를 확인했습니다.</b> 이름과 <b>터미널(parity ui)에 찍힌 승인 코드</b>를 넣고 승인하세요.</p>`
-    + `<form class="af" id="af"><input name="by" placeholder="승인자 이름" required autocomplete="name"><input name="code" placeholder="승인 코드" required autocomplete="off" spellcheck="false"><button type="submit">승인</button><span class="msg" id="amsg"></span></form>`;
-  else if(k === n && n) bar.innerHTML = `<p><b>모든 시나리오를 확인했습니다.</b> 터미널에서 승인하세요. 승인 중이면 <code>${esc(D.dirname)}</code>을 입력합니다. (사람이 터미널에서 <code>parity ui</code>를 띄우면 여기서 바로 승인할 수 있습니다)</p><div class="cmd"><code>${esc(D.cmd)}</code><button type="button" id="copy">복사</button></div>`;
+  else if(k === n && n) bar.innerHTML = `<p><b>모든 시나리오를 확인했습니다.</b> 이름을 입력하고 이 화면에서 승인하세요.</p>`
+    + `<form class="af" id="af"><input name="by" placeholder="승인자 이름" required autocomplete="name"><button type="submit">승인</button><span class="msg" id="amsg"></span></form>`;
   else bar.innerHTML = `<p>확인하지 않은 시나리오 <b>${n - k}개</b>. 각 시나리오를 보고 as-is 동작이 맞으면 "확인함"을 누르세요. 틀린 것이 있으면 승인하지 말고 담당자에게 알려 주세요.</p><div class="prog"><i style="width:${n ? k / n * 100 : 0}%"></i></div>`;
-  const c = document.getElementById('copy'); if(c) c.onclick = () => { navigator.clipboard.writeText(D.cmd).then(() => c.textContent = '복사됨').catch(() => { const r = document.createRange(); r.selectNodeContents(c.previousElementSibling); getSelection().removeAllRanges(); getSelection().addRange(r); c.textContent = '선택됨 · ⌘C'; }); };
   const af = document.getElementById('af'); if(af) af.onsubmit = async e => {
     e.preventDefault(); const msg = document.getElementById('amsg'); msg.textContent = '승인 중…'; msg.className = 'msg';
     try {
       const r = await fetch(`/api/app/${encodeURIComponent(D.app)}/approve`, {method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({by: af.by.value, code: af.code.value, fingerprint: D.fingerprint})});
+        body: JSON.stringify({by: af.by.value, fingerprint: D.fingerprint})});
       const j = await r.json();
       if(!r.ok || j.error){ msg.textContent = j.error || `실패 (${r.status})`; msg.className = 'msg bad'; return; }
       approved = j; refresh();
       const st = document.querySelector('.stamp'); if(st){ st.className = 'stamp ok'; st.innerHTML = `승인됨<small>${esc(j.approved_by)} · ${esc(j.approved_at.slice(0, 16))}</small>`; }
-      try { parent.postMessage({parity: 'approved', app: D.app}, '*'); } catch(_) {}
+      try { parent.postMessage({eastshift: 'approved', app: D.app}, '*'); } catch(_) {}
     } catch(err){ msg.textContent = '서버에 연결할 수 없습니다: ' + err; msg.className = 'msg bad'; }
   };
   filter();
@@ -138,6 +134,7 @@ function show(name){
     h += `<div class="act"><span class="no">${s.index + 1}</span><span>${s.action}</span></div>`;
     if(s.seen.length) h += `<div class="seen"><span class="lab">나타남</span>${s.seen.map(x => `<span class="it">${esc(x)}</span>`).join('')}</div>`;
     s.dialogs.forEach(d => { h += `<div class="dlg"><span class="verb">${d.type === 'confirm' ? '확인창' : '알림창'}</span><b>${esc(d.message)}</b><span class="ans">→ ${d.action === 'accept' ? '확인' : '취소'}</span></div>`; });
+    (s.api || []).forEach(a => { h += `<details class="dlg"><summary>API ${esc(a.method)} ${esc(a.path)} · ${a.status}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(a.body)}</pre></details>`; });
     if(s.checks.length) h += `<div class="checks">` + s.checks.map(c => `<div class="check ${c.cls}"><span>✓</span><span class="k">${esc(c.k)}</span><span class="v">${esc(c.v)}</span>${c.old ? `<s>${esc(c.old)}</s>` : ''}</div>`).join('') + `</div>`;
     h += `</div></div>`;
   });
@@ -216,21 +213,23 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
                 shots[sid] = _img(d / o["shot"])
             act = html._action(o["kind"], o["text"])
             steps.append({"index": o["index"], "action": act, "action_text": _plain(act), "seen": seen,
-                          "dialogs": o.get("dialogs", []), "checks": by_step.get(o["index"], []), "shot": sid})
+                          "dialogs": o.get("dialogs", []), "api": o.get("api", []),
+                          "checks": by_step.get(o["index"], []), "shot": sid})
         tests[t["name"]] = {"title": html._title(t["name"], docs), "steps": steps, "flag": flag, "base_url": t["base_url"], "recorded_at": t["recorded_at"]}
         order.append(t["name"])
     removed = [] if prev is None else sorted(set(prev) - set(order))
     fp = oracle.oracle_files(d)
-    return {"app": d.name, "dirname": d.name, "cmd": f"uv run parity approve {d} --by <이름>", "status": st, "tests": tests, "order": order,
+    return {"app": d.name, "status": st, "tests": tests, "order": order,
             "shots": shots, "removed": removed, "masks": oracle.mask_hits(d), "maps": oracle.name_maps(d),
-            "eqs": cfg.get("equivalent_mutants", []),
+            "eqs": cfg.get("equivalent_mutants", []), "api_paths": cfg.get("api_compare", []),
+            "allowed": cfg.get("allowed_differences", []), "coverage": cfg.get("coverage", []),
+            "redact_fields": cfg.get("redact_fields", []), "redact_patterns": cfg.get("redact_patterns", []),
             # 기록이 바뀌면 브라우저에 남긴 "확인함" 표시를 새로 시작하려고 파일 해시들의 해시를 쓴다
-            "fingerprint": oracle.fingerprint(d), "approve": False}
+            "fingerprint": oracle.fingerprint(d)}
 
 
-def render(g: dict[str, Any], approve: bool = False) -> str:
-    """approve=True: 통합 화면(parity ui)이 웹 승인을 켠 채로 서빙할 때. 모든 시나리오를 확인하면 이름·승인 코드 입력란이 나온다."""
-    g = {**g, "approve": approve}
+def render(g: dict[str, Any]) -> str:
+    """모든 시나리오를 확인하면 승인 폼이 나온다 (통합 화면 안에서만 열리므로 서버가 늘 있다)."""
     st = g["status"]
     if st["ok"]:
         stamp = ("ok", "승인됨", f"{html._e(st['approved_by'])} · {html._e((st['approved_at'] or '')[:16])}")
@@ -247,9 +246,13 @@ def render(g: dict[str, Any], approve: bool = False) -> str:
     if n_chg or n_new or g["removed"]:
         notice = (f"<div class='notice'><b>지난 승인 이후</b> 기대값 바뀐 시나리오 {n_chg}개 · 새 시나리오 {n_new}개 · 없어진 시나리오 {len(g['removed'])}개"
                   + (" (" + ", ".join(html._e(r) for r in g["removed"]) + ")" if g["removed"] else "") + ". 바뀐 것을 먼저 보세요.</div>")
+    if st.get("problems") and st.get("approved_by"):
+        notice += "<div class='notice'><b>승인 후 변경된 파일</b> " + ", ".join(html._e(p) for p in st["problems"]) + "</div>"
     masks = ("<table>" + "".join(f"<tr><td class='m'>{html._e(m['rule'])}</td><td>" + ("".join(f"<span class='chip'>{html._e(k)}</span>" for k, _ in m["samples"]) or "<span class='warnchip'>아무것도 가리지 않음</span>") + f"<br><span class='tid'>{m['total']}곳</span></td></tr>" for m in g["masks"]) + "</table>") if g["masks"] else "<div class='none'>없음</div>"
     maps = ("<table>" + "".join(f"<tr><td>{html._e(a)}</td><td>→ <b>{html._e(b)}</b></td><td class='m'>{html._e(t)}</td></tr>" for t, m in g["maps"].items() for a, b in m.items()) + "</table>") if g["maps"] else "<div class='none'>없음</div>"
     eqs = ("<table>" + "".join(f"<tr><td class='m'>{html._e(e.get('path'))}<br>{html._e(e.get('context'))}</td><td>{html._e(e.get('reason', ''))}</td></tr>" for e in g["eqs"]) + "</table>") if g["eqs"] else "<div class='none'>없음</div>"
+    allowed = ("<table>" + "".join(f"<tr><td class='m'>{html._e(e.get('test'))} · {html._e(e.get('step'))}단계</td><td>{html._e(e.get('reason'))}</td></tr>" for e in g["allowed"]) + "</table>") if g["allowed"] else "<div class='none'>없음</div>"
+    coverage = ("<table>" + "".join(f"<tr><td>{html._e(e.get('case'))}</td><td>{html._e(', '.join(e.get('tests', [])))}</td></tr>" for e in g["coverage"]) + "</table>") if g["coverage"] else "<div class='none'>없음</div>"
     body = (f"<header class='head'><div class='eyebrow'>승인 검토</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
             f"<h1>{html._e(g['app'])}</h1><p class='lede'>as-is에서 기록한 동작이 to-be의 정답이 됩니다. 시나리오마다 단계 화면과 확인 값이 실제 업무와 맞는지 보고 확인하세요.</p>"
             f"<div class='prov'><span><b>기준 폴더</b> golden/{html._e(g['app'])}</span><span><b>시나리오</b> {len(g['tests'])}개</span></div></header>{notice}"
@@ -258,16 +261,12 @@ def render(g: dict[str, Any], approve: bool = False) -> str:
             f"<div class='scroll list'>{items}</div></div>"
             f"<div class='pane center scroll' id='center'><div class='empty'>왼쪽에서 시나리오를 고르세요</div></div>"
             f"<div class='pane right'><h2>규칙</h2><div class='scroll rules'><div><h4>가리는 값 · 매번 바뀌는 값만</h4>{masks}</div>"
+            f"<div><h4>비교하는 API 경로</h4>{''.join('<span class=chip>' + html._e(p) + '</span>' for p in g['api_paths']) or '<div class=none>없음</div>'}</div>"
+            f"<div><h4>민감정보 저장 제외</h4>{''.join('<span class=chip>' + html._e(p) + '</span>' for p in g['redact_fields'] + g['redact_patterns']) or '<div class=none>없음</div>'}</div>"
+            f"<div><h4>필수 업무 경우</h4>{coverage}</div><div><h4>승인된 차이</h4>{allowed}</div>"
             f"<div><h4>이름 변경 · to-be에서 바뀌어도 되는 라벨</h4>{maps}</div><div><h4>동등 결함 · 탐지율에서 빼는 결함</h4>{eqs}</div></div></div></div>"
             f"<div class='bar-approve'><div class='in' id='bar'></div></div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
     data = json.dumps(g, ensure_ascii=False).replace("</", "<\\/")
     page = html._page(f"{g['app']} 기준 승인", body, script=f"<script type='application/json' id='d'>{data}</script>{JS}")
     return page.replace("</style>", CSS + "</style>", 1)
-
-
-def write_review(d: Path, *, tests_dir: Path | None = None, out: Path | None = None) -> Path:
-    out = out or Path("reports") / f"review-{d.name}.html"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render(build(d, tests_dir)), encoding="utf-8")
-    return out

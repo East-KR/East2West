@@ -1,8 +1,11 @@
 .venv/
 __pycache__/
-.parity-cache/
+.eastshift-cache/
 /reports/
 .env
 .auth/
 .pytest_cache/
 /crawl/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

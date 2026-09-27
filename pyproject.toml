@@ -1,7 +1,7 @@
 [project]
-name = "parity"
+name = "eastshift"
 version = "0.1.0"
-description = "Prototype: natural-language E2E steps decided by TypeSafe Jev, executed by Playwright"
+description = "EastShift: checks that a rebuilt (to-be) web app behaves exactly like the running as-is app, bugs included. Playwright equivalence tests with a human-approved oracle, a Jev YAML runner and a crawler"
 requires-python = ">=3.11"
 dependencies = [
   "playwright>=1.50",
@@ -10,17 +10,17 @@ dependencies = [
 ]
 
 [project.scripts]
-parity = "parity.cli:main"
+eastshift = "eastshift.cli:main"
 
 [project.entry-points.pytest11]
-parity = "parity.pwtest.plugin"
+eastshift = "eastshift.pwtest.plugin"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["parity"]
+packages = ["eastshift"]
 
 [tool.pytest.ini_options]
 testpaths = ["e2e", "tests"]

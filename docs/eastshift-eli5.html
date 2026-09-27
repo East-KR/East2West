@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>parity 한눈에</title>
+<title>EastShift 한눈에</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
@@ -86,9 +86,9 @@ svg text{font-family:var(--sans)}
 
   <!-- 머리 -->
   <header class="hero">
-    <div class="eyebrow">parity 한눈에</div>
+    <div class="eyebrow">EastShift 한눈에</div>
     <h1>옛 가게와 새 가게,<br>맛이 똑같을까?</h1>
-    <p>parity는 옛 프로그램(as-is)과 새 프로그램(to-be)이 <b>버그까지 똑같이</b> 움직이는지 확인해요.</p>
+    <p>EastShift는 옛 프로그램(as-is)과 새 프로그램(to-be)이 <b>버그까지 똑같이</b> 움직이는지 확인해요.</p>
     <div class="pic">
       <svg viewBox="0 0 720 260" role="img" aria-label="as-is 화면과 to-be 화면을 나란히 놓고 같은지 비교하는 그림">
         <!-- as-is -->
@@ -217,7 +217,7 @@ svg text{font-family:var(--sans)}
         <h3>사람이 보고 도장을 찍어요</h3>
         <p class="say">정답지가 맞는지 <b>사람이</b> 확인하고 도장을 찍어요. 도장이 없거나, 찍은 뒤에 정답지가 바뀌면 다음 단계로 못 가요.</p>
         <span class="who human">사람만 할 수 있어요</span>
-        <p class="real"><b>실제로는</b> 브라우저 검토 화면을 보고 터미널에서 <code>parity approve golden/&lt;app&gt; --by 이름</code>. 에이전트는 터미널 입력을 못 하고, hook이 정답지 수정도 막아요.</p>
+        <p class="real"><b>실제로는</b> 사람이 자기 터미널에서 <code>eastshift ui</code>를 띄우고, 승인 검토 탭에서 시나리오를 하나씩 확인한 뒤 이름을 넣고 승인해요. 에이전트는 그 서버를 띄우지 않고, hook이 정답지 수정도 막아요.</p>
       </div>
     </article>
 
@@ -251,7 +251,7 @@ svg text{font-family:var(--sans)}
         <h3>시식가가 진짜 맛을 아는지 시험해요</h3>
         <p class="say">옛 가게 맛을 일부러 살짝 바꿔 놓고, 테스트가 "어? 달라!" 하고 알아채는지 봐요. 못 알아채는 테스트는 믿을 수 없어요.</p>
         <span class="who agent">에이전트가 해요</span>
-        <p class="real"><b>실제로는</b> <code>parity mutate e2e/&lt;app&gt; --compare golden/&lt;app&gt;</code>. 숫자, 반올림, 조건, 알림창, 문구, 500 오류를 하나씩 넣어 봐요. 놓친 결함이 테스트 빈틈을 알려줘요.</p>
+        <p class="real"><b>실제로는</b> <code>eastshift mutate e2e/&lt;app&gt; --compare golden/&lt;app&gt;</code>. 숫자, 반올림, 조건, 알림창, 문구, 500 오류를 하나씩 넣어 봐요. 놓친 결함이 테스트 빈틈을 알려줘요.</p>
       </div>
     </article>
 
@@ -317,7 +317,7 @@ svg text{font-family:var(--sans)}
         <h3>믿어도 되는지 성적표를 줘요</h3>
         <p class="say">"다른 곳이 몇 개"와 함께 "이 결과를 믿어도 되나"를 보여줘요. 하나라도 빠지면 <b>신뢰 불가</b>가 떠요.</p>
         <span class="who auto">자동으로 만들어져요</span>
-        <p class="real"><b>실제로는</b> <code>parity report …</code>. 에이전트의 말이 아니라 실행 기록 파일만 읽고 만들어요. HTML로 열면 "무엇이 · as-is · to-be" 표가 나와요.</p>
+        <p class="real"><b>실제로는</b> <code>eastshift report …</code>. 에이전트의 말이 아니라 실행 기록 파일만 읽고 만들어요. HTML로 열면 "무엇이 · as-is · to-be" 표가 나와요.</p>
       </div>
     </article>
 
@@ -344,7 +344,7 @@ svg text{font-family:var(--sans)}
         <h3>기록장을 보고 고친 뒤 다시 맛봐요</h3>
         <p class="say">맛볼 때마다 기록장에 남아요. 새 가게를 고치고 다시 맛보면 "지난번보다 뭐가 좋아졌고 뭐가 나빠졌나"만 알려줘요.</p>
         <span class="who auto">자동으로 쌓여요</span>
-        <p class="real"><b>실제로는</b> 비교할 때마다 <code>runs/&lt;app&gt;/</code>에 결과가 남고, <code>parity status</code>가 남은 실패와 지난 실행 대비 변화(통과로 바뀜 / 새로 실패)를 보여줘요. <code>parity catalog</code>는 시나리오별 이력을 한 화면에 모아요.</p>
+        <p class="real"><b>실제로는</b> 비교할 때마다 <code>runs/&lt;app&gt;/</code>에 결과가 남고, <code>eastshift status</code>가 남은 실패와 지난 실행 대비 변화(통과로 바뀜 / 새로 실패)를 보여줘요. <code>eastshift ui</code>의 개요·이력 탭은 시나리오별 이력을 한 화면에 모아요.</p>
       </div>
     </article>
   </section>
@@ -383,7 +383,7 @@ svg text{font-family:var(--sans)}
         <h3>메뉴를 한 입씩 다 맛봐요</h3>
         <p class="say">화면이 수백 개면 하나하나 테스트를 못 짜요. "조회 버튼 누르기" 한 문장으로 모든 화면을 훑어서, 안 열리거나 오류 나는 화면을 찾아요.</p>
         <span class="who agent">에이전트가 해요</span>
-        <p class="real"><b>실제로는</b> <code>parity run screen_smoke.yaml</code>. 처음 한 번만 Jev가 화면마다 버튼을 고르고, 다음부터는 기억(캐시)으로 공짜로 돌아요. 데모에서 결함 5개 전부 잡음.</p>
+        <p class="real"><b>실제로는</b> <code>eastshift run screen_smoke.yaml</code>. 처음 한 번만 Jev가 화면마다 버튼을 고르고, 다음부터는 기억(캐시)으로 공짜로 돌아요. 데모에서 결함 5개 전부 잡음.</p>
       </div>
     </article>
 
@@ -419,7 +419,7 @@ svg text{font-family:var(--sans)}
         <h3>가게 구석구석을 돌아다니며 지도를 그려요</h3>
         <p class="say">버튼을 모두 눌러 보고 "어디서 어디로 갈 수 있는지" 지도를 만들어요. 그 지도로 테스트 초안도 자동으로 써 줘요. 삭제나 결제 같은 위험한 버튼은 안 눌러요.</p>
         <span class="who agent">에이전트가 해요</span>
-        <p class="real"><b>실제로는</b> <code>parity crawl &lt;시작 주소&gt; --dry-run</code>으로 누를 버튼을 먼저 보고 실행해요. AI 없이 돌아서 비용이 0이에요. 저장 버튼은 진짜로 누르니 테스트 서버에서만.</p>
+        <p class="real"><b>실제로는</b> <code>eastshift crawl &lt;시작 주소&gt; --dry-run</code>으로 누를 버튼을 먼저 보고 실행해요. AI 없이 돌아서 비용이 0이에요. 저장 버튼은 진짜로 누르니 테스트 서버에서만.</p>
       </div>
     </article>
   </section>

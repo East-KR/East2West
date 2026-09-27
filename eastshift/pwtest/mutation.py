@@ -1,6 +1,6 @@
 """결함 주입(mutation)으로 테스트의 결함 탐지력을 잰다. 앱 코드는 건드리지 않고, 브라우저가 받는 응답(HTML/JS/JSON)을 가로채 바꾼다.
 
-parity mutate e2e/<app> --base-url <as-is> --compare golden/<app>
+eastshift mutate e2e/<app> --base-url <as-is> --compare golden/<app>
 
 1. 발견: 테스트를 한 번 돌리며 테스트별로 받은 응답을 모은다 (이 실행이 통과해야 한다).
 2. 생성: 응답마다 결함 후보 자리를 찾는다 (연산자 OPS). (경로, 연산자)당 최대 N개를 고르게 뽑는다.
@@ -12,6 +12,7 @@ parity mutate e2e/<app> --base-url <as-is> --compare golden/<app>
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -22,6 +23,8 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin, urlparse
+from .identity import canonical_ids
+from .evidence import source_hash
 
 # -- 결함 후보 자리 -------------------------------------------------------------------
 OPS = {
@@ -33,7 +36,8 @@ OPS = {
     "label": "화면 텍스트 한 곳 변경 (라벨, 안내문. <title>은 비교 대상이 아니라 제외)",
     "http500": "문서 응답을 500으로",
 }
-NUM = re.compile(r"(?<![\w.#%&-])(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(?![\w%])")
+# 한글 단위가 바로 붙은 값(120원, 3개, 2박)도 자리다. 식별자·CSS 단위·색상(#fff, x1, 12px)은 아스키 문자로 가려낸다
+NUM = re.compile(r"(?<![A-Za-z0-9_.#%&-])(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(?![A-Za-z0-9_%])")
 TAG = re.compile(r"<[^>]*>")
 SCRIPT = re.compile(r"<script[^>]*>(.*?)</script>", re.S | re.I)
 STYLE = re.compile(r"<style[^>]*>.*?</style>", re.S | re.I)
@@ -241,14 +245,15 @@ def _failed(junit: Path) -> list[str]:
     out = []
     for tc in ET.parse(junit).getroot().iter("testcase"):
         if tc.find("failure") is not None or tc.find("error") is not None:
-            out.append(tc.get("name", "?"))
+            ident = tc.find("./properties/property[@name='eastshift_id']")
+            out.append(ident.get("value") if ident is not None else tc.get("name", "?"))
     return sorted(set(out))
 
 
 def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int, max_per_op: int,
         allow_unapproved: bool, out: Path) -> dict[str, Any]:
     common = ["--base-url", base_url] + (["--compare", str(compare)] if compare else []) + (["--allow-unapproved"] if allow_unapproved else [])
-    work = Path(tempfile.mkdtemp(prefix="parity-mutate-"))
+    work = Path(tempfile.mkdtemp(prefix="eastshift-mutate-"))
     t0 = time.time()
     print(f"[1/3] discovery run on {base_url} ({'expects + golden' if compare else 'expects only'})")
     r = _pytest([*targets, *common, "--jev-capture", str(work / "cap")])
@@ -256,6 +261,9 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
         sys.exit("discovery run must pass on the unmutated app before mutating:\n" + r.stdout[-3000:])
     bodies = json.loads((work / "cap/bodies.json").read_text(encoding="utf-8"))
     tests = json.loads((work / "cap/tests.json").read_text(encoding="utf-8"))
+    identities = canonical_ids(list(tests))
+    source_dir = Path(os.path.commonpath([str(Path(t.rsplit("::", 1)[0]).parent) for t in tests])).resolve() if tests else None
+    source_sha256 = source_hash(source_dir) if source_dir else ""
     from . import oracle
     rules = oracle.load_config(compare) if compare else {}
     mutants = generate(bodies, max_per_op, rules)
@@ -276,7 +284,7 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
                 status, err = "error", "mutant was never applied (response body differs from discovery run)"
         except subprocess.TimeoutExpired:
             by, status, err = [], "error", "timeout"
-        return {**m, "tests": [t.split("::")[-1] for t in sel], "status": status, "killed": status == "killed", "killed_by": by, "error": err}
+        return {**m, "tests": [identities[t] for t in sel], "status": status, "killed": status == "killed", "killed_by": by, "error": err}
 
     with ThreadPoolExecutor(max_workers=workers) as ex:
         results = list(ex.map(one, mutants))
@@ -285,17 +293,20 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
     killed = sum(r["killed"] for r in results)
     errors = [r for r in results if r["status"] == "error"]
     by_op = {op: {"total": sum(r["op"] == op for r in results), "killed": sum(r["op"] == op and r["killed"] for r in results)} for op in OPS}
-    test_names = sorted({t.split("::")[-1] for t in tests})
+    test_names = sorted(identities.values())
     kills = {t: sum(t in r["killed_by"] for r in results) for t in test_names}
     report = {"generated_at": time.strftime("%Y-%m-%d %H:%M:%S"), "targets": targets, "base_url": base_url,
               "oracle_approved": bool(compare) and oracle.status(compare)["ok"],
               "oracle_approved_at": oracle.status(compare).get("approved_at") if compare else None,
+              "oracle_approval_id": oracle.approval_id(compare) if compare else None,
+              "source_sha256": source_sha256,
+              "source_dir": str(source_dir) if source_dir else "",
               "mode": "expects+golden" if compare else "expects-only", "compare": str(compare) if compare else None,
               "total": len(results), "killed": killed, "errors": len(errors), "score": round(killed / len(results), 3) if results else None,
               "by_op": by_op, "test_kills": kills, "mutants": results}
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"\nmutation score {killed}/{len(results)} = {report['score']:.0%} ({report['mode']})")
+    print(f"\nmutation score {killed}/{len(results)} = {(report['score'] or 0):.0%} ({report['mode']})")
     for op, v in by_op.items():
         if v["total"]:
             print(f"  {op:8s} {v['killed']}/{v['total']}  {OPS[op]}")

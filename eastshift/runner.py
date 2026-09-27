@@ -8,12 +8,12 @@ step 종류
   dialog: accept | dismiss | {accept: <prompt 입력값>}   다음에 뜨는 alert/confirm/prompt 하나의 처리 (기본 accept)
   save_storage_state: <path>
 
-goto의 상대 경로는 --base-url (또는 PARITY_BASE_URL) 기준. 문자열 값의 ${VAR}는 환경변수로 치환 (비밀번호 등).
+goto의 상대 경로는 --base-url (또는 EASTSHIFT_BASE_URL) 기준. 문자열 값의 ${VAR}는 환경변수로 치환 (비밀번호 등).
 프레임: 최상위 문서와 보이는 frame/iframe을 모두 후보로 본다 (레거시 frameset). 캐시된 프레임에 요소가 없으면
 다른 프레임에서 같은 (role, name)을 찾는다 (as-is frameset 캐시를 to-be 단일 페이지에서 재생).
 기록/비교: --record DIR 은 스텝별 관찰값을 골든으로 저장, --compare DIR 은 골든과 비교해 차이를 보고 (observe.py).
 
-캐시: 첫 실행에서 Jev가 고른 (role, name, nth, scope)을 .parity-cache/<시나리오>.json에 **스텝 문장을 키로** 저장하고,
+캐시: 첫 실행에서 Jev가 고른 (role, name, nth, scope)을 .eastshift-cache/<시나리오>.json에 **스텝 문장을 키로** 저장하고,
 다음 실행부터는 그 요소가 페이지에 있으면 Jev 없이 재생한다. 못 찾으면 Jev를 다시 불러 캐시를 고친다 (healed).
 --replay-only 모드에서는 Jev를 부르지 않고 캐시 미스를 실패로 처리한다 (CI용, API 키 불필요).
 """
@@ -29,6 +29,7 @@ from typing import Any
 from urllib.parse import urljoin, urlparse
 
 import yaml
+from playwright.sync_api import Error as PWError
 from playwright.sync_api import Frame, Page, sync_playwright
 
 from . import triage as _triage
@@ -37,6 +38,12 @@ from .observe import CompareOptions, compare, observation
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
 from .snapshot import ACTIONABLE_ROLES, EDITABLE_ROLES, Element, _grams, parse_elements, rank_for_goal, relevance
+
+
+def _origin(url: str) -> tuple[str, str, int | None]:
+    parsed = urlparse(url)
+    scheme = parsed.scheme.lower()
+    return scheme, (parsed.hostname or "").lower(), parsed.port or {"http": 80, "https": 443}.get(scheme)
 
 
 @dataclass
@@ -75,7 +82,7 @@ class RunResult:
 
 class Runner:
     def __init__(self, *, headed: bool = False, use_cache: bool = True, min_margin: float = 0.1, max_candidates: int = 60,
-                 settle_ms: int = 1500, expect_timeout_s: float = 10, report_dir: Path = Path("reports"), cache_dir: Path = Path(".parity-cache"),
+                 settle_ms: int = 1500, expect_timeout_s: float = 10, report_dir: Path = Path("reports"), cache_dir: Path = Path(".eastshift-cache"),
                  storage_state: Path | None = None, replay_only: bool = False, base_url: str | None = None,
                  record_dir: Path | None = None, compare_dir: Path | None = None, compare_opts: CompareOptions | None = None,
                  triage: bool = False):
@@ -129,7 +136,7 @@ class Runner:
                 try:
                     if not f.frame_element().is_visible():
                         continue
-                except Exception:
+                except PWError:
                     continue
             out.append((cls._frame_key(f), f))
         return out
@@ -145,7 +152,7 @@ class Runner:
         for key, f in self._frames(page):
             try:
                 out.append((key, self._frame_snapshot(f)))
-            except Exception:
+            except PWError:
                 continue
         return out
 
@@ -207,7 +214,7 @@ class Runner:
             try:
                 if self._is_visible(page, el):
                     out.append(el)
-            except Exception:
+            except PWError:
                 continue
         return sorted(out, key=lambda e: e.order)
 
@@ -215,7 +222,7 @@ class Runner:
         ctx = page.context
         try:
             page.wait_for_load_state("load", timeout=15000)
-        except Exception:
+        except PWError:
             pass
         if page.is_closed():  # 스스로 닫히는 팝업 (레거시 우편번호·코드 검색 창) → 남은 창으로
             page = ctx.pages[-1]
@@ -225,7 +232,7 @@ class Runner:
             newest = ctx.pages[-1]
             try:
                 newest.wait_for_load_state("load", timeout=15000)
-            except Exception:
+            except PWError:
                 pass
             newest.bring_to_front()
             return newest
@@ -359,7 +366,7 @@ class Runner:
             try:
                 if f.locator("body").count():
                     out.append(f.locator("body").inner_text(timeout=2000))
-            except Exception:
+            except PWError:
                 continue
         return out
 
@@ -405,7 +412,7 @@ class Runner:
                 for f in frames:
                     try:
                         found = f.get_by_text(cond["text"]).first.is_visible(timeout=500) or cond["text"] in f.content()
-                    except Exception:
+                    except PWError:
                         found = False
                     if found:
                         break
@@ -423,7 +430,7 @@ class Runner:
                 for f in frames:
                     try:
                         n += f.get_by_role("row").filter(has=f.get_by_role("cell")).count()
-                    except Exception:
+                    except PWError:
                         pass
                 if n < int(cond["rows_at_least"]):
                     failures.append(f"data rows {n} < {cond['rows_at_least']}")
@@ -451,7 +458,7 @@ class Runner:
                 dialog.accept(plan["text"])
             else:
                 dialog.accept()
-        except Exception:
+        except PWError:
             pass
 
     def _triage_step(self, sr: StepResult, result: RunResult, page: Page, scenario: str) -> _triage.Triage:
@@ -461,7 +468,7 @@ class Runner:
         try:
             page_info = self._page_info(page)
             snapshot = self._snapshot_text(page)
-        except Exception:
+        except PWError:
             pass
         state = _triage.evidence(asdict(sr), scenario=scenario, history=[asdict(s) for s in result.steps[:-1]],
                                  events=self._events, page=page_info, snapshot=snapshot,
@@ -469,11 +476,17 @@ class Runner:
         return _triage.classify(self.jev, state)
 
     def _url(self, target: str) -> str:
+        if (self.record_dir or self.compare_dir) and not self.base_url:
+            raise ValueError("record/compare needs --base-url to verify the target server")
         if urlparse(target).scheme:
-            return target
-        if not self.base_url:
-            raise ValueError(f"relative goto {target!r} needs --base-url or PARITY_BASE_URL")
-        return urljoin(self.base_url.rstrip("/") + "/", target.lstrip("/"))
+            resolved = target
+        elif not self.base_url:
+            raise ValueError(f"relative goto {target!r} needs --base-url or EASTSHIFT_BASE_URL")
+        else:
+            resolved = urljoin(self.base_url.rstrip("/") + "/", target.lstrip("/"))
+        if (self.record_dir or self.compare_dir) and _origin(resolved) != _origin(self.base_url):
+            raise ValueError(f"goto target is outside configured server: {resolved}")
+        return resolved
 
     @staticmethod
     def variants(scenario_path: Path) -> list[tuple[str, dict[str, str]]]:
@@ -498,7 +511,7 @@ class Runner:
             try:
                 if r.request.is_navigation_request() and r.status >= 400:
                     self._events["http_errors"].append(f"{r.status} {r.url}")
-            except Exception:
+            except PWError:
                 pass
         pg.on("response", on_response)
 
@@ -524,7 +537,12 @@ class Runner:
                 result.status = "fail"
                 print(f"  ✘ no golden recording {gfile} (record it on as-is with --record)")
                 return result
-            golden = json.loads(gfile.read_text(encoding="utf-8"))["steps"]
+            recorded = json.loads(gfile.read_text(encoding="utf-8"))
+            if _origin(self.base_url or "") == _origin(recorded.get("base_url") or ""):
+                result.status = "fail"
+                print("  ✘ compare target is the recorded as-is server")
+                return result
+            golden = recorded["steps"]
         observations: list[dict[str, Any]] = []
         history: list[str] = []
         seen_keys: dict[str, int] = {}
@@ -599,6 +617,8 @@ class Runner:
                     else:
                         sr = StepResult(idx, "?", json.dumps(step, ensure_ascii=False), "fail", 0, reason="unknown step type")
                     sr.dialogs = list(self._step_dialogs)
+                    if sr.status == "pass" and kind in ("goto", "do", "press") and (self.record_dir or self.compare_dir) and _origin(page.url) != _origin(self.base_url):
+                        sr.status, sr.reason = "fail", f"page left the configured target: {page.url}"
                     # 기록/비교: 화면을 바꾸는 스텝 직후의 관찰값. 스텝에 compare: false 를 달면 건너뛴다 (시간 의존 화면 등).
                     if sr.status == "pass" and kind in ("goto", "do", "press") and raw_step.get("compare", True) and (self.record_dir or golden is not None):
                         obs = observation(index=idx, kind=kind, text=str(raw_step[kind]), url=page.url, title=page.title(),
@@ -619,7 +639,7 @@ class Runner:
                         shot = self.report_dir / f"{stem}-step{idx}-fail.png"
                         try:
                             page.screenshot(path=str(shot), full_page=False)
-                        except Exception:
+                        except PWError:
                             pass
                     if self.triage and _triage.needs_triage(asdict(sr)):
                         env_key = re.sub(r"https?://\S+", "<url>", sr.reason or "")  # 서버가 죽으면 화면 수백 개가 같은 사유로 실패한다
@@ -633,10 +653,18 @@ class Runner:
                         print(f"     {_triage.format_line(sr.triage)}")
                 try:
                     page.screenshot(path=str(self.report_dir / f"{stem}-final.png"), full_page=False)
-                except Exception:
+                except PWError:
                     pass
             finally:
                 browser.close()
+        if golden is not None:
+            observed_indexes = {o["index"] for o in observations}
+            for expected in golden:
+                if expected["index"] not in observed_indexes:
+                    result.steps.append(StepResult(expected["index"], expected["kind"], expected["text"], "diff", 0,
+                                                   reason="approved observation was not executed",
+                                                   diff=["! approved observation was not executed"]))
+                    result.diff_steps += 1
         result.elapsed_ms = _ms(t_run)
         if result.status == "pass" and result.diff_steps:
             result.status = "diff"

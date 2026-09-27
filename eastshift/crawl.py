@@ -7,7 +7,7 @@
 - 입력칸은 누르지 않고 픽스처 값으로만 채운다. 입력칸이 있는 상태에서는 전이 동작을 "그대로" / "채워서" 두 번 누른다.
   "채워서" = 픽스처 값 + 다른 입력칸 값을 바꾸는 화면 안 버튼(캘린더 날짜 등) 하나.
 - (프레임, 역할, 범위 라벨, 숫자를 가린 이름)이 같은 요소가 group_min개 이상이면 첫 요소만 누른다 (캘린더 날짜, 페이지 번호).
-- 목록성 화면(표의 행, 목록의 항목)은 같은 열의 요소를 한 템플릿으로 보고 행 몇 개만 대표로 누른다 (parity.lists): 분기 열(상태·유형 …)의 값 조합마다 하나,
+- 목록성 화면(표의 행, 목록의 항목)은 같은 열의 요소를 한 템플릿으로 보고 행 몇 개만 대표로 누른다 (eastshift.lists): 분기 열(상태·유형 …)의 값 조합마다 하나,
   상한 --reps. 분기 열은 픽스처 pick > Jev 분류(캐시, margin 게이트) > 규칙 순. 같은 층의 대표들이 다른 화면으로 가면 그 층을 더 누른다 (적응 확장).
 - deny 정규식에 걸리는 이름(삭제, 로그아웃 …)은 누르지 않고 기록만 한다. 다른 origin으로 나가는 동작은 따라가지 않는다.
 
@@ -25,6 +25,7 @@ from typing import Any
 from urllib.parse import urljoin, urlparse
 
 import yaml
+from playwright.sync_api import Error as PWError
 from playwright.sync_api import Page, sync_playwright
 
 from . import lists as _lists
@@ -77,7 +78,7 @@ class Node:
     snapshot: str = ""          # 이 상태의 스냅샷 원문: 이전/다음 화면에만 있는 문구를 고를 때 쓴다
     explored: bool = False
     screenshot: str = ""
-    lists: list[dict[str, Any]] = field(default_factory=list)  # 이 화면의 목록 템플릿과 표본 (parity.lists.ListInfo.to_dict)
+    lists: list[dict[str, Any]] = field(default_factory=list)  # 이 화면의 목록 템플릿과 표본 (eastshift.lists.ListInfo.to_dict)
 
     @property
     def label(self) -> str:
@@ -102,7 +103,7 @@ class Edge:
     js_errors: list[str] = field(default_factory=list)
     http_errors: list[str] = field(default_factory=list)
     reason: str = ""
-    template: str = ""        # 목록 템플릿 대표일 때: '<목록 제목>:<열>' (parity.lists)
+    template: str = ""        # 목록 템플릿 대표일 때: '<목록 제목>:<열>' (eastshift.lists)
     row: int = -1              # 그 목록의 몇 번째 행
     stratum: dict[str, str] = field(default_factory=dict)  # 분기 열 값 (층)
 
@@ -198,7 +199,7 @@ class Crawler:
         self.start = (u.path or "/") + (f"?{u.query}" if u.query else "")
         self.origin = f"{u.scheme}://{u.netloc}"
         if not urlparse(self.start_url).scheme:
-            raise ValueError(f"relative start {start!r} needs --base-url or PARITY_BASE_URL")
+            raise ValueError(f"relative start {start!r} needs --base-url or EASTSHIFT_BASE_URL")
         self.inputs = inputs or {}
         self.deny = re.compile(deny)
         self.max_depth, self.max_states, self.max_actions, self.group_min = max_depth, max_states, max_actions, group_min
@@ -229,14 +230,14 @@ class Crawler:
                     d.dismiss()
                     return
                 d.accept()
-            except Exception:
+            except PWError:
                 pass
 
         def on_response(r) -> None:
             try:
                 if r.request.is_navigation_request() and r.status >= 400:
                     self._events["http_errors"].append(f"{r.status} {r.url}")
-            except Exception:
+            except PWError:
                 pass
         pg.on("dialog", on_dialog)
         pg.on("pageerror", lambda err: self._events["js_errors"].append(str(err).splitlines()[0]))
@@ -279,7 +280,7 @@ class Crawler:
             try:
                 if self.rt._is_visible(page, el):
                     elements.append(el)
-            except Exception:
+            except PWError:
                 continue
         if modal:  # 모달이 열려 있으면 배경(inert) 요소도 스냅샷에 남는다. 모달 안의 요소만 동작 대상으로.
             inside = []
@@ -287,7 +288,7 @@ class Crawler:
                 try:
                     if self.rt._locator(page, el).first.evaluate("e => !!e.closest('dialog[open], [aria-modal=true]')"):
                         inside.append(el)
-                except Exception:
+                except PWError:
                     continue
             elements = inside or elements
         return {"url": page.url, "title": page.title(), "sig": signature(snaps), "elements": elements, "lists": lists_, "slots": slots,
@@ -299,7 +300,7 @@ class Crawler:
         for el in self.rt._elements(page, editable_only=True):
             try:
                 out[el.name] = self.rt._locator(page, el).first.input_value(timeout=500)
-            except Exception:
+            except PWError:
                 continue
         return out
 
@@ -308,7 +309,7 @@ class Crawler:
         if page is not None:
             try:
                 page.context.close()
-            except Exception:
+            except PWError:
                 pass
 
     # -- 탐색 ----------------------------------------------------------------------------
@@ -324,7 +325,7 @@ class Crawler:
             node.screenshot = str(self.shots_dir / f"n{node.id}.png")
             try:
                 page.screenshot(path=node.screenshot)
-            except Exception:
+            except PWError:
                 node.screenshot = ""
         self.nodes.append(node)
         self._by_key[key] = node.id
@@ -659,8 +660,8 @@ class Crawler:
 
     def pytest_module(self) -> str:
         """같은 경로를 Playwright 테스트(ui fixture)로. 승인·결함 주입·검증 보고서 흐름에 그대로 올라간다."""
-        L = ['"""parity crawl이 만든 테스트. 현재 동작의 기록이다. 검토하고 업무상 중요한 값(금액 등) 확인을 더한 뒤 e2e/<app>/로 옮겨 쓴다.',
-             "", f"시작: {self.start}", '"""', "from parity.runner import _expand", ""]
+        L = ['"""eastshift crawl이 만든 테스트. 현재 동작의 기록이다. 검토하고 업무상 중요한 값(금액 등) 확인을 더한 뒤 e2e/<app>/로 옮겨 쓴다.',
+             "", f"시작: {self.start}", '"""', "from eastshift.runner import _expand", ""]
         for i, path in enumerate(self.paths(), 1):
             spec, cache = self.scenario(path)
             L += ["", f"def test_crawl_{i:02d}(ui):", f'    """{spec["name"].removeprefix("[탐색] ")}"""']
@@ -695,7 +696,7 @@ class Crawler:
         marker = check_output_dir(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         cache_dir.mkdir(parents=True, exist_ok=True)
-        marker.write_text("parity crawl output: regenerated on every crawl. Move reviewed files out before editing them.\n", encoding="utf-8")
+        marker.write_text("eastshift crawl output: regenerated on every crawl. Move reviewed files out before editing them.\n", encoding="utf-8")
         if self.list_cache:  # 분기 열 분류 캐시: 표식이 생긴 뒤에 쓴다 (먼저 쓰면 out 이 '탐색 산출물 폴더가 아닌 것'으로 보인다)
             _lists.save_cache(self.list_cache_path or cache_dir / "lists.json", self.list_cache)
         (out_dir / "graph.json").write_text(json.dumps(self.to_dict(), ensure_ascii=False, indent=1), encoding="utf-8")
@@ -707,7 +708,7 @@ class Crawler:
         for i, path in enumerate(self.paths(), 1):
             spec, cache = self.scenario(path)
             f = out_dir / f"crawl_{i:02d}.yaml"
-            header = ("# parity crawl이 만든 시나리오. 현재 동작의 기록이므로 맞는 동작인지 검토한 뒤 쓴다.\n"
+            header = ("# eastshift crawl이 만든 시나리오. 현재 동작의 기록이므로 맞는 동작인지 검토한 뒤 쓴다.\n"
                       "# 이 폴더는 crawl을 다시 돌리면 덮어쓴다. 검토한 파일은 scenarios/<app>/로 옮겨서 고친다.\n")
             f.write_text(header + yaml.safe_dump(spec, allow_unicode=True, sort_keys=False, width=200), encoding="utf-8")
             (cache_dir / f"{f.stem}.json").write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")

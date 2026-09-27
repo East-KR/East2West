@@ -1,9 +1,11 @@
-"""Playwright 테스트용 helper (`ui` fixture). pytest 플러그인 `parity.pwtest.plugin`이 만든다.
+"""Playwright 테스트용 helper (`ui` fixture). pytest 플러그인 `eastshift.pwtest.plugin`이 만든다.
 
 - 요소는 화면에 보이는 역할과 이름으로 찾는다 (getByRole). 프레임과 무관하다: as-is frameset에서 쓴 테스트가 to-be 단일 페이지에서 그대로 돈다.
 - 테스트는 "무엇을"만 쓴다 (`ui.select("품목", "볼펜")`). 위젯마다 다른 "어떻게"는 이 파일이 맡는다 (네이티브 select / 커스텀 드롭다운).
 - alert/confirm/prompt는 기본 accept, `ui.dialog("dismiss")`로 다음 하나를 바꾼다.
-- 동작(goto/click/fill/select/check/press) 직후마다 관찰값을 골든으로 기록(--record)하거나 비교(--compare)한다. 정규화는 parity.observe.
+- 동작(goto/click/fill/select/check/press) 직후마다 관찰값을 골든으로 기록(--record)하거나 비교(--compare)한다. 정규화는 eastshift.observe.
+  관찰은 화면이 멈춘 뒤에 한다: load 뒤 요청이 다 끝나고 스냅샷이 settle_ms 동안 안 바뀌면 멈춘 것 (계속 움직이는 화면은 상한에서 자른다).
+  프레임 하나라도 스냅샷을 못 뜨면 실패다: 내용이 빠진 골든이 기록·승인되거나 빠진 채로 비교되면 안 된다.
 - 이름 매핑(--name-map): as-is 이름 → to-be 이름. 테스트 코드는 as-is 이름 그대로 둔다.
 - expect_* 호출은 (종류, 대상, 기대값)으로 기록된다. 골든에 함께 저장되고, 비교 때 테스트의 기대값이 기록 이후 바뀌었으면
   실패한다 (to-be 결과에 맞춰 기대값을 고치는 것을 막는다).
@@ -11,25 +13,34 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import shutil
 import tempfile
 import time
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
+from playwright.sync_api import Error as PWError
 from playwright.sync_api import Frame, Locator, Page
 
-from parity.observe import CompareOptions, compare, observation
+from eastshift.observe import CompareOptions, compare, observation
+
+
+def _origin(url: str) -> tuple[str, str, int | None]:
+    parsed = urlsplit(url)
+    return parsed.scheme.lower(), (parsed.hostname or "").lower(), parsed.port or {"http": 80, "https": 443}.get(parsed.scheme.lower())
 
 
 class UI:
     def __init__(self, page: Page, *, base_url: str, test_id: str, record_dir: Path | None = None, compare_dir: Path | None = None,
                  compare_opts: CompareOptions | None = None, settle_ms: int = 500, timeout_ms: int = 5000,
-                 name_map: dict[str, str] | None = None, self_compare: bool = False):
+                 name_map: dict[str, str] | None = None, self_compare: bool = False,
+                 setup: dict[str, str] | None = None):
         self.page, self.base_url, self.test_id = page, base_url, test_id
         self.name_map = name_map or {}  # as-is 이름 → to-be 이름 (의도된 라벨 변경). 테스트 코드는 as-is 이름 그대로
+        self.setup = setup or {}
         self.record_dir, self.compare_dir = record_dir, compare_dir
         self.opts = compare_opts or CompareOptions()
         self.settle_ms, self.timeout_ms = settle_ms, timeout_ms
@@ -37,24 +48,65 @@ class UI:
         self._plan: list[dict[str, Any]] = []
         self._step_dialogs: list[dict[str, Any]] = []
         self._step = 0
+        self._secret_values: set[str] = set()
+        from . import oracle
+        privacy = oracle.load_config(compare_dir or record_dir) if (compare_dir or record_dir) else {}
+        self._secret_fields = set(privacy.get("redact_fields", []))
+        self._redact_patterns = [re.compile(p) for p in privacy.get("redact_patterns", [])]
+        self._api_paths = [re.compile(p) for p in privacy.get("api_compare", [])]
+        self._api_pending: list[Any] = []
+        self._target_build_ids: set[str] = set()
         self.observations: list[dict[str, Any]] = []
-        self._shots = Path(tempfile.mkdtemp(prefix="parity-shots-")) if record_dir else None  # 통과하면 골든의 shots/로 옮긴다
+        self._shots = Path(tempfile.mkdtemp(prefix="eastshift-shots-")) if record_dir else None  # 통과하면 골든의 shots/로 옮긴다
         self.shot_dir = re.sub(r"[^\w.-]+", "_", test_id)
         self.diffs: list[tuple[int, str, list[str]]] = []
+        self.accepted_diffs: list[dict[str, Any]] = []
+        self.allowed_differences: list[dict[str, Any]] = []
         self.assertions: list[dict[str, Any]] = []
         self._golden: list[dict[str, Any]] | None = None
         self._golden_assertions: list[dict[str, Any]] = []
         if compare_dir:
+            from . import oracle
+            self.allowed_differences = oracle.load_config(compare_dir).get("allowed_differences", [])
             g = compare_dir / f"{test_id}.json"
             if not g.exists():
                 raise AssertionError(f"no golden {g} (record on as-is first)")
             data = json.loads(g.read_text(encoding="utf-8"))
+            if data.get("setup", {}) != self.setup:
+                raise AssertionError(f"test setup differs from recording: {data.get('setup', {})} != {self.setup}")
             if not self_compare and data.get("base_url", "").rstrip("/") == base_url.rstrip("/"):
                 raise AssertionError(f"golden {g} was recorded on {base_url} itself; compare needs the as-is recording")
             self._golden = data["steps"]
             self._golden_assertions = data.get("assertions", [])
         page.context.on("page", lambda p: p.on("dialog", self._on_dialog))
         page.on("dialog", self._on_dialog)
+        self._inflight: set[str] = set()  # 끝나지 않은 요청 (안정화 대기용). websocket·eventsource 는 끝나지 않으므로 세지 않는다
+        page.on("request", lambda r: self._track(r, True))
+        page.on("requestfinished", lambda r: self._track(r, False))
+        page.on("requestfailed", lambda r: self._track(r, False))
+        page.on("response", self._on_api_response)
+
+    def _on_api_response(self, response) -> None:
+        if response.request.resource_type == "document":
+            build_id = response.headers.get("x-eastshift-build-id")
+            if build_id:
+                self._target_build_ids.add(build_id)
+        path = urlsplit(response.url).path
+        if response.request.resource_type in ("xhr", "fetch") and any(p.fullmatch(path) for p in self._api_paths):
+            self._api_pending.append(response)
+
+    def _api_observations(self) -> list[dict[str, Any]]:
+        responses, self._api_pending = self._api_pending, []
+        out = []
+        for response in responses:
+            try:
+                body = response.json() if "json" in response.headers.get("content-type", "").lower() else response.text()
+                serialized = json.dumps(body, ensure_ascii=False, sort_keys=True) if not isinstance(body, str) else body
+            except (PWError, ValueError) as exc:
+                raise AssertionError(f"configured API response could not be read: {response.url}") from exc
+            out.append({"path": self._redact(urlsplit(response.url).path), "method": response.request.method,
+                        "status": response.status, "body": self._redact(serialized)})
+        return sorted(out, key=lambda item: (item["path"], item["method"], item["status"], item["body"]))
 
     # -- 프레임 ----------------------------------------------------------------
     def frames(self) -> list[Frame]:
@@ -66,10 +118,16 @@ class UI:
                 try:
                     if not f.frame_element().is_visible():
                         continue
-                except Exception:
+                except PWError:  # 그 사이 떨어져 나간 프레임
                     continue
             out.append(f)
         return out
+
+    def _track(self, r, started: bool) -> None:
+        if r.resource_type in ("websocket", "eventsource"):
+            return
+        key = f"{id(r)}"
+        (self._inflight.add if started else self._inflight.discard)(key)
 
     def locate(self, role: str, name: str, nth: int | None = None) -> Locator:
         """모든 프레임에서 (role, name)을 찾는다. 한 프레임에서만 나와야 한다. 같은 이름이 여럿이면 nth(0부터)로 고른다."""
@@ -83,18 +141,78 @@ class UI:
             if len(hits) > 1:
                 raise AssertionError(f'{role} "{name}" found in {len(hits)} frames')
             if time.monotonic() > deadline:
+                fb = self._text_fallback(role, name) if nth is None else None
+                if fb is not None:
+                    return fb
                 raise AssertionError(f'{role} "{name}" not found in any frame')
             self.page.wait_for_timeout(200)
 
+    CLICK_ROLES = ("button", "link", "tab", "menuitem")
+    FALLBACK_TAGS = ("DIV", "SPAN", "A", "TD", "TH", "LI", "I", "B", "U", "INPUT", "BUTTON")
+
+    def _text_fallback(self, role: str, name: str) -> Locator | None:
+        """역할로 못 찾은 누르는 요소를 글자로 한 번 더 찾는다: 옛 화면의 `div onclick`, `<a href="#">` 안의 `<span>` 같은 역할 없는 버튼.
+        보이는 것 중 글자가 정확히 같은 요소가 프레임을 통틀어 하나이고 태그가 누를 만한 것(제목·문단은 제외)일 때만 쓴다."""
+        if role not in self.CLICK_ROLES:
+            return None
+        hits = []
+        for f in self.frames():
+            loc = f.get_by_text(name, exact=True).locator("visible=true")
+            try:
+                n = loc.count()
+            except PWError:
+                continue
+            hits += [loc.nth(i) for i in range(n)]
+        if len(hits) != 1:
+            return None
+        try:
+            tag = hits[0].evaluate("e => e.tagName")
+        except PWError:
+            return None
+        return hits[0] if tag in self.FALLBACK_TAGS else None
+
     def snapshot_text(self) -> str:
+        """보이는 모든 프레임의 aria 스냅샷. 프레임 하나라도 못 읽으면 실패한다 (내용이 빠진 관찰값을 골든이나 비교에 쓰지 않는다)."""
         parts = []
         for f in self.frames():
-            body = f.locator("body")
             try:
+                body = f.locator("body")
                 parts.append((body if body.count() else f.locator(":root")).aria_snapshot(timeout=5000))
-            except Exception:
-                continue
+            except PWError as e:
+                raise RuntimeError(f"frame snapshot failed ({f.url or 'about:blank'}): {str(e).splitlines()[0]}") from e
         return "\n".join(parts)
+
+    def _try_snapshot(self) -> str | None:
+        """안정화 대기 중에는 프레임이 갈리는 순간이 있어 실패를 '아직 안 멈춤'으로 본다."""
+        try:
+            return self.snapshot_text()
+        except RuntimeError:
+            return None
+
+    def _settle(self) -> str:
+        """동작 뒤 화면이 멈출 때까지 기다려 그 스냅샷을 돌려준다.
+        멈춤 = 끝나지 않은 요청이 없고 스냅샷이 settle_ms 동안 그대로. 느린 조회(요청이 몇 초 걸림)는 끝날 때까지 기다린다 (상한 10×settle_ms, 최소 10초).
+        요청 없이 계속 바뀌는 화면(시계, 애니메이션)은 6×settle_ms(최소 3초)에서, 요청이 끝나지 않는 화면(폴링)은 위 상한에서 그 시점 것을 쓴다."""
+        try:
+            self.page.wait_for_load_state("load", timeout=15000)
+            for f in self.frames():
+                f.wait_for_load_state("load", timeout=15000)
+        except PWError:
+            pass
+        quiet = max(self.settle_ms, 100) / 1000
+        t0 = time.monotonic()
+        cap_changing, cap_requests = t0 + max(quiet * 6, 3.0), t0 + max(quiet * 10, 10.0)
+        last, since = self._try_snapshot(), t0
+        while True:
+            self.page.wait_for_timeout(min(150, quiet * 1000))
+            snap = self._try_snapshot()
+            now = time.monotonic()
+            if snap != last or snap is None:
+                last, since = snap, now
+            elif now - since >= quiet and not self._inflight:
+                return snap
+            if now > cap_requests or (now > cap_changing and not self._inflight):
+                return snap if snap is not None else self.snapshot_text()  # 끝까지 못 읽었으면 여기서 오류가 난다
 
     # -- 대화상자 ----------------------------------------------------------------
     def dialog(self, action: str = "accept", text: str | None = None) -> None:
@@ -110,33 +228,41 @@ class UI:
 
     # -- 동작 (직후 자동 관찰) ------------------------------------------------------
     def _after(self, kind: str, text: str) -> None:
-        try:
-            self.page.wait_for_load_state("load", timeout=15000)
-            for f in self.frames():
-                f.wait_for_load_state("load", timeout=15000)
-        except Exception:
-            pass
-        self.page.wait_for_timeout(self.settle_ms)
+        snapshot = self._settle()
+        if (self.record_dir or self.compare_dir) and _origin(self.page.url) != _origin(self.base_url):
+            raise AssertionError(f"page left the configured target: {self.page.url}")
         if self.record_dir or self._golden is not None:
-            obs = observation(index=self._step, kind=kind, text=text, url=self.page.url, title=self.page.title(),
-                              snapshot=self.snapshot_text(), dialogs=self._step_dialogs, opts=self.opts)
-            if self._shots is not None:  # 승인하는 사람이 보는 단계별 화면
+            snapshot = self._redact(snapshot)
+            text = self._redact(text)
+            safe_dialogs = [{**d, "message": self._redact(d["message"])} for d in self._step_dialogs]
+            obs = observation(index=self._step, kind=kind, text=text, url=self._redact(self.page.url), title=self._redact(self.page.title()),
+                              snapshot=snapshot, dialogs=safe_dialogs, opts=self.opts, api=self._api_observations())
+            if self._shots is not None and not (self._secret_values or self._redact_patterns):
                 name = f"{self._step:02d}.jpg"
                 try:
                     self.page.screenshot(path=str(self._shots / name), type="jpeg", quality=60)
                     obs["shot"] = f"shots/{self.shot_dir}/{name}"
-                except Exception:
+                except PWError:
                     pass
             self.observations.append(obs)
             if self._golden is not None:
                 g = next((o for o in self._golden if o["index"] == self._step), None)
                 diff = ["! no golden observation for this step"] if g is None else compare(g, obs, self.opts, self.name_map)
                 if diff:
-                    self.diffs.append((self._step, text, diff))
+                    digest = hashlib.sha256("\n".join(diff).encode()).hexdigest()
+                    allowed = next((rule for rule in self.allowed_differences
+                                    if rule.get("test") == self.test_id and rule.get("step") == self._step
+                                    and rule.get("sha256") == digest and str(rule.get("reason", "")).strip()), None)
+                    if allowed:
+                        self.accepted_diffs.append({"step": self._step, "sha256": digest, "reason": allowed["reason"]})
+                    else:
+                        self.diffs.append((self._step, text, [f"diff sha256: {digest}", *diff]))
         self._step += 1
         self._step_dialogs = []
 
     def goto(self, path: str) -> None:
+        if urlsplit(path).netloc and _origin(path) != _origin(self.base_url):
+            raise AssertionError(f"goto target is outside configured server: {path}")
         self.page.goto(urljoin(self.base_url.rstrip("/") + "/", path.lstrip("/")))
         self._after("goto", path)
 
@@ -145,11 +271,22 @@ class UI:
         self._after("click", f'{role} "{name}"')
 
     def fill(self, name: str, value: str, role: str = "textbox", nth: int | None = None) -> None:
-        self.locate(role, name, nth).fill(value)
+        loc = self.locate(role, name, nth)
+        if value and (name in self._secret_fields or re.search(r"password|passcode|secret|token|비밀번호|암호|인증번호", name, re.I)
+                      or loc.get_attribute("type") == "password"):
+            self._secret_values.add(value)
+        loc.fill(value)
         self._after("fill", f'{role} "{name}" = {value}')
 
+    def _redact(self, value: str) -> str:
+        for secret in self._secret_values:
+            value = value.replace(secret, "<redacted>")
+        for pattern in self._redact_patterns:
+            value = pattern.sub("<redacted>", value)
+        return value
+
     def act(self, role: str, name: str, nth: int | None = None) -> None:
-        """역할에 맞는 기본 동작: option은 부모 select에서 선택, checkbox/radio는 체크, 나머지는 클릭 (parity 러너와 같다)."""
+        """역할에 맞는 기본 동작: option은 부모 select에서 선택, checkbox/radio는 체크, 나머지는 클릭 (eastshift 러너와 같다)."""
         loc = self.locate(role, name, nth)
         if role == "option":
             sel = loc.locator("xpath=ancestor::select")
@@ -190,10 +327,11 @@ class UI:
             if ok:
                 return
             self.page.wait_for_timeout(200)
-        raise AssertionError(f"{what}: got {last!r}")
+        raise AssertionError(self._redact(f"{what}: got {last!r}"))
 
     def _assert(self, kind: str, target: str, value: str | None = None) -> None:
-        self.assertions.append({"step": self._step, "kind": kind, "target": target, "value": value})
+        self.assertions.append({"step": self._step, "kind": kind, "target": self._redact(target),
+                                "value": self._redact(value) if value is not None else None})
 
     def assertion_drift(self, passed: bool) -> list[str]:
         """비교 모드: 테스트의 기대값이 as-is 기록 이후 바뀌었는지. 실패한 테스트는 실행된 앞부분만 본다."""
@@ -208,6 +346,8 @@ class UI:
             out += [f"expectation added since as-is recording: {x['kind']} {x['target']!r} = {x['value']!r}" for x in a[len(g):]]
         if passed and len(a) < len(g):
             out += [f"expectation removed since as-is recording: {y['kind']} {y['target']!r} = {y['value']!r}" for y in g[len(a):]]
+        if passed and len(self.observations) != len(self._golden):
+            out.append(f"action count changed since as-is recording: {len(self._golden)} → {len(self.observations)}")
         return out
 
     def expect_field(self, name: str, value: str) -> None:
@@ -263,7 +403,7 @@ class UI:
             try:
                 if f.locator("body").count():
                     out.append(f.locator("body").inner_text(timeout=2000))
-            except Exception:
+            except PWError:
                 continue
         return out
 
@@ -280,14 +420,14 @@ class UI:
 
     def expect_snapshot(self, fragment: str) -> None:
         self._assert("snapshot", fragment)
-        self._poll(lambda: (fragment in self.snapshot_text(), None), f"snapshot contains {fragment!r}")
+        self._poll(lambda: (fragment in (self._try_snapshot() or ""), None), f"snapshot contains {fragment!r}")
 
     # -- 마무리 ---------------------------------------------------------------
     def screenshot(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         try:
             self.page.screenshot(path=str(path))
-        except Exception:
+        except PWError:
             pass
 
     def finish(self, passed: bool) -> None:
@@ -298,5 +438,5 @@ class UI:
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(self._shots), dest)
             (self.record_dir / f"{self.test_id}.json").write_text(
-                json.dumps({"test": self.test_id, "base_url": self.base_url, "recorded_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                json.dumps({"test": self.test_id, "base_url": self.base_url, "recorded_at": time.strftime("%Y-%m-%d %H:%M:%S"), "setup": self.setup,
                             "assertions": self.assertions, "steps": self.observations}, ensure_ascii=False, indent=1), encoding="utf-8")

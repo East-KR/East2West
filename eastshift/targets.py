@@ -1,6 +1,6 @@
 """스모크 대상 정하기: 화면마다 "조회 버튼"이 어느 버튼인지 작성 시점에 정해 화면 목록에 적는다 (실행 중 Jev 판단 없음).
 
-parity targets scenarios/<app>/screens.yaml --base-url <as-is> --out scenarios/<app>/screens.targets.yaml
+eastshift targets scenarios/<app>/screens.yaml --base-url <as-is> --out scenarios/<app>/screens.targets.yaml
 
 1. 화면을 열기만 한다 (아무것도 누르지 않는다). 보이는 버튼 이름을 모은다.
 2. 규칙: 이름이 흔한 조회 버튼 이름과 정확히 같은 버튼이 화면에 하나뿐이면 확정 (by: rule).
@@ -68,7 +68,7 @@ def build(rows: list[dict[str, Any]], *, base_url: str, names: list[str], storag
 
 
 def write(rows: list[dict[str, Any]], out: Path) -> None:
-    header = ("# parity targets가 만든 스모크 대상 목록.\n"
+    header = ("# eastshift targets가 만든 스모크 대상 목록.\n"
               "#   by: rule   이름 규칙으로 확정\n"
               "#   by: review 사람이나 Claude Code가 candidates에서 조회 버튼을 골라 QUERY를 채우고 by: picked로 바꾼다\n"
               "# QUERY가 빈 행은 스모크에서 '대상 없음'으로 실패한다 (다른 버튼으로 대신 누르지 않는다).\n")
@@ -78,9 +78,9 @@ def write(rows: list[dict[str, Any]], out: Path) -> None:
 
 
 def main(screens: Path, out: Path, base_url: str | None, names: list[str] | None, storage_state: Path | None) -> int:
-    base_url = base_url or os.environ.get("PARITY_BASE_URL")
+    base_url = base_url or os.environ.get("EASTSHIFT_BASE_URL")
     if not base_url:
-        raise SystemExit("--base-url (or PARITY_BASE_URL) is required")
+        raise SystemExit("--base-url (or EASTSHIFT_BASE_URL) is required")
     rows = yaml.safe_load(screens.read_text(encoding="utf-8")) or []
     result = build(rows, base_url=base_url, names=names or QUERY_NAMES, storage_state=storage_state)
     write(result, out)

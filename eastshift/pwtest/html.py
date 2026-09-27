@@ -1,5 +1,5 @@
-"""검증 결과 화면(write_report)과 다른 화면들이 같이 쓰는 조각: 페이지 틀(_page, CSS), 단계 요약(_action, _seen), 다른 점 표(rows_for), 캡처(_shot).
-파일 하나짜리 HTML, 서버 없이 브라우저로 연다. 승인 검토는 review.py, 골든 관리는 catalog.py, 화면 지도는 map.py (write_review는 review.py로 넘긴다).
+"""검증 보고서 화면(render_report)과 다른 화면들이 같이 쓰는 조각: 페이지 틀(_page, CSS), 단계 요약(_action, _seen), 다른 점 표(rows_for), 캡처(_shot).
+화면은 전부 통합 화면(eastshift ui, hub.py)이 요청 때 만들어 iframe 에 넣는다. 승인 검토는 review.py, 골든 관리는 catalog.py, 화면 지도는 map.py.
 
 원칙: 결론 먼저, 문장은 짧게, "무엇이 · 기준 · 실제"만. 원본 로그는 접어 둔다.
 디자인: 검수 서류. 차분한 청록 회색 바탕, 상태는 도장(stamp)과 점 표시, 값은 고정폭 숫자. 라이트/다크 모두.
@@ -12,10 +12,7 @@ import html as h
 import json
 import os
 import re
-import subprocess
-import sys
 import time
-import webbrowser
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -30,10 +27,6 @@ CSS = """
 :root{--bg:#F4F6F5;--surface:#FFFFFF;--sunk:#EDF1EF;--ink:#18211F;--muted:#5C6864;--faint:#8A9590;--line:#DCE2DF;
 --accent:#0E6B61;--accent-soft:#E0EFEB;--warn:#A85807;--warn-soft:#FBEEDB;--bad:#B3261E;--bad-soft:#FBE7E4;--ok:#1B7443;--ok-soft:#E1F1E7;
 --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1413;--surface:#161C1B;--sunk:#1D2524;--ink:#E3EAE7;--muted:#9AA6A1;--faint:#6D7975;
---line:#29322F;--accent:#5CC2B3;--accent-soft:#132E2A;--warn:#E9A553;--warn-soft:#30230F;--bad:#F2877D;--bad-soft:#381B18;--ok:#6BCB92;--ok-soft:#13301E;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0F1413;--surface:#161C1B;--sunk:#1D2524;--ink:#E3EAE7;--muted:#9AA6A1;--faint:#6D7975;
---line:#29322F;--accent:#5CC2B3;--accent-soft:#132E2A;--warn:#E9A553;--warn-soft:#30230F;--bad:#F2877D;--bad-soft:#381B18;--ok:#6BCB92;--ok-soft:#13301E;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
 main{max-width:1040px;margin:0 auto;padding-inline:clamp(16px,4vw,32px);padding-block:40px 140px;display:flex;flex-direction:column;gap:36px}
@@ -214,17 +207,6 @@ def _title(name: str, docs: dict[str, str]) -> str:
     return t + (f" · {param.rstrip(']')}" if param else "")
 
 
-def open_in_browser(path: Path) -> None:
-    uri = path.resolve().as_uri()
-    try:
-        if sys.platform == "darwin":
-            subprocess.run(["open", uri], check=False)
-        else:
-            webbrowser.open(uri)
-    except Exception:
-        pass
-
-
 # -- 승인 검토 ---------------------------------------------------------------------------
 ACTION = re.compile(r'^(\w+) "(.+?)"(?: = (.*))?$')
 
@@ -252,12 +234,6 @@ def _seen(line: str) -> str:
     if m:
         return f"{m.group(2)} {m.group(3)}" if m.group(3) else m.group(2)
     return line.removeprefix("text: ")
-
-
-def write_review(d: Path, *, tests_dir: Path | None = None, out: Path | None = None) -> Path:
-    """승인 검토 화면. 구현은 review.py (시나리오별 확인 → 터미널 승인)."""
-    from . import review
-    return review.write_review(d, tests_dir=tests_dir, out=out)
 
 
 # -- 검증 결과 ---------------------------------------------------------------------------
@@ -340,11 +316,22 @@ def _shot(name: str, junit: Path) -> str:
 
 
 def render_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trusted: bool, runs: list[dict[str, Any]],
-                  muts: list[dict[str, Any]], tests_dir: Path | None = None) -> str:
+                  muts: list[dict[str, Any]], tests_dir: Path | None = None, equivalent: bool = False, accepted_count: int = 0,
+                  coverage: list[dict[str, Any]] | None = None) -> str:
     docs = docstrings(tests_dir or Path("e2e") / oracle_dir.name)
+    coverage = coverage or []
+    verdict_panel = ("<section><div class='sh'><h2>판정</h2></div><div class='panel' style='padding:14px 18px'>"
+         f"<div>증거 유효성: <b>{'유효' if trusted else '확인 필요'}</b></div>"
+         f"<div>실행한 시나리오 동등성: <b>{'모두 같음' if equivalent else '승인된 차이 포함' if accepted_count and all(c['status'] == 'pass' for r in runs for c in r['cases']) else '차이 또는 실패 있음'}</b></div>"
+         f"<div>등록된 업무 범위: <b>{'모두 통과' if coverage and all(x['ok'] for x in coverage) else '미등록 또는 미완료'}</b></div></div></section>")
+    coverage_panel = ("<section><div class='sh'><h2>업무 검증 범위</h2><p>oracle.json에 등록한 경우</p></div><div class='panel'><ul class='checks'>"
+             + ("".join(f"<li><span class='dot {'ok' if x['ok'] else 'bad'}'></span><span>{_e(x['case'])}</span><span class='d'>{_e(', '.join(x['tests']))}</span></li>" for x in coverage)
+                if coverage else "<li>등록된 업무 경우가 없습니다.</li>") + "</ul></div></section>")
     B = []
     for r in runs:
         cases = r["cases"]
+        setup = cases[0].get("setup", {}) if cases else {}
+        build_ids = sorted({bid for c in cases for bid in c.get("build_ids", [])})
         fails = [c for c in cases if c["status"] == "fail"]
         target = r["props"].get("base_url") or Path(r["path"]).stem.removeprefix("junit-")
         if not trusted:
@@ -353,13 +340,19 @@ def render_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trus
         elif fails:
             stamp = ("bad", f"차이 {len(fails)}건", f"{len(cases)}개 중 {len(cases) - len(fails)}개 동일")
             lede = "to-be가 as-is와 다르게 동작한 곳입니다. 결함이면 수정 요청, 의도한 변경이면 기준 변경을 결정하세요."
+        elif any(c.get("accepted_differences") for c in cases):
+            stamp = ("warn", "승인된 차이", f"{len(cases)}개 시나리오")
+            lede = "승인한 차이가 포함되어 있습니다. 아래 사유와 범위를 확인하세요."
         else:
             stamp = ("ok", "동일", f"{len(cases)}개 모두 같음")
             lede = "to-be가 as-is와 같게 동작합니다."
         B.append(f"<header class='head'><div class='eyebrow'>검증 결과</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
                  f"<h1>{_e(oracle_dir.name)}</h1><p class='lede'>{lede}</p>"
                  f"<div class='prov'><span><b>비교 대상</b> {_e(target)}</span><span><b>생성</b> {time.strftime('%Y-%m-%d %H:%M')}</span>"
-                 f"<span><b>기준 폴더</b> {_e(oracle_dir)}</span></div></header>")
+                 f"<span><b>기준 폴더</b> {_e(oracle_dir)}</span><span><b>실행 조건</b> {_e(json.dumps(setup, ensure_ascii=False, sort_keys=True))}</span>"
+                 f"<span><b>배포 ID</b> {_e(', '.join(build_ids) or '헤더 없음')}</span></div></header>")
+        if len(B) == 1:
+            B.extend((verdict_panel, coverage_panel))
         if fails:
             cards = []
             for c in fails:
@@ -373,11 +366,18 @@ def render_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trus
                              + _shot(c["name"], Path(r["path"]))
                              + f"<details class='more'><summary>원본 로그</summary><pre>{_e(chr(10).join(c['messages']))}</pre></details></div>")
             B.append("<section><div class='sh'><h2>다른 점</h2><p>무엇이 · as-is 기준 · to-be</p></div>" + "".join(cards) + "</section>")
-        same = [c for c in cases if c["status"] == "pass"]
+        same = [c for c in cases if c["status"] == "pass" and not c.get("accepted_differences")]
         if same:
             B.append("<section><div class='sh'><h2>같은 동작</h2></div><div class='panel same'>"
                      + "".join(f"<span>{_e(_title(c['name'], docs))}</span>" for c in same) + "</div></section>")
+        accepted = [(c["name"], item) for c in cases for item in c.get("accepted_differences", [])]
+        if accepted:
+            B.append("<section><div class='sh'><h2>승인된 차이</h2></div><div class='panel same'>"
+                     + "".join(f"<div>{_e(name)} · {item['step']}단계 · {_e(item['reason'])}</div>" for name, item in accepted)
+                     + "</div></section>")
 
+    if not runs:
+        B.extend((verdict_panel, coverage_panel))
     B.append("<section><div class='sh'><h2>믿을 수 있는가</h2><p>산출물에서 자동으로 확인한 항목</p></div><div class='panel'><ul class='checks'>"
              + "".join(f"<li><span class='dot {'ok' if ok else 'bad'}'></span><span>{_e(name)}</span><span class='d'>{_e(detail)}</span></li>"
                        for name, ok, detail in checks) + "</ul></div></section>")
@@ -385,9 +385,13 @@ def render_report(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trus
         if m["mode"] != "expects+golden":
             continue
         surv = [x for x in m["mutants"] if not x["killed"]]
+        core_total = sum(v["total"] for op, v in m.get("by_op", {}).items() if op != "label")
+        core_killed = sum(v["killed"] for op, v in m.get("by_op", {}).items() if op != "label")
+        score = m.get("score") or 0
         B.append(f"<section><div class='sh'><h2>테스트가 결함을 잡는 능력</h2><p>일부러 넣은 결함을 몇 개나 잡았는지</p></div>"
-                 f"<div class='panel meter'><span class='n'>{m['score']:.0%}</span> <span class='tid'>{m['killed']} / {m['total']}</span>"
-                 f"<div class='bar'><i style='width:{m['score'] * 100:.0f}%'></i></div>"
+                 f"<div class='panel meter'><span class='n'>{score:.0%}</span> <span class='tid'>{m['killed']} / {m['total']}</span>"
+                 f"<div class='bar'><i style='width:{score * 100:.0f}%'></i></div>"
+                 f"<div class='tid'>라벨 변경 제외: {core_killed}/{core_total} 탐지 · 생성한 결함에 대한 비율</div>"
                  + "".join(f"<div class='tid' style='margin-top:8px'>못 잡음 · {_e(x['path'])} · {_e(x['desc'][:90])}</div>" for x in surv[:5])
                  + "</div></section>")
     return _page(f"{oracle_dir.name} 검증 결과", "".join(B))

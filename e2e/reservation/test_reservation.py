@@ -1,8 +1,8 @@
-"""parity crawl이 만든 테스트. 현재 동작의 기록이다. 검토하고 업무상 중요한 값(금액 등) 확인을 더한 뒤 e2e/<app>/로 옮겨 쓴다.
+"""eastshift crawl이 만든 테스트. 현재 동작의 기록이다. 검토하고 업무상 중요한 값(금액 등) 확인을 더한 뒤 e2e/<app>/로 옮겨 쓴다.
 
 시작: http://127.0.0.1:8787/login
 """
-from parity.runner import _expand
+from eastshift.runner import _expand
 
 
 def test_reservation_01(ui):

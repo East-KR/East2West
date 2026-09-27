@@ -2,9 +2,9 @@
 
 막는 것
 - Edit/Write/MultiEdit/NotebookEdit 로 golden/ 아래 파일을 쓰는 것
-- Bash 로 `parity approve` 를 실행하거나 APPROVED.json 을 건드리는 것
+- Bash 로 APPROVED.json 을 쓰는 것 (읽기는 된다). 승인은 사람이 eastshift ui 의 승인 검토 탭에서만 한다 (터미널 승인 명령은 없다. 옛 `eastshift approve` 호출도 계속 막는다).
 - Bash 로 golden/ 아래를 지우거나 옮기거나 덮어쓰는 것 (rm, mv, cp, sed -i, tee, >, truncate …)
-허용하는 것: 읽기, `pytest … --record/--compare golden/…`, `parity mutate/report/oracle-status`.
+허용하는 것: 읽기, `pytest … --record/--compare golden/…`, `eastshift mutate/report/oracle-status`.
 --record 로 기록하면 해시가 바뀌어 사람이 다시 승인해야 비교가 돈다 (APPROVED.json이 진짜 안전장치, 이 hook은 앞단 차단).
 차단 시 exit 2 + stderr: Claude Code가 도구 호출을 막고 이유를 에이전트에게 보여 준다.
 """
@@ -13,8 +13,8 @@ import re
 import sys
 
 REASON = ("golden/ is the approved oracle: agents do not edit it or approve it. "
-          "Propose the change to the user (what and why); a person edits oracle.json / name maps and runs "
-          "`uv run parity approve golden/<app> --by <name>` in a terminal.")
+          "Propose the change to the user (what and why); a person edits oracle.json / name maps and approves "
+          "in `uv run eastshift ui` (승인 검토 tab), started in their own terminal.")
 ALLOWED_FLAGS = re.compile(r"--(?:record|compare|oracle|name-map)[ =]\S*golden/\S*")
 PY_WRITE = re.compile(r"\b(?:write_text|write_bytes|open\(|json\.dump\b|shutil\.|os\.(?:remove|unlink|rename|replace|rmdir)|\.unlink\(|\.rename\(|\.replace\(|rmtree|\.touch\(|\.mkdir\()")
 WRITE_VERBS = re.compile(r"(^|[\s;&|(])(rm|mv|cp|tee|truncate|ln|chmod|sed\s+-i|perl\s+-[pi]|dd)\b"  # golden/ 인자가 있는 쓰기 명령
@@ -38,15 +38,18 @@ def main() -> None:
         cmd = inp.get("command", "")
         # 명령으로 실행하는 경우만 (명령 줄 맨 앞, 또는 ; && || | 뒤). 문서·코드 편집 안의 문구는 막지 않는다.
         # 파이썬에서 approve()를 직접 부르는 경로는 approve() 자신의 터미널(TTY) 검사가 막는다.
-        if re.search(r"(^|[;&|]\s*|\n\s*)(uv\s+run\s+)?(parity|python3?\s+-m\s+parity\.cli)\s+approve\b", cmd) \
-                or re.search(r"\S*APPROVED\.json", cmd) or re.search(r"/approve\b", cmd):  # parity ui 의 웹 승인 주소도 부르지 않는다
-            block("approving or touching APPROVED.json")
+        if re.search(r"(^|[;&|]\s*|\n\s*)(uv\s+run\s+)?(eastshift|python3?\s+-m\s+eastshift\.cli)\s+approve\b", cmd):
+            block("approving with CLI")
+        # APPROVED.json 은 읽기(cat, head, grep, jq …)는 되고, 쓰기 명령·리다이렉트·파이썬 쓰기 API와 함께 나오면 막는다
+        if "APPROVED.json" in cmd and (WRITE_VERBS.search(cmd) or PY_WRITE.search(cmd)
+                                       or re.search(r"(?<![<\w-])>>?\s*['\"]?\S*APPROVED\.json", cmd)):
+            block("touching APPROVED.json")
         rest = ALLOWED_FLAGS.sub("", cmd)
         if "golden/" in rest and WRITE_VERBS.search(rest):
             block("shell command that writes into golden/")
         # 인라인 파이썬(heredoc, -c)이 golden/을 언급하면서 파일 쓰기 API를 쓰면 막는다. 변수로 경로를 돌려도 API 이름은 남는다.
         if "golden/" in rest and re.search(r"\bpython[0-9.]*\b", rest) and PY_WRITE.search(rest):
-            block("inline python that names golden/ and writes files (read it with parity oracle-status / review)")
+            block("inline python that names golden/ and writes files (read it with eastshift oracle-status / review)")
 
 
 if __name__ == "__main__":

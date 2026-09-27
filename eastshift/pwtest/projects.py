@@ -1,8 +1,8 @@
-"""프로젝트 등록부 (parity.json): 비교할 앱 하나 = as-is와 to-be의 소스 위치·실행 주소, 그리고 그 이름으로 묶이는 산출물(e2e/<app>, golden/<app>, runs/<app>).
+"""프로젝트 등록부 (eastshift.json): 비교할 앱 하나 = as-is와 to-be의 소스 위치·실행 주소, 그리고 그 이름으로 묶이는 산출물(e2e/<app>, golden/<app>, runs/<app>).
 
 통합 화면의 첫 화면이 이 목록이다. 등록부에 없어도 golden/<app> 이나 e2e/<app> 이 있으면 목록에 나오고(경로 미설정), 화면에서 채울 수 있다.
 
-파일 형식 (작업 디렉터리의 parity.json):
+파일 형식 (작업 디렉터리의 eastshift.json):
   {"projects": {"portal": {"asis": {"src": "demo-app", "url": "http://127.0.0.1:8820"},
                            "tobe": {"src": "demo-app", "url": "http://127.0.0.1:8821"},
                            "note": "...", "created_at": "2026-09-25T23:10:00"}}}
@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-FILE = Path("parity.json")
+FILE = Path("eastshift.json")
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,39}$")
 SIDES = ("asis", "tobe")
 

@@ -1,4 +1,4 @@
-# parity targets가 만든 스모크 대상 목록.
+# eastshift targets가 만든 스모크 대상 목록.
 #   by: rule   이름 규칙으로 확정
 #   by: review 사람이나 Claude Code가 candidates에서 조회 버튼을 골라 QUERY를 채우고 by: picked로 바꾼다
 # QUERY가 빈 행은 스모크에서 '대상 없음'으로 실패한다 (다른 버튼으로 대신 누르지 않는다).

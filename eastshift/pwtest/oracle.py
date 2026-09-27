@@ -5,16 +5,15 @@ golden/<app>/
   oracle.json            {"ignore": [정규식…], "equivalent_mutants": [{path, op, context, reason}…]}
                          비교 전 마스킹 규칙 (주문번호, 날짜 등), 결함 주입에서 관찰 가능한 차이가 없다고 사람이 판정한 결함
   name_map.<target>.json {"as-is 이름": "to-be 이름"}  의도된 라벨 변경
-  APPROVED.json          위 파일들의 sha256, 승인자, 시각. `parity approve`로만 만든다 (터미널 필요)
+  APPROVED.json          위 파일들의 sha256, 승인자, 시각. 통합 화면(eastshift ui)의 승인 검토 탭에서 사람이 만든다
 
-에이전트는 기록(--record)까지 할 수 있지만, 기록하면 해시가 바뀌어 사람이 다시 승인해야 비교가 돈다.
+기록(--record) 뒤 파일 해시가 바뀌면 웹에서 다시 승인해야 비교가 돈다.
 """
 from __future__ import annotations
 
 import hashlib
 import json
 import re
-import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -38,13 +37,14 @@ def status(d: Path) -> dict[str, Any]:
     """승인 상태. ok=False면 problems에 이유."""
     m = d / MANIFEST
     if not m.exists():
-        return {"ok": False, "problems": [f"{d} has never been approved (run `parity approve {d}` in a terminal)"]}
+        return {"ok": False, "problems": [f"{d} has never been approved (a person approves in `eastshift ui`, 승인 검토 tab)"]}
     man = json.loads(m.read_text(encoding="utf-8"))
     now, then = oracle_files(d), man["files"]
     problems = [f"changed since approval: {n}" for n in sorted(now) if n in then and now[n] != then[n]]
     problems += [f"added since approval: {n}" for n in sorted(set(now) - set(then))]
     problems += [f"removed since approval: {n}" for n in sorted(set(then) - set(now))]
     return {"ok": not problems, "problems": problems, "approved_by": man.get("approved_by"), "approved_at": man.get("approved_at"),
+            "approval_id": hashlib.sha256(m.read_bytes()).hexdigest(),
             "note": man.get("note", "")}
 
 
@@ -54,7 +54,7 @@ def _golden_files(d: Path) -> list[Path]:
 
 def mask_hits(d: Path) -> list[dict[str, Any]]:
     """ignore 규칙마다 골든에서 실제로 가린 문자열과 횟수. 넓은 규칙이 금액 같은 진짜 값을 가리는지 사람이 본다."""
-    from parity.observe import flatten
+    from eastshift.observe import flatten
     out = []
     for rule in load_config(d).get("ignore", []):
         rx = re.compile(rule)
@@ -107,8 +107,14 @@ def fingerprint(d: Path) -> str:
     return hashlib.sha256(json.dumps(sorted(oracle_files(d).items())).encode()).hexdigest()[:12]
 
 
+def approval_id(d: Path) -> str | None:
+    """Exact approved manifest content used by a run, independent of its timestamp."""
+    p = d / MANIFEST
+    return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None
+
+
 def stamp(d: Path, by: str, note: str, reviewed: dict[str, str]) -> dict[str, Any]:
-    """승인 도장: 검토한 파일 해시와 확인한 기대값을 APPROVED.json에 쓴다. 호출자가 '사람이 검토했다'를 보장한다 (approve, approve_from_review)."""
+    """승인 도장: 검토한 파일 해시와 확인한 기대값을 APPROVED.json에 쓴다."""
     rec = {"approved_by": by, "approved_at": time.strftime("%Y-%m-%d %H:%M:%S"), "note": note,
            "files": reviewed, "assertions": {t["name"]: t["assertions"] for t in tests(d)}}
     (d / MANIFEST).write_text(json.dumps(rec, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -116,7 +122,7 @@ def stamp(d: Path, by: str, note: str, reviewed: dict[str, str]) -> dict[str, An
 
 
 def approve_from_review(d: Path, by: str, note: str, reviewed_fingerprint: str) -> dict[str, Any]:
-    """웹 승인 (parity ui). 사람이 터미널에서 띄운 서버가 일회용 코드를 확인한 뒤에만 부른다.
+    """웹 승인 (eastshift ui). 검토 화면에서 이름을 입력하고 승인할 때 부른다.
     검토 화면을 만들 때의 지문과 지금 지문이 다르면 (검토 중 기준이 바뀜) 승인하지 않는다."""
     by = by.strip()
     if not by:
@@ -124,27 +130,3 @@ def approve_from_review(d: Path, by: str, note: str, reviewed_fingerprint: str) 
     if fingerprint(d) != reviewed_fingerprint:
         raise ValueError("검토하는 동안 기준 파일이 바뀌었습니다. 검토 화면을 새로 열어 바뀐 내용을 다시 보세요")
     return stamp(d, by, note, oracle_files(d))
-
-
-def approve(d: Path, by: str, note: str = "", tests_dir: Path | None = None) -> None:
-    if not sys.stdin.isatty():
-        sys.exit("approve needs an interactive terminal: a person reviews and types the confirmation (agents cannot approve).")
-    from . import html
-    reviewed = oracle_files(d)  # 사람이 화면에서 보는 상태. 확인 입력 뒤에 다시 재서 그 사이에 바뀌었으면 승인하지 않는다
-    page = html.write_review(d, tests_dir=tests_dir)
-    st = status(d)
-    ts = tests(d)
-    print(f"\n기준 승인: {d}")
-    print(f"  테스트 {len(ts)}개 · 기대값 {sum(len(t['assertions']) for t in ts)}개 · 가림 규칙 {len(load_config(d).get('ignore', []))}개"
-          f" · 이름 매핑 {sum(len(m) for m in name_maps(d).values())}개 · 동등 결함 {len(load_config(d).get('equivalent_mutants', []))}개")
-    if (d / MANIFEST).exists():
-        print("  지난 승인 이후 변경: " + (", ".join(p.split(": ", 1)[-1] for p in st["problems"]) or "없음"))
-    print(f"\n  검토 화면: {page.resolve().as_uri()}")
-    html.open_in_browser(page)
-    answer = input(f"\n브라우저에서 검토했으면, 승인하려면 '{d.name}'을(를) 입력하세요: ")
-    if answer.strip() != d.name:
-        sys.exit("승인하지 않았습니다")
-    if oracle_files(d) != reviewed:
-        sys.exit("검토하는 동안 기준 파일이 바뀌었습니다. 승인하지 않았습니다. 다시 실행해서 바뀐 내용을 검토하세요.")
-    rec = stamp(d, by, note, reviewed)
-    print(f"승인됨: {by} · {rec['approved_at']}")

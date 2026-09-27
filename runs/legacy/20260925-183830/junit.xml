@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="3" skipped="0" tests="9" time="20.637" timestamp="2026-09-25T18:38:09.676829+09:00" hostname="85348.local"><properties><property name="base_url" value="http://127.0.0.1:8803" /><property name="oracle_approved" value="true" /><property name="oracle_approved_by" value="east" /><property name="oracle_approved_at" value="2026-09-24 18:10:42" /></properties><testcase classname="e2e.legacy.test_orders" name="test_order_save" time="8.000"><failure message="AssertionError: field &quot;부가세&quot; == '120': got '124'">ui = &lt;parity.pwtest.ui.UI object at 0x10733ddf0&gt;
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="3" skipped="0" tests="9" time="20.637" timestamp="2026-09-25T18:38:09.676829+09:00" hostname="85348.local"><properties><property name="base_url" value="http://127.0.0.1:8803" /><property name="oracle_approved" value="true" /><property name="oracle_approved_by" value="east" /><property name="oracle_approved_at" value="2026-09-24 18:10:42" /></properties><testcase classname="e2e.legacy.test_orders" name="test_order_save" time="8.000"><failure message="AssertionError: field &quot;부가세&quot; == '120': got '124'">ui = &lt;eastshift.pwtest.ui.UI object at 0x10733ddf0&gt;
 
     def test_order_save(ui):
         """볼펜 1개 계산 후 저장 (부가세 10원 절사 동작 보존)"""
@@ -11,11 +11,11 @@
 
 ../jev-e2e/e2e/legacy/test_orders.py:16: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-parity/pwtest/ui.py:232: in expect_field
+eastshift/pwtest/ui.py:232: in expect_field
     self._poll(lambda: (lambda v: (v == value, v))(current()), f'field "{name}" == {value!r}')
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;parity.pwtest.ui.UI object at 0x10733ddf0&gt;
+self = &lt;eastshift.pwtest.ui.UI object at 0x10733ddf0&gt;
 check = &lt;function UI.expect_field.&lt;locals&gt;.&lt;lambda&gt; at 0x1075b3a60&gt;
 what = 'field "부가세" == \'120\''
 
@@ -30,7 +30,7 @@ what = 'field "부가세" == \'120\''
 &gt;       raise AssertionError(f"{what}: got {last!r}")
 E       AssertionError: field "부가세" == '120': got '124'
 
-parity/pwtest/ui.py:193: AssertionError</failure></testcase><testcase classname="e2e.legacy.test_orders" name="test_order_save" time="0.025"><error message="failed on teardown with &quot;Failed: step 4 button &quot;계산&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -10,5 +10,5 @@&#10;     text: 부가세&#10;    -textbox &quot;부가세&quot;: 120&#10;    +textbox &quot;부가세&quot;: 124&#10;     text: 합계&#10;    -textbox &quot;합계&quot;: 1,355&#10;    +textbox &quot;합계&quot;: 1,359&#10;     button &quot;계산&quot;&quot;">step 4 button "계산": differs from golden
+eastshift/pwtest/ui.py:193: AssertionError</failure></testcase><testcase classname="e2e.legacy.test_orders" name="test_order_save" time="0.025"><error message="failed on teardown with &quot;Failed: step 4 button &quot;계산&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -10,5 +10,5 @@&#10;     text: 부가세&#10;    -textbox &quot;부가세&quot;: 120&#10;    +textbox &quot;부가세&quot;: 124&#10;     text: 합계&#10;    -textbox &quot;합계&quot;: 1,355&#10;    +textbox &quot;합계&quot;: 1,359&#10;     button &quot;계산&quot;&quot;">step 4 button "계산": differs from golden
     --- as-is(golden)
     +++ actual
     @@ -10,5 +10,5 @@
@@ -40,7 +40,7 @@ parity/pwtest/ui.py:193: AssertionError</failure></testcase><testcase classname=
      text: 합계
     -textbox "합계": 1,355
     +textbox "합계": 1,359
-     button "계산"</error></testcase><testcase classname="e2e.legacy.test_orders" name="test_qty_required_alert" time="2.176"><failure message="AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '수량을 입력하세요.'">ui = &lt;parity.pwtest.ui.UI object at 0x1072bce30&gt;
+     button "계산"</error></testcase><testcase classname="e2e.legacy.test_orders" name="test_qty_required_alert" time="2.176"><failure message="AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '수량을 입력하세요.'">ui = &lt;eastshift.pwtest.ui.UI object at 0x1072bce30&gt;
 
     def test_qty_required_alert(ui):
         """수량 없이 저장하면 alert, 저장 안 됨"""
@@ -52,7 +52,7 @@ parity/pwtest/ui.py:193: AssertionError</failure></testcase><testcase classname=
 ../jev-e2e/e2e/legacy/test_orders.py:29: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;parity.pwtest.ui.UI object at 0x1072bce30&gt;, message = '수량을 입력하세요.'
+self = &lt;eastshift.pwtest.ui.UI object at 0x1072bce30&gt;, message = '수량을 입력하세요.'
 
     def expect_dialog(self, message: str) -&gt; None:
         """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다). 평범한 assert는 -O에서 사라지므로 쓰지 않는다."""
@@ -62,8 +62,8 @@ self = &lt;parity.pwtest.ui.UI object at 0x1072bce30&gt;, message = '수량을 �
 &gt;           raise AssertionError(f"last dialog {last!r} != {message!r}")
 E           AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '수량을 입력하세요.'
 
-parity/pwtest/ui.py:244: AssertionError</failure></testcase><testcase classname="e2e.legacy.test_orders" name="test_qty_required_alert" time="0.019"><error message="failed on teardown with &quot;Failed: step 3 button &quot;저장&quot;: differs from golden&#10;    dialogs: ['alert: 수량을 입력하세요.'] → ['alert: 수량은 1 이상이어야 합니다.']&quot;">step 3 button "저장": differs from golden
-    dialogs: ['alert: 수량을 입력하세요.'] → ['alert: 수량은 1 이상이어야 합니다.']</error></testcase><testcase classname="e2e.legacy.test_orders" name="test_save_cancel" time="2.731" /><testcase classname="e2e.legacy.test_orders" name="test_qty_zero_saved" time="2.176"><failure message="AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '저장하시겠습니까?'">ui = &lt;parity.pwtest.ui.UI object at 0x10767b320&gt;
+eastshift/pwtest/ui.py:244: AssertionError</failure></testcase><testcase classname="e2e.legacy.test_orders" name="test_qty_required_alert" time="0.019"><error message="failed on teardown with &quot;Failed: step 3 button &quot;저장&quot;: differs from golden&#10;    dialogs: ['alert: 수량을 입력하세요.'] → ['alert: 수량은 1 이상이어야 합니다.']&quot;">step 3 button "저장": differs from golden
+    dialogs: ['alert: 수량을 입력하세요.'] → ['alert: 수량은 1 이상이어야 합니다.']</error></testcase><testcase classname="e2e.legacy.test_orders" name="test_save_cancel" time="2.731" /><testcase classname="e2e.legacy.test_orders" name="test_qty_zero_saved" time="2.176"><failure message="AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '저장하시겠습니까?'">ui = &lt;eastshift.pwtest.ui.UI object at 0x10767b320&gt;
 
     def test_qty_zero_saved(ui):
         """수량 0은 막지 않고 합계 0원으로 저장된다 (as-is 버그 보존)"""
@@ -75,7 +75,7 @@ parity/pwtest/ui.py:244: AssertionError</failure></testcase><testcase classname=
 ../jev-e2e/e2e/legacy/test_orders.py:50: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;parity.pwtest.ui.UI object at 0x10767b320&gt;, message = '저장하시겠습니까?'
+self = &lt;eastshift.pwtest.ui.UI object at 0x10767b320&gt;, message = '저장하시겠습니까?'
 
     def expect_dialog(self, message: str) -&gt; None:
         """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다). 평범한 assert는 -O에서 사라지므로 쓰지 않는다."""
@@ -85,7 +85,7 @@ self = &lt;parity.pwtest.ui.UI object at 0x10767b320&gt;, message = '저장하�
 &gt;           raise AssertionError(f"last dialog {last!r} != {message!r}")
 E           AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '저장하시겠습니까?'
 
-parity/pwtest/ui.py:244: AssertionError</failure></testcase><testcase classname="e2e.legacy.test_orders" name="test_qty_zero_saved" time="0.024"><error message="failed on teardown with &quot;Failed: step 3 button &quot;저장&quot;: differs from golden&#10;    dialogs: ['confirm: 저장하시겠습니까?'] → ['alert: 수량은 1 이상이어야 합니다.']&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -2,3 +2,14 @@&#10;     link &quot;주문 조회&quot;&#10;    -text: 주문이 저장되었습니다. &lt;masked&gt;&#10;    -text: 노트북 0개, 공급가액 0원, 부가세 0원, 합계 0원&#10;    +text: 주문 등록&#10;    +text: 품목&#10;    +combobox &quot;품목&quot;: 노트북&#10;    +text: 수량&#10;    +textbox &quot;수량&quot;: 0&quot;">step 3 button "저장": differs from golden
+eastshift/pwtest/ui.py:244: AssertionError</failure></testcase><testcase classname="e2e.legacy.test_orders" name="test_qty_zero_saved" time="0.024"><error message="failed on teardown with &quot;Failed: step 3 button &quot;저장&quot;: differs from golden&#10;    dialogs: ['confirm: 저장하시겠습니까?'] → ['alert: 수량은 1 이상이어야 합니다.']&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -2,3 +2,14 @@&#10;     link &quot;주문 조회&quot;&#10;    -text: 주문이 저장되었습니다. &lt;masked&gt;&#10;    -text: 노트북 0개, 공급가액 0원, 부가세 0원, 합계 0원&#10;    +text: 주문 등록&#10;    +text: 품목&#10;    +combobox &quot;품목&quot;: 노트북&#10;    +text: 수량&#10;    +textbox &quot;수량&quot;: 0&quot;">step 3 button "저장": differs from golden
     dialogs: ['confirm: 저장하시겠습니까?'] → ['alert: 수량은 1 이상이어야 합니다.']
     --- as-is(golden)
     +++ actual

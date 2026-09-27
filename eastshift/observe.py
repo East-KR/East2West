@@ -117,12 +117,13 @@ def relative_url(url: str) -> str:
 
 
 def observation(*, index: int, kind: str, text: str, url: str, title: str, snapshot: str, dialogs: list[dict[str, Any]],
-                opts: CompareOptions) -> dict[str, Any]:
+                opts: CompareOptions, api: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     # snapshot 원문도 저장한다: 정규화 규칙이나 ignore를 바꿔도 as-is를 다시 기록하지 않고 비교할 수 있게.
     return {"index": index, "kind": kind, "text": text,
             "url": relative_url(url), "title": title,
             "content": mask(flatten(snapshot, keep_urls=opts.url), opts.ignore), "snapshot": snapshot,
-            "dialogs": [{"type": d["type"], "message": mask([d["message"]], opts.ignore)[0], "action": d["action"]} for d in dialogs]}
+            "dialogs": [{"type": d["type"], "message": mask([d["message"]], opts.ignore)[0], "action": d["action"]} for d in dialogs],
+            "api": api or []}
 
 
 def rename(lines: list[str], name_map: dict[str, str]) -> list[str]:
@@ -153,6 +154,8 @@ def compare(golden: dict[str, Any], actual: dict[str, Any], opts: CompareOptions
     ad = [f"{d['type']}: {d['message']}" for d in actual["dialogs"]]
     if gd != ad:
         out.append(f"dialogs: {gd} → {ad}")
+    if golden.get("api", []) != actual.get("api", []):
+        out.append(f"api responses: {golden.get('api', [])!r} → {actual.get('api', [])!r}")
     # 양쪽 모두 원문에서 현재 규칙으로 다시 정규화한다 (원문이 없는 옛 골든은 저장된 content 사용)
     gc = rename(mask(flatten(golden["snapshot"], keep_urls=opts.url) if "snapshot" in golden else golden["content"], opts.ignore), name_map or {})
     ac = mask(flatten(actual["snapshot"], keep_urls=opts.url), opts.ignore)

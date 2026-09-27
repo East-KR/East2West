@@ -1,7 +1,7 @@
 """실행 원장 오프라인 테스트: 기록·이력·지난 실행 대비 변화·상태 문구."""
 from pathlib import Path
 
-from parity.pwtest import ledger
+from eastshift.pwtest import ledger
 
 
 def _cases(**status):

@@ -1,6 +1,6 @@
-"""화면 지도: 골든에 기록된 as-is 동작을 라우트(주소) 단위로 합쳐 네트워크로 그린다. 파일 하나짜리 HTML.
+"""화면 지도 (eastshift ui 의 첫 탭): 골든에 기록된 as-is 동작을 라우트(주소) 단위로 합쳐 네트워크로 그린다.
 
-parity map golden/<app> [--junit reports/junit-<target>.xml] --out reports/map-<app>.html
+hub.py 가 /page/<app>/map 요청에 만든다: src=compare 는 render(build(golden, junit, …)), src=asis|tobe 는 render(build_from_crawl(…)).
 
 두 층
   라우트  주소가 같은 화면 (/orders, /orders/{id} …). 지도의 노드. 홈(/)이 있으면 홈이 시작이고 맨 왼쪽.
@@ -40,8 +40,8 @@ DRAWER = re.compile(r'^\s*-\s+complementary\s+"(?P<name>(?:\\.|[^"\\])*)"')
 TAB_SEL = re.compile(r'^\s*-\s+tab\s+"(?P<name>(?:\\.|[^"\\])*)"\s+\[selected\]')
 KIND_KO = {"base": "기본", "dialog": "팝업", "drawer": "드로워", "tab": "탭", "alert": "알림"}
 # 비교 지도의 화면 상태: 다름(빨강) · 미개발(노랑, as-is에는 있는데 to-be 탐색에 없음) · 새 화면(파랑, to-be 탐색에만 있음) · 같음(초록) · 비교 안 됨
-STATUS_KO = {"diff": "as-is와 다름", "undeveloped": "미개발", "new": "새 화면", "same": "as-is와 같음", "untested": "비교 안 됨"}
-STATUS_CLS = {"diff": "bad", "undeveloped": "undev", "new": "new", "same": "ok", "untested": ""}
+STATUS_KO = {"diff": "as-is와 다름", "undeveloped": "to-be 탐색에서 미발견", "new": "to-be에서만 발견", "accepted": "승인된 차이", "same": "as-is와 같음", "untested": "비교 안 됨"}
+STATUS_CLS = {"diff": "bad", "undeveloped": "undev", "new": "new", "accepted": "accepted", "same": "ok", "untested": ""}
 
 
 def _screen_sig(snapshot: str) -> str:
@@ -246,7 +246,7 @@ def build(d: Path, junit: Path | None = None, tests_dir: Path | None = None, asi
 
 
 def build_from_crawl(app: str, out_dir: Path, side: str = "asis") -> dict[str, Any]:
-    """탐색 기반: parity crawl 이 찾은 화면을 잇는다 (as-is 또는 to-be 한쪽만, 비교 없음)."""
+    """탐색 기반: eastshift crawl 이 찾은 화면을 잇는다 (as-is 또는 to-be 한쪽만, 비교 없음)."""
     label = {"asis": "as-is 탐색", "tobe": "to-be 탐색"}.get(side, f"{side} 탐색")
     g = _build(app, _records_from_crawl(out_dir), None, {"kind": "crawl", "side": side, "label": label, "base": str(out_dir), "unit": "경로"})
     _annotate(g, None, set())
@@ -265,7 +265,7 @@ def _annotate(g: dict[str, Any], tobe_routes: dict[str, dict[str, Any]] | None, 
             asis_shot = r["shot"]
             tobe_shot = tobe_routes[p]["shot"] if tobe_routes and p in tobe_routes else ""
             # 미개발이 다름보다 먼저: to-be에 아직 없는 화면은 비교 실행에서도 실패하지만, 원인은 '미개발'이다
-            status = ("undeveloped" if tobe_routes is not None and p not in tobe_routes else "diff" if r["failed"] else "same" if tested else "untested")
+            status = ("undeveloped" if tobe_routes is not None and p not in tobe_routes else "diff" if r["failed"] else "accepted" if r.get("accepted") else "same" if tested else "untested")
         if tobe_shot and tobe_shot not in g["shots"]:
             g["shots"][tobe_shot] = _img(Path(tobe_shot))
         r["status"], r["asis_shot"], r["tobe_shot"] = status, asis_shot, tobe_shot
@@ -293,7 +293,8 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
         case = cases.get(t["name"])
         failed = _fail_steps(case["messages"], t["assertions"]) if case and case["status"] == "fail" else set()
         rows = html.rows_for(case["messages"])[0] if case and case["status"] == "fail" else []
-        status = None if case is None else case["status"]
+        status = None if case is None else ("accepted" if case.get("accepted_differences") and case["status"] == "pass" else case["status"])
+        accepted_steps = {x["step"] for x in case.get("accepted_differences", [])} if case else set()
         seq, prev = [], None
         for o in steps:
             snap = o.get("snapshot", "")
@@ -322,7 +323,7 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
                     rid = same_path[0]["id"] if same_path else path
             if rid not in routes:
                 routes[rid] = {"id": rid, "path": path, "name": head, "base": sig, "states": [],
-                               "shot": "", "tests": [], "failed": False, "kinds": {}, "tab": tab0}
+                               "shot": "", "tests": [], "failed": False, "accepted": False, "kinds": {}, "tab": tab0}
                 rorder.append(rid)
             r = routes[rid]
             if sig not in nodes:
@@ -347,6 +348,8 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
                     coll.append(t["name"])
             if o["index"] in failed:
                 n["failed"] = r["failed"] = True
+            if o["index"] in accepted_steps:
+                r["accepted"] = True
             if prev is not None:
                 if prev == sig:
                     n["local"] += 1
@@ -463,8 +466,8 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);align-items:center}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px}
-.legend i.ok{background:var(--ok)}.legend i.bad{background:var(--bad)}.legend i.st{background:var(--accent)}.legend i.undev{background:var(--warn)}.legend i.new{background:var(--new)}
-:root{--new:#2F6FDE;--new-soft:#E2ECFC}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--new:#6FA0F5;--new-soft:#15294D}}:root[data-theme=dark]{--new:#6FA0F5;--new-soft:#15294D}
+.legend i.ok{background:var(--ok)}.legend i.bad{background:var(--bad)}.legend i.st{background:var(--accent)}.legend i.undev{background:var(--warn)}.legend i.new{background:var(--new)}.legend i.accepted{background:var(--accent)}
+:root{--new:#2F6FDE;--new-soft:#E2ECFC}
 .pill.new{background:var(--new-soft);color:var(--new)}
 .legend .ln{width:26px;height:0;border-top:2px solid var(--accent)}.legend .ln.back{border-top:2px dashed var(--faint)}
 .legend .kd{font:600 11px var(--sans);padding:1px 7px;border-radius:4px;background:var(--sunk);color:var(--muted)}
@@ -488,7 +491,7 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .list{overflow:auto;padding:6px}
 .row{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer;border:0;background:none;text-align:left;font:inherit;color:inherit;width:100%}
 .row:hover{background:var(--sunk)}.row.sel{background:var(--accent-soft)}
-.row .dot{width:10px;height:10px;border-radius:50%;background:var(--line)}.row .dot.ok{background:var(--ok)}.row .dot.bad{background:var(--bad)}.row .dot.undev{background:var(--warn)}.row .dot.new{background:var(--new)}
+.row .dot{width:10px;height:10px;border-radius:50%;background:var(--line)}.row .dot.ok{background:var(--ok)}.row .dot.bad{background:var(--bad)}.row .dot.undev{background:var(--warn)}.row .dot.new{background:var(--new)}.row .dot.accepted{background:var(--accent)}
 .row .nm{font-size:14px;font-weight:600;line-height:1.25;min-width:0}.row .nm small{display:block;font:400 12px var(--mono);color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .ct{font:12px var(--mono);color:var(--faint);text-align:right;line-height:1.3}.row.dim{opacity:.35}
 
@@ -506,8 +509,8 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .node:hover{box-shadow:0 6px 18px rgba(15,20,19,.12);border-color:var(--accent)}
 .node.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft),0 6px 18px rgba(15,20,19,.12)}
 .node.dim{opacity:.28}
-.node .strip{height:5px;background:var(--line)}.node.ok .strip{background:var(--ok)}.node.bad .strip{background:var(--bad)}.node.undev .strip{background:var(--warn)}.node.new .strip{background:var(--new)}
-.node.bad{border-color:var(--bad)}.node.undev{border-color:var(--warn)}.node.new{border-color:var(--new)}.node.ok{border-color:var(--ok)}
+.node .strip{height:5px;background:var(--line)}.node.ok .strip{background:var(--ok)}.node.bad .strip{background:var(--bad)}.node.undev .strip{background:var(--warn)}.node.new .strip{background:var(--new)}.node.accepted .strip{background:var(--accent)}
+.node.bad{border-color:var(--bad)}.node.undev{border-color:var(--warn)}.node.new{border-color:var(--new)}.node.ok{border-color:var(--ok)}.node.accepted{border-color:var(--accent)}
 .node .chrome{display:flex;gap:4px;padding:6px 10px 0}.node .chrome i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}
 .node .th{margin:5px 8px 0;height:__TH__px;border-radius:6px;overflow:hidden;background:#fff;border:1px solid var(--line);position:relative}
 .node .th img{width:150%;max-width:none;display:block}
@@ -521,7 +524,7 @@ main{max-width:none;padding-block:24px 40px;gap:20px}
 .node .meta{margin-top:auto;display:flex;justify-content:space-between;align-items:center;padding:0 10px 8px;font:11.5px var(--mono);color:var(--faint)}
 .node .meta b{font-family:var(--sans);font-weight:600;color:var(--muted)}
 .node .tag{position:absolute;top:12px;left:10px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--accent);color:#fff;border-radius:4px;padding:1px 7px}
-.node.bad .tag{background:var(--bad)}.node.undev .tag{background:var(--warn)}.node.new .tag{background:var(--new)}
+.node.bad .tag{background:var(--bad)}.node.undev .tag{background:var(--warn)}.node.new .tag{background:var(--new)}.node.accepted .tag{background:var(--accent)}
 .detail .side{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:8px}.detail .side button{border:0;background:var(--surface);color:var(--muted);font:600 12.5px var(--sans);padding:5px 12px;cursor:pointer}
 .detail .side button+button{border-left:1px solid var(--line)}.detail .side button.on{background:var(--accent-soft);color:var(--accent)}
 
@@ -614,9 +617,9 @@ const testByName = Object.fromEntries(G.tests.map(t => [t.name, t]));
 const redgeBetween = (a, b) => G.redges.find(e => e.src === a && e.dst === b);
 let current = null, currentState = null;
 
-const SCLS = {diff:'bad', undeveloped:'undev', new:'new', same:'ok', untested:''};
+const SCLS = {diff:'bad', undeveloped:'undev', new:'new', accepted:'accepted', same:'ok', untested:''};
 function rstatus(r){ return SCLS[r.status] || ''; }
-function statusPill(r){ const c = SCLS[r.status]; return c ? `<span class="pill ${c === 'undev' ? 'warn' : c}">${esc(G.status_ko[r.status])}</span>` : ''; }
+function statusPill(r){ const c = SCLS[r.status]; return c ? `<span class="pill ${c === 'undev' || c === 'accepted' ? 'warn' : c}">${esc(G.status_ko[r.status])}</span>` : ''; }
 function openLb(src, cap){ if(!src) return; lb.querySelector('img').src = src; lb.querySelector('.cap').textContent = cap || ''; lb.classList.add('on'); }
 lb.addEventListener('click', () => lb.classList.remove('on'));
 function closeModal(){ modal.classList.remove('on'); currentState = null; }
@@ -658,7 +661,7 @@ function miniGraph(rid){
 
 function testRows(names, failedIn){
   return `<div class="trows">` + names.map(t => { const test = testByName[t], failedHere = failedIn(t);
-    const pill = test.status === 'fail' ? '<span class="pill bad">다름</span>' : test.status === 'pass' ? '<span class="pill ok">같음</span>' : test.side ? `<span class="pill ${test.side === 'tobe' ? 'new' : ''}">${test.side === 'asis' ? 'as-is 탐색' : 'to-be 탐색'}</span>` : '<span class="pill">기록</span>';
+    const pill = test.status === 'fail' ? '<span class="pill bad">다름</span>' : test.status === 'accepted' ? '<span class="pill warn">승인된 차이</span>' : test.status === 'pass' ? '<span class="pill ok">같음</span>' : test.side ? `<span class="pill ${test.side === 'tobe' ? 'new' : ''}">${test.side === 'asis' ? 'as-is 탐색' : 'to-be 탐색'}</span>` : '<span class="pill">기록</span>';
     return `<button type="button" class="trow ${failedHere ? 'fail' : ''}" data-test="${esc(t)}"><span><b>${esc(test.title)}</b><small>${esc(t)}</small></span>${pill}<span class="chev">›</span></button>`; }).join('') + `</div>`;
 }
 
@@ -738,7 +741,7 @@ function openState(rid, sid){
 function openTest(name, hereRid){
   const test = testByName[name]; if(!test) return;
   const hereSteps = new Set(test.seq.filter(s => currentState ? s.node === currentState : s.route === hereRid).map(s => s.index));
-  const pill = test.status === 'fail' ? '<span class="pill bad">as-is와 다름</span>' : test.status === 'pass' ? '<span class="pill ok">as-is와 같음</span>' : '';
+  const pill = test.status === 'fail' ? '<span class="pill bad">as-is와 다름</span>' : test.status === 'accepted' ? '<span class="pill warn">승인된 차이</span>' : test.status === 'pass' ? '<span class="pill ok">as-is와 같음</span>' : '';
   let h = `<div class="mh"><div><b>${esc(test.title)}</b><small>${esc(name)} · ${test.seq.length}단계</small></div>${pill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb">`;
   h += `<div class="film">` + test.seq.map(s => `<button type="button" class="${hereSteps.has(s.index) ? 'here' : ''} ${s.failed ? 'fail' : ''}" data-lb="${s.shot}" data-cap="${esc(s.index + 1)}단계 · ${esc(s.action)}" title="${esc(s.action)}">`
       + (s.shot ? `<img src="${shot(s.shot)}" alt="">` : '') + `<span class="k">${s.index + 1}</span><span class="cap">${esc(s.action)}</span></button>`).join('') + `</div>`;
@@ -836,7 +839,7 @@ def render(g: dict[str, Any]) -> str:
            "</defs>" + "".join(parts) + "</svg>")
 
     unit = g["unit"]
-    tags = {"diff": "다름", "undeveloped": "미개발", "new": "새 화면"}
+    tags = {"diff": "다름", "undeveloped": "탐색 미발견", "new": "to-be에서만 발견", "accepted": "승인된 차이"}
     cards, rows = [], []
     for rid in g["rorder"]:
         r, (x, y) = g["routes"][rid], xy[rid]
@@ -858,15 +861,15 @@ def render(g: dict[str, Any]) -> str:
     has_tobe = bool(src.get("tobe_crawl"))
     if src["kind"] == "crawl":
         who = "as-is" if src.get("side") == "asis" else "to-be"
-        stamp, lede = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}"), f"{who}를 탐색(parity crawl)해 찾은 화면(주소)을 이은 지도입니다. 시나리오나 비교와 무관하게 {who}에 무엇이 있는지 봅니다. 화면을 누르면 상세 페이지로 넘어가 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 탐색 경로를 봅니다."
+        stamp, lede = ("ok", f"화면 {len(g['routes'])}", f"상태 {n_states} · 연결 {len(g['redges'])}"), f"{who}를 탐색(eastshift crawl)해 찾은 화면(주소)을 이은 지도입니다. 시나리오나 비교와 무관하게 {who}에 무엇이 있는지 봅니다. 화면을 누르면 상세 페이지로 넘어가 그 안의 팝업·드로워·탭, 오는 길·가는 길, 지나는 탐색 경로를 봅니다."
     else:
         base = "as-is(승인된 골든 시나리오" + (" + as-is 탐색" if src.get("asis_crawl") else "") + ")을 기준으로 to-be를 견준 지도입니다. "
-        how = ("빨강 = 비교 실행에서 as-is와 다르게 동작한 화면, 노랑 = as-is에는 있는데 to-be 탐색에 없는 화면(미개발), 파랑 = to-be 탐색에만 있는 새 화면. "
-               "캡처는 to-be 탐색 캡처를 먼저 보여 주고 미개발 화면만 as-is 캡처입니다." if has_tobe
-               else "to-be 탐색 결과가 없어 미개발·새 화면은 판정하지 못했고 캡처는 as-is입니다 (to-be 탐색 탭에서 탐색하면 나옵니다). ")
+        how = ("빨강 = 비교 실행에서 다른 화면, 노랑 = to-be 탐색에서 못 찾은 화면(미개발 확정 아님), 파랑 = to-be 탐색에서만 찾은 화면. "
+               "탐색에서 못 찾은 화면은 직접 접속해 확인하세요. " if has_tobe
+               else "to-be 탐색 결과가 없어 빠진 화면이나 추가 화면은 판단하지 못했습니다. ")
         if not g["compared"]:
             how += " 비교 실행을 고르면 다르게 동작한 화면이 빨갛게 표시됩니다."
-        parts = [f"다름 {c['diff']}" for _ in [0] if c.get("diff")] + [f"미개발 {c['undeveloped']}" for _ in [0] if c.get("undeveloped")] + [f"새 화면 {c['new']}" for _ in [0] if c.get("new")]
+        parts = [f"다름 {c['diff']}" for _ in [0] if c.get("diff")] + [f"탐색 미발견 {c['undeveloped']}" for _ in [0] if c.get("undeveloped")] + [f"승인된 차이 {c['accepted']}" for _ in [0] if c.get("accepted")] + [f"to-be에서만 발견 {c['new']}" for _ in [0] if c.get("new")]
         if parts:
             stamp = ("bad" if c.get("diff") else "warn", " · ".join(parts), f"전체 {len(g['routes'])}개 중")
         elif g["compared"]:
@@ -877,7 +880,7 @@ def render(g: dict[str, Any]) -> str:
     opts = "".join(f"<option value='{html._e(t['name'])}'>{html._e(t['title'])}</option>" for t in g["tests"])
     legend = ("<div class='legend'><span><i class='st'></i>시작 화면</span>"
               + ("<span><i class='ok'></i>as-is와 같음</span><span><i class='bad'></i>as-is와 다름</span>" if g["compared"] else "")
-              + ("<span><i class='undev'></i>미개발 (to-be에 없음)</span><span><i class='new'></i>새 화면 (to-be에만)</span>" if has_tobe else "")
+              + ("<span><i class='undev'></i>to-be 탐색에서 미발견</span><span><i class='new'></i>to-be에서만 발견</span>" if has_tobe else "")
               + "<span><span class='ln'></span>동작 → 다음 화면</span><span><span class='ln back'></span>되돌아가기</span>"
               "<span><span class='kd dialog'>팝업</span><span class='kd drawer'>드로워</span><span class='kd tab'>탭</span> 화면 안의 상태</span></div>")
     body = (f"<header class='head'><div class='eyebrow'>화면 지도 · {html._e(src['label'])}</div><div class='stamp {stamp[0]}'>{stamp[1]}<small>{stamp[2]}</small></div>"
@@ -901,22 +904,3 @@ def render(g: dict[str, Any]) -> str:
     return page.replace("</style>", MAP_CSS + "</style>", 1)
 
 
-def write(d: Path | None, out: Path, junit: Path | None = None, tests_dir: Path | None = None, crawl: Path | None = None, side: str = "asis",
-          asis_crawl: Path | None = None, tobe_crawl: Path | None = None) -> Path:
-    """d(골든, 비교 지도) 또는 crawl(탐색 결과 폴더, 탐색 지도) 중 하나로 그린다. 비교 지도는 crawl/<app>, crawl/<app>-tobe 가 있으면 자동으로 쓴다."""
-    if crawl is not None:
-        if not (crawl / "graph.json").exists():
-            raise SystemExit(f"{crawl}/graph.json not found (run parity crawl <url> --out {crawl} first)")
-        g = build_from_crawl(crawl.name.removesuffix("-tobe"), crawl, side)
-    else:
-        assert d is not None
-        asis_crawl = asis_crawl or (Path("crawl") / d.name if (Path("crawl") / d.name / "graph.json").exists() else None)
-        tobe_crawl = tobe_crawl or (Path("crawl") / f"{d.name}-tobe" if (Path("crawl") / f"{d.name}-tobe" / "graph.json").exists() else None)
-        g = build(d, junit, tests_dir, asis_crawl, tobe_crawl)
-    if not g["tests"]:
-        raise SystemExit(f"{d} has no recorded tests (record on as-is with pytest --record {d} first)")
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render(g), encoding="utf-8")
-    print(f"{out} · {g['source']['label']} · 화면 {len(g['routes'])}, 상태 {len(g['nodes'])}, 연결 {len(g['redges'])}, {g['unit']} {len(g['tests'])}"
-          + "".join(f", {k} {v}" for k, v in (("다른 화면", g["counts"].get("diff")), ("미개발", g["counts"].get("undeveloped")), ("새 화면", g["counts"].get("new"))) if v))
-    return out

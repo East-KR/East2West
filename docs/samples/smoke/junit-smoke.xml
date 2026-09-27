@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="parity" tests="12" failures="5">
+<testsuite name="eastshift" tests="12" failures="5">
   <testcase classname="scenarios/smoke" name="스모크 - 사원 조회: 열기, 기본 조회, 첫 항목 상세" time="4.86"></testcase>
   <testcase classname="scenarios/smoke" name="스모크 - 부서 목록: 열기, 기본 조회, 첫 항목 상세" time="4.86"></testcase>
   <testcase classname="scenarios/smoke" name="스모크 - 거래처 관리: 열기, 기본 조회, 첫 항목 상세" time="12.57"><failure type="fail" message="[triage real_defect p=0.95] step 1 expect {&quot;http_ok&quot;: true, &quot;no_js_error&quot;: true}: HTTP error: ['500 http://127.0.0.1:8812/vendor']"></failure></testcase>

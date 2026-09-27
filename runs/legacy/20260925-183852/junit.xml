@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="1" skipped="0" tests="7" time="20.637" timestamp="2026-09-25T18:38:31.488240+09:00" hostname="85348.local"><properties><property name="base_url" value="http://127.0.0.1:8804" /><property name="oracle_approved" value="true" /><property name="oracle_approved_by" value="east" /><property name="oracle_approved_at" value="2026-09-24 18:10:42" /></properties><testcase classname="e2e.legacy.test_orders" name="test_order_save" time="7.984"><failure message="AssertionError: field &quot;부가세&quot; == '120': got '124'">ui = &lt;parity.pwtest.ui.UI object at 0x107672240&gt;
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="1" skipped="0" tests="7" time="20.637" timestamp="2026-09-25T18:38:31.488240+09:00" hostname="85348.local"><properties><property name="base_url" value="http://127.0.0.1:8804" /><property name="oracle_approved" value="true" /><property name="oracle_approved_by" value="east" /><property name="oracle_approved_at" value="2026-09-24 18:10:42" /></properties><testcase classname="e2e.legacy.test_orders" name="test_order_save" time="7.984"><failure message="AssertionError: field &quot;부가세&quot; == '120': got '124'">ui = &lt;eastshift.pwtest.ui.UI object at 0x107672240&gt;
 
     def test_order_save(ui):
         """볼펜 1개 계산 후 저장 (부가세 10원 절사 동작 보존)"""
@@ -11,11 +11,11 @@
 
 ../jev-e2e/e2e/legacy/test_orders.py:16: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-parity/pwtest/ui.py:232: in expect_field
+eastshift/pwtest/ui.py:232: in expect_field
     self._poll(lambda: (lambda v: (v == value, v))(current()), f'field "{name}" == {value!r}')
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;parity.pwtest.ui.UI object at 0x107672240&gt;
+self = &lt;eastshift.pwtest.ui.UI object at 0x107672240&gt;
 check = &lt;function UI.expect_field.&lt;locals&gt;.&lt;lambda&gt; at 0x1078e36a0&gt;
 what = 'field "부가세" == \'120\''
 
@@ -30,7 +30,7 @@ what = 'field "부가세" == \'120\''
 &gt;       raise AssertionError(f"{what}: got {last!r}")
 E       AssertionError: field "부가세" == '120': got '124'
 
-parity/pwtest/ui.py:193: AssertionError</failure></testcase><testcase classname="e2e.legacy.test_orders" name="test_order_save" time="0.031"><error message="failed on teardown with &quot;Failed: step 4 button &quot;계산&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -10,5 +10,5 @@&#10;     text: 부가세&#10;    -textbox &quot;부가세&quot;: 120&#10;    +textbox &quot;부가세&quot;: 124&#10;     text: 합계&#10;    -textbox &quot;합계&quot;: 1,355&#10;    +textbox &quot;합계&quot;: 1,359&#10;     button &quot;계산&quot;&quot;">step 4 button "계산": differs from golden
+eastshift/pwtest/ui.py:193: AssertionError</failure></testcase><testcase classname="e2e.legacy.test_orders" name="test_order_save" time="0.031"><error message="failed on teardown with &quot;Failed: step 4 button &quot;계산&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -10,5 +10,5 @@&#10;     text: 부가세&#10;    -textbox &quot;부가세&quot;: 120&#10;    +textbox &quot;부가세&quot;: 124&#10;     text: 합계&#10;    -textbox &quot;합계&quot;: 1,355&#10;    +textbox &quot;합계&quot;: 1,359&#10;     button &quot;계산&quot;&quot;">step 4 button "계산": differs from golden
     --- as-is(golden)
     +++ actual
     @@ -10,5 +10,5 @@

@@ -1,6 +1,6 @@
-"""목록 템플릿 인식·분기 열·대표 선택 (parity crawl 의 목록 표본화). 브라우저 없이 스냅샷 텍스트만."""
-from parity import lists
-from parity.snapshot import parse_elements
+"""목록 템플릿 인식·분기 열·대표 선택 (eastshift crawl 의 목록 표본화). 브라우저 없이 스냅샷 텍스트만."""
+from eastshift import lists
+from eastshift.snapshot import parse_elements
 
 TABLE = '''- main:
   - heading "주문 목록" [level=1]
