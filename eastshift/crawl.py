@@ -4,6 +4,9 @@
 - 화면 상태 = 스냅샷 구조 서명 (입력값, [checked] 같은 상태, 숫자를 뺀다) + "입력을 채운 뒤인지".
   동작 뒤 서명이 같고 대화상자도 없으면 화면 안 동작(local), 아니면 전이(transition).
 - 동작마다 새 브라우저 컨텍스트에서 시작 URL부터 경로를 다시 재생한 뒤 실행한다 (뒤로가기에 의존하지 않는다).
+- 한 상태의 동작들은 서로 독립이라 브라우저 여러 개(작업 스레드)가 나눠 누른다. 결과 반영(edge id, 새 상태 등록)은 한 줄로
+  원래 순서대로 하므로 그래프 모양은 작업 수와 무관하다. 작업 수: EASTSHIFT_CRAWL_WORKERS (기본 4, --storage-state를 쓰면 1:
+  컨텍스트들이 로그인 세션 하나를 나눠 쓰면 서버 세션 상태가 섞일 수 있다).
 - 입력칸은 누르지 않고 픽스처 값으로만 채운다. 입력칸이 있는 상태에서는 전이 동작을 "그대로" / "채워서" 두 번 누른다.
   "채워서" = 픽스처 값 + 다른 입력칸 값을 바꾸는 화면 안 버튼(캘린더 날짜 등) 하나.
 - (프레임, 역할, 범위 라벨, 숫자를 가린 이름)이 같은 요소가 group_min개 이상이면 첫 요소만 누른다 (캘린더 날짜, 페이지 번호).
@@ -18,10 +21,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import queue
 import re
+import threading
+from concurrent.futures import Future
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urljoin, urlparse
 
 import yaml
@@ -188,11 +195,88 @@ def stable_path(url: str) -> str:
     return "/".join(out)
 
 
+class _Session:
+    """작업 스레드 하나의 브라우저와, 그 브라우저에서 지금 실행 중인 동작의 이벤트."""
+    def __init__(self, browser: Any) -> None:
+        self.browser = browser
+        self.events: dict[str, list] = {"dialogs": [], "js_errors": [], "http_errors": []}
+        self.dismiss_confirm = False
+
+    def reset(self) -> None:
+        self.events = {"dialogs": [], "js_errors": [], "http_errors": []}
+        self.dismiss_confirm = False
+
+
+class _Pool:
+    """브라우저를 하나씩 가진 작업 스레드들. Playwright sync API는 스레드를 넘나들 수 없어서 스레드마다 따로 띄운다.
+    map()은 작업을 나눠 돌리고 결과를 넣은 순서대로 돌려준다 (예외는 그 자리에서 다시 던진다)."""
+
+    def __init__(self, n: int, launch: Callable[[Any], Any]) -> None:
+        self.n, self.launch = max(1, n), launch
+        self.q: queue.Queue = queue.Queue()
+        self.threads: list[threading.Thread] = []
+        self.errors: list[BaseException] = []
+
+    def _loop(self, ready: threading.Event) -> None:
+        try:
+            with sync_playwright() as p:
+                browser = self.launch(p)
+                s = _Session(browser)
+                ready.set()
+                try:
+                    while (job := self.q.get()) is not None:
+                        fn, fut = job
+                        if fut.set_running_or_notify_cancel():
+                            try:
+                                fut.set_result(fn(s))
+                            except BaseException as e:
+                                fut.set_exception(e)
+                finally:
+                    browser.close()
+        except BaseException as e:
+            self.errors.append(e)
+            ready.set()
+
+    def __enter__(self) -> "_Pool":
+        for _ in range(self.n):
+            ready = threading.Event()
+            t = threading.Thread(target=self._loop, args=(ready,), daemon=True)
+            t.start()
+            ready.wait()
+            self.threads.append(t)
+            if self.errors:
+                self.__exit__(None, None, None)
+                raise self.errors[0]
+        return self
+
+    def __exit__(self, *exc: Any) -> None:
+        for _ in self.threads:
+            self.q.put(None)
+        for t in self.threads:
+            t.join(timeout=30)
+
+    def map(self, jobs: list[Callable[[_Session], Any]]) -> list[Any]:
+        futs: list[Future] = []
+        for fn in jobs:
+            fut: Future = Future()
+            self.q.put((fn, fut))
+            futs.append(fut)
+        return [f.result() for f in futs]
+
+
+def _workers(storage_state: Path | None) -> int:
+    v = os.environ.get("EASTSHIFT_CRAWL_WORKERS", "").strip()
+    if v:
+        return max(1, int(v))
+    return 1 if storage_state else 4
+
+
 class Crawler:
     def __init__(self, start: str, *, base_url: str | None = None, inputs: dict[str, Any] | None = None, deny: str = DEFAULT_DENY,
                  max_depth: int = 3, max_states: int = 30, max_actions: int = 40, group_min: int = 3, settle_ms: int = 400,
                  action_timeout_ms: int = 3000, storage_state: Path | None = None, headed: bool = False,
-                 reps: int = 3, pick: dict[str, list[str]] | None = None, jev: Any | None = None, list_cache: Path | None = None, min_margin: float = 0.2):
+                 reps: int = 3, pick: dict[str, list[str]] | None = None, jev: Any | None = None, list_cache: Path | None = None, min_margin: float = 0.2,
+                 workers: int | None = None):
         self.start_url = start if urlparse(start).scheme else urljoin((base_url or "").rstrip("/") + "/", start.lstrip("/"))
         # 시나리오·테스트의 goto는 항상 상대 경로: 절대 주소를 박아 두면 to-be 비교가 조용히 as-is를 치게 된다. 실행 때 --base-url로 as-is/to-be를 고른다
         u = urlparse(self.start_url)
@@ -213,20 +297,19 @@ class Crawler:
         self.nodes: list[Node] = []
         self.edges: list[Edge] = []
         self._by_key: dict[tuple[str, bool], int] = {}
-        self._events: dict[str, list] = {}
-        self._reset_events()
+        self.workers = workers or _workers(storage_state)
+        self.pool: _Pool | None = None
         self.shots_dir: Path | None = None
 
     # -- 브라우저 ------------------------------------------------------------------------
-    def _reset_events(self) -> None:
-        self._events = {"dialogs": [], "js_errors": [], "http_errors": []}
-        self._dismiss_confirm = False
+    def _launch(self, p: Any) -> Any:
+        return p.chromium.launch(headless=not self.headed, args=["--disable-blink-features=AutomationControlled"])
 
-    def _hook(self, pg: Page) -> None:
+    def _hook(self, s: _Session, pg: Page) -> None:
         def on_dialog(d) -> None:
-            self._events["dialogs"].append({"type": d.type, "message": d.message})
+            s.events["dialogs"].append({"type": d.type, "message": d.message})
             try:
-                if d.type == "confirm" and self._dismiss_confirm:
+                if d.type == "confirm" and s.dismiss_confirm:
                     d.dismiss()
                     return
                 d.accept()
@@ -236,20 +319,20 @@ class Crawler:
         def on_response(r) -> None:
             try:
                 if r.request.is_navigation_request() and r.status >= 400:
-                    self._events["http_errors"].append(f"{r.status} {r.url}")
+                    s.events["http_errors"].append(f"{r.status} {r.url}")
             except PWError:
                 pass
         pg.on("dialog", on_dialog)
-        pg.on("pageerror", lambda err: self._events["js_errors"].append(str(err).splitlines()[0]))
+        pg.on("pageerror", lambda err: s.events["js_errors"].append(str(err).splitlines()[0]))
         pg.on("response", on_response)
 
-    def _open(self, path: list[int]) -> Page:
-        """새 컨텍스트에서 시작 URL을 열고 경로를 재생한다."""
+    def _open(self, s: _Session, path: list[int]) -> Page:
+        """새 컨텍스트에서 시작 URL을 열고 경로를 재생한다. 작업 스레드에서 돈다: self.edges는 읽기만 한다."""
         kwargs: dict[str, Any] = {"viewport": {"width": 1280, "height": 900}, "locale": "ko-KR", "user_agent": UA}
         if self.storage_state and self.storage_state.exists():
             kwargs["storage_state"] = str(self.storage_state)
-        ctx = self.browser.new_context(**kwargs)
-        ctx.on("page", self._hook)
+        ctx = s.browser.new_context(**kwargs)
+        ctx.on("page", lambda pg: self._hook(s, pg))
         page = ctx.new_page()
         page.goto(self.start_url, wait_until="load")
         page = self.rt._settle(page)
@@ -313,7 +396,26 @@ class Crawler:
                 pass
 
     # -- 탐색 ----------------------------------------------------------------------------
-    def _node_for(self, obs: dict[str, Any], filled: bool, path: list[int], page: Page) -> int | None:
+    # 누르기(_attempt, _look)는 작업 스레드에서, 반영(_commit, _node_for)은 메인 스레드에서 원래 순서대로 한다.
+    # 한 묶음(map)이 도는 동안 메인 스레드는 기다리기만 하므로 작업 스레드가 읽는 self.edges·self._by_key는 바뀌지 않는다.
+    def _shot(self, page: Page) -> bytes | None:
+        if not self.shots_dir:
+            return None
+        try:
+            return page.screenshot()
+        except PWError:
+            return None
+
+    def _look(self, s: _Session, path: list[int], shot: bool = False) -> tuple[dict[str, Any], bytes | None]:
+        """경로를 재생한 화면의 관찰 (+ 스크린샷)."""
+        page = None
+        try:
+            page = self._open(s, path)
+            return self._observe(page), (self._shot(page) if shot else None)
+        finally:
+            self._close(page)
+
+    def _node_for(self, obs: dict[str, Any], filled: bool, path: list[int], shot: bytes | None) -> int | None:
         key = (obs["sig"], filled)
         if key in self._by_key:
             return self._by_key[key]
@@ -321,54 +423,69 @@ class Crawler:
             return None
         node = Node(len(self.nodes), obs["sig"], filled, obs["url"], obs["loc"], obs["title"], path,
                     headings=obs["headings"], alerts=obs["alerts"], modal=obs["modal"], texts=obs["texts"], snapshot=obs["snapshot"])
-        if self.shots_dir:
+        if self.shots_dir and shot:
             node.screenshot = str(self.shots_dir / f"n{node.id}.png")
-            try:
-                page.screenshot(path=node.screenshot)
-            except PWError:
-                node.screenshot = ""
+            Path(node.screenshot).write_bytes(shot)
         self.nodes.append(node)
         self._by_key[key] = node.id
         print(f"  + n{node.id} {node.label}  [{urlparse(node.url).path}]", flush=True)
         return node.id
 
-    def _try(self, node: Node, steps: list[Step], mode: str, *, group: int = 1, preset_len: int = 0,
-             preset_sets: dict[str, str] | None = None, dismiss: bool = False) -> Edge:
-        """경로를 재생하고 steps를 실행해 결과를 edge로. edge id는 호출자가 곧바로 추가한다는 전제."""
-        edge = Edge(len(self.edges), node.id, steps, mode, "error", group=group, preset_len=preset_len, preset_sets=preset_sets or {})
+    def _attempt(self, s: _Session, node: Node, steps: list[Step], mode: str, *, preset_len: int = 0,
+                 preset_sets: dict[str, str] | None = None, dismiss: bool = False) -> dict[str, Any]:
+        """경로를 재생하고 steps를 실행한 결과 (edge id·도착 상태는 아직 없다: _commit이 정한다)."""
+        r: dict[str, Any] = {"steps": steps, "mode": mode, "kind": "error", "preset_len": preset_len, "preset_sets": dict(preset_sets or {}),
+                             "reason": "", "url_after": "", "dialogs": [], "js_errors": [], "http_errors": [], "sets": {}, "obs": None,
+                             "filled": False, "shot": None}
         page = None
         try:
-            page = self._open(node.path)
+            page = self._open(s, node.path)
             before = self._values(page)
-            self._reset_events()
-            self._dismiss_confirm = dismiss
+            s.reset()
+            s.dismiss_confirm = dismiss
             if preset_len:  # 채우기 스텝을 다 실행한 뒤의 실제 값을 기대값으로 (버튼 하나만 눌렀을 때 값과 다를 수 있다: 계산 버튼)
                 page = self._run(page, steps[:preset_len])
-                if edge.preset_sets:
+                if r["preset_sets"]:
                     now = self._values(page)
-                    edge.preset_sets = {k: now.get(k, v) for k, v in edge.preset_sets.items()}
+                    r["preset_sets"] = {k: now.get(k, v) for k, v in r["preset_sets"].items()}
             page = self._run(page, steps[preset_len:])
             obs = self._observe(page)
         except Exception as e:
-            edge.reason = str(e).splitlines()[0][:200]
+            r["reason"] = str(e).splitlines()[0][:200]
             self._close(page)
-            return edge
-        edge.url_after = page.url
-        edge.dialogs, edge.js_errors, edge.http_errors = (list(self._events[k]) for k in ("dialogs", "js_errors", "http_errors"))
+            return r
+        r["url_after"] = page.url
+        r["dialogs"], r["js_errors"], r["http_errors"] = (list(s.events[k]) for k in ("dialogs", "js_errors", "http_errors"))
         if urlparse(page.url).netloc != urlparse(self.start_url).netloc:
-            edge.kind = "external"
-        elif obs["sig"] == node.sig and not edge.dialogs:
-            edge.kind = "local"
+            r["kind"] = "external"
+        elif obs["sig"] == node.sig and not r["dialogs"]:
+            r["kind"] = "local"
             if steps[-1].el.role not in TOGGLE_ROLES:  # 체크박스·옵션은 자기 값만 바꾼다
-                edge.sets = {k: v for k, v in self._values(page).items() if before.get(k) != v and k != steps[-1].el.name}
+                r["sets"] = {k: v for k, v in self._values(page).items() if before.get(k) != v and k != steps[-1].el.name}
         else:
-            edge.kind = "transition"
-            filled = (mode == "filled" or node.filled) and obs["loc"] == node.loc
-            edge.dst = self._node_for(obs, filled, node.path + [edge.id], page)
+            r["kind"] = "transition"
+            r["filled"] = (mode == "filled" or node.filled) and obs["loc"] == node.loc
+            r["obs"] = {k: obs[k] for k in ("sig", "url", "loc", "title", "headings", "alerts", "modal", "texts", "snapshot")}
+            if (obs["sig"], r["filled"]) not in self._by_key:  # 새 상태일 수 있을 때만 찍는다
+                r["shot"] = self._shot(page)
+        self._close(page)
+        return r
+
+    def _commit(self, node: Node, r: dict[str, Any], group: int = 1) -> Edge:
+        """_attempt 결과를 edge로. edge id는 호출자가 곧바로 추가한다는 전제."""
+        edge = Edge(len(self.edges), node.id, r["steps"], r["mode"], r["kind"], group=group, preset_len=r["preset_len"],
+                    preset_sets=r["preset_sets"], sets=r["sets"], url_after=r["url_after"], dialogs=r["dialogs"],
+                    js_errors=r["js_errors"], http_errors=r["http_errors"], reason=r["reason"])
+        if edge.kind == "transition":
+            edge.dst = self._node_for(r["obs"], r["filled"], node.path + [edge.id], r["shot"])
             if edge.dst is None:
                 edge.reason = f"state budget {self.max_states} reached"
-        self._close(page)
         return edge
+
+    def _attempts(self, jobs: list[tuple[Node, list[Step], str, dict[str, Any]]]) -> list[dict[str, Any]]:
+        """(상태, 스텝, 방식, 옵션) 여러 개를 작업 스레드들에 나눠 누른다. 결과는 넣은 순서대로."""
+        assert self.pool is not None
+        return self.pool.map([lambda s, j=j: self._attempt(s, j[0], j[1], j[2], **j[3]) for j in jobs])
 
     def _candidates(self, elements: list[Element], obs: dict[str, Any] | None = None
                     ) -> tuple[list[tuple[Element, int, dict[str, Any] | None]], list[Element]]:
@@ -443,15 +560,12 @@ class Crawler:
         return steps, covered, missing
 
     def _explore(self, node: Node) -> None:
-        page = None
+        assert self.pool is not None
         try:
-            page = self._open(node.path)
-            obs = self._observe(page)
+            obs, _ = self.pool.map([lambda s: self._look(s, node.path)])[0]
         except Exception as e:
             print(f"  ! n{node.id} replay failed: {str(e).splitlines()[0][:160]}")
-            self._close(page)
             return
-        self._close(page)
         cands, denied = self._candidates(obs["elements"], obs)
         node.lists = [info.to_dict() for info in obs.get("lists", []) if info.rows]
         for el in denied:
@@ -460,36 +574,56 @@ class Crawler:
         print(f"n{node.id} {node.label}: {len(cands)} actions" + (f", {len(denied)} denied" if denied else "")
               + "".join(f" · 목록 '{i.heading or i.kind}' {len(i.rows)}행 중 대표 {n} ({i.source}{'' if not i.branch_cols else ': ' + ', '.join(i.headers[c] for c in i.branch_cols)})" for i, n in sampled), flush=True)
         as_is = []
-        for el, n, meta in cands:
-            e = self._try(node, [Step(el, "click")], "as-is", group=n)
+        raws = self._attempts([(node, [Step(el, "click")], "as-is", {}) for el, _, _ in cands])
+        for (el, n, meta), r in zip(cands, raws):
+            e = self._commit(node, r, group=n)
             if meta:
                 e.template, e.row, e.stratum = meta["template"], meta["row"], meta["stratum"]
             self.edges.append(e)
             as_is.append(e)
         as_is += self._expand_strata(node, obs, as_is)
-        for e in list(as_is):
-            self._dismissed(node, e)
+        self._dismissed(node, list(as_is))
         if node.filled:
             return
         preset, sets, node.missing_inputs = self._preset(obs["elements"], [e for e in as_is if e.kind == "local"])
         if not preset:
             return
         in_preset = {s.el.key for s in preset}
-        for e in as_is:
-            el = e.action.el
-            if el.role in TOGGLE_ROLES or el.key in in_preset:
+        base = [e for e in as_is if e.action.el.role not in TOGGLE_ROLES and e.action.el.key not in in_preset]
+        raws = self._attempts([(node, preset + [e.action], "filled", {"preset_len": len(preset), "preset_sets": sets}) for e in base])
+        # "그대로"와 결과가 같으면 버린다. 도착 상태는 반영 전에 미리 계산한다 (새 상태는 기존 상태와 같을 수 없고, 상태 예산만 앞에서부터 센다):
+        # 남길 것을 먼저 알아야 그 취소 경로를 한 묶음으로 누르고, 반영은 원래 순서(채워서 → 그 취소 → 다음 채워서)로 할 수 있다.
+        kept: list[tuple[Edge, dict[str, Any]]] = []
+        planned: dict[tuple[str, bool], object] = {}
+        budget = self.max_states - len(self.nodes)
+        for e, r in zip(base, raws):
+            dst: object = None
+            if r["kind"] == "transition":
+                key = (r["obs"]["sig"], r["filled"])
+                if key in self._by_key:
+                    dst = self._by_key[key]
+                elif key in planned:
+                    dst = planned[key]
+                elif budget > 0:
+                    dst = ("new", key)
+            if (r["kind"], dst, [d["message"] for d in r["dialogs"]]) == (e.kind, e.dst, [d["message"] for d in e.dialogs]):
                 continue
-            f = self._try(node, preset + [e.action], "filled", group=e.group, preset_len=len(preset), preset_sets=sets)
-            same = (f.kind, f.dst, [d["message"] for d in f.dialogs]) == (e.kind, e.dst, [d["message"] for d in e.dialogs])
-            if not same:
-                self.edges.append(f)
-                self._dismissed(node, f)
+            if isinstance(dst, tuple) and r["obs"] and (r["obs"]["sig"], r["filled"]) not in planned:
+                planned[(r["obs"]["sig"], r["filled"])] = dst
+                budget -= 1
+            kept.append((e, r))
+        for (e, r), d in zip(kept, self._dismiss_attempts(node, [(r, e.group) for e, r in kept])):
+            f = self._commit(node, r, group=e.group)
+            self.edges.append(f)
+            if d is not None:
+                self.edges.append(self._commit_dismissed(node, d, e.group))
 
     def _expand_strata(self, node: Node, obs: dict[str, Any], as_is: list[Edge]) -> list[Edge]:
         """적응 확장: 같은 목록·같은 열·같은 층의 대표들이 서로 다른 화면으로 갔으면 분기 열이 틀린 것이다. 그 층의 다른 행을 둘 더 누른다."""
         lists_: list[_lists.ListInfo] = obs.get("lists", [])
         extra: list[Edge] = []
         by_key: dict[tuple[str, tuple], list[Edge]] = {}
+        plans: list[tuple[str, _lists.ListInfo, str, set[int], int, list[tuple[int, Element]]]] = []
         for e in as_is:
             if e.template:
                 by_key.setdefault((e.template, tuple(e.stratum.items())), []).append(e)
@@ -504,11 +638,14 @@ class Crawler:
             lid, col, role = tkey
             info = lists_[lid]
             tried = {e.row for e in edges}
-            for r in _lists.more_rows(info, e0.row, exclude=tried, limit=2):
-                el = self._tpl[tkey].get(r)
-                if el is None or self.deny.search(el.name):
-                    continue
-                e = self._try(node, [Step(el, "click")], "as-is", group=e0.group)
+            rows = [r for r in _lists.more_rows(info, e0.row, exclude=tried, limit=2)
+                    if (el := self._tpl[tkey].get(r)) is not None and not self.deny.search(el.name)]
+            plans.append((template, info, role, tried, e0.group, [(r, self._tpl[tkey][r]) for r in rows]))
+        jobs = [(node, [Step(el, "click")], "as-is", {}) for *_, rows in plans for _, el in rows]
+        raws = iter(self._attempts(jobs))
+        for template, info, role, tried, group, rows in plans:  # 반영은 층 순서, 행 순서대로 (한 줄로 누를 때와 같은 edge id)
+            for r, _ in rows:
+                e = self._commit(node, next(raws), group=group)
                 e.template, e.row, e.stratum = template, r, _lists.stratum(info, r)
                 e.reason = (e.reason + "; " if e.reason else "") + "적응 확장: 같은 층의 대표들이 다른 화면으로 감"
                 self.edges.append(e)
@@ -518,25 +655,37 @@ class Crawler:
             node.lists = [i.to_dict() for i in lists_ if i.rows]
         return extra
 
-    def _dismissed(self, node: Node, e: Edge) -> None:
+    def _dismissed(self, node: Node, edges: list[Edge]) -> None:
         """confirm이 뜬 동작은 '취소'한 경로도 한 번 누른다 (취소하면 입력이 남는지, 저장이 안 되는지)."""
-        if e.kind != "transition" or not any(d["type"] == "confirm" for d in e.dialogs):
-            return
-        d = self._try(node, e.steps, "dismiss", group=e.group, preset_len=e.preset_len, preset_sets=e.preset_sets, dismiss=True)
+        items = [({"kind": e.kind, "dialogs": e.dialogs, "steps": e.steps, "preset_len": e.preset_len, "preset_sets": e.preset_sets}, e.group) for e in edges]
+        for (_, group), d in zip(items, self._dismiss_attempts(node, items)):
+            if d is not None:
+                self.edges.append(self._commit_dismissed(node, d, group))
+
+    def _dismiss_attempts(self, node: Node, items: list[tuple[dict[str, Any], int]]) -> list[dict[str, Any] | None]:
+        """(결과, group)마다 취소 경로를 누른 결과. confirm이 없던 것은 None."""
+        need = [i for i, (r, _) in enumerate(items) if r["kind"] == "transition" and any(d["type"] == "confirm" for d in r["dialogs"])]
+        raws = self._attempts([(node, items[i][0]["steps"], "dismiss",
+                                {"preset_len": items[i][0]["preset_len"], "preset_sets": items[i][0]["preset_sets"], "dismiss": True}) for i in need])
+        out: list[dict[str, Any] | None] = [None] * len(items)
+        for i, r in zip(need, raws):
+            out[i] = r
+        return out
+
+    def _commit_dismissed(self, node: Node, r: dict[str, Any], group: int) -> Edge:
+        d = self._commit(node, r, group=group)
         if d.kind == "local":  # 취소하면 화면이 그대로인 것이 정상: 대화상자는 떴으므로 자기 자신으로 가는 전이로 기록
             d.kind, d.dst = "transition", node.id
-        self.edges.append(d)
+        return d
 
     def run(self, shots_dir: Path | None = None) -> None:
         self.shots_dir = shots_dir
         if shots_dir:
             shots_dir.mkdir(parents=True, exist_ok=True)
-        with sync_playwright() as p:
-            self.browser = p.chromium.launch(headless=not self.headed, args=["--disable-blink-features=AutomationControlled"])
+        with _Pool(self.workers, self._launch) as self.pool:
             try:
-                page = self._open([])
-                self._node_for(self._observe(page), False, [], page)
-                self._close(page)
+                obs, shot = self.pool.map([lambda s: self._look(s, [], shot=True)])[0]
+                self._node_for(obs, False, [], shot)
                 i = 0
                 while i < len(self.nodes):
                     node = self.nodes[i]
@@ -545,7 +694,7 @@ class Crawler:
                         self._explore(node)
                         node.explored = True
             finally:
-                self.browser.close()
+                self.pool = None
 
     # -- 산출물 --------------------------------------------------------------------------
     def to_dict(self) -> dict[str, Any]:
@@ -643,14 +792,8 @@ class Crawler:
 
     def preview(self) -> dict[str, Any]:
         """--dry-run: 아무것도 누르지 않고 시작 화면에서 누를 것, 누르지 않을 것, 채울 입력칸을 보여 준다."""
-        with sync_playwright() as p:
-            self.browser = p.chromium.launch(headless=not self.headed, args=["--disable-blink-features=AutomationControlled"])
-            try:
-                page = self._open([])
-                obs = self._observe(page)
-                self._close(page)
-            finally:
-                self.browser.close()
+        with _Pool(1, self._launch) as pool:
+            obs, _ = pool.map([lambda s: self._look(s, [])])[0]
         cands, denied = self._candidates(obs["elements"], obs)
         fills = [(el.name, self.inputs[el.name]) for el in obs["elements"] if el.role in EDITABLE_ROLES and el.name in self.inputs]
         missing = [el.name for el in obs["elements"] if el.role in EDITABLE_ROLES and el.name not in self.inputs]
