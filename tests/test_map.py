@@ -1,9 +1,9 @@
-"""화면 지도 오프라인 테스트: 라우트 합치기, 화면 안의 상태 분류, 시작 화면. 저장소의 골든만 읽는다."""
+"""Screen Map 오프라인 테스트: 라우트 합치기, 화면 안의 상태 분류, 시작 화면. 저장소의 골든만 읽는다."""
 from pathlib import Path
 
 import pytest
 
-from parity.pwtest import map as screen_map
+from eastshift.pwtest import map as screen_map
 
 GOLDEN = Path("golden")
 
@@ -18,6 +18,14 @@ def test_route_and_state_helpers():
     assert screen_map._state('- tab "기본 정보" [selected]\n- tab "이력"', base_tab="기본 정보")[:2] == ("base", "")
     assert screen_map._state('- tab "이력" [selected]', base_tab="기본 정보")[:2] == ("tab", "이력")
     assert screen_map._state('- alert: 저장되었습니다.')[:2] == ("alert", "저장되었습니다.")
+
+
+def test_approved_difference_is_not_displayed_as_identical():
+    g = {"routes": {"/orders": {"path": "/orders", "tests": ["test_order"], "failed": False,
+                                  "accepted": True, "shot": ""}},
+         "tests": [{"name": "test_order", "status": "accepted"}], "compared": True, "shots": {}}
+    screen_map._annotate(g, None, set())
+    assert g["routes"]["/orders"]["status"] == "accepted"
 
 
 @pytest.mark.skipif(not (GOLDEN / "portal").is_dir(), reason="portal 골든 없음")
@@ -51,7 +59,7 @@ def test_reservation_map_starts_where_tests_enter():
 
 
 def test_route_key_shared_with_mutation():
-    from parity.pwtest.mutation import route_key
+    from eastshift.pwtest.mutation import route_key
     assert route_key("/orders/9") == "/orders/{id}" == screen_map._route("http://x/orders/4")
     assert route_key("/") == "/" and route_key("/orders") == "/orders"
 
@@ -82,9 +90,8 @@ def test_map_from_crawl_graph(tmp_path):
     assert set(g["routes"]) == {"/", "/orders"} and g["routes"]["/orders"]["kinds"] == {"dialog": 1}
     assert len(g["shots"]) == 3 and all(k.endswith(".png") for k in g["shots"])  # 파일 하나 = 항목 하나
     page = screen_map.render(g)
-    assert "to-be 탐색" in page and "모든 경로" in page and "id='detail'" in page
-    with pytest.raises(SystemExit):
-        screen_map.write(None, tmp_path / "m.html", crawl=tmp_path / "nope")
+    assert "to-be 탐색" in page and "경로 찾기" in page and "id='pl'" in page and "id='detail'" in page  # 셀렉트 대신 입력형 경로 고르기
+    assert "id='fsb'" in page and "id='fsbar'" in page  # 전체화면 버튼과 떠 있는 막대
 
 
 def _graph(tmp_path, name, urls, dead=()):
@@ -121,7 +128,7 @@ def test_compare_map_statuses(tmp_path):
     assert not any(r["path"] == "/settings" and r["id"] != "/settings" for r in g["routes"].values())  # 404 페이지가 다른 화면으로 끼어들지 않는다
     assert [t["side"] for t in g["tests"] if t["name"].startswith("asis-crawl")] == ["asis"] and any(t["name"].startswith("tobe-crawl") for t in g["tests"])
     page = screen_map.render(g)
-    assert "미개발 (to-be에 없음)" in page and "새 화면 (to-be에만)" in page and "node new" in page and "node undev" in page
+    assert "to-be 탐색에서 미발견" in page and "to-be에서만 발견" in page and "node new" in page and "node undev" in page
     # to-be 탐색이 없으면 미개발·새 화면 판정 없음, 캡처는 as-is
     g2 = screen_map.build(GOLDEN / "portal", None, Path("e2e/portal"), None, None)
     assert set(r["status"] for r in g2["routes"].values()) == {"untested"} and all(r["shot"] == r["asis_shot"] for r in g2["routes"].values())

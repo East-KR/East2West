@@ -11,12 +11,12 @@
 #    scenarios/<app>/screens.yaml  →  [{SCREEN: 사원 조회, URL: /emp}, …]
 
 # 2) 대상 정하기: 화면을 열기만 하고(누르지 않음) 버튼 목록을 본다. 규칙으로 확정되지 않는 화면만 표시된다
-uv run parity targets scenarios/<app>/screens.yaml --base-url $ASIS --out scenarios/<app>/screens.targets.yaml
+uv run eastshift targets scenarios/<app>/screens.yaml --base-url $ASIS --out scenarios/<app>/screens.targets.yaml
 #    by: review 행은 사람이나 Claude Code가 candidates에서 골라 QUERY를 채우고 by: picked로 바꾼다
 
 # 3) 기준 앱에서 통과 확인, 4) 대상 앱 점검
-uv run parity run scenarios/<app>/screen_smoke_targets.yaml --base-url $ASIS
-uv run parity run scenarios/<app>/screen_smoke_targets.yaml --base-url $TOBE --junit reports/junit-<app>.xml
+uv run eastshift run scenarios/<app>/screen_smoke_targets.yaml --base-url $ASIS
+uv run eastshift run scenarios/<app>/screen_smoke_targets.yaml --base-url $TOBE --junit reports/junit-<app>.xml
 ```
 
 **규칙**: 화면의 버튼 중 이름이 조회, 검색, 찾기, 조회하기, 검색하기, Search, Find와 **정확히 같은 것이 하나뿐**이면 확정 (`by: rule`).

@@ -80,7 +80,7 @@
   {
    "index": 2,
    "kind": "fill",
-   "text": "textbox \"비밀번호\" = pass1234",
+   "text": "textbox \"비밀번호\" = <redacted>",
    "url": "/login",
    "title": "로그인",
    "content": [
@@ -88,10 +88,10 @@
     "text: 아이디",
     "textbox \"아이디\": tester",
     "text: 비밀번호",
-    "textbox \"비밀번호\": pass1234",
+    "textbox \"비밀번호\": <redacted>",
     "button \"로그인\""
    ],
-   "snapshot": "- heading \"로그인\" [level=1]\n- paragraph:\n  - text: 아이디\n  - textbox \"아이디\": tester\n- paragraph:\n  - text: 비밀번호\n  - textbox \"비밀번호\": pass1234\n- button \"로그인\"",
+   "snapshot": "- heading \"로그인\" [level=1]\n- paragraph:\n  - text: 아이디\n  - textbox \"아이디\": tester\n- paragraph:\n  - text: 비밀번호\n  - textbox \"비밀번호\": <redacted>\n- button \"로그인\"",
    "dialogs": [],
    "shot": "shots/test_reservation_04/02.jpg"
   },

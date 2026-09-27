@@ -6,7 +6,7 @@ import re, sys
 from collections import Counter
 from playwright.sync_api import sync_playwright
 
-from parity.runner import Runner
+from eastshift.runner import Runner
 
 import os
 url = sys.argv[1]; clicks = [c for c in (sys.argv[2] if len(sys.argv) > 2 else "").split(";") if c]

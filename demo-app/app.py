@@ -1,4 +1,4 @@
-"""parity 루프 데모용 작은 예약 앱. 표준 라이브러리만 사용.
+"""EastShift 루프 데모용 작은 예약 앱. 표준 라이브러리만 사용.
 
 python demo-app/app.py [port]   →  http://127.0.0.1:8787/
 - /login        아이디/비밀번호 → 쿠키 세션

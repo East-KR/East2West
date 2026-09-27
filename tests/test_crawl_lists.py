@@ -1,11 +1,11 @@
-"""parity crawl 의 목록 표본화를 실제 브라우저로: 12행 목록에서 대표만 누르고, 같은 층의 대표가 다른 화면으로 가면 그 층을 더 누른다."""
+"""eastshift crawl 의 목록 표본화를 실제 브라우저로: 12행 목록에서 대표만 누르고, 같은 층의 대표가 다른 화면으로 가면 그 층을 더 누른다."""
 import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from parity.crawl import Crawler
+from eastshift.crawl import Crawler
 
 STATUS = ["접수", "취소"]
 

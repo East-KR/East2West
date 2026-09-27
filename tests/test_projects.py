@@ -1,4 +1,4 @@
-"""프로젝트 등록부(parity.json)와 통합 화면의 프로젝트 API. 작업 디렉터리 밖은 만지지 않는다."""
+"""프로젝트 등록부(eastshift.json)와 통합 화면의 프로젝트 API. 작업 디렉터리 밖은 만지지 않는다."""
 import json
 import threading
 from http.server import ThreadingHTTPServer
@@ -8,7 +8,7 @@ from urllib.request import Request, urlopen
 
 import pytest
 
-from parity.pwtest import hub, ledger, projects
+from eastshift.pwtest import hub, ledger, projects
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def ws(tmp_path, monkeypatch):
     (tmp_path / "src-old").mkdir()
     (tmp_path / "src-new").mkdir()
     (tmp_path / "src-old" / "app.py").write_text("", encoding="utf-8")
-    return {"file": tmp_path / "parity.json", "tests": tmp_path / "e2e", "golden": tmp_path / "golden", "old": tmp_path / "src-old", "new": tmp_path / "src-new"}
+    return {"file": tmp_path / "eastshift.json", "tests": tmp_path / "e2e", "golden": tmp_path / "golden", "old": tmp_path / "src-old", "new": tmp_path / "src-new"}
 
 
 def spec(ws, **kw):
@@ -90,11 +90,11 @@ def test_hub_projects_without_golden(ws):
     d = h.app("shop")
     assert d["project"]["tobe"]["url"] == "http://127.0.0.1:8002" and d["tests"] == [] and d["runs"] == []
     for kind in hub.PAGES:
-        assert "골든이 아직 없습니다" in h.page("shop", kind) and "8001" in h.page("shop", kind)
+        assert "골든이 아직 없습니다" in h.page("shop", kind)["html"] and "8001" in h.page("shop", kind)["html"]
     with pytest.raises(KeyError):
         h.app("nope")
     with pytest.raises(KeyError):
-        h.approve("shop", by="x", code="x", fingerprint="x")  # 골든 없음
+        h.approve("shop", by="x", fingerprint="x")  # 골든 없음
     h.update_project("shop", spec(ws, note="n"))
     assert h.apps()[0]["note"] == "n"
     assert h.remove_project("shop")["kept"] == [str(ws["tests"] / "shop")]
@@ -136,7 +136,7 @@ def test_hub_projects_http(ws):
 
 
 def test_init_plan_and_rules(ws):
-    """화면 지도 초기화: 골든 없음 + as-is 주소 있을 때만. 시나리오가 없으면 탐색→초안→기록, 있으면 기록만. 골든이 있으면 거부."""
+    """Screen Map 초기화: 골든 없음 + as-is 주소 있을 때만. 시나리오가 없으면 탐색→초안→기록, 있으면 기록만. 골든이 있으면 거부."""
     h = hub.Hub(ws["golden"], ws["tests"], ws["file"])
     h.add_project("shop", {**spec(ws), "asis": {"src": str(ws["old"]), "url": ""}})
     with pytest.raises(ValueError, match="as-is 실행 주소"):
@@ -172,7 +172,7 @@ def test_map_sources_and_crawl_plan(ws, monkeypatch, tmp_path):
     with pytest.raises(ValueError, match="asis|tobe"):
         h.crawl_plan("shop", "x")
     for src in ("asis", "tobe"):
-        assert "아직 탐색하지 않았습니다" in h.page("shop", "map", src=src)
+        assert "아직 탐색하지 않았습니다" in h.page("shop", "map", src=src)["html"]
     (tmp_path / "crawl" / "shop").mkdir(parents=True)
     (tmp_path / "crawl" / "shop" / "graph.json").write_text('{"start": "/", "nodes": [], "edges": []}', encoding="utf-8")
     (tmp_path / "crawl" / "shop" / "test_crawl.py").write_text("", encoding="utf-8")

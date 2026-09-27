@@ -102,7 +102,8 @@ def page(title: str, body: str) -> bytes:
         links = "".join(f"<a href='{h}'><i aria-hidden='true'>{ICONS[t]}</i>{t}</a>" for h, t in menu)
         nav, css = f"<header><b>업무 포털</b>{links}</header>", CSS_MODERN
     else:
-        nav, css = "<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a></header>", CSS
+        notices_link = "<a href='/notices'>공지사항</a>" if VARIANT == "asis" else ""  # as-is 에만 있는 화면 (to-be 미개발 데모)
+        nav, css = f"<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a>{notices_link}</header>", CSS
     return (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>{title}</title><style>{css}</style><script>{JS}</script></head>"
             f"<body>{nav}<main>{body}</main></body></html>").encode()
 
@@ -125,7 +126,8 @@ def home() -> bytes:
     open_n = sum(o["status"] not in ("취소", "완료") for o in DB()["orders"])
     return page("홈", "<h1>포털 홈</h1><div class='cards'>"
                 f"<div class='card'>주문<b>{len(DB()["orders"])}건</b></div><div class='card'>미처리 주문<b>{open_n}건</b></div><div class='card'>고객<b>{len(DB()["customers"])}명</b></div></div>"
-                "<h2>바로 가기</h2><ul><li><a href='/orders'>주문 목록 열기</a></li><li><a href='/customers'>고객 목록 열기</a></li><li><a href='/settings'>설정 열기</a></li></ul>")
+                "<h2>바로 가기</h2><ul><li><a href='/orders'>주문 목록 열기</a></li><li><a href='/customers'>고객 목록 열기</a></li><li><a href='/settings'>설정 열기</a></li>"
+                + ("<li><a href='/notices'>공지사항 열기</a></li>" if VARIANT == "asis" else "") + "</ul>")
 
 
 def orders_list(q: dict) -> bytes:
@@ -192,6 +194,17 @@ def customer_detail(c: dict) -> bytes:
     return page(f"고객 상세 {c['name']}", body)
 
 
+NOTICES = [("2026-09-01", "9월 정기 점검 안내", "9월 20일 02:00~04:00 시스템 점검으로 주문 등록이 잠시 중단됩니다."),
+           ("2026-08-15", "배송비 정책 변경", "9월부터 5만 원 미만 주문의 배송비가 3,000원으로 조정됩니다."),
+           ("2026-07-30", "신규 품목 추가", "모니터·키보드가 품목에 추가되었습니다. 주문 등록 팝업에서 고를 수 있습니다.")]
+
+
+def notices() -> bytes:
+    """공지사항: as-is 에만 있고 to-be 에는 아직 개발되지 않은 화면. 비교 지도에서 '탐색 미발견(노랑)' 을 보여 주는 데모."""
+    items = "".join(f"<details><summary><span class='date'>{d}</span> {title}</summary><p>{body}</p></details>" for d, title, body in NOTICES)
+    return page("공지사항", f"<h1>공지사항</h1><p class='muted'>{len(NOTICES)}건</p><div class='notices'>{items}</div>")
+
+
 def settings() -> bytes:
     body = ("<h1>설정</h1><div role='tablist'><button type='button' role='tab' aria-selected='true' aria-controls='s-general' onclick='pickTab(this)'>일반</button>"
             "<button type='button' role='tab' aria-selected='false' aria-controls='s-noti' onclick='pickTab(this)'>알림</button></div>"
@@ -256,6 +269,8 @@ class Handler(BaseHTTPRequestHandler):
         if parts[0] == "customers" and len(parts) == 2 and parts[1].isdigit():
             c = next((x for x in DB()["customers"] if x["id"] == int(parts[1])), None)
             return self._send(customer_detail(c)) if c else self._send(page("없음", "<h1>고객이 없습니다</h1>"), HTTPStatus.NOT_FOUND)
+        if parts == ["notices"] and VARIANT == "asis":  # as-is 에만 있는 화면 (to-be 는 아직 미개발 → 비교 지도의 노랑)
+            return self._send(notices())
         if parts == ["settings"] and VARIANT != "tobe-wip":  # tobe-wip: 설정 화면은 아직 개발 전
             return self._send(settings())
         if parts == ["reports"] and VARIANT == "tobe-wip":  # tobe-wip 에만 있는 새 화면
