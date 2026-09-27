@@ -45,7 +45,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlsplit
 
-from . import catalog, html, ledger, oracle, projects, report, review
+from . import catalog, html, ledger, oracle, projects, report, review, stepdiff
 from . import map as screen_map
 
 PAGES = ("catalog", "review", "map", "report")
@@ -65,6 +65,7 @@ class Hub:
         """검토 화면에서 직접 승인한다. 검토 당시의 기준 지문을 확인한다."""
         d = self._golden(app)
         rec = oracle.approve_from_review(d, by, note, fingerprint)
+        stepdiff.keep_copy(d)  # 다음 재승인 때 '지난 승인본 대비' 비교 기준
         with self._lock:
             self._cache.clear()
         return {"ok": True, "approved_by": rec["approved_by"], "approved_at": rec["approved_at"]}

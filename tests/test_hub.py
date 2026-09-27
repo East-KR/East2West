@@ -105,7 +105,8 @@ def test_web_approval_rules(tmp_path, runs):
 
 
 @pytest.mark.skipif(not (GOLDEN / "legacy").is_dir(), reason="golden/legacy 없음")
-def test_web_approval_http_without_terminal(tmp_path):
+def test_web_approval_http_without_terminal(tmp_path, monkeypatch):
+    monkeypatch.setattr(ledger, "RUNS", tmp_path / "runs")  # 승인하면 승인본 사본을 원장 옆에 남긴다
     from urllib.request import Request
     from eastshift.pwtest import oracle
     root = tmp_path / "golden"

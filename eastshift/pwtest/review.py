@@ -2,9 +2,10 @@
 
 hub.py 가 /page/<app>/review 요청에 render(build(golden/<app>)) 로 만든다.
 
-화면: 왼쪽 시나리오 목록(확인 여부, 지난 승인 이후 바뀐 것 표시) · 가운데 선택한 시나리오(단계별 큰 캡처, 동작·알림창·확인 값) · 오른쪽 규칙(가림·이름 변경·동등 결함).
-"확인함" 표시는 보는 사람 브라우저에만 저장된다(localStorage). 모든 시나리오가 확인되면 승인 폼이 나타나고, 승인은 POST /api/app/<app>/approve (oracle.approve_from_review).
-읽는 것: golden/<app>/ 뿐. 새로 판단하는 것은 없다.
+화면: 왼쪽 시나리오 목록(확인 여부, 지난 승인 이후 바뀐 것 표시: 기대값 바뀜 · 화면 바뀜 · 새 시나리오) · 가운데 선택한 시나리오(단계별 큰 캡처, 동작·알림창·확인 값) · 오른쪽 규칙(가림·이름 변경·동등 결함).
+"확인함" 표시는 보는 사람 브라우저에만 저장된다(localStorage). 목록 위 "전체 확인"은 모두 확인 ↔ 전부 해제 토글이다. 모든 시나리오가 확인되면 승인 폼이 나타나고, 승인은 POST /api/app/<app>/approve (oracle.approve_from_review).
+재승인이면 단계마다 '지난 승인 대비' 차이(나타난·사라진 줄, 동작·대화상자·API 변화)를 보여 준다. 지난 승인본은 stepdiff 가 해시로 검증해 찾는다.
+읽는 것: golden/<app>/ 와 지난 승인본(runs/<app>/approved/ 또는 git 이력). 새로 판단하는 것은 없다.
 """
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from . import html, oracle
+from . import html, oracle, stepdiff
 from .map import _plain
 
 CSS = """
@@ -38,6 +39,7 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 .filters{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
 .filters button{font:600 12.5px var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:99px;padding:3px 10px;cursor:pointer}
 .filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.filters .allok{margin-left:auto;border-color:var(--ok);color:var(--ok)}.filters .allok.on{background:var(--ok);color:#fff;border-color:var(--ok)}
 /* 가운데 */
 .center{padding:0 18px 18px}
 .center .dh{position:sticky;top:0;background:var(--surface);padding:14px 0 10px;border-bottom:1px solid var(--line);z-index:1;display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center}
@@ -68,6 +70,9 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 .check{display:flex;gap:8px;align-items:baseline;font-size:14px}.check .k{color:var(--muted)}.check .v{font-family:var(--mono);font-weight:600}
 .check.chg{background:var(--warn-soft);border-radius:6px;padding:4px 8px}.check.chg s{color:var(--faint);margin-left:6px}
 .check.add{background:var(--accent-soft);border-radius:6px;padding:4px 8px}
+.delta{margin-top:10px;border-left:3px solid var(--warn);background:var(--warn-soft);border-radius:0 6px 6px 0;padding:6px 10px;font-size:13px;display:flex;flex-direction:column;gap:3px}
+.delta .lab{font-size:12px;font-weight:600;color:var(--warn)}.delta .ln{font-family:var(--mono);overflow-wrap:anywhere}.delta .ln.add::before{content:"+ ";color:var(--ok)}.delta .ln.rem{color:var(--muted);text-decoration:line-through}.delta .ln.rem::before{content:"− "}
+.item .flag.obs{background:var(--sunk);color:var(--muted)}
 .empty{padding:60px 20px;text-align:center;color:var(--faint)}
 /* 오른쪽 규칙 */
 .rules{padding:12px 14px;display:flex;flex-direction:column;gap:14px}
@@ -92,6 +97,7 @@ main{max-width:none;padding-block:22px 40px;gap:18px}
 JS = r"""
 const $ = s => root.querySelector(s), $$ = s => root.querySelectorAll(s);
 const D = JSON.parse($('#d').textContent);
+const FLAG = {chg: '기대값 바뀜', obs: '화면 바뀜', new: '새 시나리오'};
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const KEY = 'eastshift-review:' + D.app + ':' + D.fingerprint;  // 기록이 바뀌면 확인 표시도 새로 한다
 let done = new Set();
@@ -106,6 +112,7 @@ function refresh(){
   $$('.item').forEach(el => { el.classList.toggle('done', done.has(el.dataset.test)); el.classList.toggle('sel', el.dataset.test === current); });
   const n = D.order.length, k = D.order.filter(t => done.has(t)).length;
   $('#cnt').textContent = `${k}/${n} 확인`;
+  const all = $('#allok'); all.classList.toggle('on', n > 0 && k === n); all.textContent = n && k === n ? '✓ 전체 확인함' : '전체 확인';
   const chk = $('#chk'); if(chk){ chk.querySelector('b').textContent = `${k}/${n}`; chk.className = 'fchip ' + (n && k === n ? 'ok' : k ? 'warn' : 'none'); }
   // 승인 폼은 머리의 칩 줄 끝에: 모든 시나리오를 확인했고 아직 승인 전일 때만. 승인 상태와 진행은 칩(승인됨 / 확인 k/N)이 보여 준다
   const bar = $('#bar');
@@ -134,9 +141,9 @@ ctx.listen(window, 'keydown', e => {  // ← → 로 단계 넘기기 (입력칸
 function show(name){
   const t = D.tests[name]; if(!t) return;
   current = name;
-  let h = `<div class="dh"><h3>${esc(t.title)}${t.flag ? ` <span class="flag ${t.flag}">${t.flag === 'chg' ? '기대값 바뀜' : '새 시나리오'}</span>` : ''}</h3>`
+  let h = `<div class="dh"><h3>${esc(t.title)}${t.flag ? ` <span class="flag ${t.flag}">${FLAG[t.flag]}</span>` : ''}</h3>`
     + `<button type="button" class="okbtn ${done.has(name) ? 'on' : ''}" id="ok">${done.has(name) ? '✓ 확인함' : 'as-is 동작이 맞음 · 확인함'}</button>`
-    + `<div class="sub"><span>${esc(name)}</span><span>${t.steps.length}단계</span><span>${esc(t.base_url)}에서 ${esc(t.recorded_at || '')} 기록</span></div></div>`;
+    + `<div class="sub"><span>${esc(name)}</span><span>${t.steps.length}단계</span>${t.gone.length ? `<span>지난 승인보다 ${t.gone.length}단계 줄어듦: ${esc(t.gone.join(' · '))}</span>` : ''}<span>${esc(t.base_url)}에서 ${esc(t.recorded_at || '')} 기록</span></div></div>`;
   // 단계는 한 번에 하나: 좌우 버튼(←/→ 키)으로 넘기고, 필름스트립으로 바로 간다
   if(name !== stepOf) { stepIdx = 0; stepOf = name; }
   h += `<div class="stepnav"><button type="button" class="nv" id="prev" aria-label="이전 단계">‹</button><div class="film" id="film">`
@@ -152,6 +159,15 @@ function show(name){
     if(s.seen.length) b += `<div class="seen"><span class="lab">나타남</span>${s.seen.map(x => `<span class="it">${esc(x)}</span>`).join('')}</div>`;
     s.dialogs.forEach(d => { b += `<div class="dlg"><span class="verb">${d.type === 'confirm' ? '확인창' : '알림창'}</span><b>${esc(d.message)}</b><span class="ans">→ ${d.action === 'accept' ? '확인' : '취소'}</span></div>`; });
     (s.api || []).forEach(a => { b += `<details class="dlg"><summary>API ${esc(a.method)} ${esc(a.path)} · ${a.status}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(a.body)}</pre></details>`; });
+    if(s.delta){
+      const x = s.delta;
+      b += `<div class="delta"><span class="lab">지난 승인 대비${x.new ? ' · 새 단계' : ''}</span>`;
+      if(x.action_old) b += `<span>동작: <s>${esc(x.action_old)}</s></span>`;
+      b += x.added.map(l => `<span class="ln add">${esc(l)}</span>`).join('') + x.removed.map(l => `<span class="ln rem">${esc(l)}</span>`).join('');
+      if(x.dialogs) b += `<span>대화상자: <s>${esc(x.dialogs[0].join(', ') || '없음')}</s> → ${esc(x.dialogs[1].join(', ') || '없음')}</span>`;
+      if(x.api) b += `<span>API 응답 바뀜: ${esc(x.api.join(', '))}</span>`;
+      b += `</div>`;
+    }
     if(s.checks.length) b += `<div class="checks">` + s.checks.map(c => `<div class="check ${c.cls}"><span>✓</span><span class="k">${esc(c.k)}</span><span class="v">${esc(c.v)}</span>${c.old ? `<s>${esc(c.old)}</s>` : ''}</div>`).join('') + `</div>`;
     b += `</div></div>`;
     box.innerHTML = b;
@@ -177,11 +193,17 @@ function filter(){
     el.classList.toggle('dim', !hit);
   });
 }
-$$('.filters button').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; $$('.filters button').forEach(x => x.classList.toggle('on', x === b)); filter(); }));
+$('#allok').addEventListener('click', () => {  // 전체 확인 토글: 모두 확인됐으면 전부 해제, 아니면 전부 확인 (승인은 여전히 이름을 넣어야 된다)
+  done = D.order.every(t => done.has(t)) ? new Set() : new Set(D.order); save(); if(current) show(current); else refresh();
+});
+$$('.filters button[data-mode]').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; $$('.filters button[data-mode]').forEach(x => x.classList.toggle('on', x === b)); filter(); }));
 $$('.item').forEach(el => el.addEventListener('click', () => show(el.dataset.test)));
 const first = decodeURIComponent(ctx.getSub() || '');
 show(D.tests[first] ? first : (D.order.find(t => D.tests[t].flag) || D.order.find(t => !done.has(t)) || D.order[0]));
 """
+
+
+FLAGS = {"chg": "기대값 바뀜", "obs": "화면 바뀜", "new": "새 시나리오"}
 
 
 def _img(p: Path) -> str:
@@ -195,6 +217,15 @@ def _check(a: dict[str, Any], cls: str = "", old: dict[str, Any] | None = None) 
     return {"k": k, "v": v, "cls": cls, "old": o}
 
 
+def _delta(x: dict[str, Any] | None) -> dict[str, Any] | None:
+    """stepdiff 한 단계 → 화면용. 동작이 바뀌었으면 예전 동작을 읽을 수 있는 문장으로."""
+    if not x:
+        return None
+    old = x.get("action", [None])[0]
+    return {"new": bool(x.get("new")), "action_old": _plain(html._action(*old)) if old and not x.get("new") else "",
+            "added": x["added"][:12], "removed": x["removed"][:12], "dialogs": x.get("dialogs"), "api": x.get("api")}
+
+
 def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
     import hashlib
     from collections import Counter
@@ -204,6 +235,8 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
     docs = html.docstrings(tests_dir or Path("e2e") / d.name)
     st = oracle.status(d)
     prev = oracle.approved_assertions(d)
+    # 승인 뒤 바뀐 기준이면 지난 승인본을 찾아 단계별로 비교한다 (승인 그대로면 볼 것이 없다)
+    approved = stepdiff.approved_goldens(d) if not st["ok"] and st.get("approved_by") else {}
     cfg = oracle.load_config(d)
     rules = cfg.get("ignore", [])
     shots: dict[str, str] = {}
@@ -226,6 +259,10 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
             flag = "new"
         elif before is not None and before != t["assertions"]:
             flag = "chg"
+        deltas = {x["index"]: x for x in stepdiff.diff(approved[t["name"]], data, rules)} if t["name"] in approved else {}
+        if not flag and deltas:
+            flag = "obs"
+        gone = [_plain(html._action(*x["action"][0])) for x in deltas.values() if x.get("gone")]
         steps, prev_lines = [], Counter()
         for o in data.get("steps", []):
             cur = Counter(mask(flatten(o.get("snapshot", ""), keep_urls=False), rules))
@@ -239,8 +276,8 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
             act = html._action(o["kind"], o["text"])
             steps.append({"index": o["index"], "action": act, "action_text": _plain(act), "seen": seen,
                           "dialogs": o.get("dialogs", []), "api": o.get("api", []),
-                          "checks": by_step.get(o["index"], []), "shot": sid})
-        tests[t["name"]] = {"title": html._title(t["name"], docs), "steps": steps, "flag": flag, "base_url": t["base_url"], "recorded_at": t["recorded_at"]}
+                          "checks": by_step.get(o["index"], []), "shot": sid, "delta": _delta(deltas.get(o["index"]))})
+        tests[t["name"]] = {"title": html._title(t["name"], docs), "steps": steps, "flag": flag, "gone": gone, "base_url": t["base_url"], "recorded_at": t["recorded_at"]}
         order.append(t["name"])
     removed = [] if prev is None else sorted(set(prev) - set(order))
     fp = oracle.oracle_files(d)
@@ -259,6 +296,7 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
     n_all = len(g["tests"])
     n_chg = sum(1 for t in g["tests"].values() if t["flag"] == "chg")
     n_new = sum(1 for t in g["tests"].values() if t["flag"] == "new")
+    n_obs = sum(1 for t in g["tests"].values() if t["flag"] == "obs")
     chips = []
     if st["ok"]:
         chips.append(html.chip("ok", "승인됨", sub=f"{st['approved_by']} · {(st['approved_at'] or '')[:16]}", lead=True))
@@ -270,13 +308,15 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
     chips.append(f"<span class='fchip none' id='chk' title='이 브라우저에서 확인함 표시를 한 시나리오'><i></i>확인<b>0/{n_all}</b></span>")
     if n_chg:
         chips.append(html.chip("warn", "기대값 바뀜", n_chg, title="지난 승인 이후 기대값이 바뀐 시나리오"))
+    if n_obs:
+        chips.append(html.chip("none", "화면 바뀜", n_obs, title="기대값은 그대로지만 지난 승인 이후 기록된 화면·대화상자·API 응답이 바뀐 시나리오"))
     if n_new:
         chips.append(html.chip("accepted", "새 시나리오", n_new, title="지난 승인 이후 새로 기록된 시나리오"))
     if g["removed"]:
         chips.append(html.chip("none", "없어진 시나리오", len(g["removed"]), title=", ".join(g["removed"])))
     chips.append("<span class='abox' id='bar'></span>")  # 모두 확인하면 여기에 승인 폼 (이름 + 승인)
     items = "".join(f"<button type='button' class='item' data-test='{html._e(n)}'><span class='box'></span><span class='t'>{html._e(t['title'])}"
-                    + (f"<span class='flag {t['flag']}'>{'기대값 바뀜' if t['flag'] == 'chg' else '새 시나리오'}</span>" if t["flag"] else "")
+                    + (f"<span class='flag {t['flag']}'>{FLAGS[t['flag']]}</span>" if t["flag"] else "")
                     + f"<small>{html._e(n)} · {len(t['steps'])}단계</small></span></button>" for n, t in g["tests"].items())
     notice = ""
     if st.get("problems") and st.get("approved_by"):
@@ -304,7 +344,7 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
                       facts=[f"<b>기준 폴더</b> golden/{html._e(g['app'])}", f"<b>규칙</b> {len(groups)}묶음" if groups else "<b>규칙</b> 없음 (oracle.json 의 가림·이름 변경·동등 결함·승인된 차이가 오른쪽 칸에 보입니다)"])
             + notice +
             f"<div class='stage{' norules' if not groups else ''}'><div class='pane left'><h2><span>시나리오</span><span id='cnt'></span></h2>"
-            f"<div class='filters'><button type='button' class='on' data-mode='all'>전체</button><button type='button' data-mode='todo'>미확인</button><button type='button' data-mode='chg'>바뀐 것</button></div>"
+            f"<div class='filters'><button type='button' class='on' data-mode='all'>전체</button><button type='button' data-mode='todo'>미확인</button><button type='button' data-mode='chg'>바뀐 것</button><button type='button' class='allok' id='allok' title='모든 시나리오를 확인함으로 표시하거나 전부 해제'>전체 확인</button></div>"
             f"<div class='scroll list'>{items}</div></div>"
             f"<div class='pane center scroll' id='center'><div class='empty'>왼쪽에서 시나리오를 고르세요</div></div>{rules}</div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
