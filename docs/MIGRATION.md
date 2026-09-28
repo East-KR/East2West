@@ -211,6 +211,7 @@ to-be 비교 자체는 xdist 로 브라우저 여러 개에 나눌 수 있다 (`
 
 홈에서 시작해 라우트 7개(주문 목록·상세, 고객 목록·상세, 설정, 공지사항)로 갈라지고 화면 안에 팝업·드로워·탭·confirm·alert가 있는 업무 포털. 테스트 20개(crawl 초안 18 + 업무 값 2).
 as-is 버그 두 개: 부가세 10원 절사, 이미 취소된 주문을 다시 취소해도 막지 않음(이력에 취소가 두 번). as-is에만 있는 화면 하나: 공지사항(`/notices`, 홈·상단 메뉴에서 감) — 어느 to-be에도 없어 비교 지도에서 노랑(탐색 미발견)으로 보인다.
+as-is 소스(`demo-app/portal_asis/`)와 to-be 소스(`demo-app/portal_tobe/`)는 따로다. 실제 전환처럼 각자 완결된 코드라서 `eastshift routes`가 폴더마다 자기 주소만 뽑는다: as-is 지도에는 `/notices`가 있고 `/reports`가 없으며, to-be 지도에는 그 반대다(`/reports`는 tobe-wip 에만 있어 다른 to-be 변형의 지도에서는 "코드에만 있음" 회색). `portal_app.py <port> <변형>`은 변형 이름으로 둘 중 하나를 띄우는 실행기다.
 
 ```bash
 python demo-app/portal_app.py 8820 asis &          # as-is

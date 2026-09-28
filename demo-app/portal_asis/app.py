@@ -1,0 +1,264 @@
+"""포털 데모의 as-is 앱 (기존 시스템). 표준 라이브러리만 사용. to-be(demo-app/portal_tobe/)와 코드를 공유하지 않는다:
+실제 전환처럼 as-is와 to-be 가 각자 완결된 소스여야 `eastshift routes` 가 각 폴더의 주소만 뽑고, 지도의 회색(코드에만 있음)이 사실을 반영한다.
+
+python demo-app/portal_asis/app.py <port> asis          as-is (버그 포함)
+python demo-app/portal_asis/app.py <port> asis-patched  as-is에 운영 패치가 들어온 뒤: 홈에 점검 안내 한 줄, 요약 카드 "미처리 주문" → "처리 대기".
+                                                        재기록하면 승인 탭에 "화면 바뀜"과 단계별 "지난 승인 대비"가 뜨는 데모 (기대값은 그대로)
+(python demo-app/portal_app.py <port> <변형> 도 같다: 변형 이름으로 이 앱을 띄운다)
+
+라우트
+  /                  홈 (요약 카드, 메뉴)
+  /orders            주문 목록: [필터] 드로워(상태로 거르기), [신규 주문] 팝업(고객·품목·수량 → 저장)
+  /orders/<id>       주문 상세: 탭(기본 정보 / 이력), [주문 취소] confirm, [목록으로]
+  /customers         고객 목록: [고객 등록] 팝업
+  /customers/<id>    고객 상세: [메모] 드로워(저장), [주문 보기] → /orders?customer=<id>
+  /settings          설정: 탭(일반 / 알림), [저장] alert
+  /notices           공지사항: as-is 에만 있다 (to-be 는 아직 미개발 → 비교 지도의 노랑)
+
+as-is 동작 (버그 포함)
+- 주문 합계의 부가세는 10원 단위 절사
+- 이미 취소된 주문도 다시 취소된다: 이력에 취소가 두 번 쌓인다
+"""
+from __future__ import annotations
+
+import copy
+import sys
+import threading
+import uuid
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
+
+VARIANT = "asis"
+VARIANTS = ("asis", "asis-patched")
+ITEMS = {"notebook": ("노트북", 1_250_000), "mouse": ("마우스", 33_000), "pen": ("볼펜", 1_225)}
+# 세션(쿠키 psid)마다 SEED의 복사본 = 세션별 테스트 DB. 브라우저 컨텍스트가 새로 뜰 때마다 초기 데이터로 시작해서
+# 테스트 순서·병렬 실행·반복 실행에 상관없이 같은 결과가 나온다 (실제 프로젝트에서는 DB 스냅샷 복원이 이 역할)
+SEED = {"customers": [{"id": 1, "name": "김철수", "grade": "VIP", "memo": ""}, {"id": 2, "name": "이영희", "grade": "일반", "memo": "전화 선호"}],
+        "orders": [{"id": 1, "customer": 1, "item": "notebook", "qty": 1, "status": "접수", "log": ["접수"]},
+                   {"id": 2, "customer": 2, "item": "pen", "qty": 4, "status": "배송중", "log": ["접수", "배송중"]},
+                   {"id": 3, "customer": 1, "item": "mouse", "qty": 2, "status": "취소", "log": ["접수", "취소"]}]}
+SESSIONS: dict[str, dict] = {}
+_L = threading.local()
+
+
+def DB() -> dict:
+    return _L.db
+
+
+CSS = ("[hidden]{display:none!important}body{font-family:sans-serif;margin:0;color:#222}header{background:#20413c;color:#fff;padding:10px 20px;display:flex;gap:18px;align-items:center}"
+       "header a{color:#fff}main{padding:18px 20px}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:5px 10px;text-align:left}"
+       ".cards{display:flex;gap:12px}.card{border:1px solid #ccc;border-radius:8px;padding:12px 16px;min-width:140px}.card b{display:block;font-size:22px}"
+       "[role=dialog]{position:fixed;inset:0;background:rgba(0,0,0,.4);display:grid;place-items:center}[role=dialog]>div{background:#fff;padding:18px 22px;border-radius:8px;min-width:320px}"
+       "aside{position:fixed;right:0;top:0;bottom:0;width:280px;background:#f4f6f5;border-left:1px solid #ccc;padding:16px}"
+       "[role=tablist]{display:flex;gap:4px;margin:12px 0}[role=tab]{padding:6px 12px;border:1px solid #bbb;background:#eee;cursor:pointer}[role=tab][aria-selected=true]{background:#fff;font-weight:bold}"
+       "[role=tabpanel]{border:1px solid #bbb;padding:12px}label{display:block;margin:6px 0}.toolbar{display:flex;gap:8px;margin-bottom:12px}")
+JS = ("function openBox(id){document.getElementById(id).hidden=false}function closeBox(id){document.getElementById(id).hidden=true}"
+      "function pickTab(btn){const list=btn.parentElement;for(const t of list.querySelectorAll('[role=tab]')){const on=t===btn;t.setAttribute('aria-selected',on);"
+      "document.getElementById(t.getAttribute('aria-controls')).hidden=!on}}")
+
+
+def vat(supply: int) -> int:
+    return int(supply * 0.1 // 10 * 10)  # as-is 버그: 10원 절사
+
+
+def page(title: str, body: str) -> bytes:
+    nav = "<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a><a href='/notices'>공지사항</a></header>"
+    return (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>{title}</title><style>{CSS}</style><script>{JS}</script></head>"
+            f"<body>{nav}<main>{body}</main></body></html>").encode()
+
+
+def won(n: int) -> str:
+    return f"{n:,}원"
+
+
+def customer(cid: int) -> dict:
+    return next(c for c in DB()["customers"] if c["id"] == cid)
+
+
+def order_total(o: dict) -> tuple[int, int, int]:
+    supply = ITEMS[o["item"]][1] * o["qty"]
+    v = vat(supply)
+    return supply, v, supply + v
+
+
+def home() -> bytes:
+    open_n = sum(o["status"] not in ("취소", "완료") for o in DB()["orders"])
+    patched = VARIANT == "asis-patched"  # 운영 패치 데모: 점검 안내 + 카드 이름 변경
+    return page("홈", "<h1>포털 홈</h1>" + ("<p>9월 30일(화) 22시부터 시스템 점검이 있습니다</p>" if patched else "") + "<div class='cards'>"
+                f"<div class='card'>주문<b>{len(DB()["orders"])}건</b></div><div class='card'>{'처리 대기' if patched else '미처리 주문'}<b>{open_n}건</b></div><div class='card'>고객<b>{len(DB()["customers"])}명</b></div></div>"
+                "<h2>바로 가기</h2><ul><li><a href='/orders'>주문 목록 열기</a></li><li><a href='/customers'>고객 목록 열기</a></li><li><a href='/settings'>설정 열기</a></li>"
+                "<li><a href='/notices'>공지사항 열기</a></li></ul>")
+
+
+def orders_list(q: dict) -> bytes:
+    status = (q.get("status") or [""])[0]
+    cust = (q.get("customer") or [""])[0]
+    rows = [o for o in DB()["orders"] if (not status or o["status"] == status) and (not cust or str(o["customer"]) == cust)]
+    trs = "".join(f"<tr><td><a href='/orders/{o['id']}'>ORD-{o['id']} {ITEMS[o['item']][0]}</a></td><td>{customer(o['customer'])['name']}</td>"
+                  f"<td>{o['qty']}</td><td>{won(order_total(o)[2])}</td><td>{o['status']}</td></tr>" for o in rows)
+    opts = "".join(f"<option value='{s}' {'selected' if s == status else ''}>{s or '전체'}</option>" for s in ("", "접수", "배송중", "완료", "취소"))
+    cust_opts = "".join(f"<option value='{c['id']}'>{c['name']}</option>" for c in DB()["customers"])
+    item_opts = "".join(f"<option value='{k}'>{v[0]}</option>" for k, v in ITEMS.items())
+    item_field = f"<label>품목 <select name='item'>{item_opts}</select></label>"
+    body = ("<h1>주문 목록</h1><div class='toolbar'><button type='button' onclick=\"openBox('filter')\">필터</button><button type='button' onclick=\"openBox('new')\">신규 주문</button></div>"
+            f"<p>{len(rows)}건" + (f" · 상태 {status}" if status else "") + (f" · 고객 {customer(int(cust))['name']}" if cust else "") + "</p>"
+            f"<table><tr><th>주문</th><th>고객</th><th>수량</th><th>합계</th><th>상태</th></tr>{trs}</table>"
+            f"<aside id='filter' aria-label='필터' hidden><h2>필터</h2><form method='get' action='/orders'><label>상태 <select name='status'>{opts}</select></label>"
+            "<button type='submit'>적용</button> <button type='button' onclick=\"closeBox('filter')\">닫기</button></form></aside>"
+            "<div id='new' role='dialog' aria-label='신규 주문' hidden><div><h2>신규 주문</h2><form method='post' action='/orders'>"
+            f"<label>고객 <select name='customer'>{cust_opts}</select></label>{item_field}"
+            "<label>수량 <input name='qty' value='1'></label><button type='submit'>저장</button> <button type='button' onclick=\"closeBox('new')\">닫기</button></form></div></div>")
+    return page("주문 목록", body)
+
+
+def order_detail(o: dict) -> bytes:
+    supply, v, total = order_total(o)
+    c = customer(o["customer"])
+    log = "".join(f"<li>{i + 1}. {s}</li>" for i, s in enumerate(o["log"]))
+    body = (f"<h1>주문 상세 ORD-{o['id']}</h1><p>상태: <strong>{o['status']}</strong></p>"
+            "<div role='tablist'><button type='button' role='tab' aria-selected='true' aria-controls='p-basic' onclick='pickTab(this)'>기본 정보</button>"
+            "<button type='button' role='tab' aria-selected='false' aria-controls='p-log' onclick='pickTab(this)'>이력</button></div>"
+            f"<div id='p-basic' role='tabpanel' aria-label='기본 정보'><table><tr><th>고객</th><td><a href='/customers/{c['id']}'>{c['name']}</a></td></tr>"
+            f"<tr><th>품목</th><td>{ITEMS[o['item']][0]}</td></tr><tr><th>수량</th><td>{o['qty']}</td></tr><tr><th>공급가액</th><td>{won(supply)}</td></tr>"
+            f"<tr><th>부가세</th><td>{won(v)}</td></tr><tr><th>합계</th><td>{won(total)}</td></tr></table></div>"
+            f"<div id='p-log' role='tabpanel' aria-label='이력' hidden><ul>{log}</ul></div>"
+            f"<form method='post' action='/orders/{o['id']}/cancel' onsubmit=\"return confirm('이 주문을 취소할까요?')\"><button type='submit'>주문 취소</button> <a href='/orders'>목록으로</a></form>")
+    return page(f"주문 상세 ORD-{o['id']}", body)
+
+
+def customers_list() -> bytes:
+    trs = "".join(f"<tr><td><a href='/customers/{c['id']}'>{c['name']}</a></td><td>{c['grade']}</td><td>{sum(o['customer'] == c['id'] for o in DB()["orders"])}</td></tr>" for c in DB()["customers"])
+    body = ("<h1>고객 목록</h1><div class='toolbar'><button type='button' onclick=\"openBox('reg')\">고객 등록</button></div>"
+            f"<table><tr><th>이름</th><th>등급</th><th>주문 수</th></tr>{trs}</table>"
+            "<div id='reg' role='dialog' aria-label='고객 등록' hidden><div><h2>고객 등록</h2><form method='post' action='/customers'>"
+            "<label>이름 <input name='name'></label><label>등급 <select name='grade'><option>일반</option><option>VIP</option></select></label>"
+            "<button type='submit'>등록</button> <button type='button' onclick=\"closeBox('reg')\">닫기</button></form></div></div>")
+    return page("고객 목록", body)
+
+
+def customer_detail(c: dict) -> bytes:
+    body = (f"<h1>고객 상세 {c['name']}</h1><table><tr><th>등급</th><td>{c['grade']}</td></tr><tr><th>메모</th><td>{c['memo'] or '(없음)'}</td></tr></table>"
+            f"<div class='toolbar'><button type='button' onclick=\"openBox('memo')\">메모</button><a href='/orders?customer={c['id']}'>주문 보기</a></div>"
+            f"<aside id='memo' aria-label='메모' hidden><h2>메모</h2><form method='post' action='/customers/{c['id']}/memo'><label>메모 내용 <textarea name='memo'>{c['memo']}</textarea></label>"
+            "<button type='submit'>저장</button> <button type='button' onclick=\"closeBox('memo')\">닫기</button></form></aside>")
+    return page(f"고객 상세 {c['name']}", body)
+
+
+NOTICES = [("2026-09-01", "9월 정기 점검 안내", "9월 20일 02:00~04:00 시스템 점검으로 주문 등록이 잠시 중단됩니다."),
+           ("2026-08-15", "배송비 정책 변경", "9월부터 5만 원 미만 주문의 배송비가 3,000원으로 조정됩니다."),
+           ("2026-07-30", "신규 품목 추가", "모니터·키보드가 품목에 추가되었습니다. 주문 등록 팝업에서 고를 수 있습니다.")]
+
+
+def notices() -> bytes:
+    """공지사항: as-is 에만 있고 to-be 에는 아직 개발되지 않은 화면. 비교 지도에서 '미개발(노랑)' 을 보여 주는 데모."""
+    items = "".join(f"<details><summary><span class='date'>{d}</span> {title}</summary><p>{body}</p></details>" for d, title, body in NOTICES)
+    return page("공지사항", f"<h1>공지사항</h1><p class='muted'>{len(NOTICES)}건</p><div class='notices'>{items}</div>")
+
+
+def settings() -> bytes:
+    body = ("<h1>설정</h1><div role='tablist'><button type='button' role='tab' aria-selected='true' aria-controls='s-general' onclick='pickTab(this)'>일반</button>"
+            "<button type='button' role='tab' aria-selected='false' aria-controls='s-noti' onclick='pickTab(this)'>알림</button></div>"
+            "<form onsubmit=\"alert('저장되었습니다.');return false\"><div id='s-general' role='tabpanel' aria-label='일반'><label>회사명 <input name='company' value='데모상사'></label></div>"
+            "<div id='s-noti' role='tabpanel' aria-label='알림' hidden><label><input type='checkbox' name='mail' checked> 메일 알림</label><label><input type='checkbox' name='sms'> 문자 알림</label></div>"
+            "<button type='submit'>저장</button></form>")
+    return page("설정", body)
+
+
+class Handler(BaseHTTPRequestHandler):
+    def log_message(self, *_):
+        pass
+
+    def _begin(self) -> None:
+        """쿠키의 세션을 찾거나 새로 만든다. 새 세션이면 응답에 Set-Cookie."""
+        cookies = dict(kv.strip().split("=", 1) for kv in self.headers.get("Cookie", "").split(";") if "=" in kv)
+        sid = cookies.get("psid")
+        _L.new_sid = None
+        if not sid or sid not in SESSIONS:
+            sid = uuid.uuid4().hex
+            if len(SESSIONS) > 500:
+                SESSIONS.pop(next(iter(SESSIONS)))
+            SESSIONS[sid] = copy.deepcopy(SEED)
+            _L.new_sid = sid
+        _L.db = SESSIONS[sid]
+
+    def _cookie(self) -> None:
+        if _L.new_sid:
+            self.send_header("Set-Cookie", f"psid={_L.new_sid}; Path=/")
+
+    def _send(self, body: bytes, status=HTTPStatus.OK) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self._cookie()
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _redirect(self, to: str) -> None:
+        self.send_response(HTTPStatus.SEE_OTHER)
+        self.send_header("Location", to)
+        self._cookie()
+        self.end_headers()
+
+    def _form(self) -> dict[str, str]:
+        raw = self.rfile.read(int(self.headers.get("Content-Length", 0))).decode()
+        return {k: v[0] for k, v in parse_qs(raw, keep_blank_values=True).items()}
+
+    def do_GET(self):
+        self._begin()
+        u = urlparse(self.path)
+        parts = [p for p in u.path.split("/") if p]
+        if not parts:
+            return self._send(home())
+        if parts == ["orders"]:
+            return self._send(orders_list(parse_qs(u.query)))
+        if parts[0] == "orders" and len(parts) == 2 and parts[1].isdigit():
+            o = next((x for x in DB()["orders"] if x["id"] == int(parts[1])), None)
+            return self._send(order_detail(o)) if o else self._send(page("없음", "<h1>주문이 없습니다</h1>"), HTTPStatus.NOT_FOUND)
+        if parts == ["customers"]:
+            return self._send(customers_list())
+        if parts[0] == "customers" and len(parts) == 2 and parts[1].isdigit():
+            c = next((x for x in DB()["customers"] if x["id"] == int(parts[1])), None)
+            return self._send(customer_detail(c)) if c else self._send(page("없음", "<h1>고객이 없습니다</h1>"), HTTPStatus.NOT_FOUND)
+        if parts == ["notices"]:
+            return self._send(notices())
+        if parts == ["settings"]:
+            return self._send(settings())
+        self._send(page("없음", "<h1>페이지가 없습니다</h1>"), HTTPStatus.NOT_FOUND)
+
+    def do_POST(self):
+        self._begin()
+        u = urlparse(self.path)
+        parts = [p for p in u.path.split("/") if p]
+        f = self._form()
+        if parts == ["orders"]:
+            qty = int(f.get("qty") or 0)
+            o = {"id": max(x["id"] for x in DB()["orders"]) + 1, "customer": int(f.get("customer") or 1), "item": f.get("item") or "pen", "qty": qty, "status": "접수", "log": ["접수"]}
+            DB()["orders"].append(o)
+            return self._redirect(f"/orders/{o['id']}")
+        if parts[0] == "orders" and len(parts) == 3 and parts[2] == "cancel":
+            o = next(x for x in DB()["orders"] if x["id"] == int(parts[1]))
+            o["status"] = "취소"
+            o["log"].append("취소")  # as-is 버그: 이미 취소된 주문도 다시 취소되어 이력에 두 번 쌓인다
+            return self._redirect(f"/orders/{o['id']}")
+        if parts == ["customers"]:
+            c = {"id": max(x["id"] for x in DB()["customers"]) + 1, "name": f.get("name") or "(이름 없음)", "grade": f.get("grade") or "일반", "memo": ""}
+            DB()["customers"].append(c)
+            return self._redirect(f"/customers/{c['id']}")
+        if parts[0] == "customers" and len(parts) == 3 and parts[2] == "memo":
+            c = customer(int(parts[1]))
+            c["memo"] = f.get("memo", "")
+            return self._redirect(f"/customers/{c['id']}")
+        self._send(page("없음", "<h1>페이지가 없습니다</h1>"), HTTPStatus.NOT_FOUND)
+
+
+def serve(port: int, variant: str) -> None:
+    global VARIANT
+    assert variant in VARIANTS, f"{variant}: as-is 변형은 {VARIANTS}"
+    VARIANT = variant
+    print(f"portal demo as-is ({VARIANT}) on http://127.0.0.1:{port}/")
+    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
+
+
+if __name__ == "__main__":
+    serve(int(sys.argv[1]) if len(sys.argv) > 1 else 8820, sys.argv[2] if len(sys.argv) > 2 else "asis")
