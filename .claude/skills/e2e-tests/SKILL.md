@@ -90,7 +90,9 @@ uv run eastshift mutate e2e/<app> --base-url <as-is> --compare golden/<app> --ma
 
 Each survivor is either a test gap (add or extend a test, expected values from a green as-is run, re-record) or a defect with no observable effect, which you propose to the user as an `equivalent_mutants` entry with its reason. Repeat until the score is at least 80% and every survivor is classified; re-recording needs re-approval.
 
-Then compare and report:
+It runs on the as-is only and needs an approved golden plus a green discovery run; it does not depend on any to-be result. Each mutant stops at its first detecting test, so a test with zero kills in the report is not a weak test. Finished mutants accumulate in `<out>.partial.jsonl`: if the run is interrupted, rerun the same command and only the remaining mutants run. For a very large app cap the total with `--max-mutants N`.
+
+Then compare and report (`-n 4` splits the comparison over four browsers; the ledger still gets one run. Not with `--reset-path`):
 
 ```bash
 uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app> --junitxml reports/junit-<app>.xml

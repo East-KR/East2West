@@ -64,6 +64,7 @@ def test_generate_spreads_picks_and_honours_oracle_rules():
     assert max(per.values()) <= 2
     nums = [x for x in few if x["path"] == "/order.jsp" and x["op"] == "num"]
     assert nums[0]["site"] == 0 and nums[-1]["site"] == len(m.sites(HTML, "num", "document")) - 1  # 처음과 끝을 고르게
+    assert {(x["path"], x["op"]): x["site"] for x in m.generate(bodies, max_per_op=1)}[("/order.jsp", "num")] == 0  # 하나만: 첫 자리
     # 마스킹된 값은 비교하지 않으니 그 자리의 결함은 뽑지 않고, 승인된 동등 결함도 뽑지 않는다
     rules = {"ignore": [r"부가세 \d+원"], "equivalent_mutants": [{"path": "/order.jsp", "op": "cond", "context": "⟦===→!==⟧", "reason": "x"}]}
     kept = m.generate(bodies, max_per_op=100, rules=rules)
@@ -78,3 +79,48 @@ def test_capture_keeps_first_body_per_route_and_paths_per_test():
     c.add("t2", "/orders/{id}", "document", "second")
     c.add("t1", "/orders/{id}", "document", "third")
     assert c.bodies["/orders/{id}"]["body"] == "first" and c.tests == {"t1": ["/orders/{id}"], "t2": ["/orders/{id}"]}
+
+
+def test_inside_matches_linear_scan_on_large_page():
+    # 큰 목록 화면: 자리마다 전체 구간을 훑던 방식과 같은 답을 이진 탐색으로 낸다
+    rows = "".join(f"<tr><td data-id='{i}'>품목 {i}</td><td>{i * 1000:,}원</td></tr>" for i in range(2000))
+    page = f"<html><style>td{{width:12px}}</style><body><table>{rows}</table><script>if (n === 3) {{}}</script></body></html>"
+    tags = m._spans(m.TAG, page)
+    for pos in range(0, len(page), 97):
+        assert m._inside(pos, tags) == next((s for s in tags if s[0] <= pos < s[1]), None)
+    assert len(m.sites(page, "num", "document")) >= 4000 and len(m.sites(page, "label", "document")) == 2000
+    assert m._merged([(5, 9), (0, 3), (2, 6), (20, 30)]) == [(0, 9), (20, 30)]
+
+
+def test_partial_results_resume_only_with_same_key(tmp_path):
+    p = tmp_path / "mutation.json.partial.jsonl"
+    p.write_text('{"key": "k1"}\n{"id": "m000", "killed": true}\n{"id": "m001", "kil', encoding="utf-8")  # 마지막 줄은 쓰다 끊김
+    assert set(m._load_partial(p, "k1")) == {"m000"}
+    assert m._load_partial(p, "k2") == {}
+    assert m._load_partial(tmp_path / "none", "k1") == {}
+    a = m._resume_key([{"id": "m000"}], {"t": ["/"]}, ["--base-url", "x"], "h")
+    assert a == m._resume_key([{"id": "m000"}], {"t": ["/"]}, ["--base-url", "x"], "h") != m._resume_key([{"id": "m000"}], {"t": ["/"]}, ["--base-url", "y"], "h")
+
+
+def test_generate_puts_shared_layout_sites_on_first_route_only():
+    # 화면마다 같은 메뉴가 붙은 큰 앱: 메뉴 자리는 첫 화면에서만 후보, 뒤 화면의 몫은 그 화면에만 있는 내용으로 간다
+    pad = "<span class='menu-separator-line'></span>"  # 앞뒤 문맥(25자)이 메뉴 안에서 끝나게
+    menu = "<nav>" + "".join(f"{pad}<a>{name}</a>{pad}" for name in ("주문 관리", "고객 관리", "설정 화면")) + "</nav>"
+    bodies = {f"/s{i}": {"kind": "document", "body": f"<html><body>{menu}<h1>화면 {i}번 제목</h1><p>합계 {i}00원</p></body></html>"} for i in range(3)}
+    stats = {}
+    ms = m.generate(bodies, max_per_op=100, stats=stats)
+    labels = [x for x in ms if x["op"] == "label"]
+    menu_mutants = [x for x in labels if "관리→" in x["desc"] or "설정 화면→" in x["desc"]]
+    assert len(menu_mutants) == 3 and {x["path"] for x in menu_mutants} == {"/s0"}
+    assert {x["path"] for x in labels if "제목→" in x["desc"]} == {"/s0", "/s1", "/s2"}  # 화면마다 다른 내용은 그대로
+    assert stats["shared"] == 6 and sum(x["op"] == "http500" for x in ms) == 3  # 메뉴 3곳 × 뒤 화면 2개
+    few = [x for x in m.generate(bodies, max_per_op=1) if x["op"] == "label"]
+    assert [x["path"] for x in few] == ["/s0", "/s1", "/s2"] and not any("관리→" in x["desc"] or "설정 화면→" in x["desc"] for x in few[1:])
+
+
+def test_max_mutants_spreads_evenly_across_generated_list():
+    items = list(range(100))
+    assert m._spread(items, 0) == items and m._spread(items, 200) == items
+    picked = m._spread(items, 5)
+    assert picked == [0, 25, 50, 74, 99] or (len(picked) == 5 and picked[0] == 0 and picked[-1] == 99)
+    assert m._spread(items, 1) == [0]

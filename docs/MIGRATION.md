@@ -122,7 +122,7 @@ uv run eastshift ui            # http://127.0.0.1:8790 (골든 루트 golden/, �
 uv run eastshift oracle-status golden/<app>                          # 승인 상태, 마스킹 감사 (누구나, 터미널)
 uv run eastshift ui                                                  # 시나리오 승인 탭에서 사람이 승인. 화면 네 장도 여기
 uv run eastshift mutate e2e/<app> --base-url $ASIS --compare golden/<app> --max-per-op 100
-uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
+uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml   # 많으면 -n 4 (브라우저 4개)
 uv run eastshift report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md   # markdown
 uv run eastshift status golden/<app>                                 # 남은 실패, 지난 실행 대비 변화
 ```
@@ -197,6 +197,9 @@ to-be 코드를 보는 목적은 조작 방법(`ui.py`)뿐이다. 기대값은 a
 
 `--compare` 실행마다 `runs/<app>/<시각>.json`에 대상 URL, 실행한 승인본(승인자·승인 시각), 테스트별 결과(상태, kind, 첫 오류 줄, 다른 점 표, 스크린샷)가 남고,
 `runs/<app>/<시각>/`에 그 실행의 JUnit과 실패 스크린샷 사본이 남는다 (`reports/`는 다음 실행이 덮어쓰므로). `eastshift mutate --compare` 결과는 `runs/<app>/mutations/`에도 복사된다 (`eastshift/pwtest/ledger.py`).
+결함 주입은 규모가 커도 끝나게 되어 있다: 결함마다 먼저 잡은 테스트에서 멈추고, 여러 화면에 똑같이 나오는 자리(메뉴·머리글)는 처음 나온 화면에서만 재며, 끝난 결함은 `<out>.partial.jsonl`에 바로 쌓인다. 중간에 끊기면 같은 명령을 다시 실행하면 남은 결함만 돈다 (기준이 바뀌었으면 처음부터). 그래도 많으면 `--max-mutants 2000`처럼 전체 상한을 준다 (경로·연산자에 걸쳐 고르게 남긴다).
+실행 사본 폴더(`runs/<app>/<시각>/`)는 최근 30개만 남기고 지운다 (`EASTSHIFT_KEEP_RUNS`, 0이면 안 지움). 원장 JSON은 남으므로 이력·변화는 그대로고, 오래된 실행의 지도·보고서만 다시 그릴 수 없다.
+to-be 비교 자체는 xdist 로 브라우저 여러 개에 나눌 수 있다 (`pytest e2e/<app> --base-url $TOBE --compare golden/<app> -n 4`). 원장은 한 실행으로 합쳐 남는다. 테스트마다 서버를 초기화하는 앱(`--reset-path`)은 워커들이 서로의 데이터를 지우므로 거부한다.
 `eastshift status golden/<app>`은 마지막 실행의 남은 실패를 kind별로 나열하고, 직전 실행과 비교해 **통과로 바뀜 / 새로 실패 / 여전히 실패 / 새 테스트**를 보여준다. 실행한 승인본이 현재 승인본과 다르면 경고한다.
 개발자는 이 출력과 통합 화면 실행 탭의 이력 점만 보고 다음 수정으로 간다. 결함 주입 실행(`--jev-mutant`)은 원장에 남기지 않는다.
 
@@ -267,3 +270,4 @@ uv run pytest e2e/legacy --base-url http://127.0.0.1:8802 --compare golden/legac
 - IE 전용 기능: ActiveX, `showModalDialog`. Chromium에서 as-is가 안 돌면 기록 자체가 불가능하다.
 - 화면에 안 나오는 차이: DB에 저장된 값, 배치, 외부 연동. 별도의 DB 결과 비교가 필요하다.
 - `ui.py`에 아직 없는 위젯: datepicker, 가상 스크롤 그리드, 파일 업로드. 처음 만날 때 한 번 추가한다.
+- 화면 수천 개를 프로젝트 하나에 두면 Screen Map이 무겁고(시나리오 1,000개에 약 4MB, 라우트 수백 개는 읽기 어렵다) 승인도 한 덩어리다. 승인·시나리오 탭은 목록만 싣고 상세를 고를 때 받으므로 괜찮다. 큰 앱은 `eastshift.json`에 모듈마다 프로젝트를 등록해(같은 주소, 다른 `e2e/<모듈>`·`golden/<모듈>`) 지도·승인·비교·결함 주입을 모듈 단위로 돌린다. 모듈을 합산한 현황과 `eastshift routes`의 모듈 범위 지정은 아직 없다.

@@ -34,14 +34,14 @@ as-is 기록 → 웹 검토·승인 → 결함 주입(탐지율) → to-be 비�
 ```bash
 uv run pytest e2e/<app> --base-url $ASIS --record golden/<app>      # as-is 기록 → golden/<app>/
 uv run eastshift ui                                                       # 시나리오 승인 탭에서 각 시나리오 확인 → 이름 입력 → 승인
-uv run eastshift mutate e2e/<app> --base-url $ASIS --compare golden/<app>   # 테스트가 결함을 잡는지 측정
-uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml
+uv run eastshift mutate e2e/<app> --base-url $ASIS --compare golden/<app>   # 테스트가 결함을 잡는지 측정 (끊기면 같은 명령으로 이어서. 많으면 --max-mutants N)
+uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml   # 많으면 -n 4 (브라우저 4개, 원장은 한 건)
 uv run eastshift report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md   # 판정 markdown (에이전트·CI용)
 ```
 
 사람이 보는 화면(Screen Map·시나리오·시나리오 승인·실행)은 전부 `eastshift ui` 한 곳이다. 파일로 따로 떨구는 명령은 없다.
 
-수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다):
+수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다. 사본 폴더는 최근 30개만 두고 원장 JSON은 다 남긴다, `EASTSHIFT_KEEP_RUNS`):
 
 ```bash
 uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 Screen Map(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록)·시나리오(골든 관리)·시나리오 승인·검증 보고서·실행 이력, 지난 실행도 골라 본다
@@ -62,7 +62,7 @@ uv run pytest e2e/<app> --base-url $ASIS --record golden/<app> --reset-path /tes
 
 ```bash
 uv run eastshift targets scenarios/<app>/screens.yaml --base-url $ASIS --out scenarios/<app>/screens.targets.yaml   # 조회 버튼 정하기 (누르지 않음)
-uv run eastshift run scenarios/<app>/screen_smoke_targets.yaml --base-url $TOBE --junit reports/junit-smoke.xml
+uv run eastshift run scenarios/<app>/screen_smoke_targets.yaml --base-url $TOBE --junit reports/junit-smoke.xml --workers 4   # 화면이 많으면 브라우저 여러 개
 uv run eastshift crawl <시작 URL> --fixtures f.yaml --out crawl/<app> --dry-run   # 누를 버튼 확인 (저장·확정도 실제로 누른다)
 uv run eastshift routes <소스 폴더> --out crawl/<app>/routes.json                  # 소스가 선언한 화면 주소 → 지도가 못 간 화면을 회색으로 (완전성 잣대)
 ```

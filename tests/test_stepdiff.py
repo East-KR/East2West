@@ -63,9 +63,29 @@ def test_copy_is_used_only_when_its_hash_matches(app, monkeypatch):
     stepdiff.keep_copy(app)
     assert stepdiff.approved_goldens(app)["test_a"]["steps"][0]["text"] == "/"
     # 사본이 승인본과 다르면(손으로 고침, 다른 승인의 사본) 믿지 않는다. git 도 없으면 비교 기준이 없다
-    monkeypatch.setattr(stepdiff, "_from_git", lambda d, name, want: None)
+    monkeypatch.setattr(stepdiff, "_from_git_many", lambda d, wanted: {})
     (stepdiff.copy_dir("app") / "test_a.json").write_text("{}", encoding="utf-8")
+    assert stepdiff.approved_goldens(app)["test_a"]["steps"][0]["text"] == "/"  # 지금 파일이 승인 때 그대로면 그것이 기준
+    _write(app, _rec(_step(0, "- text: 합계 9원\n", kind="goto", text="/")))  # 다시 기록해 바뀌면 기준이 없다
     assert stepdiff.approved_goldens(app) == {}
+
+
+def test_git_batch_lookup_needs_no_per_file_calls(app, monkeypatch):
+    def git(*a):
+        subprocess.run(["git", "-C", str(app), *a], check=True, capture_output=True)
+    git("init", "-q")
+    for i in range(3):  # 시나리오 셋을 같이 승인하고 셋 다 다시 기록
+        (app / f"test_{i}.json").write_text(json.dumps(_rec(_step(0, f"- text: 합계 {i}원\n", kind="goto", text="/"))), encoding="utf-8")
+    git("add", ".")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "golden")
+    oracle.stamp(app, "east", "", oracle.oracle_files(app))
+    for i in range(3):
+        (app / f"test_{i}.json").write_text(json.dumps(_rec(_step(0, f"- text: 합계 {i}00원\n", kind="goto", text="/"))), encoding="utf-8")
+    calls = []
+    monkeypatch.setattr(stepdiff, "_from_git", lambda d, name, want: calls.append(name))
+    got = stepdiff.approved_goldens(app)
+    assert {k: v["steps"][0]["snapshot"] for k, v in got.items() if k != "test_a"} == {f"test_{i}": f"- text: 합계 {i}원\n" for i in range(3)}
+    assert calls == []  # 폴더 이력이 짧으면 파일별 조회는 하지 않는다
 
 
 def test_git_history_is_the_fallback(app):

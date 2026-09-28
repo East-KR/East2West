@@ -1,4 +1,5 @@
 """실행 원장 오프라인 테스트: 기록·이력·지난 실행 대비 변화·상태 문구."""
+import os
 from pathlib import Path
 
 from eastshift.pwtest import ledger
@@ -44,3 +45,32 @@ def test_same_second_runs_do_not_overwrite(tmp_path, monkeypatch):
     m = tmp_path / "m.json"
     m.write_text("{}")
     assert ledger.save_mutation("app", m) != ledger.save_mutation("app", m)
+
+
+def test_fscache_rereads_only_when_file_changes(tmp_path):
+    from eastshift.pwtest import fscache
+    p = tmp_path / "a.json"
+    p.write_text('{"v": 1}', encoding="utf-8")
+    assert fscache.json_load(p) == {"v": 1} and fscache.json_load(p) is fscache.json_load(p)
+    h1 = fscache.sha256(p)
+    p.write_text('{"v": 2}', encoding="utf-8")  # 크기 같음: mtime_ns 로 가린다
+    os.utime(p, ns=(p.stat().st_atime_ns, p.stat().st_mtime_ns + 1_000_000))
+    assert fscache.json_load(p) == {"v": 2} and fscache.sha256(p) != h1
+
+
+def test_prune_keeps_recent_artifact_folders_and_all_ledger_json(tmp_path, monkeypatch):
+    monkeypatch.setattr(ledger, "RUNS", tmp_path / "runs")
+    monkeypatch.setenv("EASTSHIFT_KEEP_RUNS", "2")
+    junit = tmp_path / "j.xml"
+    junit.write_text("<testsuite/>", encoding="utf-8")
+    stamps = []
+    for i in range(4):
+        out = ledger.write_run("app", target="t", oracle={}, cases=_cases(a="pass"), started=0, junit=str(junit))
+        stamps.append(out.stem)
+        os.utime(out, ns=(0, (i + 1) * 10**9))  # 같은 초에 만들어도 순서가 있게 이름은 이미 -2, -3 …
+    runs = ledger.load_runs("app")
+    assert [r["_stamp"] for r in runs] == stamps  # 원장 JSON은 넷 다 남는다
+    kept = [s for s in stamps if (tmp_path / "runs" / "app" / s).is_dir()]
+    assert kept == stamps[-2:]  # 사본 폴더는 최근 둘만
+    monkeypatch.setenv("EASTSHIFT_KEEP_RUNS", "0")
+    assert ledger.prune("app") == []  # 0이면 정리하지 않는다

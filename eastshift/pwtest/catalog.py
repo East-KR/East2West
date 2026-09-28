@@ -5,16 +5,16 @@ hub.py 가 /page/<app>/catalog 요청에 render(build(golden/<app>)) 로 만든�
 읽는 것: golden/<app>/ (시나리오, 기대값, 캡처, 승인), runs/<app>/ (실행 원장). 새로 판단하는 것은 없다.
 화면: 위에 승인·마지막 실행 요약, 그 아래 시나리오 표 (제목, 단계 수, 확인 값, 마지막 결과, 이력 점). 행을 누르면 시나리오 팝업
 (필름스트립 + 단계 + 마지막 실행에서 다른 점). 다른 화면으로는 통합 화면의 탭으로 간다.
+화면에는 시나리오 표만 싣고, 행을 누를 때 /api/app/<app>/catalog/<test> (hub.detail) 로 상세와 캡처 주소를 받는다 (시나리오 수천 개여도 가볍게).
 """
 from __future__ import annotations
 
-import base64
 import json
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from . import html, ledger, oracle
+from . import fscache, html, ledger, oracle
 from .map import _plain
 
 KIND_LABEL = {"same": "같음", "accepted_diff": "승인된 차이", "drift": "기대값 바뀜", "golden_diff": "as-is와 다름", "assert": "확인 값 실패", "error": "실행 못 함"}
@@ -78,12 +78,19 @@ lb.addEventListener('click', () => lb.classList.remove('on'));
 function closeModal(){ modal.classList.remove('on'); }
 modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
 ctx.listen(window, 'keydown', e => { if(e.key !== 'Escape') return; if(lb.classList.contains('on')) lb.classList.remove('on'); else closeModal(); });
-function openTest(name){
-  const t = D.tests[name]; if(!t) return;
+const detail = {};  // 시나리오 상세는 행을 누를 때 받아 둔다
+async function openTest(name){
+  if(!D.tests[name]) return;
+  let dt = detail[name];
+  if(!dt){
+    try { const r = await fetch(`/api/app/${encodeURIComponent(D.app)}/catalog/${encodeURIComponent(name)}`); if(!r.ok) throw new Error(await r.text()); dt = detail[name] = await r.json(); }
+    catch(e){ modal.querySelector('.box').innerHTML = `<div class="mh"><div><b>불러오지 못했습니다</b><small>${esc(e.message)}</small></div><button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div>`; modal.classList.add('on'); modal.querySelector('#closeModal').addEventListener('click', closeModal); return; }
+  }
+  const t = dt.test, shots = dt.shots;
   const last = t.last, pill = !last ? '<span class="pill none">비교 전</span>' : resultPill(last);
   let h = `<div class="mh"><div><b>${esc(t.title)}</b><small>${esc(name)} · ${t.steps.length}단계 · ${esc(t.recorded_at || '')} 기록</small></div>${pill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb">`;
   h += `<div class="film">` + t.steps.map(s => `<button type="button" class="${s.failed ? 'fail' : ''}" data-lb="${esc(s.shot)}" data-cap="${s.index + 1}단계 · ${esc(s.action_text)}" title="${esc(s.action_text)}">`
-      + (s.shot ? `<img src="${D.shots[s.shot]}" alt="">` : '') + `<span class="k">${s.index + 1}</span><span class="cap">${esc(s.action_text)}</span></button>`).join('') + `</div>`;
+      + (s.shot ? `<img loading="lazy" src="${shots[s.shot]}" alt="">` : '') + `<span class="k">${s.index + 1}</span><span class="cap">${esc(s.action_text)}</span></button>`).join('') + `</div>`;
   h += `<div class="steps">` + t.steps.map(s => `<div class="visit ${s.failed ? 'fail' : ''}"><span class="no">${s.index + 1}</span><div><div>${s.action}</div>`
       + s.dialogs.map(d => `<div class="dlg">${d.type === 'confirm' ? '확인창' : '알림창'} “${esc(d.message)}” → ${d.action === 'accept' ? '확인' : '취소'}</div>`).join('')
       + (s.checks.length ? `<div class="ck">${s.checks.join('')}</div>` : '') + `</div></div>`).join('') + `</div>`;
@@ -96,7 +103,7 @@ function openTest(name){
   modal.querySelector('.box').innerHTML = h;
   modal.classList.add('on');
   modal.querySelector('#closeModal').addEventListener('click', closeModal);
-  modal.querySelectorAll('[data-lb]').forEach(b => b.addEventListener('click', () => openLb(D.shots[b.dataset.lb], b.dataset.cap)));
+  modal.querySelectorAll('[data-lb]').forEach(b => b.addEventListener('click', () => openLb(shots[b.dataset.lb], b.dataset.cap)));
 }
 $$('tbody tr[data-test]').forEach(tr => tr.addEventListener('click', () => openTest(tr.dataset.test)));
 const q = $('#q');
@@ -142,9 +149,6 @@ $$('#chips .fchip[data-st]').forEach(b => b.addEventListener('click', () => {
 """
 
 
-def _img(p: Path) -> str:
-    return "data:image/jpeg;base64," + base64.b64encode(p.read_bytes()).decode() if p.exists() else ""
-
 
 def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
     app = d.name
@@ -156,7 +160,7 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
     shots: dict[str, str] = {}
     tests: dict[str, dict[str, Any]] = {}
     for t in oracle.tests(d):
-        data = json.loads((d / f"{t['name']}.json").read_text(encoding="utf-8"))
+        data = fscache.json_load(d / f"{t['name']}.json")
         by_step = defaultdict(list)
         for a in data.get("assertions", []):
             by_step[a["step"] - 1].append(a)
@@ -173,7 +177,7 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
             sid = ""
             if o.get("shot"):
                 sid = f"{t['name']}#{o['index']}"
-                shots[sid] = _img(d / o["shot"])
+                shots[sid] = html.shot_url(d / o["shot"])
             act = html._action(o["kind"], o["text"])
             steps.append({"index": o["index"], "action": act, "action_text": _plain(act),
                           "dialogs": o.get("dialogs", []), "checks": [html._val(a) for a in by_step.get(o["index"], [])],
@@ -223,7 +227,8 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
             f"<div class='tbl'><table><thead><tr><th>시나리오</th><th>마지막 결과</th><th>이력 (오래된 → 최근)</th><th>기록일</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
             f"<div class='modal' id='modal' role='dialog' aria-label='시나리오 상세'><div class='box'></div></div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
-    return html.fragment("catalog", f"{g['app']} 골든 관리", body, css=CSS, js=JS, data=("d", g))
+    light = {"app": g["app"], "kind_label": KIND_LABEL, "tests": {n: {"title": t["title"]} for n, t in tests.items()}}  # 상세는 행을 누를 때 API로
+    return html.fragment("catalog", f"{g['app']} 골든 관리", body, css=CSS, js=JS, data=("d", light))
 
 
 def render(g: dict[str, Any]) -> str:

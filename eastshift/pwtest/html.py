@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import ast
-import base64
 import html as h
 import json
 import os
@@ -16,6 +15,7 @@ import time
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 from . import oracle
 
@@ -454,6 +454,12 @@ def rows_for(messages: list[str]) -> tuple[list[tuple[str, str, str]], list[str]
     return out, notes
 
 
+def shot_url(p: Path) -> str:
+    """캡처 주소. 화면 HTML에 이미지를 넣지 않고 통합 화면의 /file 로 받게 한다: 시나리오·화면이 수천 개여도 페이지는 가볍고,
+    브라우저는 보이는 캡처만 받는다. 파일이 없으면 빈 문자열."""
+    return f"/file?p={quote(str(p))}" if p.exists() else ""
+
+
 def _shot(name: str, junit: Path) -> str:
     p = junit.parent / "shots" / f"{name}-fail.png"  # 원장 사본 (runs/<app>/<시각>/shots/)
     if not p.exists():
@@ -461,7 +467,7 @@ def _shot(name: str, junit: Path) -> str:
         if not p.exists() or not (junit.stat().st_mtime - 900 <= p.stat().st_mtime <= junit.stat().st_mtime + 5):
             return ""
     return (f"<details class='more'><summary>실패 순간 화면</summary>"
-            f"<img class='shot' src='data:image/png;base64,{base64.b64encode(p.read_bytes()).decode()}' alt='실패 순간 화면'></details>")
+            f"<img class='shot' src='{shot_url(p)}' alt='실패 순간 화면' loading='lazy'></details>")
 
 
 def report_fragment(*, oracle_dir: Path, checks: list[tuple[str, bool, str]], trusted: bool, runs: list[dict[str, Any]],

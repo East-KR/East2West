@@ -6,16 +6,16 @@ hub.py 가 /page/<app>/review 요청에 render(build(golden/<app>)) 로 만든�
 "확인함" 표시는 보는 사람 브라우저에만 저장된다(localStorage). 목록 위 "전체 확인"은 모두 확인 ↔ 전부 해제 토글이다. 모든 시나리오가 확인되면 승인 폼이 나타나고, 승인은 POST /api/app/<app>/approve (oracle.approve_from_review).
 재승인이면 단계마다 '지난 승인 대비' 차이(나타난·사라진 줄, 동작·대화상자·API 변화)를 보여 준다. 지난 승인본은 stepdiff 가 해시로 검증해 찾는다.
 읽는 것: golden/<app>/ 와 지난 승인본(runs/<app>/approved/ 또는 git 이력). 새로 판단하는 것은 없다.
+화면에는 시나리오 목록만 싣고, 고른 시나리오의 단계·캡처는 /api/app/<app>/review/<test> (hub.detail) 로 받는다.
 """
 from __future__ import annotations
 
-import base64
 import json
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from . import html, oracle, stepdiff
+from . import fscache, html, oracle, stepdiff
 from .map import _plain
 
 CSS = """
@@ -138,23 +138,35 @@ ctx.listen(window, 'keydown', e => {  // ← → 로 단계 넘기기 (입력칸
   if(!stepGo || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || '')) return;
   e.preventDefault(); stepGo(e.key === 'ArrowLeft' ? -1 : 1);
 });
-function show(name){
-  const t = D.tests[name]; if(!t) return;
-  current = name;
+const detail = {};  // 시나리오 상세는 고를 때 받아 둔다 (목록 화면에는 없다)
+async function load(name){
+  if(detail[name]) return detail[name];
+  const r = await fetch(`/api/app/${encodeURIComponent(D.app)}/review/${encodeURIComponent(name)}`);
+  if(!r.ok) throw new Error(await r.text());
+  return detail[name] = await r.json();
+}
+async function show(name){
+  if(!D.tests[name]) return;
+  current = name; refresh();
+  if(!detail[name]) center.innerHTML = '<div class="empty">불러오는 중…</div>';
+  let dt;
+  try { dt = await load(name); } catch(e){ center.innerHTML = `<div class="empty">시나리오를 불러오지 못했습니다: ${esc(e.message)}</div>`; return; }
+  if(current !== name) return;  // 기다리는 동안 다른 시나리오를 골랐다
+  const t = dt.test, shots = dt.shots;
   let h = `<div class="dh"><h3>${esc(t.title)}${t.flag ? ` <span class="flag ${t.flag}">${FLAG[t.flag]}</span>` : ''}</h3>`
     + `<button type="button" class="okbtn ${done.has(name) ? 'on' : ''}" id="ok">${done.has(name) ? '✓ 확인함' : 'as-is 동작이 맞음 · 확인함'}</button>`
     + `<div class="sub"><span>${esc(name)}</span><span>${t.steps.length}단계</span>${t.gone.length ? `<span>지난 승인보다 ${t.gone.length}단계 줄어듦: ${esc(t.gone.join(' · '))}</span>` : ''}<span>${esc(t.base_url)}에서 ${esc(t.recorded_at || '')} 기록</span></div></div>`;
   // 단계는 한 번에 하나: 좌우 버튼(←/→ 키)으로 넘기고, 필름스트립으로 바로 간다
   if(name !== stepOf) { stepIdx = 0; stepOf = name; }
   h += `<div class="stepnav"><button type="button" class="nv" id="prev" aria-label="이전 단계">‹</button><div class="film" id="film">`
-    + t.steps.map((s, i) => `<button type="button" data-i="${i}" title="${s.index + 1}단계 · ${esc(s.action_text)}">${s.shot ? `<img src="${D.shots[s.shot]}" alt="">` : ''}<span class="k">${s.index + 1}</span></button>`).join('')
+    + t.steps.map((s, i) => `<button type="button" data-i="${i}" title="${s.index + 1}단계 · ${esc(s.action_text)}">${s.shot ? `<img loading="lazy" src="${shots[s.shot]}" alt="">` : ''}<span class="k">${s.index + 1}</span></button>`).join('')
     + `</div><span class="cnt" id="scnt"></span><button type="button" class="nv" id="next" aria-label="다음 단계">›</button></div><div id="stepbox"></div>`;
   center.innerHTML = h; center.scrollTop = 0;
   center.querySelector('#ok').addEventListener('click', () => { done.has(name) ? done.delete(name) : done.add(name); save(); show(name); refresh(); });
   const box = center.querySelector('#stepbox'), film = center.querySelector('#film');
   function draw(){
     const s = t.steps[stepIdx];
-    let b = `<div class="stepv"><div>` + (s.shot ? `<div class="shot" data-lb="${s.shot}" data-cap="${s.index + 1}단계 · ${esc(s.action_text)}"><img src="${D.shots[s.shot]}" alt="${s.index + 1}단계 화면"></div>` : `<div class="noshot">캡처 없음</div>`) + `</div><div>`;
+    let b = `<div class="stepv"><div>` + (s.shot ? `<div class="shot" data-lb="${s.shot}" data-cap="${s.index + 1}단계 · ${esc(s.action_text)}"><img loading="lazy" src="${shots[s.shot]}" alt="${s.index + 1}단계 화면"></div>` : `<div class="noshot">캡처 없음</div>`) + `</div><div>`;
     b += `<div class="act"><span class="no">${s.index + 1}</span><span>${s.action}</span></div>`;
     if(s.seen.length) b += `<div class="seen"><span class="lab">나타남</span>${s.seen.map(x => `<span class="it">${esc(x)}</span>`).join('')}</div>`;
     s.dialogs.forEach(d => { b += `<div class="dlg"><span class="verb">${d.type === 'confirm' ? '확인창' : '알림창'}</span><b>${esc(d.message)}</b><span class="ans">→ ${d.action === 'accept' ? '확인' : '취소'}</span></div>`; });
@@ -171,7 +183,7 @@ function show(name){
     if(s.checks.length) b += `<div class="checks">` + s.checks.map(c => `<div class="check ${c.cls}"><span>✓</span><span class="k">${esc(c.k)}</span><span class="v">${esc(c.v)}</span>${c.old ? `<s>${esc(c.old)}</s>` : ''}</div>`).join('') + `</div>`;
     b += `</div></div>`;
     box.innerHTML = b;
-    box.querySelectorAll('[data-lb]').forEach(el => el.addEventListener('click', () => openLb(D.shots[el.dataset.lb], el.dataset.cap)));
+    box.querySelectorAll('[data-lb]').forEach(el => el.addEventListener('click', () => openLb(shots[el.dataset.lb], el.dataset.cap)));
     film.querySelectorAll('button').forEach(f => f.classList.toggle('on', +f.dataset.i === stepIdx));
     const on = film.querySelector('button.on'); if(on) on.scrollIntoView({block: 'nearest', inline: 'nearest'});
     center.querySelector('#scnt').textContent = `${stepIdx + 1} / ${t.steps.length}`;
@@ -205,9 +217,6 @@ show(D.tests[first] ? first : (D.order.find(t => D.tests[t].flag) || D.order.fin
 
 FLAGS = {"chg": "기대값 바뀜", "obs": "화면 바뀜", "new": "새 시나리오"}
 
-
-def _img(p: Path) -> str:
-    return "data:image/jpeg;base64," + base64.b64encode(p.read_bytes()).decode() if p.exists() else ""
 
 
 def _check(a: dict[str, Any], cls: str = "", old: dict[str, Any] | None = None) -> dict[str, str]:
@@ -243,7 +252,7 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
     tests: dict[str, dict[str, Any]] = {}
     order: list[str] = []
     for t in oracle.tests(d):
-        data = json.loads((d / f"{t['name']}.json").read_text(encoding="utf-8"))
+        data = fscache.json_load(d / f"{t['name']}.json")
         before = None if prev is None else prev.get(t["name"])
         by_step: dict[int, list[dict[str, str]]] = defaultdict(list)
         for i, a in enumerate(t["assertions"]):
@@ -272,7 +281,7 @@ def build(d: Path, tests_dir: Path | None = None) -> dict[str, Any]:
             sid = ""
             if o.get("shot"):
                 sid = f"{t['name']}#{o['index']}"
-                shots[sid] = _img(d / o["shot"])
+                shots[sid] = html.shot_url(d / o["shot"])
             act = html._action(o["kind"], o["text"])
             steps.append({"index": o["index"], "action": act, "action_text": _plain(act), "seen": seen,
                           "dialogs": o.get("dialogs", []), "api": o.get("api", []),
@@ -348,7 +357,10 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
             f"<div class='scroll list'>{items}</div></div>"
             f"<div class='pane center scroll' id='center'><div class='empty'>왼쪽에서 시나리오를 고르세요</div></div>{rules}</div>"
             f"<div class='lb' id='lb' role='dialog' aria-label='화면 크게 보기'><div><img src='' alt=''><div class='cap'></div></div></div>")
-    return html.fragment("review", f"{g['app']} 기준 승인", body, css=CSS, js=JS, data=("d", g))
+    # 화면에는 목록만 싣는다. 단계·캡처·다른 점은 시나리오를 고를 때 /api/app/<app>/review/<test> 로 받는다 (시나리오 수천 개여도 페이지는 가볍다)
+    light = {"app": g["app"], "status": st, "order": g["order"], "removed": g["removed"], "fingerprint": g["fingerprint"],
+             "tests": {n: {"title": t["title"], "flag": t["flag"], "steps": len(t["steps"])} for n, t in g["tests"].items()}}
+    return html.fragment("review", f"{g['app']} 기준 승인", body, css=CSS, js=JS, data=("d", light))
 
 
 def render(g: dict[str, Any]) -> str:

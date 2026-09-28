@@ -1,9 +1,12 @@
 """통합 화면(eastshift ui) 오프라인 테스트: 원장 사본, API, 화면 생성, 파일 접근 제한. 저장소의 golden/legacy 를 읽기만 한다."""
 import json
+import os
+import re
 import shutil
 import threading
 from http.server import ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import unquote
 from urllib.request import urlopen
 
 import pytest
@@ -64,7 +67,6 @@ def test_hub_api_and_pages(runs):
     assert "JUnit 사본이 없습니다" in h.page("legacy", "map", "19990101-000000")["html"]
     assert h.page("legacy", "catalog") is h.page("legacy", "catalog")  # 캐시: 산출물이 안 바뀌면 같은 객체
     # 파일 접근은 runs/ 와 golden/ 아래만
-    from urllib.parse import unquote
     shot = unquote(d["runs"][0]["cases"]["test_order_save"]["screenshot"].removeprefix("/file?p="))
     assert h.file(shot) is not None
     assert h.file("../.env") is None and h.file(".env") is None and h.file("/etc/passwd") is None and h.file("") is None
@@ -164,3 +166,36 @@ def test_hub_http(runs):
     finally:
         srv.shutdown()
         srv.server_close()
+
+
+@pytest.mark.skipif(not (GOLDEN / "portal").is_dir(), reason="golden/portal 없음")
+def test_pages_link_captures_instead_of_inlining(tmp_path, monkeypatch):
+    # 화면이 수천 개여도 페이지가 가볍도록: 목록 화면에는 캡처가 없고, 시나리오 상세 API가 /file 주소를 준다. 그 주소는 hub.file 이 내준다
+    monkeypatch.setattr(ledger, "RUNS", tmp_path / "runs")
+    h = hub.Hub(GOLDEN, Path("e2e"))
+    for kind in ("review", "catalog"):
+        blob = json.dumps(h.page("portal", kind), ensure_ascii=False)
+        assert "data:image" not in blob and "/file?p=" not in blob and "snapshot" not in blob
+        name = next(iter(h.build("portal", kind)["tests"]))
+        dt = h.detail("portal", kind, name)
+        assert dt["test"]["steps"] and dt["shots"] and all(v.startswith("/file?p=") for v in dt["shots"].values())
+        assert h.file(unquote(next(iter(dt["shots"].values())).removeprefix("/file?p="))) is not None
+        with pytest.raises(KeyError):
+            h.detail("portal", kind, "no_such_test")
+    blob = json.dumps(h.page("portal", "map"), ensure_ascii=False)
+    assert "data:image" not in blob and "/file?p=" in blob
+
+
+def test_sig_sees_top_level_and_subfolder_changes(tmp_path, monkeypatch):
+    monkeypatch.setattr(ledger, "RUNS", tmp_path / "runs")
+    g = tmp_path / "golden"
+    (g / "app" / "shots" / "t1").mkdir(parents=True)
+    (g / "app" / "t1.json").write_text("{}", encoding="utf-8")
+    h = hub.Hub(g, tmp_path / "e2e")
+    s0 = h._sig("app")
+    os.utime(g / "app" / "t1.json", (s0 + 10, s0 + 10))
+    s1 = h._sig("app")
+    assert s1 > s0
+    (g / "app" / "shots" / "t1" / "step1.jpg").write_bytes(b"x")  # 바로 아래 폴더(shots/)의 항목은 본다
+    os.utime(g / "app" / "shots" / "t1", (s1 + 10, s1 + 10))
+    assert h._sig("app") > s1

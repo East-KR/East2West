@@ -18,13 +18,15 @@ import time
 from pathlib import Path
 from typing import Any
 
+from . import fscache
+
 MANIFEST = "APPROVED.json"
 CONFIG = "oracle.json"
 
 
 def oracle_files(d: Path) -> dict[str, str]:
     """승인 대상 전부: 골든 JSON, 규칙, 이름 매핑, 그리고 사람이 보고 승인한 단계별 화면(shots/)."""
-    return {p.relative_to(d).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+    return {p.relative_to(d).as_posix(): fscache.sha256(p)
             for p in sorted(d.rglob("*")) if p.is_file() and p.name not in (MANIFEST, ".DS_Store")}
 
 
@@ -60,7 +62,7 @@ def mask_hits(d: Path) -> list[dict[str, Any]]:
         rx = re.compile(rule)
         hits: dict[str, int] = {}
         for g in _golden_files(d):
-            for step in json.loads(g.read_text(encoding="utf-8")).get("steps", []):
+            for step in fscache.json_load(g).get("steps", []):
                 for line in flatten(step.get("snapshot", ""), keep_urls=False):
                     for m in rx.finditer(line):
                         hits[m.group(0)] = hits.get(m.group(0), 0) + 1
@@ -77,7 +79,7 @@ def mask_audit(d: Path) -> list[str]:
 def tests(d: Path) -> list[dict[str, Any]]:
     out = []
     for g in _golden_files(d):
-        data = json.loads(g.read_text(encoding="utf-8"))
+        data = fscache.json_load(g)
         out.append({"name": g.stem, "steps": len(data.get("steps", [])), "base_url": data.get("base_url"),
                     "recorded_at": data.get("recorded_at"), "assertions": data.get("assertions", [])})
     return out
