@@ -44,6 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--compare-unordered", action="store_true", help="화면 내용 줄 순서를 무시하고 비교")
     run.add_argument("--junit", type=Path, default=None, metavar="PATH", help="JUnit XML 결과 파일 (CI 리포트용)")
     run.add_argument("--triage", action="store_true", help="실패·diff 스텝의 원인을 Jev로 분류 (ui_changed|real_defect|environment|timing|test_bug). API 키 필요, --replay-only와 같이 못 씀")
+    run.add_argument("--workers", type=int, default=1, help="동시에 돌릴 브라우저 수 (기본 1). 시나리오·matrix 행은 서로 독립이라 나눠 돌려도 결과는 같다. 서버 상태를 바꾸는 시나리오나 로그인 세션 하나를 나눠 쓰는 경우는 1")
     tr = sub.add_parser("triage", help="이미 만들어진 리포트 JSON의 실패·diff 스텝 원인을 Jev로 분류 (브라우저 없이). <리포트>-triage.json에 저장")
     tr.add_argument("reports", nargs="+", type=Path, help="eastshift run이 남긴 reports/<stem>-<시각>.json")
     ap_status = sub.add_parser("oracle-status", help="오라클 승인 상태와 마스킹 규칙 감사 (승인은 eastshift ui 의 시나리오 승인 탭에서)")
@@ -55,6 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
     mut.add_argument("--allow-unapproved", action="store_true")
     mut.add_argument("--workers", type=int, default=4)
     mut.add_argument("--max-per-op", type=int, default=5, help="(응답 경로, 연산자)당 최대 결함 수")
+    mut.add_argument("--max-mutants", type=int, default=0, help="전체 결함 수 상한 (경로·연산자에 걸쳐 고르게 남긴다). 0이면 제한 없음")
     mut.add_argument("--out", type=Path, default=None)
     rep = sub.add_parser("report", help="산출물만으로 검증 보고서(markdown) 생성. 사람이 보는 화면은 eastshift ui 실행 탭의 판정")
     rep.add_argument("--oracle", type=Path, required=True)
@@ -168,7 +170,7 @@ def main(argv: list[str] | None = None) -> int:
         name = Path(args.targets[0]).name
         out = args.out or Path("reports") / f"mutation-{name}-{'golden' if args.compare else 'expects'}.json"
         mutation.run(args.targets, base_url=args.base_url, compare=args.compare, workers=args.workers,
-                     max_per_op=args.max_per_op, allow_unapproved=args.allow_unapproved, out=out)
+                     max_per_op=args.max_per_op, allow_unapproved=args.allow_unapproved, out=out, max_mutants=args.max_mutants)
         if args.compare:
             from .pwtest import ledger
             print(f"kept for history: {ledger.save_mutation(args.compare.name, out)}")
@@ -184,20 +186,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.record and args.compare:
         ap.error("--record and --compare are exclusive (record on as-is, compare on to-be)")
 
-    runner = Runner(headed=args.headed, use_cache=not args.no_cache, min_margin=args.margin,
-                    max_candidates=args.max_candidates, settle_ms=args.settle_ms,
-                    storage_state=args.storage_state, replay_only=args.replay_only, cache_dir=args.cache_dir,
-                    base_url=args.base_url, record_dir=args.record, compare_dir=args.compare,
-                    compare_opts=CompareOptions(ignore=args.compare_ignore, url=args.compare_url, unordered=args.compare_unordered),
-                    triage=args.triage)
-    results: list[tuple[Path, RunResult]] = []
-    try:
-        for path in args.scenarios:
-            for stem, vars in Runner.variants(path):
-                print(f"\n## {path}" + (f"  {vars}" if vars else ""))
-                results.append((path, runner.run(path, vars=vars, stem=stem)))
-    finally:
-        runner.close()
+    def make_runner() -> Runner:
+        return Runner(headed=args.headed, use_cache=not args.no_cache, min_margin=args.margin,
+                      max_candidates=args.max_candidates, settle_ms=args.settle_ms,
+                      storage_state=args.storage_state, replay_only=args.replay_only, cache_dir=args.cache_dir,
+                      base_url=args.base_url, record_dir=args.record, compare_dir=args.compare,
+                      compare_opts=CompareOptions(ignore=args.compare_ignore, url=args.compare_url, unordered=args.compare_unordered),
+                      triage=args.triage)
+    jobs = [(path, stem, vars) for path in args.scenarios for stem, vars in Runner.variants(path)]
+    results = run_jobs(jobs, make_runner, workers=args.workers)
     failed = sum(1 for _, r in results if r.status != "pass")
     diffs = sum(1 for _, r in results if r.status == "diff")
     print(f"\n{len(results) - failed}/{len(results)} scenarios passed" + (f" ({diffs} differ from golden)" if diffs else ""))
@@ -241,6 +238,38 @@ def triage_reports(paths: list[Path]) -> int:
     print()
     print(_triage.format_summary(*_triage.summarize(outs)))
     return 0
+
+
+def run_jobs(jobs: list[tuple[Path, str, dict[str, str]]], make_runner, *, workers: int = 1) -> list[tuple[Path, RunResult]]:
+    """(시나리오, stem, 변수) 목록을 돌려 넣은 순서대로 결과를 준다. workers>1이면 스레드마다 Runner(브라우저·Jev 클라이언트) 하나씩.
+    행마다 캐시·골든·리포트 파일이 stem으로 따로 나뉘어 있어 동시에 써도 겹치지 않는다. 화면 수백 개 스모크가 대상."""
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    local = threading.local()
+    runners: list[Runner] = []
+    lock = threading.Lock()
+
+    def runner() -> Runner:
+        if not hasattr(local, "runner"):
+            local.runner = make_runner()
+            with lock:
+                runners.append(local.runner)
+        return local.runner
+
+    def one(job: tuple[Path, str, dict[str, str]]) -> tuple[Path, RunResult]:
+        path, stem, vars = job
+        print(f"\n## {path}" + (f"  {vars}" if vars else ""), flush=True)
+        return path, runner().run(path, vars=vars, stem=stem)
+
+    try:
+        if workers <= 1:
+            return [one(j) for j in jobs]
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            return list(ex.map(one, jobs))
+    finally:
+        for r in runners:
+            r.close()
 
 
 def write_junit(path: Path, results: list[tuple[Path, RunResult]]) -> None:

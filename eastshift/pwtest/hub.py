@@ -23,11 +23,12 @@ uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:87
   POST /api/projects/<app>          프로젝트 설정 변경 (같은 본문)
   POST /api/projects/<app>/delete   등록 해제 (산출물은 남긴다)
   /api/fs?path=                     폴더 고르기용 하위 폴더 목록 (작업 디렉터리·홈 아래만)
-  /page/<app>/catalog|review        시나리오(골든 관리), 시나리오 승인
+  /page/<app>/catalog|review        시나리오(골든 관리), 시나리오 승인. 시나리오 목록만 담고 있다 (수천 개여도 가볍게)
+  /api/app/<app>/catalog|review/<test>   그 시나리오의 상세(단계·캡처 주소·확인 값·다른 점·이력). 화면이 시나리오를 고를 때 받는다
   /page/<app>/map?src=compare&run=<시각>   Screen Map 셋 중 하나: src=asis|tobe 는 탐색 결과(crawl/<app>, crawl/<app>-tobe), compare 는 as-is 기준 to-be 비교
                                     (골든 + 그 실행의 다름(빨강) + to-be 탐색으로 미개발(노랑)·새 화면(파랑), 캡처는 to-be 우선)
   /page/<app>/report?run=<시각>      검증 보고서 (그 실행의 JUnit + 현재 승인본의 결함 주입 결과)
-  /file?p=runs/…                    스크린샷 등 산출물 파일 (runs/ 와 골든 루트 아래만, 읽기 전용)
+  /file?p=runs/…                    스크린샷 등 산출물 파일 (runs/·골든 루트·crawl/·reports/ 아래만, 읽기 전용). 화면들은 캡처를 HTML에 넣지 않고 여기서 받는다
 """
 from __future__ import annotations
 
@@ -269,11 +270,25 @@ class Hub:
 
     # ---- 산출물 읽기 ----
     def _sig(self, app: str) -> float:
-        """골든·원장·탐색 결과가 바뀌면 화면 캐시를 버린다."""
+        """골든·원장·탐색 결과가 바뀌면 화면 캐시를 버린다.
+        산출물은 맨 위 파일(골든 JSON, 원장 JSON, graph.json …)과 함께 쓰이므로 폴더와 그 바로 아래 폴더(shots/, mutations/, approved/,
+        실행별 폴더)의 항목만 본다. 단계별 캡처 수만 장까지 훑지 않는다. 폴더 자신의 시각도 보므로 지운 것도 잡힌다."""
         latest = 0.0
+
+        def scan(d: Path, depth: int) -> None:
+            nonlocal latest
+            try:
+                latest = max(latest, d.stat().st_mtime)
+                with os.scandir(d) as it:
+                    for e in it:
+                        latest = max(latest, e.stat().st_mtime)
+                        if depth and e.is_dir():
+                            scan(Path(e.path), depth - 1)
+            except FileNotFoundError:
+                pass
+
         for root in (self.golden_root / app, ledger.run_dir(app), self.crawl_dir(app, "asis"), self.crawl_dir(app, "tobe")):
-            if root.exists():
-                latest = max([latest] + [p.stat().st_mtime for p in root.rglob("*") if p.is_file()])
+            scan(root, 1)
         return latest
 
     def apps(self) -> list[dict[str, Any]]:
@@ -323,6 +338,31 @@ class Hub:
                 "maps": self.maps(app), "oracle": st, "tests": tests, "runs": runs, "mutations": muts, "kind_label": catalog.KIND_LABEL}
 
     # ---- 화면 만들기 ----
+    def build(self, app: str, kind: str) -> dict[str, Any]:
+        """catalog·review 의 원본 자료. 조각(목록)과 상세 API(시나리오 하나)가 같은 것을 쓴다. 화면 캐시와 같은 신호로 캐시."""
+        self._check(app)
+        if kind not in ("catalog", "review"):
+            raise KeyError(kind)
+        key, sig = (app, "build", kind), self._sig(app)
+        with self._lock:
+            hit = self._cache.get(key)
+            if hit and hit[0] == sig:
+                return hit[1]
+        d, tests_dir = self.golden_root / app, self.tests_root / app
+        g = catalog.build(d, tests_dir) if kind == "catalog" else review.build(d, tests_dir)
+        with self._lock:
+            self._cache[key] = (sig, g)
+        return g
+
+    def detail(self, app: str, kind: str, test: str) -> dict[str, Any]:
+        """시나리오 하나의 상세와 그 캡처 주소. 목록 화면은 이걸 고를 때만 받는다."""
+        g = self.build(app, kind)
+        t = g["tests"].get(test)
+        if t is None:
+            raise KeyError(test)
+        sids = {st["shot"] for st in t["steps"] if st.get("shot")}
+        return {"test": t, "shots": {k: v for k, v in g["shots"].items() if k in sids}}
+
     def page(self, app: str, kind: str, run: str | None = None, src: str = "compare") -> dict[str, Any]:
         """화면 조각 (html.fragment 형식: kind·title·html·css·js). 통합 화면이 한 문서 안에 끼우고, /page/… 직접 접속은 html.assemble 로 문서를 만든다.
         src: Screen Map의 출처 — compare(골든 시나리오 + 실행), asis/tobe(탐색 결과)."""
@@ -366,10 +406,8 @@ class Hub:
                     f"<p class='lede'>실행 {html._e(run)}의 JUnit 사본이 없습니다. 이 실행은 원장에 JUnit을 남기기 전 것이거나, "
                     f"<code>--junitxml</code> 없이 실행됐습니다. 다시 비교하면 지도와 보고서가 나옵니다.</p></header>")
             return html.fragment(kind, f"{app} {kind}", body)
-        if kind == "catalog":
-            page = catalog.fragment(catalog.build(d, tests_dir))
-        elif kind == "review":
-            page = review.fragment(review.build(d, tests_dir))
+        if kind in ("catalog", "review"):
+            page = (catalog if kind == "catalog" else review).fragment(self.build(app, kind))
         elif kind == "map":
             ca, ct = self.crawl_dir(app, "asis"), self.crawl_dir(app, "tobe")
             page = screen_map.fragment(screen_map.build(d, junit, tests_dir, ca if (ca / "graph.json").exists() else None, ct if (ct / "graph.json").exists() else None))
@@ -383,11 +421,11 @@ class Hub:
         return page
 
     def file(self, path: str) -> Path | None:
-        """runs/ 와 골든 루트 아래의 파일만 준다. 상대 경로는 작업 디렉터리 기준."""
+        """산출물 파일만 준다: runs/, 골든 루트, 탐색 결과(crawl/), 보고서(reports/) 아래. 상대 경로는 작업 디렉터리 기준."""
         if not path:
             return None
         full = Path(path).resolve()
-        allowed = (ledger.RUNS.resolve(), self.golden_root.resolve())
+        allowed = (ledger.RUNS.resolve(), self.golden_root.resolve(), Path("crawl").resolve(), Path("reports").resolve())
         if not any(full.is_relative_to(a) for a in allowed) or not full.is_file():
             return None
         return full
@@ -399,11 +437,12 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):  # 조용히
         pass
 
-    def _send(self, body: bytes, ctype: str = "text/html; charset=utf-8", code: int = 200) -> None:
+    def _send(self, body: bytes, ctype: str = "text/html; charset=utf-8", code: int = 200, headers: dict[str, str] | None = None) -> None:
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        for k, v in ({"Cache-Control": "no-store"} | (headers or {})).items():
+            self.send_header(k, v)
         self.end_headers()
         self.wfile.write(body)
 
@@ -423,6 +462,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(projects.listdir((q.get("path") or [None])[0]))
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] in ("init", "job"):
                 return self._json(self.hub.init_status(self.hub._check(parts[2])))
+            if len(parts) == 5 and parts[:2] == ["api", "app"] and parts[3] in ("catalog", "review"):
+                return self._json(self.hub.detail(parts[2], parts[3], parts[4]))
             if len(parts) == 3 and parts[:2] == ["api", "app"]:
                 return self._json(self.hub.app(parts[2]))
             if len(parts) == 3 and parts[0] == "page":
@@ -434,7 +475,16 @@ class Handler(BaseHTTPRequestHandler):
                 p = self.hub.file((q.get("p") or [""])[0])
                 if p is None:
                     return self._send(b"not found", "text/plain", 404)
-                return self._send(p.read_bytes(), mimetypes.guess_type(p.name)[0] or "application/octet-stream")
+                # 캡처는 화면을 열 때마다 수백 장씩 요청된다. 파일 시각이 같으면 304로 끝낸다 (다시 기록하면 시각이 바뀐다)
+                etag = f'"{p.stat().st_mtime_ns:x}-{p.stat().st_size:x}"'
+                if self.headers.get("If-None-Match") == etag:
+                    self.send_response(304)
+                    self.send_header("ETag", etag)
+                    self.send_header("Cache-Control", "no-cache")
+                    self.end_headers()
+                    return
+                return self._send(p.read_bytes(), mimetypes.guess_type(p.name)[0] or "application/octet-stream",
+                                  headers={"ETag": etag, "Cache-Control": "no-cache"})
         except PermissionError as e:
             return self._json({"error": str(e)}, 403)
         except (KeyError, FileNotFoundError) as e:

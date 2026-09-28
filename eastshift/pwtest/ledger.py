@@ -4,6 +4,7 @@ runs/<app>/<시각>.json           한 실행 = {app, target, started, finished,
 runs/<app>/<시각>/junit.xml      그 실행의 JUnit 사본 (검증 보고서·Screen Map을 나중에 다시 그릴 수 있게)
 runs/<app>/<시각>/shots/         실패 순간 스크린샷 사본
 runs/<app>/mutations/<시각>.json eastshift mutate 결과 사본 (승인본마다 하나면 된다)
+사본 폴더는 최근 EASTSHIFT_KEEP_RUNS개(기본 30)만 남긴다 (prune). 원장 JSON은 지우지 않는다.
   case kind: same | drift(기대값이 기록 이후 바뀜) | golden_diff(화면·값·대화상자가 다름) | assert(명시한 확인 값 실패) | error(실행 못 함)
 
 eastshift status golden/<app>   남은 실패, 분류, 지난 실행 대비 변화 (수정 → 재실행 루프에서 이것만 본다)
@@ -11,10 +12,13 @@ eastshift status golden/<app>   남은 실패, 분류, 지난 실행 대비 변�
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import time
 from pathlib import Path
 from typing import Any
+
+from . import fscache
 
 RUNS = Path("runs")
 
@@ -65,7 +69,33 @@ def write_run(app: str, *, target: str, oracle: dict[str, Any], cases: dict[str,
            "cases": cases,
            "totals": {"pass": sum(c["status"] == "pass" for c in cases.values()), "fail": sum(c["status"] != "pass" for c in cases.values())}}
     out.write_text(json.dumps(rec, ensure_ascii=False, indent=1), encoding="utf-8")
+    prune(app)
     return out
+
+
+def keep_count() -> int:
+    """산출물 사본을 남길 최근 실행 수 (EASTSHIFT_KEEP_RUNS, 기본 30. 0이면 정리하지 않는다)."""
+    try:
+        return int(os.environ.get("EASTSHIFT_KEEP_RUNS", "30"))
+    except ValueError:
+        return 30
+
+
+def prune(app: str, keep: int | None = None) -> list[Path]:
+    """오래된 실행의 사본 폴더(JUnit·스크린샷)를 지운다. 원장 JSON은 그대로라 이력·상태·변화는 남고, 그 실행의 지도·보고서만 다시 그릴 수 없다.
+    수정 → 재실행 루프에서는 실행마다 실패 스크린샷 수백 장이 쌓이므로 상한이 없으면 runs/ 가 몇 GB가 된다."""
+    keep = keep_count() if keep is None else keep
+    d = run_dir(app)
+    if keep <= 0 or not d.exists():
+        return []
+    stamps = [p.stem for p in _ordered(d.glob("*.json"))]
+    removed = []
+    for stem in stamps[:-keep] if len(stamps) > keep else []:
+        folder = d / stem
+        if folder.is_dir():
+            shutil.rmtree(folder, ignore_errors=True)
+            removed.append(folder)
+    return removed
 
 
 def save_mutation(app: str, result: Path) -> Path:
@@ -84,7 +114,7 @@ def load_runs(app: str) -> list[dict[str, Any]]:
     runs = []
     for p in _ordered(d.glob("*.json")):
         try:
-            runs.append({**json.loads(p.read_text(encoding="utf-8")), "_file": p.name, "_stamp": p.stem})
+            runs.append({**fscache.json_load(p), "_file": p.name, "_stamp": p.stem})
         except (OSError, ValueError):
             continue
     return runs
@@ -98,7 +128,7 @@ def load_mutations(app: str) -> list[dict[str, Any]]:
     out = []
     for p in _ordered(d.glob("*.json")):
         try:
-            out.append({**json.loads(p.read_text(encoding="utf-8")), "_file": str(p)})
+            out.append({**fscache.json_load(p), "_file": str(p)})
         except (OSError, ValueError):
             continue
     return out

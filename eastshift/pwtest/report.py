@@ -166,7 +166,13 @@ def write(*, oracle_dir: Path, junits: list[Path], mutations: list[Path], out: P
               "| 연산자 | 탐지 |", "| :--- | :--- |"]
         L += [f"| {op} | {v['killed']}/{v['total']} |" for op, v in m["by_op"].items() if v["total"]]
         idle = [t for t, k in m["test_kills"].items() if not k]
-        L += ["", "아무 결함도 못 잡은 테스트: " + (", ".join(idle) if idle else "없음"), ""]
+        if m.get("stop_at_first_kill"):  # 결함마다 먼저 잡은 테스트에서 멈춘다: 0이어도 못 잡는 테스트라는 뜻은 아니다
+            L += ["", "먼저 잡은 결함이 없는 테스트: " + (", ".join(idle) if idle else "없음")
+                  + " (결함마다 첫 탐지에서 멈추므로 약한 테스트라는 뜻은 아님)", ""]
+        else:
+            L += ["", "아무 결함도 못 잡은 테스트: " + (", ".join(idle) if idle else "없음"), ""]
+        if m.get("shared_sites_skipped"):
+            L += [f"여러 화면에 똑같이 나오는 자리 {m['shared_sites_skipped']}곳은 처음 나온 화면에서만 결함 후보로 썼습니다.", ""]
         surv = [x for x in m["mutants"] if not x["killed"]]
         if surv:
             L += [f"생존 결함 {len(surv)}개 (테스트 빈틈인지, 관찰할 차이가 없는 결함인지 사람이 판정):", ""]

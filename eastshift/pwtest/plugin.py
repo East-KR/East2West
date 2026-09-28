@@ -2,6 +2,7 @@
 
 uv run pytest e2e/<app> --base-url <as-is> --record golden/<app>     # as-is 골든 기록 → `eastshift ui`의 시나리오 승인 탭
 uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app>    # to-be 비교 (승인된 오라클만). 끝나면 runs/<app>/ 원장에 결과를 남긴다 (ledger.py)
+uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app> -n 4   # 브라우저 4개 (pytest-xdist). 워커의 결과를 컨트롤러가 모아 원장 하나로 남긴다
 
 비교 규칙(마스킹, 이름 매핑)은 오라클 디렉터리 안에만 둔다 (oracle.py). 테스트 코드나 명령행으로 바꿀 수 없다.
 """
@@ -16,6 +17,7 @@ from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
 import pytest
+from _pytest.junitxml import xml_key
 from playwright.sync_api import sync_playwright
 
 from eastshift.observe import CompareOptions
@@ -88,6 +90,11 @@ def pytest_sessionfinish(session):
     if _capture is not None:
         _capture.dump(session.config.getoption("--jev-capture"))
     cfg = session.config
+    if hasattr(cfg, "workerinput"):  # xdist 워커: 결과를 컨트롤러에 넘기고 원장은 컨트롤러가 쓴다 (pytest_testnodedown)
+        cfg.workeroutput["eastshift_cases"] = dict(_cases)
+        cfg.workeroutput["eastshift_source_hash"] = getattr(cfg, "_eastshift_source_hash", "")
+        cfg.workeroutput["eastshift_source_dir"] = str(getattr(cfg, "_eastshift_source_dir", ""))
+        return
     compare = cfg.getoption("--compare")
     if compare and _cases and not cfg.getoption("--jev-mutant"):  # 결함 주입 실행은 원장에 남기지 않는다
         junit = cfg.getoption("xmlpath", default=None) or cfg.getoption("--junitxml", default=None)
@@ -99,6 +106,40 @@ def pytest_sessionfinish(session):
 def pytest_sessionstart(session):
     global _started
     _started = time.time()
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_testnodedown(node, error):
+    """xdist 컨트롤러: 워커가 끝날 때마다 그 워커의 비교 결과를 모은다 (원장 하나로). 소스 해시는 수집을 한 워커가 계산했으므로 여기서 받고,
+    testsuite 속성도 여기서 컨트롤러의 JUnit에 붙인다 (워커의 record_testsuite_property는 컨트롤러 XML에 오지 않는다)."""
+    out = getattr(node, "workeroutput", None) or {}
+    _cases.update(out.get("eastshift_cases", {}))
+    cfg = node.config
+    if "eastshift_source_hash" in out and not getattr(cfg, "_eastshift_props_done", False):
+        cfg._eastshift_source_hash, cfg._eastshift_source_dir = out["eastshift_source_hash"], Path(out["eastshift_source_dir"])
+        xml = cfg.stash.get(xml_key, None)
+        if xml is not None:
+            for k, v in _suite_properties(cfg):
+                xml.add_global_property(k, v)
+        cfg._eastshift_props_done = True
+
+
+def _suite_properties(config) -> list[tuple[str, str]]:
+    """JUnit testsuite 속성: 어느 대상·어느 승인본·어느 코드로 돌렸는지 (보고서가 증거 유효성을 이걸로 판정한다)."""
+    st = config._jev_oracle
+    out = []
+    if config.getoption("--base-url"):
+        out.append(("base_url", config.getoption("--base-url")))
+    if st is not None:
+        out += [("oracle_approved", str(st["ok"]).lower()), ("oracle_approved_by", st.get("approved_by") or ""),
+                ("oracle_approved_at", st.get("approved_at") or ""),
+                ("oracle_approval_id", oracle.approval_id(config.getoption("--compare")) or ""),
+                ("source_sha256", getattr(config, "_eastshift_source_hash", "")),
+                ("source_dir", str(getattr(config, "_eastshift_source_dir", "")))]
+    mutant = config.getoption("--jev-mutant")
+    if mutant:
+        out.append(("mutant", mutant))
+    return out
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
@@ -134,19 +175,10 @@ def pytest_report_header(config):
 
 @pytest.fixture(scope="session", autouse=True)
 def _oracle_properties(request, record_testsuite_property):
-    st = request.config._jev_oracle
-    if request.config.getoption("--base-url"):
-        record_testsuite_property("base_url", request.config.getoption("--base-url"))
-    if st is not None:
-        record_testsuite_property("oracle_approved", str(st["ok"]).lower())
-        record_testsuite_property("oracle_approved_by", st.get("approved_by") or "")
-        record_testsuite_property("oracle_approved_at", st.get("approved_at") or "")
-        record_testsuite_property("oracle_approval_id", oracle.approval_id(request.config.getoption("--compare")) or "")
-        record_testsuite_property("source_sha256", getattr(request.config, "_eastshift_source_hash", ""))
-        record_testsuite_property("source_dir", str(getattr(request.config, "_eastshift_source_dir", "")))
-    mutant = request.config.getoption("--jev-mutant")
-    if mutant:
-        record_testsuite_property("mutant", mutant)
+    if hasattr(request.config, "workerinput"):
+        return  # xdist 워커의 testsuite 속성은 컨트롤러 XML에 오지 않는다. 컨트롤러가 pytest_testnodedown 에서 붙인다
+    for k, v in _suite_properties(request.config):
+        record_testsuite_property(k, v)
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -191,6 +223,9 @@ def ui(request, browser):
         ctx.add_init_script(f"""(() => {{ const Original = Date; const instant = new Original({json.dumps(fixed)}).valueOf();
             globalThis.Date = class extends Original {{ constructor(...args) {{ if (args.length) super(...args); else super(instant); }}
             static now() {{ return instant; }} }}; }})()""")
+    if setup.get("reset_path") and (getattr(cfg, "workerinput", None) or {}).get("workercount", 1) > 1:
+        pytest.fail("--reset-path resets the server before every test; with -n workers they would wipe each other's data. "
+                    "Run without -n, or give each worker its own server", pytrace=False)
     if setup.get("reset_path"):
         path = setup["reset_path"]
         if not path.startswith("/") or urlsplit(path).netloc:

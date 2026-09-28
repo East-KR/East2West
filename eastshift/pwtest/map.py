@@ -16,7 +16,6 @@ hub.py 가 /page/<app>/map 요청에 만든다: src=compare 는 render(build(gol
 """
 from __future__ import annotations
 
-import base64
 import json
 import re
 from collections import defaultdict
@@ -26,7 +25,7 @@ from html import unescape as _unescape
 from urllib.parse import urlparse
 
 from ..crawl import landmarks, signature
-from . import html, oracle
+from . import fscache, html, oracle
 from .mutation import route_key
 from .report import _junit
 
@@ -56,9 +55,6 @@ def _screen_sig(snapshot: str) -> str:
         lines.append(line)
     return signature([("", "\n".join(lines))])
 
-
-def _img(p: Path) -> str:
-    return "data:image/jpeg;base64," + base64.b64encode(p.read_bytes()).decode() if p.exists() else ""
 
 
 def _clean_text(s: str) -> str:
@@ -120,7 +116,7 @@ def _records_from_golden(d: Path, tests_dir: Path | None) -> list[dict[str, Any]
     docs = html.docstrings(tests_dir or Path("e2e") / d.name)
     out = []
     for t in oracle.tests(d):
-        data = json.loads((d / f"{t['name']}.json").read_text(encoding="utf-8"))
+        data = fscache.json_load(d / f"{t['name']}.json")
         out.append({"name": t["name"], "title": html._title(t["name"], docs), "steps": data.get("steps", []),
                     "assertions": data.get("assertions", []), "shot_dir": d})
     return out
@@ -293,7 +289,7 @@ def _annotate(g: dict[str, Any], tobe_routes: dict[str, dict[str, Any]] | None, 
             # 미개발이 다름보다 먼저: to-be에 아직 없는 화면은 비교 실행에서도 실패하지만, 원인은 '미개발'이다
             status = ("undeveloped" if tobe_routes is not None and p not in tobe_routes else "diff" if r["failed"] else "accepted" if r.get("accepted") else "same" if tested else "untested")
         if tobe_shot and tobe_shot not in g["shots"]:
-            g["shots"][tobe_shot] = _img(Path(tobe_shot))
+            g["shots"][tobe_shot] = html.shot_url(Path(tobe_shot))
         r["status"], r["asis_shot"], r["tobe_shot"] = status, asis_shot, tobe_shot
         r["shot"] = tobe_shot if status != "undeveloped" and tobe_shot else asis_shot
         counts[status] += 1
@@ -330,7 +326,7 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
                 shot_path = (t["shot_dir"] / o["shot"]) if t["shot_dir"] else Path(o["shot"])
                 shot_id = str(shot_path)  # 파일 하나 = 항목 하나 (탐색 지도는 경로들이 같은 캡처를 나눠 쓴다)
                 if shot_id not in shots:
-                    shots[shot_id] = _img(shot_path)
+                    shots[shot_id] = html.shot_url(shot_path)
             path = _route(o["url"])
             head = _heading(snap, o["url"], o.get("title", ""))
             kind0, _, tab0 = _state(snap)
@@ -724,7 +720,7 @@ function miniGraph(rid){
   }).join('');
   const svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs><marker id="marr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker><marker id="marrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--faint)"/></marker></defs>${paths}</svg>`;
   const cards = ids.map(s => { const n = G.nodes[s], [x, y] = pos[s];
-    return `<button type="button" class="mnode ${n.failed && G.compared ? 'bad' : ''} ${s === currentState ? 'sel' : ''}" data-state="${s}" style="left:${x}px;top:${y}px" title="${stateName(s)}"><div class="th">${n.shot ? `<img src="${shot(n.shot)}" alt="">` : ''}</div><div class="lab"><b>${stateName(s)}</b><small>${G.unit} ${n.tests.length}${n.failed && G.compared ? ' · 다름' : ''}</small></div></button>`; }).join('');
+    return `<button type="button" class="mnode ${n.failed && G.compared ? 'bad' : ''} ${s === currentState ? 'sel' : ''}" data-state="${s}" style="left:${x}px;top:${y}px" title="${stateName(s)}"><div class="th">${n.shot ? `<img loading="lazy" src="${shot(n.shot)}" alt="">` : ''}</div><div class="lab"><b>${stateName(s)}</b><small>${G.unit} ${n.tests.length}${n.failed && G.compared ? ' · 다름' : ''}</small></div></button>`; }).join('');
   return `<div class="mini" style="height:${Math.min(H, 520)}px"><div style="position:relative;width:${W}px;height:${H}px">${svg}${cards}</div></div>`;
 }
 
@@ -750,7 +746,7 @@ function show(rid, sid){
   const mainShot = currentState ? focus.shot : (r.shot || focus.shot), mainCap = currentState ? stateName(focus.id) : (r.tobe_shot && r.shot === r.tobe_shot ? 'to-be' : 'as-is');
   // as-is/to-be 캡처 전환은 캡처 왼쪽 위에 겹쳐 두고 호버할 때만 보인다
   const sw = both ? `<div class="capsw"><button type="button" data-side="${r.tobe_shot}" data-capn="to-be" class="${mainShot === r.tobe_shot ? 'on' : ''}">to-be 캡처</button><button type="button" data-side="${r.asis_shot}" data-capn="as-is" class="${mainShot === r.asis_shot ? 'on' : ''}">as-is 캡처</button></div>` : '';
-  h += mainShot ? `<div class="prev" title="크게 보기" data-lb="${mainShot}" data-cap="${mainCap}"><img src="${shot(mainShot)}" alt="${routeName(rid)} 화면">${sw}<span class="cap">${mainCap}</span></div>` : `<div class="empty">${r.status === 'unreached' ? '닿지 못한 화면 · 캡처 없음' : '캡처 없음'}</div>`;
+  h += mainShot ? `<div class="prev" title="크게 보기" data-lb="${mainShot}" data-cap="${mainCap}"><img loading="lazy" src="${shot(mainShot)}" alt="${routeName(rid)} 화면">${sw}<span class="cap">${mainCap}</span></div>` : `<div class="empty">${r.status === 'unreached' ? '닿지 못한 화면 · 캡처 없음' : '캡처 없음'}</div>`;
   if(r.status === 'unreached') h += `<div class="sec"><h4>코드 위치 <span>${(r.evidence || []).length}곳${r.methods && r.methods.length ? ' · ' + r.methods.join(',') : ''}</span></h4><div class="tid">${(r.evidence || []).map(esc).join('<br>')}</div>`
     + `<p class="tid" style="margin-top:8px">소스 코드가 선언한 주소인데 어떤 탐색 경로·시나리오도 여기에 닿지 않았습니다. 막은 것이 무엇인지 확인하세요: 픽스처 값이 없는 입력칸, 금지 목록(deny)에 걸린 버튼, 로그인·권한, 특정 데이터가 있어야 보이는 화면, 탐색 예산(상태·동작·깊이). 그래도 갈 수 없는 화면이면 소스에서 실제로 쓰이는지 봅니다.</p></div>`;
   else if(r.states.length > 1) h += `<div class="sec"><h4>이 화면 안의 상태 <span>${r.states.length}개</span></h4><div class="strow"><span class="kinds">${kinds}</span><button type="button" class="stbtn" data-states>상태 그래프 보기 ›</button></div></div>`;
@@ -809,7 +805,7 @@ function openState(rid, sid, fromGraph){
   const kindPill = n.kind === 'base' ? '<span class="kd">기본</span>' : `<span class="kd ${n.kind}">${G.kind_ko[n.kind]}</span>`;
   const link = (e, other) => `<a class="route" data-state-go="${other}"><span class="act">${esc(e.actions.join(' · '))}</span><span class="nm">${stateName(other)}</span><span class="path">${esc(G.nodes[other].kind === 'base' ? '기본' : G.kind_ko[G.nodes[other].kind])}</span></a>`;
   let h = `<div class="mh"><div>${fromGraph ? '<a class="mback" href="#" data-graph>← 상태 그래프</a>' : ''}<b>${routeName(rid)} › ${stateName(sid)}</b><small>${esc(r.path)} · ${G.unit} ${n.tests.length}개${n.failed && G.compared ? ' · as-is와 다름' : ''}</small></div>${kindPill}<button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb sb">`;
-  h += n.shot ? `<div class="prev" title="크게 보기" data-lb="${n.shot}" data-cap="${stateName(sid)}"><img src="${shot(n.shot)}" alt="${stateName(sid)}"><span class="cap">${stateName(sid)}</span></div>` : `<div class="empty">캡처 없음</div>`;
+  h += n.shot ? `<div class="prev" title="크게 보기" data-lb="${n.shot}" data-cap="${stateName(sid)}"><img loading="lazy" src="${shot(n.shot)}" alt="${stateName(sid)}"><span class="cap">${stateName(sid)}</span></div>` : `<div class="empty">캡처 없음</div>`;
   h += `<div class="sgrid"><div class="sec"><h4>이 상태로 오는 동작 <span>${ins.length}</span></h4><div class="routes">${ins.map(e => link(e, e.src)).join('') || '<span class="tid">기록에 없음 (이 상태로 바로 들어감)</span>'}</div></div>`
      + `<div class="sec"><h4>여기서 가는 상태 <span>${outs.length}</span></h4><div class="routes">${outs.map(e => link(e, e.dst)).join('') || '<span class="tid">없음</span>'}</div></div></div>`;
   h += `<div class="sec"><h4>이 상태를 지나는 ${G.unit} <span>${names.length}개 · 누르면 단계</span></h4>${testRows(names, failedIn)}</div></div>`;
@@ -828,7 +824,7 @@ function openTest(name, hereRid){
   const pill = test.status === 'fail' ? '<span class="pill bad">as-is와 다름</span>' : test.status === 'accepted' ? '<span class="pill warn">승인된 차이</span>' : test.status === 'pass' ? '<span class="pill ok">as-is와 같음</span>' : '';
   let h = `<div class="mh"><div><b>${esc(test.title)}</b><small>${esc(name)} · ${test.seq.length}단계</small></div>${pill}<button type="button" class="only" data-only="${esc(name)}" title="지도에서 이 ${G.unit}가 지나는 화면만 남긴다">지도에서 이 ${G.unit}만</button><button class="ib" type="button" id="closeModal" aria-label="닫기">×</button></div><div class="mb">`;
   h += `<div class="film">` + test.seq.map(s => `<button type="button" class="${hereSteps.has(s.index) ? 'here' : ''} ${s.failed ? 'fail' : ''}" data-lb="${s.shot}" data-cap="${esc(s.index + 1)}단계 · ${esc(s.action)}" title="${esc(s.action)}">`
-      + (s.shot ? `<img src="${shot(s.shot)}" alt="">` : '') + `<span class="k">${s.index + 1}</span><span class="cap">${esc(s.action)}</span></button>`).join('') + `</div>`;
+      + (s.shot ? `<img loading="lazy" src="${shot(s.shot)}" alt="">` : '') + `<span class="k">${s.index + 1}</span><span class="cap">${esc(s.action)}</span></button>`).join('') + `</div>`;
   h += `<div class="steps">` + test.seq.map(s => {
       const node = G.nodes[s.node] || {}, v = (node.visits || []).find(x => x.test === name && x.index === s.index) || {};
       const where = node.kind === 'base' ? routeName(s.route) : `${routeName(s.route)} › ${stateName(s.node)}`;

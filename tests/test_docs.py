@@ -10,7 +10,7 @@ from eastshift import cli
 from eastshift.pwtest import plugin
 
 DOCS = sorted([Path("README.md"), Path("CLAUDE.md"), *Path("docs").glob("*.md"), *Path(".claude/skills").glob("*/SKILL.md")])
-PYTEST_OWN = {"--junitxml", "--help", "-k", "-q", "-x", "-v", "-s"}  # pytest 자체 옵션 (플러그인 것이 아님)
+PYTEST_OWN = {"--junitxml", "--help", "-k", "-q", "-x", "-v", "-s", "-n"}  # pytest 자체 옵션과 pytest-xdist의 -n (플러그인 것이 아님)
 CMD = re.compile(r"\b(?:uv run )?(eastshift|pytest)\b([^`\n]*)")
 
 
