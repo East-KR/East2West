@@ -143,9 +143,13 @@ def test_init_plan_and_rules(ws):
         h.init_plan("shop")
     h.update_project("shop", spec(ws))
     plan = h.init_plan("shop", depth=9)
-    assert [s["step"] for s in plan] == ["crawl", "tests", "record"]
-    assert plan[0]["cmd"][-6:] == ["crawl", "http://127.0.0.1:8001", "--out", "crawl/shop", "--depth", "5"]  # 깊이는 5까지
-    assert plan[2]["cmd"][-8:-4] == [str(ws["tests"] / "shop"), "--base-url", "http://127.0.0.1:8001", "--record"] and plan[2]["cmd"][-4] == str(ws["golden"] / "shop")
+    assert [s["step"] for s in plan] == ["routes", "crawl", "tests", "record"]      # 소스가 있으면 라우트 목록 먼저 (지도의 잣대)
+    assert plan[1]["cmd"][-6:] == ["crawl", "http://127.0.0.1:8001", "--out", "crawl/shop", "--depth", "5"]  # 빠르게: 깊이는 5까지
+    assert plan[3]["cmd"][-8:-4] == [str(ws["tests"] / "shop"), "--base-url", "http://127.0.0.1:8001", "--record"] and plan[3]["cmd"][-4] == str(ws["golden"] / "shop")
+    full = h.init_plan("shop", scope="full")                                         # 끝까지: 라우트 목록이 씨앗이 된다
+    assert full[1]["cmd"][-10:] == [*hub.FULL_CRAWL, "--seeds", "crawl/shop/routes.json"]
+    with pytest.raises(ValueError, match="scope"):
+        h.init_plan("shop", scope="all")
     (ws["tests"] / "shop" / "test_x.py").write_text("def test_a(): pass\n", encoding="utf-8")
     plan = h.init_plan("shop")
     assert [s["step"] for s in plan] == ["crawl", "record"] and plan[0]["skip"] and "cmd" not in plan[0]
@@ -166,7 +170,9 @@ def test_map_sources_and_crawl_plan(ws, monkeypatch, tmp_path):
     assert h.maps("shop") == {"asis": False, "tobe": False, "compare": False}
     assert h.app("shop")["maps"]["asis"] is False
     plan = h.crawl_plan("shop", "asis", depth=2)
-    assert plan[0]["cmd"][-6:] == ["crawl", "http://127.0.0.1:8001", "--out", "crawl/shop", "--depth", "2"]
+    assert [s["step"] for s in plan] == ["routes", "crawl"]
+    assert plan[1]["cmd"][-6:] == ["crawl", "http://127.0.0.1:8001", "--out", "crawl/shop", "--depth", "2"]
+    assert h.crawl_plan("shop", "asis", scope="full")[1]["cmd"][-10:] == [*hub.FULL_CRAWL, "--seeds", "crawl/shop/routes.json"]
     with pytest.raises(ValueError, match="to-be 실행 주소"):
         h.crawl_plan("shop", "tobe")
     with pytest.raises(ValueError, match="asis|tobe"):
@@ -190,7 +196,7 @@ def test_init_job_runs_steps(ws):
     fake = [{"step": "crawl", "label": "탐색", "cmd": [sys.executable, "-c", "print('crawled')"]},
             {"step": "tests", "label": "초안", "copy": [str(ws["old"] / "app.py"), str(ws["tests"] / "shop" / "test_crawl.py")]},
             {"step": "record", "label": "기록", "cmd": [sys.executable, "-c", "import sys; print('boom'); sys.exit(2)"]}]
-    h.init_plan = lambda app, depth=3: fake  # 실제 탐색·기록 대신
+    h.init_plan = lambda app, depth=3, scope="quick": fake  # 실제 탐색·기록 대신
     st = h.init_project("shop")
     assert st["running"]
     for _ in range(100):
@@ -220,3 +226,45 @@ def test_init_http(ws):
     finally:
         srv.shutdown()
         srv.server_close()
+
+
+def test_job_progress_and_stop(ws):
+    """탐색의 한 줄 진행([진행])은 로그에 쌓지 않고 progress 하나로, 멈춤은 SIGINT로 하위 프로세스를 끝내고 다음 단계를 돌지 않는다."""
+    import sys
+    import time
+    h = hub.Hub(ws["golden"], ws["tests"], ws["file"])
+    h.add_project("shop", spec(ws))
+    slow = ("import subprocess, sys, time\nkid = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"  # 브라우저처럼 손주 프로세스
+            "for i in range(1, 4):\n    print(f'[진행] 상태 {i}/3 탐색', flush=True)\nprint(f'crawling {kid.pid}', flush=True)\ntime.sleep(60)\n")
+    fake = [{"step": "crawl", "label": "탐색", "cmd": [sys.executable, "-c", slow]},
+            {"step": "record", "label": "기록", "cmd": [sys.executable, "-c", "print('should not run')"]}]
+    h.crawl_plan = lambda app, side, depth=3, scope="quick": fake
+    with pytest.raises(ValueError, match="실행 중인 작업이 없습니다"):
+        h.stop_job("shop")
+    h.start_crawl("shop", "asis", scope="full")
+    for _ in range(100):
+        st = h.init_status("shop")
+        if any(x.startswith("crawling ") for x in st["log"]):
+            break
+        time.sleep(0.1)
+    assert st["progress"] == "상태 3/3 탐색" and not any(x.startswith("[진행]") for x in st["log"]) and "proc" not in st
+    kid = int(next(x for x in st["log"] if x.startswith("crawling")).split()[1])
+    t0 = time.time()
+    h.stop_job("shop")
+    for _ in range(100):
+        st = h.init_status("shop")
+        if not st["running"]:
+            break
+        time.sleep(0.1)
+    assert not st["running"] and st["stopped"] and not st["ok"] and not st["error"] and time.time() - t0 < 10
+    assert [s["state"] for s in st["steps"]] == ["stop", "wait"] and "should not run" not in "\n".join(st["log"])
+    assert "멈춘 곳부터 이어 갑니다" in st["log"][-1]
+    import os
+    for _ in range(50):  # 작업의 프로세스 그룹째 끝낸다: 손주(브라우저 자리)도 남지 않는다
+        try:
+            os.kill(kid, 0)
+        except ProcessLookupError:
+            break
+        time.sleep(0.1)
+    else:
+        raise AssertionError(f"손주 프로세스 {kid}가 남았다")

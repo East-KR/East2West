@@ -14,7 +14,9 @@
   상한 --reps. 분기 열은 픽스처 pick > Jev 분류(캐시, margin 게이트) > 규칙 순. 같은 층의 대표들이 다른 화면으로 가면 그 층을 더 누른다 (적응 확장).
 - deny 정규식에 걸리는 이름(삭제, 로그아웃 …)은 누르지 않고 기록만 한다. 다른 origin으로 나가는 동작은 따라가지 않는다.
 
-산출물: graph.json, graph.md (mermaid + 표), 화면 스크린샷, 시나리오 YAML과 재생 캐시 (첫 실행부터 Jev 호출 0).
+산출물: graph.json, graph.md (mermaid + 표. 크면 주소 단위로 합치거나 뺀다), 화면 스크린샷, 시나리오 YAML과 재생 캐시 (첫 실행부터 Jev 호출 0).
+탐색 중에는 --out 의 .crawl-partial.jsonl 에 상태마다 덧붙여, 끊겨도 같은 설정으로 다시 돌리면 이어 간다 (Crawler.run 의 checkpoint).
+누른 결과는 cache/clicks.jsonl 에 기억해, 상한을 올려 다시 탐색하면 새 동작만 누른다 (Crawler.run 의 clicks, eastshift.clicks).
 시나리오는 현재 동작의 기록이다. 그 동작이 맞는지는 사람이 검토한다 (as-is 골든 기록에 그대로 쓸 수 있다).
 """
 from __future__ import annotations
@@ -35,13 +37,16 @@ import yaml
 from playwright.sync_api import Error as PWError
 from playwright.sync_api import Page, sync_playwright
 
+from . import clicks as _clicks
 from . import lists as _lists
+from .pwtest.mutation import route_key
 from .runner import UA, Runner, _expand
 from .snapshot import EDITABLE_ROLES, LINE, Element, parse_elements
 
 # 누르면 되돌릴 수 없거나 밖으로 나가는 동작. 테스트 DB에서도 메일·문자·결재·이체는 실제 사람과 외부 기관에 닿을 수 있다.
 DEFAULT_DENY = (r"삭제|탈퇴|해지|로그아웃|결제|이체|송금|환불|전송|발송|메일|문자|결재|상신|초기화|다운로드|엑셀|인쇄"
                 r"|(?i:log ?out|sign ?out|delete|remove|download|print|send|mail|sms|transfer|refund|reset)")
+MERMAID_EDGES, MERMAID_TEXT = 500, 50000  # mermaid 기본 한도 (maxEdges, maxTextSize): 넘으면 그림 대신 오류가 나온다
 CLICK_ROLES = ("button", "link", "tab", "menuitem", "switch")
 TOGGLE_ROLES = ("checkbox", "radio", "option")
 STATE_ATTR = re.compile(r"\s*\[(?:checked|pressed|selected|expanded|active|focused)(?:=[^\]]*)?\]")
@@ -86,6 +91,7 @@ class Node:
     explored: bool = False
     screenshot: str = ""
     lists: list[dict[str, Any]] = field(default_factory=list)  # 이 화면의 목록 템플릿과 표본 (eastshift.lists.ListInfo.to_dict)
+    root: int = 0               # 경로의 시작점: 0 = 시작 주소, 1… = 눌러서는 못 가 직접 연 화면 (씨앗, Crawler.roots)
 
     @property
     def label(self) -> str:
@@ -185,6 +191,39 @@ def sentence(step: Step) -> str:
     return f'{where}{what} {({"checkbox": "체크", "radio": "선택", "option": "선택"}).get(el.role, "누르기")}'
 
 
+def _relative(url: str) -> str:
+    """시나리오의 goto: 경로와 쿼리만 (to-be 비교 때 --base-url로 대상을 고른다)."""
+    u = urlparse(url)
+    return (u.path or "/") + (f"?{u.query}" if u.query else "")
+
+
+def route_of(loc: str) -> str:
+    """상태의 라우트: 페이지·프레임 경로마다 숫자·해시 조각을 {id}로 (Screen Map·결함 주입과 같은 규칙: 주문 4번과 9번 상세는 같은 라우트)."""
+    return "|".join(route_key(part or "/") for part in loc.split("|"))
+
+
+def load_seeds(routes_json: Path) -> list[str]:
+    """eastshift routes 의 routes.json 에서 바로 열 수 있는 화면 주소 (종류 screen, 경로 매개변수 없음)."""
+    data = json.loads(routes_json.read_text(encoding="utf-8"))
+    return [r["path"] for r in data.get("routes", []) if r.get("kind", "screen") == "screen" and "{" not in r["path"]]
+
+
+def maximal_paths(cands: list[list[int]]) -> list[list[int]]:
+    """다른 경로의 앞부분(같은 것 포함)인 경로를 뺀다. 남긴 경로의 앞부분을 모두 집합에 넣어 두고 본다 (전이 수만 개여도 경로 수에 비례)."""
+    kept: list[list[int]] = []
+    prefixes: set[tuple[int, ...]] = set()
+    for p in sorted(cands, key=len, reverse=True):
+        if tuple(p) not in prefixes:
+            kept.append(p)
+            prefixes.update(tuple(p[:i]) for i in range(1, len(p) + 1))
+    return sorted(kept)
+
+
+def serial(i: int, total: int) -> str:
+    """시나리오 번호. 자릿수를 전체 개수에 맞춰야 이름순이 번호순이다 (crawl_100 이 crawl_11 앞에 오지 않게). 99개까지는 두 자리 그대로."""
+    return f"{i:0{max(2, len(str(total)))}d}"
+
+
 def stable_path(url: str) -> str:
     """URL 경로에서 숫자가 든 첫 조각부터 뺀다 (/reservations/3 → /reservations/). 매 실행 바뀌는 id를 피한다."""
     out = []
@@ -250,6 +289,14 @@ class _Pool:
         return self
 
     def __exit__(self, *exc: Any) -> None:
+        if exc and exc[0] is not None:  # 멈춤(Ctrl+C, 통합 화면의 멈춤)·오류: 아직 시작하지 않은 누르기는 버리고, 누르는 중인 것만 끝내고 닫는다
+            while True:
+                try:
+                    job = self.q.get_nowait()
+                except queue.Empty:
+                    break
+                if job is not None:
+                    job[1].cancel()
         for _ in self.threads:
             self.q.put(None)
         for t in self.threads:
@@ -276,7 +323,9 @@ class Crawler:
                  max_depth: int = 3, max_states: int = 30, max_actions: int = 40, group_min: int = 3, settle_ms: int = 400,
                  action_timeout_ms: int = 3000, storage_state: Path | None = None, headed: bool = False,
                  reps: int = 3, pick: dict[str, list[str]] | None = None, jev: Any | None = None, list_cache: Path | None = None, min_margin: float = 0.2,
-                 workers: int | None = None):
+                 workers: int | None = None, max_route_states: int = 0, seeds: list[str] | None = None):
+        """max_route_states: 한 라우트(route_of)가 가질 상태 수 상한 (0 = 없음). 탐색이 한 화면의 변형(필터·입력 조합)에 빠져 다른 화면에 못 가는 것을 막는다.
+        seeds: 눌러서 못 간 화면을 직접 열어 볼 주소 (load_seeds). 시작점에서 더 갈 곳이 없을 때 아직 못 간 라우트만 하나씩 연다."""
         self.start_url = start if urlparse(start).scheme else urljoin((base_url or "").rstrip("/") + "/", start.lstrip("/"))
         # 시나리오·테스트의 goto는 항상 상대 경로: 절대 주소를 박아 두면 to-be 비교가 조용히 as-is를 치게 된다. 실행 때 --base-url로 as-is/to-be를 고른다
         u = urlparse(self.start_url)
@@ -287,6 +336,13 @@ class Crawler:
         self.inputs = inputs or {}
         self.deny = re.compile(deny)
         self.max_depth, self.max_states, self.max_actions, self.group_min = max_depth, max_states, max_actions, group_min
+        self.max_route_states = max_route_states
+        full = [urljoin(self.origin + "/", x.lstrip("/")) if not urlparse(x).scheme else x for x in (seeds or [])]
+        self.seeds = [x for x in dict.fromkeys(full) if urlparse(x).netloc == u.netloc]  # 다른 origin은 따라가지 않는다
+        self.roots = [self.start_url]  # 경로가 시작하는 주소들 (Node.root). 씨앗은 연 순서대로 뒤에 붙는다
+        self._seed_i = 0
+        self._route_count: dict[str, int] = {}
+        self._reached: set[str] = set()  # 도달한 상태들의 페이지·프레임 라우트 (씨앗이 이미 닿은 화면인지)
         self.action_timeout_ms = action_timeout_ms
         self.storage_state, self.headed = storage_state, headed
         # 목록 표본화: 대표 행 상한, 픽스처 pick(목록 제목 → 분기 열), Jev 클라이언트(없으면 규칙), 분류 캐시
@@ -300,6 +356,8 @@ class Crawler:
         self.workers = workers or _workers(storage_state)
         self.pool: _Pool | None = None
         self.shots_dir: Path | None = None
+        self.sources: dict[str, str] = {}
+        self.memo: _clicks.ClickMemo | None = None
 
     # -- 브라우저 ------------------------------------------------------------------------
     def _launch(self, p: Any) -> Any:
@@ -326,15 +384,15 @@ class Crawler:
         pg.on("pageerror", lambda err: s.events["js_errors"].append(str(err).splitlines()[0]))
         pg.on("response", on_response)
 
-    def _open(self, s: _Session, path: list[int]) -> Page:
-        """새 컨텍스트에서 시작 URL을 열고 경로를 재생한다. 작업 스레드에서 돈다: self.edges는 읽기만 한다."""
+    def _open(self, s: _Session, path: list[int], root: int = 0) -> Page:
+        """새 컨텍스트에서 시작점(self.roots[root])을 열고 경로를 재생한다. 작업 스레드에서 돈다: self.edges는 읽기만 한다."""
         kwargs: dict[str, Any] = {"viewport": {"width": 1280, "height": 900}, "locale": "ko-KR", "user_agent": UA}
         if self.storage_state and self.storage_state.exists():
             kwargs["storage_state"] = str(self.storage_state)
         ctx = s.browser.new_context(**kwargs)
         ctx.on("page", lambda pg: self._hook(s, pg))
         page = ctx.new_page()
-        page.goto(self.start_url, wait_until="load")
+        page.goto(self.roots[root], wait_until="load")
         page = self.rt._settle(page)
         for eid in path:
             page = self._run(page, self.edges[eid].steps)
@@ -406,28 +464,53 @@ class Crawler:
         except PWError:
             return None
 
-    def _look(self, s: _Session, path: list[int], shot: bool = False) -> tuple[dict[str, Any], bytes | None]:
+    def _look(self, s: _Session, path: list[int], shot: bool = False, root: int = 0) -> tuple[dict[str, Any], bytes | None]:
         """경로를 재생한 화면의 관찰 (+ 스크린샷)."""
         page = None
         try:
-            page = self._open(s, path)
+            page = self._open(s, path, root)
             return self._observe(page), (self._shot(page) if shot else None)
         finally:
             self._close(page)
 
-    def _node_for(self, obs: dict[str, Any], filled: bool, path: list[int], shot: bytes | None) -> int | None:
+    def _has_room(self, loc: str, planned: int = 0, planned_routes: dict[str, int] | None = None) -> bool:
+        """새 상태를 더 만들 수 있는가: 전체 상한과 그 라우트의 상한. planned*: 아직 만들지 않았지만 만들기로 한 것 (채워서 경로의 미리 계산)."""
+        if len(self.nodes) + planned >= self.max_states:
+            return False
+        if self.max_route_states:
+            r = route_of(loc)
+            return self._route_count.get(r, 0) + (planned_routes or {}).get(r, 0) < self.max_route_states
+        return True
+
+    def _budget_reason(self, loc: str) -> str:
+        if len(self.nodes) >= self.max_states:
+            return f"state budget {self.max_states} reached"
+        return f"route state budget {self.max_route_states} reached ({route_of(loc)})"
+
+    def _count(self, node: Node) -> None:
+        self._route_count[route_of(node.loc)] = self._route_count.get(route_of(node.loc), 0) + 1
+        self._reached.update(route_key(part or "/") for part in node.loc.split("|"))
+
+    def _look_seed(self, s: _Session, root: int) -> tuple[dict[str, Any], bytes | None, list[str]]:
+        """씨앗 주소를 바로 연 관찰 + 그 이동의 HTTP 오류."""
+        s.reset()
+        obs, shot = self._look(s, [], shot=True, root=root)
+        return obs, shot, list(s.events["http_errors"])
+
+    def _node_for(self, obs: dict[str, Any], filled: bool, path: list[int], shot: bytes | None, root: int = 0) -> int | None:
         key = (obs["sig"], filled)
         if key in self._by_key:
             return self._by_key[key]
-        if len(self.nodes) >= self.max_states:
+        if not self._has_room(obs["loc"]):
             return None
         node = Node(len(self.nodes), obs["sig"], filled, obs["url"], obs["loc"], obs["title"], path,
-                    headings=obs["headings"], alerts=obs["alerts"], modal=obs["modal"], texts=obs["texts"], snapshot=obs["snapshot"])
+                    headings=obs["headings"], alerts=obs["alerts"], modal=obs["modal"], texts=obs["texts"], snapshot=obs["snapshot"], root=root)
         if self.shots_dir and shot:
             node.screenshot = str(self.shots_dir / f"n{node.id}.png")
             Path(node.screenshot).write_bytes(shot)
         self.nodes.append(node)
         self._by_key[key] = node.id
+        self._count(node)
         print(f"  + n{node.id} {node.label}  [{urlparse(node.url).path}]", flush=True)
         return node.id
 
@@ -439,7 +522,7 @@ class Crawler:
                              "filled": False, "shot": None}
         page = None
         try:
-            page = self._open(s, node.path)
+            page = self._open(s, node.path, node.root)
             before = self._values(page)
             s.reset()
             s.dismiss_confirm = dismiss
@@ -477,15 +560,74 @@ class Crawler:
                     preset_sets=r["preset_sets"], sets=r["sets"], url_after=r["url_after"], dialogs=r["dialogs"],
                     js_errors=r["js_errors"], http_errors=r["http_errors"], reason=r["reason"])
         if edge.kind == "transition":
-            edge.dst = self._node_for(r["obs"], r["filled"], node.path + [edge.id], r["shot"])
+            edge.dst = self._node_for(r["obs"], r["filled"], node.path + [edge.id], r["shot"], node.root)
             if edge.dst is None:
-                edge.reason = f"state budget {self.max_states} reached"
+                edge.reason = self._budget_reason(r["obs"]["loc"])
         return edge
 
     def _attempts(self, jobs: list[tuple[Node, list[Step], str, dict[str, Any]]]) -> list[dict[str, Any]]:
-        """(상태, 스텝, 방식, 옵션) 여러 개를 작업 스레드들에 나눠 누른다. 결과는 넣은 순서대로."""
+        """(상태, 스텝, 방식, 옵션) 여러 개를 작업 스레드들에 나눠 누른다. 결과는 넣은 순서대로.
+        기억(self.memo)에 있는 동작은 누르지 않고 기억한 결과를 쓴다. 기억 확인과 적기는 메인 스레드에서 한다."""
         assert self.pool is not None
-        return self.pool.map([lambda s, j=j: self._attempt(s, j[0], j[1], j[2], **j[3]) for j in jobs])
+        memo = self.memo
+        keys = [self._attempt_key(*j) for j in jobs] if memo else []
+        prior = [memo.get(k) for k in keys] if memo else [None] * len(jobs)
+        # 오류(시간 초과 등)는 한 번 더 눌러 보고, 두 번 연속이면 그대로 쓴다: 일시적인 느림은 다시 누르고, 늘 가려진 버튼에 매번 제한 시간을 쓰지 않게
+        tries = [r.pop("tries", 1) if r is not None and r["kind"] == "error" else 0 for r in prior]
+        got: list[dict[str, Any] | None] = [None if 0 < t < 2 else self._recalled(r) for r, t in zip(prior, tries)]
+        miss = [i for i, r in enumerate(got) if r is None]
+        fresh = self.pool.map([lambda s, j=jobs[i]: self._attempt(s, j[0], j[1], j[2], **j[3]) for i in miss])
+        for i, r in zip(miss, fresh):
+            got[i] = r
+            if memo:
+                memo.put(keys[i], {**{k: v for k, v in r.items() if k != "steps"}, **({"tries": tries[i] + 1} if r["kind"] == "error" else {})})
+        if memo:
+            memo.hits += len(jobs) - len(miss)
+            memo.misses += len(miss)
+        out = []
+        for j, r in zip(jobs, got):
+            assert r is not None
+            r["steps"] = j[1]  # 목록 적응 확장은 누른 요소를 객체 동일성(is)으로 찾는다: 기억의 사본이 아니라 이번 탐색의 요소를 둔다
+            out.append(r)
+        return out
+
+    def _step_key(self, s: Step) -> dict[str, Any]:
+        d: dict[str, Any] = {"action": s.action, **asdict(s.el)}
+        if s.value is not None:
+            d["value"] = _expand(s.value)  # ${VAR}는 이번에 채울 값으로
+        return d
+
+    def _replay_key(self, path: list[int]) -> list[list[dict[str, Any]]]:
+        """경로를 edge id가 아니라 스텝 내용으로 (id는 탐색마다 달라진다)."""
+        return [[self._step_key(s) for s in self.edges[eid].steps] for eid in path]
+
+    def _attempt_key(self, node: Node, steps: list[Step], mode: str, opts: dict[str, Any]) -> list[Any]:
+        return ["attempt", self.roots[node.root], node.sig, node.filled, node.loc, self._replay_key(node.path), [self._step_key(s) for s in steps], mode,
+                opts.get("preset_len", 0), sorted((opts.get("preset_sets") or {}).items()), bool(opts.get("dismiss"))]
+
+    def _recalled(self, r: dict[str, Any] | None) -> dict[str, Any] | None:
+        """기억한 결과를 이번 탐색에 맞춘다. 캡처는 새 상태가 될 때만 (_attempt와 같다). 새 상태가 될 결과인데 캡처가 없으면 None (다시 누른다)."""
+        if r is None:
+            return None
+        new = r["kind"] == "transition" and (r["obs"]["sig"], r["filled"]) not in self._by_key
+        if not (new and self.shots_dir):
+            r["shot"] = None
+            return r
+        r["shot"] = self.memo.shot(r["shot"]) if self.memo and r.get("shot") else None
+        return r if r["shot"] is not None else None
+
+    def _look_at(self, node: Node) -> dict[str, Any]:
+        """상태를 탐색하기 전 그 화면의 관찰. 기억에 있으면 브라우저를 열지 않는다."""
+        assert self.pool is not None
+        key = ["look", self.roots[node.root], self._replay_key(node.path)]
+        if self.memo and (hit := self.memo.get(key)) is not None:
+            self.memo.hits += 1
+            return _clicks.decode_obs(hit)
+        obs, _ = self.pool.map([lambda s: self._look(s, node.path, root=node.root)])[0]
+        if self.memo:
+            self.memo.misses += 1
+            self.memo.put(key, _clicks.encode_obs(obs))  # 목록 표본화가 obs의 목록을 고치기 전에 적는다
+        return obs
 
     def _candidates(self, elements: list[Element], obs: dict[str, Any] | None = None
                     ) -> tuple[list[tuple[Element, int, dict[str, Any] | None]], list[Element]]:
@@ -562,7 +704,7 @@ class Crawler:
     def _explore(self, node: Node) -> None:
         assert self.pool is not None
         try:
-            obs, _ = self.pool.map([lambda s: self._look(s, node.path)])[0]
+            obs = self._look_at(node)
         except Exception as e:
             print(f"  ! n{node.id} replay failed: {str(e).splitlines()[0][:160]}")
             return
@@ -595,7 +737,7 @@ class Crawler:
         # 남길 것을 먼저 알아야 그 취소 경로를 한 묶음으로 누르고, 반영은 원래 순서(채워서 → 그 취소 → 다음 채워서)로 할 수 있다.
         kept: list[tuple[Edge, dict[str, Any]]] = []
         planned: dict[tuple[str, bool], object] = {}
-        budget = self.max_states - len(self.nodes)
+        planned_routes: dict[str, int] = {}
         for e, r in zip(base, raws):
             dst: object = None
             if r["kind"] == "transition":
@@ -604,13 +746,13 @@ class Crawler:
                     dst = self._by_key[key]
                 elif key in planned:
                     dst = planned[key]
-                elif budget > 0:
+                elif self._has_room(r["obs"]["loc"], len(planned), planned_routes):
                     dst = ("new", key)
             if (r["kind"], dst, [d["message"] for d in r["dialogs"]]) == (e.kind, e.dst, [d["message"] for d in e.dialogs]):
                 continue
             if isinstance(dst, tuple) and r["obs"] and (r["obs"]["sig"], r["filled"]) not in planned:
                 planned[(r["obs"]["sig"], r["filled"])] = dst
-                budget -= 1
+                planned_routes[route_of(r["obs"]["loc"])] = planned_routes.get(route_of(r["obs"]["loc"]), 0) + 1
             kept.append((e, r))
         for (e, r), d in zip(kept, self._dismiss_attempts(node, [(r, e.group) for e, r in kept])):
             f = self._commit(node, r, group=e.group)
@@ -678,49 +820,181 @@ class Crawler:
             d.kind, d.dst = "transition", node.id
         return d
 
-    def run(self, shots_dir: Path | None = None) -> None:
+    def run(self, shots_dir: Path | None = None, checkpoint: Path | None = None, clicks: Path | None = None,
+            sources: dict[str, str] | None = None) -> None:
+        """checkpoint: 상태 하나를 다 누를 때마다 바뀐 것(새 상태·새 동작)을 이 파일에 한 줄씩 덧붙인다. 같은 설정으로 다시 돌리면
+        거기서 이어 간다 (상태 수천 개짜리 탐색이 중간에 끊겨도 처음부터 다시 누르지 않게). 다 끝나면 지운다.
+        clicks: 누른 결과의 기억 파일 (eastshift.clicks). 탐색이 끝나도 남아 다음 탐색이 새 동작만 누른다.
+        sources: 그 기억의 기준 = 소스 폴더 → 버전 (clicks.sources_for). 버전이 바뀌면 기억을 비운다."""
         self.shots_dir = shots_dir
+        self.sources = sources or {}
         if shots_dir:
             shots_dir.mkdir(parents=True, exist_ok=True)
+        i = self._resume(checkpoint) if checkpoint else 0
+        log = None
+        if clicks:
+            self.memo = _clicks.ClickMemo(clicks, {"v": _clicks.VERSION, "sources": self.sources, "settle_ms": self.rt.settle_ms,
+                                                             "action_timeout_ms": self.action_timeout_ms, "storage_state": str(self.storage_state or "")})
+            print(f"  누른 결과 기억 {clicks}: " + (f"비우고 시작 ({self.memo.reason})" if self.memo.reason else f"{len(self.memo.index)}개")
+                  + ("" if self.sources else " — 소스 위치를 몰라(eastshift.json) 코드가 바뀌어도 알 수 없다. 앱이 바뀌었으면 이 파일을 지운다"), flush=True)
         with _Pool(self.workers, self._launch) as self.pool:
             try:
-                obs, shot = self.pool.map([lambda s: self._look(s, [], shot=True)])[0]
-                self._node_for(obs, False, [], shot)
-                i = 0
-                while i < len(self.nodes):
-                    node = self.nodes[i]
-                    i += 1
-                    if len(node.path) < self.max_depth:
-                        self._explore(node)
-                        node.explored = True
+                fresh = not self.nodes
+                if fresh or self.memo:  # 시작 화면은 늘 실제로 연다: 기억이 있으면 앱이 그대로인지 여기서도 본다
+                    obs, shot = self.pool.map([lambda s: self._look(s, [], shot=fresh)])[0]
+                    if self.memo:
+                        self._check_root(obs["sig"])
+                    if fresh:
+                        self._node_for(obs, False, [], shot)
+                if checkpoint:
+                    log = checkpoint.open("a", encoding="utf-8")
+                    if fresh:
+                        self._checkpoint(log, 0, 0, 0)
+                while True:
+                    while i < len(self.nodes):
+                        node = self.nodes[i]
+                        i += 1
+                        n0, e0 = len(self.nodes), len(self.edges)
+                        if len(node.path) < self.max_depth:
+                            self._explore(node)
+                            node.explored = True
+                        if log:
+                            self._checkpoint(log, i, n0, e0, node)
+                        self._progress(i)
+                    if not self._next_seed():  # 시작점에서 더 갈 곳이 없다: 아직 못 간 선언 화면을 하나 직접 열어 거기서 다시
+                        break
             finally:
                 self.pool = None
+                if log:
+                    log.close()
+                if self.memo:
+                    self.memo.close()
+                    print(f"  누른 결과 기억: 새로 누름 {self.memo.misses}회, 기억에서 {self.memo.hits}회", flush=True)
+        if checkpoint:
+            checkpoint.unlink(missing_ok=True)
+
+    def _progress(self, done: int) -> None:
+        """한 줄 진행 상황 (통합 화면이 작업 로그 대신 이 줄을 보여 준다)."""
+        memo = f" · 새로 누름 {self.memo.misses} · 기억 {self.memo.hits}" if self.memo else ""
+        seeds = f" · 씨앗 {self._seed_i}/{len(self.seeds)}" if self.seeds else ""
+        print(f"[진행] 상태 {done}/{len(self.nodes)} 탐색 · 라우트 {len(self._route_count)} · 동작 {len(self.edges)}{memo}{seeds}", flush=True)
+
+    def _next_seed(self) -> bool:
+        """눌러서 못 간 선언 화면(씨앗)을 하나 직접 열어 새 시작점으로 둔다. 더 열 것이 없으면 False.
+        이미 도달한 라우트, 열면 다른 origin으로 가거나 이미 있는 상태(로그인 화면으로 돌려보냄 등)가 되는 주소는 건너뛴다."""
+        assert self.pool is not None
+        while self._seed_i < len(self.seeds):
+            url = self.seeds[self._seed_i]
+            self._seed_i += 1
+            if route_key(urlparse(url).path or "/") in self._reached:
+                continue
+            root = len(self.roots)
+            self.roots.append(url)
+            try:
+                obs, shot, http = self.pool.map([lambda s: self._look_seed(s, root)])[0]
+            except Exception as e:  # noqa: BLE001
+                print(f"  ! 씨앗 {url} 열기 실패: {str(e).splitlines()[0][:160]}", flush=True)
+                self.roots.pop()
+                continue
+            if http:  # 선언은 있는데 바로 열면 404·500: 상태로 두지 않고 알리기만 한다
+                print(f"  씨앗 {url}: {http[0]}", flush=True)
+                self.roots.pop()
+                continue
+            nid = None if urlparse(obs["url"]).netloc != urlparse(url).netloc else self._node_for(obs, False, [], shot, root)
+            if nid is None or self.nodes[nid].root != root:
+                print(f"  씨앗 {url}: 새 화면 아님 (" + ("다른 곳으로 감" if nid is None else f"n{nid}와 같음") + ")", flush=True)
+                self.roots.pop()
+                continue
+            print(f"  씨앗 {url} → n{nid} (눌러서는 못 간 화면을 직접 엶)", flush=True)
+            return True
+        return False
+
+    def _check_root(self, sig: str) -> None:
+        assert self.memo is not None
+        key = ["root", self.start_url]
+        hit = self.memo.get(key)
+        if hit is not None and hit["sig"] != sig:
+            self.memo.clear("시작 화면 구조가 지난번과 다름")
+            print("  누른 결과 기억: 시작 화면 구조가 지난번과 달라 비웠다", flush=True)
+            hit = None
+        if hit is None:
+            self.memo.put(key, {"sig": sig})
+
+    # -- 이어 하기 ------------------------------------------------------------------------
+    def _resume_key(self) -> str:
+        """탐색 결과를 바꾸는 설정. 이것이 같아야 지난 기록에서 이어 간다."""
+        blob = [self.start_url, self.inputs, self.deny.pattern, self.max_depth, self.max_states, self.max_actions, self.group_min,
+                self.reps, self.pick, self.min_margin, self.rt.settle_ms, self.sources, self.max_route_states, self.seeds]
+        return hashlib.sha256(json.dumps(blob, ensure_ascii=False, sort_keys=True, default=str).encode()).hexdigest()[:16]
+
+    def _checkpoint(self, log: Any, nxt: int, n0: int, e0: int, node: Node | None = None) -> None:
+        """한 줄 = 다음에 누를 상태 번호 + 새로 생긴 상태·동작 + 방금 누른 상태(목록 표본·explored가 바뀐다) + 시작점·씨앗 진행."""
+        upd = ([node] if node is not None and node.id < n0 else []) + self.nodes[n0:]
+        log.write(json.dumps({"next": nxt, "nodes": [asdict(n) for n in upd], "edges": [asdict(e) for e in self.edges[e0:]],
+                              "roots": self.roots, "seed": self._seed_i}, ensure_ascii=False) + "\n")
+        log.flush()
+
+    def _resume(self, checkpoint: Path) -> int:
+        """지난 기록을 읽어 상태·동작을 되살리고 다음에 누를 상태 번호를 준다. 설정이 다르거나 기록이 없으면 새로 시작한다 (0)."""
+        lines = checkpoint.read_text(encoding="utf-8").splitlines() if checkpoint.exists() else []
+        try:
+            same = bool(lines) and json.loads(lines[0]).get("key") == self._resume_key()
+        except ValueError:
+            same = False
+        if not same:
+            checkpoint.write_text(json.dumps({"key": self._resume_key()}) + "\n", encoding="utf-8")
+            return 0
+        nodes: dict[int, Node] = {}
+        edges: list[Edge] = []
+        nxt, good = 0, lines[:1]
+        for line in lines[1:]:
+            try:
+                rec = json.loads(line)
+            except ValueError:  # 쓰다 끊긴 마지막 줄
+                break
+            good.append(line)
+            for d in rec["nodes"]:
+                nodes[d["id"]] = Node(**d)
+            edges += [Edge(**{**d, "steps": [Step(Element(**st["el"]), st["action"], st["value"]) for st in d["steps"]]}) for d in rec["edges"]]
+            nxt = rec["next"]
+            self.roots, self._seed_i = rec.get("roots", self.roots), rec.get("seed", 0)
+        checkpoint.write_text("".join(x + "\n" for x in good), encoding="utf-8")  # 끊긴 줄을 걷어 내야 다음 줄을 덧붙일 수 있다
+        self.nodes = [nodes[k] for k in sorted(nodes)]
+        self.edges = edges
+        self._by_key = {(n.sig, n.filled): n.id for n in self.nodes}
+        for n in self.nodes:
+            self._count(n)
+        if self.nodes:
+            print(f"  이어 하기: 상태 {len(self.nodes)}개 중 {nxt}개 탐색됨, 동작 {len(self.edges)}개 ({checkpoint})", flush=True)
+        return nxt
 
     # -- 산출물 --------------------------------------------------------------------------
     def to_dict(self) -> dict[str, Any]:
         return {"start": self.start, "start_url": self.start_url, "inputs": sorted(self.inputs), "deny": self.deny.pattern,
+                "roots": [_relative(u) for u in self.roots], "max_route_states": self.max_route_states,
                 "nodes": [asdict(n) | {"label": n.label} for n in self.nodes],
                 "edges": [asdict(e) | {"steps": [s.to_dict() for s in e.steps], "sentence": sentence(e.action)} for e in self.edges]}
 
     def paths(self) -> list[list[int]]:
         """모든 전이 edge를 한 번 이상 지나는 경로. 다른 경로의 앞부분인 경로는 뺀다."""
-        cands = [self.nodes[e.src].path + [e.id] for e in self.edges if e.kind == "transition" and e.dst is not None]
-        cands.sort(key=len, reverse=True)
-        kept: list[list[int]] = []
-        for p in cands:
-            if not any(k[:len(p)] == p for k in kept):
-                kept.append(p)
-        return sorted(kept, key=lambda p: p)
+        return maximal_paths([self.nodes[e.src].path + [e.id] for e in self.edges if e.kind == "transition" and e.dst is not None])
 
-    def scenario(self, path: list[int]) -> tuple[dict[str, Any], dict[str, Any]]:
+    def scenario_paths(self) -> list[tuple[int, list[int]]]:
+        """시나리오가 될 (시작점, 경로): 전이 경로들, 그다음 씨앗으로 연 화면 중 더 갈 곳이 없는 것 (그 화면이 열리는지만 본다).
+        씨앗이 없으면 paths()와 같은 순서라 테스트 이름(test_crawl_NN)이 전과 같다."""
+        out = [(self.nodes[self.edges[p[0]].src].root, p) for p in self.paths()]
+        covered = {r for r, _ in out}
+        return out + [(k, []) for k in range(1, len(self.roots)) if k not in covered]
+
+    def scenario(self, path: list[int], root: int = 0) -> tuple[dict[str, Any], dict[str, Any]]:
         """(시나리오, 재생 캐시). 캐시 키 규칙은 Runner.run과 같다 (같은 문장이 반복되면 ' #n')."""
-        root = self.nodes[0]
-        steps: list[dict[str, Any]] = [{"goto": self.start}]
-        if root.title:
-            steps.append({"expect": {"title_contains": root.title}})
+        start = self.nodes[self.edges[path[0]].src] if path else next(n for n in self.nodes if n.root == root and not n.path)
+        steps: list[dict[str, Any]] = [{"goto": _relative(self.roots[start.root])}]
+        if start.title:
+            steps.append({"expect": {"title_contains": start.title}})
         cache: dict[str, Any] = {}
         seen: dict[str, int] = {}
-        labels = [root.label]
+        labels = [start.label]
         for eid in path:
             e = self.edges[eid]
             src = self.nodes[e.src]
@@ -805,9 +1079,10 @@ class Crawler:
         """같은 경로를 Playwright 테스트(ui fixture)로. 승인·결함 주입·검증 보고서 흐름에 그대로 올라간다."""
         L = ['"""eastshift crawl이 만든 테스트. 현재 동작의 기록이다. 검토하고 업무상 중요한 값(금액 등) 확인을 더한 뒤 e2e/<app>/로 옮겨 쓴다.',
              "", f"시작: {self.start}", '"""', "from eastshift.runner import _expand", ""]
-        for i, path in enumerate(self.paths(), 1):
-            spec, cache = self.scenario(path)
-            L += ["", f"def test_crawl_{i:02d}(ui):", f'    """{spec["name"].removeprefix("[탐색] ")}"""']
+        paths = self.scenario_paths()
+        for i, (root, path) in enumerate(paths, 1):
+            spec, cache = self.scenario(path, root)
+            L += ["", f"def test_crawl_{serial(i, len(paths))}(ui):", f'    """{spec["name"].removeprefix("[탐색] ")}"""']
             seen: dict[str, int] = {}
             for st in spec["steps"]:
                 if "goto" in st:
@@ -836,10 +1111,8 @@ class Crawler:
         return "\n".join(L) + "\n"
 
     def write(self, out_dir: Path, cache_dir: Path) -> list[Path]:
-        marker = check_output_dir(out_dir)
-        out_dir.mkdir(parents=True, exist_ok=True)
+        mark_output_dir(out_dir)
         cache_dir.mkdir(parents=True, exist_ok=True)
-        marker.write_text("eastshift crawl output: regenerated on every crawl. Move reviewed files out before editing them.\n", encoding="utf-8")
         if self.list_cache:  # 분기 열 분류 캐시: 표식이 생긴 뒤에 쓴다 (먼저 쓰면 out 이 '탐색 산출물 폴더가 아닌 것'으로 보인다)
             _lists.save_cache(self.list_cache_path or cache_dir / "lists.json", self.list_cache)
         (out_dir / "graph.json").write_text(json.dumps(self.to_dict(), ensure_ascii=False, indent=1), encoding="utf-8")
@@ -848,9 +1121,10 @@ class Crawler:
             old.unlink()
             (cache_dir / f"{old.stem}.json").unlink(missing_ok=True)
         written = []
-        for i, path in enumerate(self.paths(), 1):
-            spec, cache = self.scenario(path)
-            f = out_dir / f"crawl_{i:02d}.yaml"
+        paths = self.scenario_paths()
+        for i, (root, path) in enumerate(paths, 1):
+            spec, cache = self.scenario(path, root)
+            f = out_dir / f"crawl_{serial(i, len(paths))}.yaml"
             header = ("# eastshift crawl이 만든 시나리오. 현재 동작의 기록이므로 맞는 동작인지 검토한 뒤 쓴다.\n"
                       "# 이 폴더는 crawl을 다시 돌리면 덮어쓴다. 검토한 파일은 scenarios/<app>/로 옮겨서 고친다.\n")
             f.write_text(header + yaml.safe_dump(spec, allow_unicode=True, sort_keys=False, width=200), encoding="utf-8")
@@ -859,17 +1133,38 @@ class Crawler:
         (out_dir / "test_crawl.py").write_text(self.pytest_module(), encoding="utf-8")
         return written
 
+    def _diagram(self, q: Callable[[str], str]) -> list[str]:
+        """mermaid 흐름도. mermaid는 선 500개·글자 5만 자를 넘으면 그리지 않으므로, 크면 주소(라우트) 단위로 합쳐 그리고,
+        그래도 크면 그림을 빼고 통합 화면의 Screen Map(라우트 단위, 캡처·검색)을 가리킨다."""
+        moves = [e for e in self.edges if e.kind == "transition" and e.dst is not None]
+        body = [f'  n{n.id}["n{n.id} {q(n.label)}<br/>{q(urlparse(n.url).path)}"]' for n in self.nodes]
+        for e in moves:
+            lab = {"filled": "채워서: ", "dismiss": "취소: "}.get(e.mode, "") + sentence(e.action) + (f" / {e.dialogs[-1]['type']}: {e.dialogs[-1]['message']}" if e.dialogs else "")
+            body.append(f'  n{e.src} -->|"{q(lab)}"| n{e.dst}')
+        if len(moves) <= MERMAID_EDGES and sum(len(x) + 1 for x in body) <= MERMAID_TEXT:
+            return ["```mermaid", "flowchart TD", *body, "```"]
+        route = {n.id: stable_path(n.url) or "/" for n in self.nodes}
+        rids = {r: i for i, r in enumerate(dict.fromkeys(route.values()))}
+        count: dict[tuple[str, str], int] = {}
+        for e in moves:
+            k = (route[e.src], route[e.dst])
+            if k[0] != k[1]:
+                count[k] = count.get(k, 0) + 1
+        states = {r: sum(1 for v in route.values() if v == r) for r in rids}
+        body = [f'  r{i}["{q(r)}<br/>상태 {states[r]}개"]' for r, i in rids.items()]
+        body += [f'  r{rids[a]} -->|"{c}"| r{rids[b]}' for (a, b), c in count.items()]
+        where = "통합 화면(`uv run eastshift ui`)의 Screen Map · as-is 탐색에서 라우트별로 캡처와 함께 본다"
+        if len(count) <= MERMAID_EDGES and sum(len(x) + 1 for x in body) <= MERMAID_TEXT:
+            return [f"상태 {len(self.nodes)}개·전이 {len(moves)}개라 mermaid 한도를 넘어 주소 단위로 합쳤다 (선의 숫자 = 전이 수). 상태 단위 흐름은 아래 동작 표, 그림은 {where}.",
+                    "", "```mermaid", "flowchart LR", *body, "```"]
+        return [f"흐름도 생략: 상태 {len(self.nodes)}개·전이 {len(moves)}개, 주소 {len(rids)}개로 합쳐도 mermaid 한도(선 {MERMAID_EDGES}개, 글자 {MERMAID_TEXT}자)를 넘는다. "
+                f"흐름은 아래 동작 표, 그림은 {where}."]
+
     def markdown(self) -> str:
         def q(s: str) -> str:
             return s.replace('"', "'").replace("\n", " ")[:60]
-        out = ["# 화면 탐색 결과", "", f"시작: `{self.start}`, 상태 {len(self.nodes)}개, 동작 {len(self.edges)}개", "", "```mermaid", "flowchart TD"]
-        for n in self.nodes:
-            out.append(f'  n{n.id}["n{n.id} {q(n.label)}<br/>{q(urlparse(n.url).path)}"]')
-        for e in self.edges:
-            if e.kind == "transition" and e.dst is not None:
-                lab = {"filled": "채워서: ", "dismiss": "취소: "}.get(e.mode, "") + sentence(e.action) + (f" / {e.dialogs[-1]['type']}: {e.dialogs[-1]['message']}" if e.dialogs else "")
-                out.append(f'  n{e.src} -->|"{q(lab)}"| n{e.dst}')
-        out += ["```", "", "## 동작", "", "| 상태 | 방식 | 동작 | 결과 | 비고 |", "| :--- | :--- | :--- | :--- | :--- |"]
+        out = ["# 화면 탐색 결과", "", f"시작: `{self.start}`, 상태 {len(self.nodes)}개, 동작 {len(self.edges)}개", ""] + self._diagram(q)
+        out += ["", "## 동작", "", "| 상태 | 방식 | 동작 | 결과 | 비고 |", "| :--- | :--- | :--- | :--- | :--- |"]
         result = {"local": "화면 안", "external": "외부 이동 (따라가지 않음)", "error": "실행 실패", "denied": "누르지 않음 (deny)"}
         for e in self.edges:
             res = f"→ n{e.dst}" if e.kind == "transition" and e.dst is not None else result.get(e.kind, e.kind)
@@ -895,6 +1190,19 @@ class Crawler:
                 src = L["source"] + (f" margin {L['margin']}" if L.get("margin") is not None else "") + (" **검토**" if "abstain" in L["source"] else "")
                 reps = "; ".join(f"{k.rsplit(':', 1)[0].split(':', 1)[-1]}: {', '.join(str(r + 1) for r in v)}" for k, v in L["reps"].items())
                 out.append(f"| n{n.id} | {q(L['heading'] or L['kind'])} | {L['rows']} | {q(branch)} ({q(src)}) | {q(reps)} |")
+        if len(self.roots) > 1:
+            out += ["", "## 직접 연 화면 (씨앗)", "", "시작점에서 눌러서는 못 갔지만 소스의 라우트 목록(--seeds)에 있어 주소로 바로 열었다. "
+                    "메뉴가 호버로만 열리거나, 링크가 스크립트로만 이동하거나, 권한·데이터가 있어야 보이는 화면일 수 있다.", ""]
+            out += [f"- `{_relative(u)}` → " + ", ".join(f"n{n.id} {n.label}" for n in self.nodes if n.root == k and not n.path) for k, u in enumerate(self.roots) if k]
+        capped: dict[str, int] = {}
+        for e in self.edges:
+            if e.reason.startswith("route state budget"):
+                r = e.reason.rsplit("(", 1)[-1].rstrip(")")
+                capped[r] = capped.get(r, 0) + 1
+        if capped:
+            out += ["", f"## 라우트 상한({self.max_route_states})에 걸린 화면", "",
+                    "같은 화면의 변형(필터·입력 조합·팝업)이 상한보다 많아 더 만들지 않았다. 다른 화면으로 가는 탐색은 계속했다.", ""]
+            out += [f"- `{r}`: 상태 {self._route_count.get(r, 0)}개, 더 만들지 않은 전이 {c}개" for r, c in sorted(capped.items())]
         unexplored = [n for n in self.nodes if not n.explored]
         if unexplored:
             out += ["", f"## 탐색하지 않은 상태 (깊이 {self.max_depth} 도달)", ""] + [f"- n{n.id} {n.label}" for n in unexplored]
@@ -904,10 +1212,20 @@ class Crawler:
 def check_output_dir(out_dir: Path) -> Path:
     """crawl 산출물 폴더만 덮어쓴다. 사람이 쓰거나 고친 파일이 있는 폴더(표식 없음)면 멈춘다."""
     marker = out_dir / ".crawl-output"
-    if out_dir.exists() and not marker.exists() and any(p for p in out_dir.iterdir() if p.name != "screens"):
+    if out_dir.exists() and not marker.exists() and any(p for p in out_dir.iterdir() if p.name not in ("screens", "routes.json")):  # routes.json: 탐색 전에 eastshift routes 가 둔다
         raise SystemExit(f"{out_dir} is not a crawl output directory (no {marker.name}). Crawl overwrites its output; "
                          "use a fresh --out and keep reviewed scenarios/tests in scenarios/<app>/ or e2e/<app>/.")
     return marker
+
+
+def mark_output_dir(out_dir: Path) -> None:
+    """check_output_dir 을 통과한 폴더에 표식을 남긴다. 탐색 전에 남겨야 끊긴 탐색의 이어 하기 기록이 있는 폴더도 다시 쓸 수 있다."""
+    marker = check_output_dir(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    marker.write_text("eastshift crawl output: regenerated on every crawl. Move reviewed files out before editing them.\n", encoding="utf-8")
+
+
+CHECKPOINT = ".crawl-partial.jsonl"
 
 
 def load_fixtures(path: Path | None) -> tuple[dict[str, Any], str]:

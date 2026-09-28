@@ -7,6 +7,7 @@ eastshift mutate e2e/<app> --base-url <as-is> --compare golden/<app>
    여러 화면에 똑같이 나오는 자리(메뉴·머리글·공통 스크립트)는 처음 나온 경로에서만 뽑는다.
 3. 실행: 결함 하나씩, 그 경로를 받은 테스트만 다시 돌린다. 하나라도 실패하면 탐지(killed)이고 거기서 멈춘다(--maxfail=1). 모두 통과하면 생존(survived).
    끝난 결과는 out 옆 <out>.partial.jsonl 에 바로 쌓인다. 끊긴 측정을 같은 기준으로 다시 돌리면 남은 결함만 돈다.
+   승인 확인은 시작할 때 한 번 해서 결함마다 띄우는 pytest에 넘기고(oracle.PRECHECK), 끝날 때 다시 확인한다 (보고서의 승인 상태는 끝 시점).
 4. 보고: 탐지율, 연산자별 탐지율, 생존 결함 목록(사람이 볼 것), 테스트별 먼저 잡은 결함 수(하한: 먼저 잡은 테스트 뒤는 돌지 않았다).
 
 생존 결함은 두 종류다: 테스트가 못 보는 진짜 빈틈(테스트 보강), 관찰 가능한 차이가 없는 결함(동등 변이, 무시). 구분은 사람이 한다.
@@ -17,12 +18,14 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 import xml.etree.ElementTree as ET
 from bisect import bisect_right
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
@@ -269,9 +272,9 @@ def generate(bodies: dict[str, dict[str, str]], max_per_op: int, rules: dict[str
     return mutants
 
 
-def _pytest(args: list[str], timeout: float | None) -> subprocess.CompletedProcess:
+def _pytest(args: list[str], timeout: float | None, env: dict[str, str] | None = None) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", *args],
-                          capture_output=True, text=True, timeout=timeout)
+                          capture_output=True, text=True, timeout=timeout, env={**os.environ, **env} if env else None)
 
 
 def _timeout(n_tests: int) -> int:
@@ -327,17 +330,24 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
         allow_unapproved: bool, out: Path, max_mutants: int = 0) -> dict[str, Any]:
     common = ["--base-url", base_url] + (["--compare", str(compare)] if compare else []) + (["--allow-unapproved"] if allow_unapproved else [])
     work = Path(tempfile.mkdtemp(prefix="eastshift-mutate-"))
+    from . import oracle
+    # 승인 확인은 여기서 한 번: 결함마다 띄우는 pytest가 골든 전체(캡처 포함)를 다시 해시하지 않고 이 결과를 받는다. 끝날 때 다시 확인한다
+    start = oracle.precheck(compare) if compare else None
+    env: dict[str, str] = {}
+    if start is not None:
+        (work / "precheck.json").write_text(json.dumps(start, ensure_ascii=False), encoding="utf-8")
+        env[oracle.PRECHECK] = str(work / "precheck.json")
     t0 = time.time()
     print(f"[1/3] discovery run on {base_url} ({'expects + golden' if compare else 'expects only'})")
-    r = _pytest([*targets, *common, "--jev-capture", str(work / "cap")], timeout=None)  # 전체 테스트 한 바퀴: 규모에 따라 몇 시간도 걸린다
+    r = _pytest([*targets, *common, "--jev-capture", str(work / "cap")], timeout=None, env=env)  # 전체 테스트 한 바퀴: 규모에 따라 몇 시간도 걸린다
     if r.returncode != 0:
+        shutil.rmtree(work, ignore_errors=True)
         sys.exit("discovery run must pass on the unmutated app before mutating:\n" + r.stdout[-3000:])
     bodies = json.loads((work / "cap/bodies.json").read_text(encoding="utf-8"))
     tests = json.loads((work / "cap/tests.json").read_text(encoding="utf-8"))
     identities = canonical_ids(list(tests))
     source_dir = Path(os.path.commonpath([str(Path(t.rsplit("::", 1)[0]).parent) for t in tests])).resolve() if tests else None
     source_sha256 = source_hash(source_dir) if source_dir else ""
-    from . import oracle
     rules = oracle.load_config(compare) if compare else {}
     gen: dict[str, int] = {}
     mutants = generate(bodies, max_per_op, rules, gen)
@@ -347,16 +357,24 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
           + (f" ({gen['shared']} sites shared with an earlier route skipped)" if gen["shared"] else "")
           + (f" (capped from {generated} by --max-mutants {max_mutants})" if len(mutants) < generated else ""))
 
+    by_path: dict[str, list[str]] = defaultdict(list)  # 경로 → 그 응답을 받는 테스트 (결함마다 전체 테스트를 훑지 않게)
+    for t, paths in tests.items():
+        for pth in dict.fromkeys(paths):
+            by_path[pth].append(t)
+
     def one(m: dict[str, Any]) -> dict[str, Any]:
-        sel = [t for t, paths in tests.items() if m["path"] in paths]
+        sel = by_path.get(m["path"], [])
         junit = work / f"{m['id']}.xml"
+        # 고른 테스트는 인자 파일로 (@file). 공통 자원이면 수천 개라 명령줄 길이 한도를 넘는다
+        argsfile = work / f"{m['id']}.args"
+        argsfile.write_text("\n".join(sel) + "\n", encoding="utf-8")
         # 탐지 = 테스트가 실제로 실패했다. pytest가 테스트를 못 찾거나 설정 오류로 끝난 것(종료 코드 2 이상)은 탐지가 아니라 실행 오류다.
         marker = work / f"{m['id']}.applied"
         try:
             # 한 테스트가 잡으면 탐지가 확정되므로 나머지는 돌리지 않는다 (--maxfail=1). 공통 자원의 결함이 테스트 수백 개를 다 돌지 않게.
             # 그래서 killed_by는 먼저 잡은 테스트 하나다
-            res = _pytest([*sel, *common, "--maxfail=1", "--jev-mutant", json.dumps({**{k: m[k] for k in ("path", "op", "site")}, "marker": str(marker)}),
-                           "--junitxml", str(junit)], timeout=_timeout(len(sel)))
+            res = _pytest([f"@{argsfile}", *common, "--maxfail=1", "--jev-mutant", json.dumps({**{k: m[k] for k in ("path", "op", "site")}, "marker": str(marker)}),
+                           "--junitxml", str(junit)], timeout=_timeout(len(sel)), env=env)
             by = _failed(junit)
             status = "killed" if res.returncode == 1 and by else ("survived" if res.returncode == 0 else "error")
             err = "" if status != "error" else (res.stdout.strip().splitlines() or ["?"])[-1][:200]
@@ -364,6 +382,8 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
                 status, err = "error", "mutant was never applied (response body differs from discovery run)"
         except subprocess.TimeoutExpired:
             by, status, err = [], "error", "timeout"
+        for f in (junit, marker, argsfile):  # 결과는 partial.jsonl 에 남는다. 결함 수만 개의 사본을 임시 폴더에 쌓지 않는다
+            f.unlink(missing_ok=True)
         return {**m, "tests": [identities[t] for t in sel], "status": status, "killed": status == "killed", "killed_by": by, "error": err}
 
     # 끝난 결과는 바로 out 옆 .partial.jsonl 에 쌓는다. 몇 시간짜리 측정이 중간에 끊겨도 같은 기준으로 다시 돌리면 남은 것만 돈다
@@ -395,9 +415,12 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
     by_op = {op: {"total": sum(r["op"] == op for r in results), "killed": sum(r["op"] == op and r["killed"] for r in results)} for op in OPS}
     test_names = sorted(identities.values())
     kills = {t: sum(t in r["killed_by"] for r in results) for t in test_names}
+    end = oracle.status(compare) if compare else {}
+    if start is not None and (end["ok"], end.get("approval_id")) != (start["status"]["ok"], start["status"].get("approval_id")):
+        print(f"  ! oracle changed during the run (approved: {start['status']['ok']} at start, {end['ok']} at end); the report records the end state")
     report = {"generated_at": time.strftime("%Y-%m-%d %H:%M:%S"), "targets": targets, "base_url": base_url,
-              "oracle_approved": bool(compare) and oracle.status(compare)["ok"],
-              "oracle_approved_at": oracle.status(compare).get("approved_at") if compare else None,
+              "oracle_approved": bool(compare) and end["ok"],
+              "oracle_approved_at": end.get("approved_at") if compare else None,
               "oracle_approval_id": oracle.approval_id(compare) if compare else None,
               "source_sha256": source_sha256,
               "source_dir": str(source_dir) if source_dir else "",
@@ -408,6 +431,7 @@ def run(targets: list[str], *, base_url: str, compare: Path | None, workers: int
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
     partial.unlink(missing_ok=True)
+    shutil.rmtree(work, ignore_errors=True)
     print(f"\nmutation score {killed}/{len(results)} = {(report['score'] or 0):.0%} ({report['mode']})")
     for op, v in by_op.items():
         if v["total"]:

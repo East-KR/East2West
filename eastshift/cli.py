@@ -72,8 +72,12 @@ def build_parser() -> argparse.ArgumentParser:
     cr.add_argument("--fixtures", type=Path, default=None, help="inputs: {입력칸 이름: 값}, deny: 누르지 않을 이름 정규식")
     cr.add_argument("--cache-dir", type=Path, default=None, help="시나리오 재생 캐시 디렉터리 (기본 <out>/cache)")
     cr.add_argument("--depth", type=int, default=3, help="시작 화면에서 몇 번의 전이까지 탐색할지 (기본 3)")
-    cr.add_argument("--max-states", type=int, default=30)
+    cr.add_argument("--max-states", type=int, default=30, help="전체 상태 수 상한 (기본 30)")
     cr.add_argument("--max-actions", type=int, default=40, help="상태당 누를 동작 수 상한")
+    cr.add_argument("--route-states", type=int, default=0,
+                    help="라우트(주소, 숫자 조각은 {id})마다 상태 수 상한. 한 화면의 변형에 빠지지 않고 다른 화면으로 넓게 간다 (기본 0 = 없음)")
+    cr.add_argument("--seeds", type=Path, default=None,
+                    help="eastshift routes 의 routes.json. 시작점에서 더 갈 곳이 없으면 눌러서 못 간 선언 화면을 주소로 직접 열어 거기서 다시 탐색한다")
     cr.add_argument("--group-min", type=int, default=3, help="비슷한 요소가 이 개수 이상이면 대표 하나만 누른다")
     cr.add_argument("--reps", type=int, default=3, help="목록성 화면(표 행·목록 항목)에서 누를 대표 행 상한. 분기 열(상태·유형 …) 값 조합마다 하나 (기본 3)")
     cr.add_argument("--classify", choices=("auto", "rule", "jev"), default="auto",
@@ -124,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
         from . import targets
         return targets.main(args.screens, args.out, args.base_url, args.names.split("|") if args.names else None, args.storage_state)
     if args.cmd == "crawl":
-        from .crawl import Crawler, load_fixtures_full
+        from .crawl import Crawler, load_fixtures_full, load_seeds
         inputs, deny, pick = load_fixtures_full(args.fixtures)
         jev = None
         if args.classify == "jev" or (args.classify == "auto" and (os.environ.get("TYPESAFE_API_KEY") or os.environ.get("TYPESAFEAI_API_KEY"))):
@@ -134,7 +138,8 @@ def main(argv: list[str] | None = None) -> int:
         crawler = Crawler(args.start, base_url=args.base_url, inputs=inputs, deny=deny, max_depth=args.depth, max_states=args.max_states,
                           max_actions=args.max_actions, group_min=args.group_min, settle_ms=args.settle_ms,
                           storage_state=args.storage_state, headed=args.headed,
-                          reps=args.reps, pick=pick, jev=jev, list_cache=cache_dir / "lists.json", min_margin=args.min_margin)
+                          reps=args.reps, pick=pick, jev=jev, list_cache=cache_dir / "lists.json", min_margin=args.min_margin,
+                          max_route_states=args.route_states, seeds=load_seeds(args.seeds) if args.seeds and args.seeds.exists() else None)
         if args.dry_run:
             pv = crawler.preview()
             print(f"{pv['title']}  {pv['url']}\n\n누를 것 ({len(pv['click'])}):")
@@ -145,9 +150,13 @@ def main(argv: list[str] | None = None) -> int:
             print("값이 없는 입력칸: " + (", ".join(pv["missing"]) or "(없음)"))
             print("\n주의: 실제 탐색은 저장·확정 버튼도 누릅니다. 테스트 DB와 테스트 계정에서만 돌리세요. 금지 목록은 픽스처의 deny로 바꿉니다.")
             return 0
-        from .crawl import check_output_dir
-        check_output_dir(args.out)
-        crawler.run(shots_dir=args.out / "screens")
+        from .clicks import sources_for
+        from .crawl import CHECKPOINT, mark_output_dir
+        from .pwtest import projects
+        mark_output_dir(args.out)
+        # 누른 결과 기억: 상한을 올려 다시 돌리면 새 동작만 누른다. 등록부(eastshift.json)의 그 주소 소스가 바뀌면 버린다 (eastshift.clicks)
+        crawler.run(shots_dir=args.out / "screens", checkpoint=args.out / CHECKPOINT, clicks=cache_dir / "clicks.jsonl",
+                    sources=sources_for(crawler.start_url, projects.FILE))
         written = crawler.write(args.out, cache_dir)
         sampled = [(n, L) for n in crawler.nodes for L in n.lists if L.get("reps")]
         if sampled:
