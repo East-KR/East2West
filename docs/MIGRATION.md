@@ -270,3 +270,4 @@ uv run pytest e2e/legacy --base-url http://127.0.0.1:8802 --compare golden/legac
 - IE 전용 기능: ActiveX, `showModalDialog`. Chromium에서 as-is가 안 돌면 기록 자체가 불가능하다.
 - 화면에 안 나오는 차이: DB에 저장된 값, 배치, 외부 연동. 별도의 DB 결과 비교가 필요하다.
 - `ui.py`에 아직 없는 위젯: datepicker, 가상 스크롤 그리드, 파일 업로드. 처음 만날 때 한 번 추가한다.
+- 화면 수천 개를 프로젝트 하나에 두면 Screen Map이 무겁고(시나리오 1,000개에 약 4MB, 라우트 수백 개는 읽기 어렵다) 승인도 한 덩어리다. 승인·시나리오 탭은 목록만 싣고 상세를 고를 때 받으므로 괜찮다. 큰 앱은 `eastshift.json`에 모듈마다 프로젝트를 등록해(같은 주소, 다른 `e2e/<모듈>`·`golden/<모듈>`) 지도·승인·비교·결함 주입을 모듈 단위로 돌린다. 모듈을 합산한 현황과 `eastshift routes`의 모듈 범위 지정은 아직 없다.

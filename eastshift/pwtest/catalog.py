@@ -5,6 +5,7 @@ hub.py 가 /page/<app>/catalog 요청에 render(build(golden/<app>)) 로 만든�
 읽는 것: golden/<app>/ (시나리오, 기대값, 캡처, 승인), runs/<app>/ (실행 원장). 새로 판단하는 것은 없다.
 화면: 위에 승인·마지막 실행 요약, 그 아래 시나리오 표 (제목, 단계 수, 확인 값, 마지막 결과, 이력 점). 행을 누르면 시나리오 팝업
 (필름스트립 + 단계 + 마지막 실행에서 다른 점). 다른 화면으로는 통합 화면의 탭으로 간다.
+화면에는 시나리오 표만 싣고, 행을 누를 때 /api/app/<app>/catalog/<test> (hub.detail) 로 상세와 캡처 주소를 받는다 (시나리오 수천 개여도 가볍게).
 """
 from __future__ import annotations
 

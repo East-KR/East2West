@@ -51,6 +51,8 @@ Done when every row passes on the reference app.
 uv run eastshift run scenarios/<app>/screen_smoke_targets.yaml --base-url <target> --junit reports/junit-<app>.xml
 ```
 
+Hundreds of screens: add `--workers 4` (one browser per worker; rows are independent so the results are the same). Keep 1 when the scenario changes server state or all rows share one login session.
+
 Each failure's reason names its class: `HTTP error: 500 …`, `JS error: …`, `unexpected dialog: …`, `data rows 0 < 1`, title mismatch — a target defect. `target not found` means the button was renamed or removed in the target; report the rename, and fix the list only after the user confirms it is intended.
 
 ## 5. Report

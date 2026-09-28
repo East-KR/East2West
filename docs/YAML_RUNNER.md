@@ -18,7 +18,8 @@ uv run eastshift run scenarios/demoqa_form.yaml --no-cache                      
 
 옵션: `--margin 0.1` (1위-2위 확률 차 최소값), `--max-candidates 60`, `--settle-ms 1500`, `--no-cache`, `--headed`,
 `--storage-state .auth/x.json` (로그인 상태 재사용), `--replay-only` (CI 모드: Jev를 부르지 않고 캐시만 재생, API 키 불필요),
-`--base-url http://host:port` (goto 상대 경로 기준, 기본 `EASTSHIFT_BASE_URL`), `--cache-dir DIR` (기본 `.eastshift-cache`), `--junit reports/junit.xml` (CI 리포트).
+`--base-url http://host:port` (goto 상대 경로 기준, 기본 `EASTSHIFT_BASE_URL`), `--cache-dir DIR` (기본 `.eastshift-cache`), `--junit reports/junit.xml` (CI 리포트),
+`--workers N` (시나리오·matrix 행을 브라우저 N개로 나눠 돌린다. 행마다 캐시·골든·리포트가 따로라 결과는 같다. 서버 상태를 바꾸는 시나리오나 로그인 세션 하나를 나눠 쓰는 경우는 1).
 
 골든 기록·비교 (`--record DIR` / `--compare DIR`, `--compare-ignore REGEX`, `--compare-url`, `--compare-unordered`)도 있다.
 사람 승인, 결함 주입, 검증 보고서가 붙은 것은 Playwright 쪽이므로 전환 검증에는 그쪽을 쓴다. YAML 버전의 예제는 `examples/yaml-migration/`.
