@@ -20,6 +20,7 @@ uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:87
   POST /api/app/<app>/stop          실행 중인 작업 멈춤 (작업의 프로세스 그룹에 SIGTERM). 탐색은 다시 누르면 멈춘 곳부터, 누른 동작은 기억에서 (eastshift.clicks)
   POST /api/app/<app>/compare       to-be 비교 다시 실행 (pytest --compare). 보고서의 '바로 해결' 버튼과 비교 지도 출처 바의 'to-be 비교' 버튼이 부른다
   POST /api/app/<app>/mutate        결함 탐지 측정 실행 (eastshift mutate --compare, 보고서의 '바로 해결' 버튼)
+  POST /api/app/<app>/record        골든 다시 기록 (pytest --record, 승인 탭의 'as-is에서 다시 기록' 버튼). 기록은 승인을 무효로 만들고 승인은 사람이 다시 한다
   GET  /api/app/<app>/job           위 작업의 진행 (단계·로그·탐색의 한 줄 진행 progress·멈춤 여부). /init 도 같은 것. 앱마다 한 번에 하나
   POST /api/projects                프로젝트 추가 {name, asis:{src,url}, tobe:{src,url}, note}
   POST /api/projects/<app>          프로젝트 설정 변경 (같은 본문)
@@ -252,6 +253,19 @@ class Hub:
         before = len(ledger.load_runs(app))
         return self._start_job(app, "compare", self.compare_plan(app), check=lambda: len(ledger.load_runs(app)) > before,
                                done_msg="== 끝. 새 실행이 원장에 남았습니다. 보고서와 지도를 새로 그립니다.", missing_msg="비교가 끝났지만 원장에 새 실행이 없습니다 (로그를 보세요: 승인되지 않은 골든이면 거부됩니다)")
+
+    def record_plan(self, app: str) -> list[dict[str, Any]]:
+        """골든 다시 기록: pytest --record 한 번 (승인 탭의 'as-is에서 다시 기록' 버튼). 골든이 있는 앱만 — 없으면 init 이 탐색부터 한다.
+        기록은 승인을 무효로 만들고, 승인은 여전히 사람이 승인 탭에서 한다."""
+        self._golden(app)
+        url = self._side_url(app, "asis")
+        return [{"step": "record", "label": f"as-is({url})에서 골든 다시 기록 → {self.golden_root / app} (승인은 다시 해야 합니다)",
+                 "cmd": [sys.executable, "-m", "pytest", str(self.tests_root / app), "--base-url", url, "--record", str(self.golden_root / app), "-q", "-p", "no:cacheprovider"]}]
+
+    def start_record(self, app: str) -> dict[str, Any]:
+        before = oracle.fingerprint(self._golden(app))
+        return self._start_job(app, "record", self.record_plan(app), check=lambda: oracle.fingerprint(self.golden_root / app) != before,
+                               done_msg="== 끝. 골든을 다시 기록했습니다. 승인 탭에서 바뀐 곳을 보고 다시 승인하세요.", missing_msg="기록이 끝났지만 골든이 바뀌지 않았습니다 (로그를 보세요: as-is 에서 실패한 시나리오는 기록되지 않습니다)")
 
     def start_mutate(self, app: str) -> dict[str, Any]:
         st = oracle.status(self.golden_root / app)
@@ -636,6 +650,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(self.hub.start_compare(parts[2]))
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "mutate":
                 return self._json(self.hub.start_mutate(parts[2]))
+            if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "record":
+                return self._json(self.hub.start_record(parts[2]))
             if parts == ["api", "projects"]:
                 return self._json(self.hub.add_project(str(body.get("name", "")).strip(), body))
             if len(parts) == 3 and parts[:2] == ["api", "projects"]:
