@@ -74,13 +74,18 @@ def test_extract_frameworks_and_skips(tmp_path):
 
 
 def test_extract_stdlib_hand_routing_of_demo_apps():
-    """표준 라이브러리 손 라우팅: 포털 데모의 화면 6개와 동작 2개. 파일 하나만 넘겨도 된다."""
-    rs, _ = routes.extract(Path("demo-app/portal_app.py"))
+    """표준 라이브러리 손 라우팅: 포털 데모 as-is 의 화면 7개와 동작 2개. 파일 하나만 넘겨도 된다."""
+    rs, _ = routes.extract(Path("demo-app/portal_asis/app.py"))
     screens = {r.path for r in rs if r.kind == "screen"}
     actions = {r.path: r.methods for r in rs if r.kind == "action"}
-    assert {"/", "/orders", "/orders/{id}", "/customers", "/customers/{id}", "/settings"} <= screens
+    assert {"/", "/orders", "/orders/{id}", "/customers", "/customers/{id}", "/settings", "/notices"} <= screens
     assert actions == {"/orders/{id}/cancel": ["POST"], "/customers/{id}/memo": ["POST"]}
-    assert all(r.file == "portal_app.py" for r in rs)
+    assert all(r.file == "app.py" for r in rs)
+    # as-is 와 to-be 는 소스가 따로다: 폴더를 넘기면 그쪽 주소만 나온다 (공지사항은 as-is 에만, 보고서는 to-be 에만)
+    asis = {r.path for r in routes.extract(Path("demo-app/portal_asis"))[0] if r.kind == "screen"}
+    tobe = {r.path for r in routes.extract(Path("demo-app/portal_tobe"))[0] if r.kind == "screen"}
+    assert "/notices" in asis and "/notices" not in tobe and "/reports" in tobe and "/reports" not in asis
+    assert not {r.path for r in routes.extract(Path("demo-app/portal_app.py"))[0]}  # 실행기에는 라우트가 없다
     legacy = {r.path for r in routes.extract(Path("demo-app/legacy_app.py"))[0]}
     assert {"/", "/menu.jsp", "/order.jsp", "/list.jsp", "/done.jsp", "/app/orders/{id}"} <= legacy
     reservation = {r.path: r.kind for r in routes.extract(Path("demo-app/app.py"))[0]}
@@ -89,9 +94,9 @@ def test_extract_stdlib_hand_routing_of_demo_apps():
 
 def test_write_marks_new_dir_and_summary(tmp_path):
     out = tmp_path / "crawl" / "shop" / "routes.json"
-    data = routes.write(Path("demo-app/portal_app.py"), out)
+    data = routes.write(Path("demo-app/portal_tobe"), out)
     assert out.exists() and (out.parent / ".crawl-output").exists()  # 뒤에 오는 crawl 이 이 폴더를 산출물 폴더로 본다
-    assert data["counts"]["screen"] >= 6 and "portal_app.py" in data["src"]
+    assert data["counts"]["screen"] >= 6 and "portal_tobe" in data["src"]
     assert "/orders/{id}" in routes.summary(data)
 
 

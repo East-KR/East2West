@@ -1,7 +1,8 @@
 {
  "test": "test_portal_13",
  "base_url": "http://127.0.0.1:8820",
- "recorded_at": "2026-09-25 22:35:58",
+ "recorded_at": "2026-09-29 09:37:27",
+ "setup": {},
  "assertions": [
   {
    "step": 1,
@@ -59,15 +60,19 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 포털 홈",
-    "text: 주문 3건 미처리 주문 2건 고객 2명",
+    "text: 9월 30일(화) 22시부터 시스템 점검이 있습니다",
+    "text: 주문 3건 처리 대기 2건 고객 2명",
     "text: 바로 가기",
     "link \"주문 목록 열기\"",
     "link \"고객 목록 열기\"",
-    "link \"설정 열기\""
+    "link \"설정 열기\"",
+    "link \"공지사항 열기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"포털 홈\" [level=1]\n  - text: 주문 3건 미처리 주문 2건 고객 2명\n  - heading \"바로 가기\" [level=2]\n  - list:\n    - listitem:\n      - link \"주문 목록 열기\":\n        - /url: /orders\n    - listitem:\n      - link \"고객 목록 열기\":\n        - /url: /customers\n    - listitem:\n      - link \"설정 열기\":\n        - /url: /settings",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"포털 홈\" [level=1]\n  - paragraph: 9월 30일(화) 22시부터 시스템 점검이 있습니다\n  - text: 주문 3건 처리 대기 2건 고객 2명\n  - heading \"바로 가기\" [level=2]\n  - list:\n    - listitem:\n      - link \"주문 목록 열기\":\n        - /url: /orders\n    - listitem:\n      - link \"고객 목록 열기\":\n        - /url: /customers\n    - listitem:\n      - link \"설정 열기\":\n        - /url: /settings\n    - listitem:\n      - link \"공지사항 열기\":\n        - /url: /notices",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_13/00.jpg"
   },
   {
@@ -82,6 +87,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 고객 목록",
     "button \"고객 등록\"",
     "text: 이름",
@@ -94,8 +100,9 @@
     "text: 일반",
     "text: 1"
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_13/01.jpg"
   },
   {
@@ -110,6 +117,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 고객 목록",
     "button \"고객 등록\"",
     "text: 이름",
@@ -129,8 +137,9 @@
     "button \"등록\"",
     "button \"닫기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"\n  - dialog \"고객 등록\":\n    - heading \"고객 등록\" [level=2]\n    - text: 이름\n    - textbox \"이름\"\n    - text: 등급\n    - combobox \"등급\":\n      - option \"일반\" [selected]\n      - option \"VIP\"\n    - button \"등록\"\n    - button \"닫기\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"\n  - dialog \"고객 등록\":\n    - heading \"고객 등록\" [level=2]\n    - text: 이름\n    - textbox \"이름\"\n    - text: 등급\n    - combobox \"등급\":\n      - option \"일반\" [selected]\n      - option \"VIP\"\n    - button \"등록\"\n    - button \"닫기\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_13/02.jpg"
   },
   {
@@ -145,6 +154,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 고객 목록",
     "button \"고객 등록\"",
     "text: 이름",
@@ -164,8 +174,9 @@
     "button \"등록\"",
     "button \"닫기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"\n  - dialog \"고객 등록\":\n    - heading \"고객 등록\" [level=2]\n    - text: 이름\n    - textbox \"이름\": 박민수\n    - text: 등급\n    - combobox \"등급\":\n      - option \"일반\" [selected]\n      - option \"VIP\"\n    - button \"등록\"\n    - button \"닫기\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"\n  - dialog \"고객 등록\":\n    - heading \"고객 등록\" [level=2]\n    - text: 이름\n    - textbox \"이름\": 박민수\n    - text: 등급\n    - combobox \"등급\":\n      - option \"일반\" [selected]\n      - option \"VIP\"\n    - button \"등록\"\n    - button \"닫기\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_13/03.jpg"
   },
   {
@@ -180,6 +191,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 고객 목록",
     "button \"고객 등록\"",
     "text: 이름",
@@ -199,8 +211,9 @@
     "button \"등록\"",
     "button \"닫기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"\n  - dialog \"고객 등록\":\n    - heading \"고객 등록\" [level=2]\n    - text: 이름\n    - textbox \"이름\": 박민수\n    - text: 등급\n    - combobox \"등급\":\n      - option \"일반\"\n      - option \"VIP\" [selected]\n    - button \"등록\"\n    - button \"닫기\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"\n  - dialog \"고객 등록\":\n    - heading \"고객 등록\" [level=2]\n    - text: 이름\n    - textbox \"이름\": 박민수\n    - text: 등급\n    - combobox \"등급\":\n      - option \"일반\"\n      - option \"VIP\" [selected]\n    - button \"등록\"\n    - button \"닫기\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_13/04.jpg"
   },
   {
@@ -215,6 +228,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 고객 목록",
     "button \"고객 등록\"",
     "text: 이름",
@@ -227,8 +241,9 @@
     "text: 일반",
     "text: 1"
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"고객 목록\" [level=1]\n  - button \"고객 등록\"\n  - table:\n    - rowgroup:\n      - row \"이름 등급 주문 수\":\n        - columnheader \"이름\"\n        - columnheader \"등급\"\n        - columnheader \"주문 수\"\n      - row \"김철수 VIP 2\":\n        - cell \"김철수\":\n          - link \"김철수\":\n            - /url: /customers/1\n        - cell \"VIP\"\n        - cell \"2\"\n      - row \"이영희 일반 1\":\n        - cell \"이영희\":\n          - link \"이영희\":\n            - /url: /customers/2\n        - cell \"일반\"\n        - cell \"1\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_13/05.jpg"
   },
   {
@@ -243,6 +258,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 고객 상세 김철수",
     "text: 등급",
     "text: VIP",
@@ -251,8 +267,9 @@
     "button \"메모\"",
     "link \"주문 보기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"고객 상세 김철수\" [level=1]\n  - table:\n    - rowgroup:\n      - row \"등급 VIP\":\n        - rowheader \"등급\"\n        - cell \"VIP\"\n      - row \"메모 (없음)\":\n        - rowheader \"메모\"\n        - cell \"(없음)\"\n  - button \"메모\"\n  - link \"주문 보기\":\n    - /url: /orders?customer=1",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"고객 상세 김철수\" [level=1]\n  - table:\n    - rowgroup:\n      - row \"등급 VIP\":\n        - rowheader \"등급\"\n        - cell \"VIP\"\n      - row \"메모 (없음)\":\n        - rowheader \"메모\"\n        - cell \"(없음)\"\n  - button \"메모\"\n  - link \"주문 보기\":\n    - /url: /orders?customer=1",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_13/06.jpg"
   }
  ]

@@ -16,7 +16,7 @@
 | 탐색기 (crawl) · 목록 대표 행 · 라우트 대조 | docs/CRAWL.md, `eastshift/crawl.py`, `eastshift/lists.py`, `eastshift/routes.py` |
 | YAML 러너 · Jev · triage | docs/YAML_RUNNER.md |
 | 결함 주입 (mutate) | `eastshift/pwtest/mutation.py` |
-| 규모·성능 (병렬 실행, 이어 하기, 읽기 캐시, 원장 정리) | docs/MIGRATION.md "수정 → 재실행 루프", `eastshift/pwtest/fscache.py`, `mutation.py`·`plugin.py`·`ledger.py` 첫 docstring |
+| 규모·성능 (병렬 실행, 이어 하기, 읽기 캐시, 원장 정리, 승인 해시 증분, 탐색 결과 기억) | docs/MIGRATION.md "수정 → 재실행 루프", docs/CRAWL.md "규모가 크면", `eastshift/pwtest/fscache.py`·`gitblobs.py`, `eastshift/clicks.py`, `mutation.py`·`plugin.py`·`ledger.py` 첫 docstring |
 
 ## 약속
 

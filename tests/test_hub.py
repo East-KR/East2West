@@ -199,3 +199,19 @@ def test_sig_sees_top_level_and_subfolder_changes(tmp_path, monkeypatch):
     (g / "app" / "shots" / "t1" / "step1.jpg").write_bytes(b"x")  # 바로 아래 폴더(shots/)의 항목은 본다
     os.utime(g / "app" / "shots" / "t1", (s1 + 10, s1 + 10))
     assert h._sig("app") > s1
+
+
+def test_record_plan_reruns_pytest_record_and_needs_a_golden(tmp_path, monkeypatch):
+    # 승인 탭의 'as-is에서 다시 기록': 터미널의 pytest --record 와 같은 명령. 골든이 없는 앱은 init(탐색부터)이 맡는다
+    monkeypatch.setattr(ledger, "RUNS", tmp_path / "runs")
+    g = tmp_path / "golden"; (g / "shop").mkdir(parents=True); (g / "shop" / "test_a.json").write_text("{}", encoding="utf-8")
+    reg = tmp_path / "eastshift.json"
+    reg.write_text(json.dumps({"projects": {"shop": {"asis": {"src": "", "url": "http://asis:1"}, "tobe": {"src": "", "url": "http://tobe:2"}}}}), encoding="utf-8")
+    h = hub.Hub(g, tmp_path / "e2e", projects_file=reg)
+    [step] = h.record_plan("shop")
+    cmd = step["cmd"]
+    assert step["step"] == "record" and "--record" in cmd and cmd[cmd.index("--record") + 1] == str(g / "shop") and cmd[cmd.index("--base-url") + 1] == "http://asis:1"
+    assert "--compare" not in cmd
+    (g / "empty").mkdir()
+    with pytest.raises(KeyError):
+        h.record_plan("nope")

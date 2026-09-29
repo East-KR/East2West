@@ -7,6 +7,7 @@ hub.py 가 /page/<app>/review 요청에 render(build(golden/<app>)) 로 만든�
 재승인이면 단계마다 '지난 승인 대비' 차이(나타난·사라진 줄, 동작·대화상자·API 변화)를 보여 준다. 지난 승인본은 stepdiff 가 해시로 검증해 찾는다.
 읽는 것: golden/<app>/ 와 지난 승인본(runs/<app>/approved/ 또는 git 이력). 새로 판단하는 것은 없다.
 화면에는 시나리오 목록만 싣고, 고른 시나리오의 단계·캡처는 /api/app/<app>/review/<test> (hub.detail) 로 받는다.
+머리의 'as-is에서 다시 기록' 버튼은 확인 창을 거쳐 서버가 pytest --record 를 돌리게 한다 (hub.start_record). 기록은 승인을 무효로 만들고, 승인은 여전히 사람이 여기서 한다.
 """
 from __future__ import annotations
 
@@ -20,6 +21,9 @@ from .map import _plain
 
 CSS = """
 main{max-width:none;padding-block:22px 40px;gap:18px}
+.rerec{font:600 12px var(--sans);padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap;margin-left:auto}
+.rerec:hover{border-color:var(--accent);color:var(--accent)}.rerec:disabled{opacity:.55;cursor:default}
+.recline{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46ch}.recline.ok{color:var(--ok)}.recline.bad{color:var(--bad)}
 .head{gap:6px 24px}.head h1{font-size:26px}
 .stage{display:grid;grid-template-columns:300px minmax(0,1fr) 340px;gap:14px;height:calc(100vh - 210px);min-height:600px}
 .stage.norules{grid-template-columns:300px minmax(0,1fr)}
@@ -210,6 +214,39 @@ $('#allok').addEventListener('click', () => {  // 전체 확인 토글: 모두 �
 });
 $$('.filters button[data-mode]').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; $$('.filters button[data-mode]').forEach(x => x.classList.toggle('on', x === b)); filter(); }));
 $$('.item').forEach(el => el.addEventListener('click', () => show(el.dataset.test)));
+// as-is에서 다시 기록: 확인 창 → POST /api/app/<app>/record → 진행 한 줄 → 끝나면 화면을 새로 그린다 (승인은 그 뒤 사람이)
+const rerec = $('#rerec'), recline = $('#recline');
+let recTimer = null;
+function recShow(j){
+  recline.hidden = false;
+  const last = (j.log || []).slice(-1)[0] || '';
+  recline.className = 'recline' + (j.running ? '' : j.ok ? ' ok' : ' bad');
+  recline.textContent = j.running ? `기록 중… ${last}` : j.ok ? '끝. 바뀐 곳을 보고 다시 승인하세요.' : `실패: ${j.error || last}`;
+}
+async function recPoll(first){
+  let j; try { j = await (await fetch(`/api/app/${encodeURIComponent(D.app)}/job`)).json(); } catch(e) { return; }
+  if(j.kind !== 'record'){ rerec.disabled = !!j.running; return; }
+  if(j.running){ rerec.disabled = true; rerec.textContent = '기록 중…'; recShow(j); recTimer = setTimeout(() => recPoll(false), 2000); return; }
+  if(first) return;
+  recShow(j); rerec.disabled = false; rerec.textContent = 'as-is에서 다시 기록';
+  if(j.ok) setTimeout(() => { if(ctx && ctx.refresh) ctx.refresh(); else location.reload(); }, 1200);
+}
+if(rerec){
+  ctx.onDestroy && ctx.onDestroy(() => clearTimeout(recTimer));
+  rerec.addEventListener('click', async () => {
+    let asis = '';
+    try { const a = await (await fetch(`/api/app/${encodeURIComponent(D.app)}`)).json(); asis = ((a.project || {}).asis || {}).url || ''; } catch(e) {}
+    if(!asis){ recline.hidden = false; recline.className = 'recline bad'; recline.textContent = 'as-is 주소가 없습니다. 프로젝트 설정에서 적으세요.'; return; }
+    if(!confirm(`골든 ${D.order.length}개를 as-is(${asis})에서 다시 기록해 덮어씁니다.\n지금 승인은 무효가 되고, 끝나면 바뀐 곳을 보고 다시 승인해야 합니다.\n\n계속할까요?`)) return;
+    rerec.disabled = true; rerec.textContent = '기록 중…';
+    try {
+      const r = await fetch(`/api/app/${encodeURIComponent(D.app)}/record`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'});
+      const j = await r.json(); if(!r.ok || j.error) throw new Error(j.error || r.statusText);
+      recShow(j); recTimer = setTimeout(() => recPoll(false), 2000);
+    } catch(e) { recline.hidden = false; recline.className = 'recline bad'; recline.textContent = '시작하지 못했습니다: ' + e.message; rerec.disabled = false; rerec.textContent = 'as-is에서 다시 기록'; }
+  });
+  recPoll(true);
+}
 const first = decodeURIComponent(ctx.getSub() || '');
 show(D.tests[first] ? first : (D.order.find(t => D.tests[t].flag) || D.order.find(t => !done.has(t)) || D.order[0]));
 """
@@ -324,6 +361,9 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
     if g["removed"]:
         chips.append(html.chip("none", "없어진 시나리오", len(g["removed"]), title=", ".join(g["removed"])))
     chips.append("<span class='abox' id='bar'></span>")  # 모두 확인하면 여기에 승인 폼 (이름 + 승인)
+    # as-is 가 바뀌어 골든을 새로 떠야 할 때: 확인 창을 거쳐 서버가 pytest --record 를 돌린다. 끝나면 이 화면이 새로 그려져 '화면 바뀜'과 재승인 폼이 보인다
+    chips.append("<button type='button' class='rerec' id='rerec' title='as-is에서 시나리오 전부를 다시 기록해 골든을 덮어씁니다. 지금 승인은 무효가 되고 다시 승인해야 합니다'>as-is에서 다시 기록</button>"
+                 "<span class='recline' id='recline' hidden></span>")
     items = "".join(f"<button type='button' class='item' data-test='{html._e(n)}'><span class='box'></span><span class='t'>{html._e(t['title'])}"
                     + (f"<span class='flag {t['flag']}'>{FLAGS[t['flag']]}</span>" if t["flag"] else "")
                     + f"<small>{html._e(n)} · {len(t['steps'])}단계</small></span></button>" for n, t in g["tests"].items())

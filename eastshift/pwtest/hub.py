@@ -13,12 +13,15 @@ uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:87
   /api/apps                         프로젝트별 등록 정보·승인 상태·실행 수·마지막 결과
   /api/app/<app>                    시나리오, 실행 이력(지난 실행 대비 변화 포함), 결함 주입 결과
   POST /api/app/<app>/approve       웹 승인 {by, fingerprint}. 통합 검토 화면에서 바로 승인한다
-  POST /api/app/<app>/init          골든 시나리오 지도 초기화: 골든이 없는 프로젝트를 as-is에서 탐색(crawl) → 시나리오 초안 → 기록 {depth} (승인은 하지 않는다)
-  POST /api/app/<app>/crawl         탐색 지도: as-is 또는 to-be를 eastshift crawl 로 훑는다 {side: asis|tobe, depth}. 소스 위치가 있으면 이어서 eastshift routes 로
-                                    라우트 목록(crawl/<app>[-tobe]/routes.json)을 뽑는다 → 지도가 '코드에만 있는 화면'을 회색으로 표시
-  POST /api/app/<app>/compare       to-be 비교 다시 실행 (pytest --compare, 보고서의 '바로 해결' 버튼)
+  POST /api/app/<app>/init          골든 시나리오 지도 초기화: 골든이 없는 프로젝트를 as-is에서 탐색(crawl) → 시나리오 초안 → 기록 {scope, depth} (승인은 하지 않는다)
+  POST /api/app/<app>/crawl         탐색 지도: as-is 또는 to-be를 eastshift crawl 로 훑는다 {side: asis|tobe, scope: full|quick, depth}. 소스 위치가 있으면 먼저 eastshift routes 로
+                                    라우트 목록(crawl/<app>[-tobe]/routes.json)을 뽑는다 → 지도가 '코드에만 있는 화면'을 회색으로 표시, full이면 탐색의 씨앗(--seeds)
+                                    scope: full = 새 상태가 안 나올 때까지 (FULL_CRAWL: 라우트마다 상태 10개), quick = 깊이만 (상태 30개). 화면의 기본은 full
+  POST /api/app/<app>/stop          실행 중인 작업 멈춤 (작업의 프로세스 그룹에 SIGTERM). 탐색은 다시 누르면 멈춘 곳부터, 누른 동작은 기억에서 (eastshift.clicks)
+  POST /api/app/<app>/compare       to-be 비교 다시 실행 (pytest --compare). 보고서의 '바로 해결' 버튼과 비교 지도 출처 바의 'to-be 비교' 버튼이 부른다
   POST /api/app/<app>/mutate        결함 탐지 측정 실행 (eastshift mutate --compare, 보고서의 '바로 해결' 버튼)
-  GET  /api/app/<app>/job           위 작업의 진행 (단계·로그). /init 도 같은 것. 앱마다 한 번에 하나
+  POST /api/app/<app>/record        골든 다시 기록 (pytest --record, 승인 탭의 'as-is에서 다시 기록' 버튼). 기록은 승인을 무효로 만들고 승인은 사람이 다시 한다
+  GET  /api/app/<app>/job           위 작업의 진행 (단계·로그·탐색의 한 줄 진행 progress·멈춤 여부). /init 도 같은 것. 앱마다 한 번에 하나
   POST /api/projects                프로젝트 추가 {name, asis:{src,url}, tobe:{src,url}, note}
   POST /api/projects/<app>          프로젝트 설정 변경 (같은 본문)
   POST /api/projects/<app>/delete   등록 해제 (산출물은 남긴다)
@@ -36,6 +39,7 @@ import json
 import mimetypes
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -50,6 +54,11 @@ from . import catalog, html, ledger, oracle, projects, report, review, stepdiff
 from . import map as screen_map
 
 PAGES = ("catalog", "review", "map", "report")
+# 탐색 범위. full(통합 화면의 기본) = 새 상태가 안 나올 때까지: 깊이·전체 상태·화면당 동작 상한은 안전장치로만 크게 두고,
+# 라우트마다 상태 상한으로 한 화면의 변형(필터·입력 조합)에 빠지지 않게 한다. 소스가 있으면 코드의 라우트 중 못 간 화면을 직접 연다(--seeds).
+# quick = 깊이만 정하는 빠른 훑기 (상태 30개, 예전 기본).
+FULL_CRAWL = ["--depth", "50", "--max-states", "20000", "--max-actions", "1000", "--route-states", "10"]
+SCOPES = ("full", "quick")
 
 
 class Hub:
@@ -131,37 +140,48 @@ class Hub:
             raise ValueError(f"{'as-is' if side == 'asis' else 'to-be'} 실행 주소가 없습니다. 프로젝트 설정에서 적으세요")
         return url
 
-    def crawl_plan(self, app: str, side: str, depth: int = 3) -> list[dict[str, Any]]:
+    def _crawl_steps(self, app: str, side: str, depth: int, scope: str) -> list[dict[str, Any]]:
+        """라우트 목록(소스가 있으면) → 탐색. 라우트 목록은 지도의 잣대(코드에만 있는 화면을 회색으로)이고, full이면 탐색의 씨앗이기도 하다.
+        다시 누르면 멈춘 곳부터 이어 가고(.crawl-partial.jsonl), 누른 동작은 기억에서 꺼낸다(cache/clicks.jsonl)."""
+        if scope not in SCOPES:
+            raise ValueError(f"scope는 full|quick: {scope}")
+        who, url, out = ("as-is" if side == "asis" else "to-be"), self._side_url(app, side), self.crawl_dir(app, side)
+        src = ((projects.load(self.projects_file).get(app) or {}).get(side) or {}).get("src") or ""
+        steps: list[dict[str, Any]] = []
+        seeds: list[str] = []
+        if src and Path(src).expanduser().exists():
+            steps.append({"step": "routes", "label": f"소스 {src} 에서 라우트 목록 → {out / 'routes.json'} (코드에는 있는데 탐색이 못 간 화면의 잣대)",
+                          "cmd": [sys.executable, "-m", "eastshift.cli", "routes", src, "--out", str(out / "routes.json")]})
+            seeds = ["--seeds", str(out / "routes.json")]
+        if scope == "full":
+            how, args = "끝까지: 새 화면이 안 나올 때까지, 화면마다 상태 10개까지" + (", 눌러서 못 간 코드의 화면은 주소로 직접 엶" if seeds else ""), FULL_CRAWL + seeds
+        else:
+            depth = max(1, min(int(depth or 3), 5))
+            how, args = f"빠르게: 깊이 {depth}, 상태 30개까지", ["--depth", str(depth)]
+        steps.append({"step": "crawl", "label": f"{who}({url}) 화면 탐색 ({how}) → {out}",
+                      "cmd": [sys.executable, "-m", "eastshift.cli", "crawl", url, "--out", str(out), *args]})
+        return steps
+
+    def crawl_plan(self, app: str, side: str, depth: int = 3, scope: str = "quick") -> list[dict[str, Any]]:
         """탐색 지도 한 쪽: eastshift crawl 한 번. 이미 있으면 덮어쓴다 (탐색 산출물은 도구 것이라 다시 만들어도 된다)."""
         self._check(app)
         if side not in projects.SIDES:
             raise ValueError(f"side는 asis|tobe: {side}")
-        url = self._side_url(app, side)
-        depth = max(1, min(int(depth or 3), 5))
-        out = self.crawl_dir(app, side)
-        steps = [{"step": "crawl", "label": f"{'as-is' if side == 'asis' else 'to-be'}({url}) 화면 탐색 (깊이 {depth}) → {out}",
-                  "cmd": [sys.executable, "-m", "eastshift.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]}]
-        src = ((projects.load(self.projects_file).get(app) or {}).get(side) or {}).get("src") or ""
-        if src and Path(src).expanduser().exists():  # 소스가 있으면 라우트 목록도 뽑아 지도의 잣대로 (코드에만 있는 화면을 회색으로)
-            steps.append({"step": "routes", "label": f"소스 {src} 에서 라우트 목록 → {out / 'routes.json'} (코드에는 있는데 탐색이 못 간 화면의 잣대)",
-                          "cmd": [sys.executable, "-m", "eastshift.cli", "routes", src, "--out", str(out / "routes.json")]})
-        return steps
+        return self._crawl_steps(app, side, depth, scope)
 
-    def init_plan(self, app: str, depth: int = 3) -> list[dict[str, Any]]:
+    def init_plan(self, app: str, depth: int = 3, scope: str = "quick") -> list[dict[str, Any]]:
         """골든 시나리오 비교 지도 초기화 단계 (실행하지 않는다). 시나리오가 없으면 탐색(이미 탐색했으면 건너뜀) → 초안 옮기기 → 기록, 있으면 기록만. 승인은 여기 없다 — 사람이 한다."""
         self._check(app)
         if self._has_golden(app):
             raise ValueError("골든이 이미 있어 지도를 그릴 수 있습니다. 다시 기록하려면 터미널에서 (골든은 사람 승인물이라 여기서 덮어쓰지 않습니다)")
         url = self._side_url(app, "asis")
-        depth = max(1, min(int(depth or 3), 5))
         out = self.crawl_dir(app, "asis")
         steps: list[dict[str, Any]] = []
         if not self._scenarios(app):
             if (out / "test_crawl.py").exists():
                 steps.append({"step": "crawl", "label": f"탐색 건너뜀 — {out}/ 에 as-is 탐색 결과가 이미 있음", "skip": True})
             else:
-                steps.append({"step": "crawl", "label": f"as-is 화면 탐색 (깊이 {depth}) → {out}",
-                              "cmd": [sys.executable, "-m", "eastshift.cli", "crawl", url, "--out", str(out), "--depth", str(depth)]})
+                steps += self._crawl_steps(app, "asis", depth, scope)
             steps.append({"step": "tests", "label": f"시나리오 초안을 {self.tests_root / app}/ 로", "copy": [str(out / "test_crawl.py"), str(self.tests_root / app / "test_crawl.py")]})
         else:
             steps.append({"step": "crawl", "label": f"탐색 건너뜀 — {self.tests_root / app}/ 에 시나리오 {self._scenarios(app)}개", "skip": True})
@@ -174,17 +194,42 @@ class Hub:
         job = self.jobs.get(app)
         if not job:
             return {"running": False}
-        return {k: v for k, v in job.items() if k != "log"} | {"log": job["log"][-80:]}
+        return {k: v for k, v in job.items() if k not in ("log", "proc")} | {"log": job["log"][-80:]}
 
-    def init_project(self, app: str, depth: int = 3) -> dict[str, Any]:
+    def stop_job(self, app: str) -> dict[str, Any]:
+        """실행 중인 작업을 멈춘다: 작업의 프로세스 그룹(하위 프로세스와 그것이 띄운 브라우저·pytest) 전체에 SIGTERM, 10초 뒤 남아 있으면 SIGKILL.
+        SIGINT는 쓰지 않는다: 백그라운드로 띄운 통합 화면의 하위 프로세스는 SIGINT를 무시한 채로 물려받는다.
+        기록은 잃지 않는다: 탐색의 이어 하기 기록(.crawl-partial.jsonl)과 누른 결과 기억(clicks.jsonl), 결함 주입의 partial.jsonl 은
+        줄마다 바로 쓰고, 읽을 때 쓰다 끊긴 마지막 줄은 버린다. 다시 누르면 탐색은 멈춘 곳부터, 결함 주입은 끝난 결함을 건너뛰고 이어 간다."""
+        self._check(app)
+        job = self.jobs.get(app)
+        if not job or not job["running"]:
+            raise ValueError("실행 중인 작업이 없습니다")
+        job["stopping"] = True
+        proc = job.get("proc")
+        if proc is not None and proc.poll() is None:
+            _signal_tree(proc, signal.SIGTERM)
+            last = threading.Timer(10, lambda: proc.poll() is None and _signal_tree(proc, signal.SIGKILL))
+            last.daemon = True
+            last.start()
+        return self.init_status(app)
+
+    def stop_all(self) -> None:
+        """통합 화면을 끝낼 때: 작업은 자기 프로세스 그룹에서 돌아 터미널의 Ctrl+C가 닿지 않으므로 여기서 끝낸다."""
+        for job in self.jobs.values():
+            proc = job.get("proc")
+            if proc is not None and proc.poll() is None:
+                _signal_tree(proc, signal.SIGTERM)
+
+    def init_project(self, app: str, depth: int = 3, scope: str = "quick") -> dict[str, Any]:
         """골든 시나리오 비교 지도 초기화를 백그라운드로 시작한다."""
-        return self._start_job(app, "init", self.init_plan(app, depth), check=lambda: self._has_golden(app),
+        return self._start_job(app, "init", self.init_plan(app, depth, scope), check=lambda: self._has_golden(app),
                                done_msg="== 끝. Screen Map을 그립니다. 승인은 시나리오 승인 탭에서 (사람)",
                                missing_msg="기록이 끝났지만 골든 파일이 없습니다 (시나리오가 하나도 통과하지 못했는지 로그를 보세요)")
 
-    def start_crawl(self, app: str, side: str, depth: int = 3) -> dict[str, Any]:
+    def start_crawl(self, app: str, side: str, depth: int = 3, scope: str = "quick") -> dict[str, Any]:
         """as-is 또는 to-be 탐색 지도를 백그라운드로 만든다."""
-        return self._start_job(app, side, self.crawl_plan(app, side, depth), check=lambda: (self.crawl_dir(app, side) / "graph.json").exists(),
+        return self._start_job(app, side, self.crawl_plan(app, side, depth, scope), check=lambda: (self.crawl_dir(app, side) / "graph.json").exists(),
                                done_msg="== 끝. 탐색 지도를 그립니다.", missing_msg="탐색이 끝났지만 graph.json이 없습니다 (로그를 보세요)")
 
     # ---- 보고서의 '바로 해결' 버튼: to-be 비교 다시 실행, 결함 탐지 측정. 둘 다 승인된 골든이 있어야 돈다 (pytest·mutate 가 스스로 거부한다) ----
@@ -209,6 +254,19 @@ class Hub:
         return self._start_job(app, "compare", self.compare_plan(app), check=lambda: len(ledger.load_runs(app)) > before,
                                done_msg="== 끝. 새 실행이 원장에 남았습니다. 보고서와 지도를 새로 그립니다.", missing_msg="비교가 끝났지만 원장에 새 실행이 없습니다 (로그를 보세요: 승인되지 않은 골든이면 거부됩니다)")
 
+    def record_plan(self, app: str) -> list[dict[str, Any]]:
+        """골든 다시 기록: pytest --record 한 번 (승인 탭의 'as-is에서 다시 기록' 버튼). 골든이 있는 앱만 — 없으면 init 이 탐색부터 한다.
+        기록은 승인을 무효로 만들고, 승인은 여전히 사람이 승인 탭에서 한다."""
+        self._golden(app)
+        url = self._side_url(app, "asis")
+        return [{"step": "record", "label": f"as-is({url})에서 골든 다시 기록 → {self.golden_root / app} (승인은 다시 해야 합니다)",
+                 "cmd": [sys.executable, "-m", "pytest", str(self.tests_root / app), "--base-url", url, "--record", str(self.golden_root / app), "-q", "-p", "no:cacheprovider"]}]
+
+    def start_record(self, app: str) -> dict[str, Any]:
+        before = oracle.fingerprint(self._golden(app))
+        return self._start_job(app, "record", self.record_plan(app), check=lambda: oracle.fingerprint(self.golden_root / app) != before,
+                               done_msg="== 끝. 골든을 다시 기록했습니다. 승인 탭에서 바뀐 곳을 보고 다시 승인하세요.", missing_msg="기록이 끝났지만 골든이 바뀌지 않았습니다 (로그를 보세요: as-is 에서 실패한 시나리오는 기록되지 않습니다)")
+
     def start_mutate(self, app: str) -> dict[str, Any]:
         st = oracle.status(self.golden_root / app)
         return self._start_job(app, "mutate", self.mutate_plan(app), check=lambda: ledger.mutation_for(app, st.get("approved_at"), st.get("approval_id")) is not None,
@@ -218,7 +276,7 @@ class Hub:
         job = self.jobs.get(app)
         if job and job["running"]:
             raise ValueError(f"이미 실행 중입니다 ({job['kind']})")
-        job = {"kind": kind, "running": True, "ok": False, "error": "", "steps": [{"step": s["step"], "label": s["label"], "state": "skip" if s.get("skip") else "wait"} for s in steps],
+        job = {"kind": kind, "running": True, "ok": False, "error": "", "stopped": False, "progress": "", "steps": [{"step": s["step"], "label": s["label"], "state": "skip" if s.get("skip") else "wait"} for s in steps],
                "log": [], "started": time.strftime("%Y-%m-%d %H:%M:%S"), "finished": None}
         self.jobs[app] = job
 
@@ -232,6 +290,10 @@ class Hub:
                     st = job["steps"][i]
                     if s.get("skip"):
                         continue
+                    if job.get("stopping"):  # 단계 사이에 멈춤을 눌렀다
+                        job["stopped"] = True
+                        log("== 멈췄습니다.")
+                        return
                     st["state"] = "run"
                     log(f"== {s['label']}")
                     if "copy" in s:
@@ -243,10 +305,23 @@ class Hub:
                         log(f"{src} → {dst}")
                     else:
                         log("$ " + " ".join(s["cmd"]))
-                        proc = subprocess.Popen(s["cmd"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env={**os.environ, "PYTHONUNBUFFERED": "1"})
+                        proc = job["proc"] = subprocess.Popen(s["cmd"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,  # 멈춤이 브라우저까지 한 번에 끝내게 자기 그룹에서
+                                                              env={**os.environ, "PYTHONUNBUFFERED": "1"}, start_new_session=True)
                         for line in proc.stdout or []:
+                            if job.get("stopping"):  # 멈춤 뒤에 나오는 것은 끝나면서 나는 소리(브라우저 드라이버의 끊긴 파이프 등)뿐이다
+                                continue
+                            if line.startswith("[진행]"):  # 탐색의 한 줄 진행 상황: 로그에 쌓지 않고 화면에 하나만 보인다
+                                job["progress"] = line.strip().removeprefix("[진행]").strip()
+                                continue
                             log(line)
-                        if proc.wait() not in s.get("ok_exit", (0,)):
+                        code = proc.wait()
+                        job["proc"] = None
+                        if job.get("stopping"):
+                            st["state"] = "stop"
+                            job["stopped"] = True
+                            log(STOPPED.get(s["step"], "== 멈췄습니다."))
+                            return
+                        if code not in s.get("ok_exit", (0,)):
                             raise RuntimeError(f"{s['step']} 실패 (exit {proc.returncode})")
                     st["state"] = "done"
                 if not check():
@@ -269,8 +344,23 @@ class Hub:
         return self.init_status(app)
 
     # ---- 산출물 읽기 ----
-    def _sig(self, app: str) -> float:
-        """골든·원장·탐색 결과가 바뀌면 화면 캐시를 버린다.
+    def _roots(self, app: str, kind: str, src: str = "compare", run: str | None = None) -> list[tuple[Path, int]]:
+        """그 화면이 읽는 산출물 폴더와 훑을 깊이. 화면마다 따로 잡아, 비교 실행이 하나 끝났다고 골든만 읽는 화면(승인)까지 다시 만들지 않게."""
+        golden, runs = (self.golden_root / app, 1), (ledger.run_dir(app), 1)
+        asis, tobe = (self.crawl_dir(app, "asis"), 1), (self.crawl_dir(app, "tobe"), 1)
+        this_run = [(ledger.run_dir(app) / run, 0)] if run else []
+        if kind == "review":  # 골든 + 지난 승인본 사본
+            return [golden, (ledger.run_dir(app) / "approved", 0)]
+        if kind == "catalog":  # 골든 + 실행 이력
+            return [golden, runs]
+        if kind == "map":
+            return [asis if src == "asis" else tobe] if src in ("asis", "tobe") else [golden, asis, tobe, *this_run]
+        if kind == "report":  # 골든 + 그 실행 + 결함 주입 결과
+            return [golden, *this_run, (ledger.run_dir(app) / "mutations", 0)]
+        return [golden, runs, asis, tobe, (self.tests_root / app, 0), (self.projects_file, 0)]  # 전부 (/api/app)
+
+    def _sig(self, app: str, kind: str = "", src: str = "compare", run: str | None = None) -> float:
+        """골든·원장·탐색 결과가 바뀌면 화면 캐시를 버린다. 화면마다 읽는 폴더만 본다 (_roots).
         산출물은 맨 위 파일(골든 JSON, 원장 JSON, graph.json …)과 함께 쓰이므로 폴더와 그 바로 아래 폴더(shots/, mutations/, approved/,
         실행별 폴더)의 항목만 본다. 단계별 캡처 수만 장까지 훑지 않는다. 폴더 자신의 시각도 보므로 지운 것도 잡힌다."""
         latest = 0.0
@@ -279,6 +369,8 @@ class Hub:
             nonlocal latest
             try:
                 latest = max(latest, d.stat().st_mtime)
+                if not d.is_dir():
+                    return
                 with os.scandir(d) as it:
                     for e in it:
                         latest = max(latest, e.stat().st_mtime)
@@ -287,8 +379,8 @@ class Hub:
             except FileNotFoundError:
                 pass
 
-        for root in (self.golden_root / app, ledger.run_dir(app), self.crawl_dir(app, "asis"), self.crawl_dir(app, "tobe")):
-            scan(root, 1)
+        for root, depth in self._roots(app, kind, src, run):
+            scan(root, depth)
         return latest
 
     def apps(self) -> list[dict[str, Any]]:
@@ -311,19 +403,42 @@ class Hub:
         return out
 
     def app(self, app: str) -> dict[str, Any]:
+        """프로젝트 화면의 자료. 실행 이력 전부(실행마다 케이스 전부)를 담아 크므로, 산출물이 그대로면 지난번 것을 준다."""
         self._check(app)
+        key, sig = (app, "api"), self._sig(app)
+        with self._lock:
+            hit = self._cache.get(key)
+            if hit and hit[0] == sig:
+                return hit[1]
+        out = self._app(app)
+        with self._lock:
+            self._cache[key] = (sig, out)
+        return out
+
+    def _app(self, app: str) -> dict[str, Any]:
         d = self.golden_root / app
         has_golden = d.is_dir() and any(d.glob("*.json"))
         st = oracle.status(d) if has_golden else {"ok": False, "problems": ["골든이 아직 없습니다"]}
         docs = html.docstrings(self.tests_root / app)
         tests = [{"name": t["name"], "title": html._title(t["name"], docs), "assertions": len(t["assertions"]), "recorded_at": t["recorded_at"]}
                  for t in (oracle.tests(d) if has_golden else [])]
+        listed: dict[str, set[str]] = {}  # 폴더 → 파일 이름들. 실행 수 × 케이스 수만큼 stat 하지 않고 폴더마다 한 번 읽는다
+
+        def exists(f: str) -> bool:
+            parent, name = os.path.split(f)
+            if parent not in listed:
+                try:
+                    listed[parent] = set(os.listdir(parent or "."))
+                except OSError:
+                    listed[parent] = set()
+            return name in listed[parent]
+
         runs, previous = [], None
         for r in ledger.load_runs(app):
             cases = {}
             for name, c in r["cases"].items():
                 shot = c.get("screenshot")
-                cases[name] = {**c, "screenshot": f"/file?p={quote(shot)}" if shot and Path(shot).exists() else None}
+                cases[name] = {**c, "screenshot": f"/file?p={quote(shot)}" if shot and exists(shot) else None}
             runs.append({"stamp": r["_stamp"], "started": r.get("started"), "finished": r["finished"], "target": r["target"],
                          "approved_at": r["oracle"].get("approved_at"), "approval_id": r["oracle"].get("approval_id"),
                          "approved_by": r["oracle"].get("approved_by"), "ok": r["oracle"].get("ok"),
@@ -343,7 +458,7 @@ class Hub:
         self._check(app)
         if kind not in ("catalog", "review"):
             raise KeyError(kind)
-        key, sig = (app, "build", kind), self._sig(app)
+        key, sig = (app, "build", kind), self._sig(app, kind)
         with self._lock:
             hit = self._cache.get(key)
             if hit and hit[0] == sig:
@@ -376,7 +491,7 @@ class Hub:
                 body = (f"<header class='head'><div class='eyebrow'>Screen Map · {who} 탐색</div><h1>{html._e(app)}</h1>"
                         f"<p class='lede'>{who}를 아직 탐색하지 않았습니다. 통합 화면의 \"{who} 탐색\" 버튼이나 <code>uv run eastshift crawl &lt;{who} 주소&gt; --out {html._e(str(cd))}</code></p></header>")
                 return html.fragment("map", f"{app} map", body)
-            key, sig = (app, kind, src), self._sig(app)
+            key, sig = (app, kind, src), self._sig(app, kind, src)
             with self._lock:
                 hit = self._cache.get(key)
                 if hit and hit[0] == sig:
@@ -394,7 +509,7 @@ class Hub:
                     f"<section><pre><code>uv run eastshift crawl {html._e(asis)} --out crawl/{html._e(app)}   # 화면을 훑어 시나리오 초안\n"
                     f"uv run pytest e2e/{html._e(app)} --base-url {html._e(asis)} --record golden/{html._e(app)}   # as-is에서 기록</code></pre></section>")
             return html.fragment(kind, f"{app} {kind}", body)
-        key, sig = (app, kind, run), self._sig(app)
+        key, sig = (app, kind, run), self._sig(app, kind, run=run)
         with self._lock:
             hit = self._cache.get(key)
             if hit and hit[0] == sig:
@@ -429,6 +544,21 @@ class Hub:
         if not any(full.is_relative_to(a) for a in allowed) or not full.is_file():
             return None
         return full
+
+
+def _signal_tree(proc: subprocess.Popen, sig: int) -> None:
+    """작업 하나를 통째로 (start_new_session으로 띄워 프로세스 그룹 id = pid)."""
+    try:
+        if hasattr(os, "killpg"):
+            os.killpg(proc.pid, sig)
+        else:
+            proc.send_signal(sig)
+    except (ProcessLookupError, PermissionError):
+        pass
+
+
+STOPPED = {"crawl": "== 멈췄습니다. 다시 누르면 멈춘 곳부터 이어 갑니다 (이어 하기 기록 .crawl-partial.jsonl, 누른 동작은 cache/clicks.jsonl 에서).",
+           "mutate": "== 멈췄습니다. 다시 누르면 끝난 결함은 건너뛰고 이어 갑니다."}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -510,13 +640,18 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(self.hub.approve(parts[2], by=str(body.get("by", "")),
                                                    fingerprint=str(body.get("fingerprint", "")), note=str(body.get("note", ""))))
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "init":
-                return self._json(self.hub.init_project(parts[2], depth=int(body.get("depth") or 3)))
+                return self._json(self.hub.init_project(parts[2], depth=int(body.get("depth") or 3), scope=str(body.get("scope") or "quick")))
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "crawl":
-                return self._json(self.hub.start_crawl(parts[2], str(body.get("side") or "asis"), depth=int(body.get("depth") or 3)))
+                return self._json(self.hub.start_crawl(parts[2], str(body.get("side") or "asis"), depth=int(body.get("depth") or 3),
+                                                       scope=str(body.get("scope") or "quick")))
+            if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "stop":
+                return self._json(self.hub.stop_job(parts[2]))
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "compare":
                 return self._json(self.hub.start_compare(parts[2]))
             if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "mutate":
                 return self._json(self.hub.start_mutate(parts[2]))
+            if len(parts) == 4 and parts[:2] == ["api", "app"] and parts[3] == "record":
+                return self._json(self.hub.start_record(parts[2]))
             if parts == ["api", "projects"]:
                 return self._json(self.hub.add_project(str(body.get("name", "")).strip(), body))
             if len(parts) == 3 and parts[:2] == ["api", "projects"]:
@@ -544,6 +679,7 @@ def serve(golden_root: Path, *, port: int = 8790, tests_root: Path = Path("e2e")
     except KeyboardInterrupt:
         pass
     finally:
+        hub.stop_all()
         srv.server_close()
 
 
@@ -613,6 +749,9 @@ main.hist h2{font-size:16px;font-weight:600}
 .istep.done{border-color:var(--ok)}.istep.done .no{background:var(--ok);color:#fff}.istep.done .st{color:var(--ok)}
 .istep.fail{border-color:var(--bad)}.istep.fail .no{background:var(--bad);color:#fff}.istep.fail .st{color:var(--bad)}
 .istep.skip{opacity:.55}
+.istep.stop{border-color:var(--warn)}.istep.stop .st{color:var(--warn)}
+.iprog{font:12.5px/1.5 var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:8px 12px}.iprog:empty{display:none}
+.init .hint{margin:0;color:var(--muted);font-size:12.5px}
 .irow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px}.irow label{font-weight:600;color:var(--muted);font-size:12.5px}
 .irow select{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
 .init .err{color:var(--bad);font-size:13px;background:var(--bad-soft);border-radius:8px;padding:8px 12px}.init .err:empty{display:none}
@@ -626,6 +765,9 @@ pre.log{margin:0;background:var(--sunk);border-radius:10px;padding:12px 14px;fon
 .srcbar > button small{font-size:11px;font-weight:500;color:var(--faint)}
 .srcbar .sp{flex:1}
 .srcbar .slot{display:flex;align-items:center;margin-left:6px}.srcbar .slot .pgh{flex-wrap:nowrap}.srcbar .slot .chips{flex-wrap:nowrap}
+.jobline{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line);background:var(--accent-soft);font-size:13px;flex:none;min-width:0}
+.jobline span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jobline code{font:12px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.jobline .bad{color:var(--bad)}.jobline.fail{background:var(--bad-soft)}.jobline.ok{background:var(--ok-soft,var(--accent-soft))}
 .mapbody{flex:1;min-height:0;position:relative}.mapbody .pg{height:100%}
 .mapbody main.init{height:100%;overflow:auto;padding-block:28px 60px;box-sizing:border-box}
 /* 프로젝트 목록 */
@@ -881,10 +1023,11 @@ function render(){
 function renderMap(v){
   const src = mapSrc(), m = data.maps || {};
   const bar = `<div class="srcbar">${SRC.map(([k, l]) => `<button class="${k === src ? 'on' : ''}" data-src="${k}">${l}${m[k] ? '' : `<small>${k === 'compare' ? '골든 전' : '탐색 전'}</small>`}</button>`).join('')}
-    <span class="sp"></span>${src !== 'compare' && m[src] ? `<button class="btn sm" data-recrawl>다시 탐색</button>` : ''}<div class="slot" id="mapslot"></div></div>`;  // slot: 지도 조각이 자기 상태 칩·(i) 를 여기로 옮겨 놓는다
-  v.innerHTML = `<div class="mapwrap">${bar}<div class="mapbody" id="mapbody"></div></div>`;
+    <span class="sp"></span>${src === 'compare' && data.golden ? `<button class="btn sm primary" data-compare title="to-be 를 지금 다시 비교합니다 (pytest --compare). 끝나면 새 실행으로 이 지도를 다시 그립니다">to-be 비교</button>` : ''}${src !== 'compare' && m[src] ? `<button class="btn sm" data-recrawl>다시 탐색</button>` : ''}<div class="slot" id="mapslot"></div></div>`;  // slot: 지도 조각이 자기 상태 칩·(i) 를 여기로 옮겨 놓는다
+  v.innerHTML = `<div class="mapwrap">${bar}<div class="jobline" id="mapjob" hidden></div><div class="mapbody" id="mapbody"></div></div>`;
   for (const b of v.querySelectorAll('[data-src]')) b.onclick = () => { state.src = b.dataset.src; state.sub = ''; setHash(); };
   const rc = v.querySelector('[data-recrawl]'); if (rc) rc.onclick = () => renderJob($('#mapbody'), src, true);
+  const cb = v.querySelector('[data-compare]'); if (cb) wireCompare(cb, v.querySelector('#mapjob'));
   $('#runsel').hidden = !data.runs.length || src !== 'compare';
   const body = $('#mapbody');
   if (src === 'compare' ? !data.golden : !m[src]){ renderJob(body, src === 'compare' ? 'init' : src, false); return; }
@@ -893,12 +1036,42 @@ function renderMap(v){
   mountPage(body, 'map', q);
 }
 
+// 비교 지도의 'to-be 비교' 버튼: 실행 탭의 '바로 해결'과 같은 작업(POST /compare → pytest --compare)을 여기서 바로 돌린다.
+// 진행은 출처 바 아래 한 줄로 보이고, 끝나면 최신 실행을 골라 지도를 다시 그린다 (state.run = null → 최신)
+function wireCompare(btn, line){
+  const tobe = ((data.project || {}).tobe || {}).url || '';
+  if (!tobe){ btn.disabled = true; btn.title = 'to-be 주소가 없습니다 — 프로젝트 설정에서 적으세요'; }
+  const idle = () => { btn.disabled = !tobe; btn.textContent = 'to-be 비교'; };
+  const showJob = j => {
+    const step = (j.steps || []).find(s => s.state === 'run') || (j.steps || []).slice(-1)[0];
+    const last = (j.log || []).slice(-1)[0] || '';
+    line.hidden = false; line.className = 'jobline' + (j.running ? '' : j.ok ? ' ok' : ' fail');
+    line.innerHTML = j.running ? `<b>to-be 비교 실행 중</b><span>${esc(step ? step.label : '')}</span><code>${esc(last)}</code>`
+      : j.ok ? `<b>끝.</b><span>새 실행으로 지도를 다시 그립니다.</span>` : `<b class="bad">실패</b><span>${esc(j.error || last)}</span>`;
+  };
+  async function poll(first){
+    let j; try { j = await api('/api/app/' + encodeURIComponent(state.app) + '/job'); } catch (e) { return; }
+    if (j.kind !== 'compare'){ if (j.running){ btn.disabled = true; btn.title = `다른 작업(${j.kind})이 실행 중입니다`; initTimer = setTimeout(() => poll(true), 2000); } else idle(); return; }
+    if (j.running){ btn.disabled = true; btn.textContent = '비교 중…'; showJob(j); initTimer = setTimeout(() => poll(false), 2000); return; }
+    if (first) return;  // 예전에 끝난 비교는 다시 보여주지 않는다
+    showJob(j);
+    if (j.ok){ initTimer = setTimeout(async () => { await loadApps(); state.run = null; await loadApp(); render(); }, 900); return; }
+    idle();
+  }
+  btn.onclick = async () => {
+    btn.disabled = true; btn.textContent = '비교 중…';
+    try { showJob(await api('/api/app/' + encodeURIComponent(state.app) + '/compare', {})); initTimer = setTimeout(() => poll(false), 2000); }
+    catch (e) { line.hidden = false; line.className = 'jobline fail'; line.innerHTML = `<b class="bad">시작하지 못했습니다</b><span>${esc(e.message)}</span>`; idle(); }
+  };
+  poll(true);
+}
+
 // 작업 화면: kind = init (골든 시나리오 지도: 탐색 → 초안 → 기록) | asis | tobe (탐색만). 서버가 순서대로 돌리고 단계·로그를 2초마다 보여준다
 async function renderJob(v, kind, force){
   const p = data.project || {}, side = kind === 'tobe' ? 'tobe' : 'asis', url = (p[side]||{}).url || '', who = side === 'asis' ? 'as-is' : 'to-be';
   let job = await api('/api/app/' + encodeURIComponent(state.app) + '/job');
   const mine = job.kind === kind;  // 다른 종류의 작업이 돌고 있으면 기다린다
-  const stepsHtml = steps => `<div class="isteps">${steps.map((s, i) => `<div class="istep ${s.state}"><span class="no">${i+1}</span><span>${esc(s.label)}</span><span class="st">${{wait:'대기', run:'실행 중…', done:'완료', fail:'실패', skip:'건너뜀'}[s.state]}</span></div>`).join('')}</div>`;
+  const stepsHtml = steps => `<div class="isteps">${steps.map((s, i) => `<div class="istep ${s.state}"><span class="no">${i+1}</span><span>${esc(s.label)}</span><span class="st">${{wait:'대기', run:'실행 중…', done:'완료', fail:'실패', skip:'건너뜀', stop:'멈춤'}[s.state]}</span></div>`).join('')}</div>`;
   const crawlDir = side === 'asis' ? `crawl/${state.app}/` : `crawl/${state.app}-tobe/`;
   const plan = kind === 'init' ? [
       {state: data.scenarios || (data.maps||{}).asis ? 'skip' : 'wait', label: data.scenarios ? `탐색 건너뜀 — e2e/${state.app}/ 에 시나리오 ${data.scenarios}개` : (data.maps||{}).asis ? `탐색 건너뜀 — ${crawlDir} 에 as-is 탐색 결과가 이미 있음` : `as-is 화면 탐색 (crawl) → ${crawlDir}`},
@@ -915,10 +1088,14 @@ async function renderJob(v, kind, force){
     <p class="lede">${lede}</p>
     <div id="isteps">${stepsHtml(mine && job.steps ? job.steps : plan)}</div>
     <div class="irow"><label>${who} 주소</label>${url ? `<b class="mono">${esc(url)}</b>` : `<span class="pill warn">없음 — 프로젝트 설정에서 적으세요</span> <button class="btn sm" id="goset">설정</button>`}
-      <label>탐색 깊이</label><select id="depth" ${needCrawl ? '' : 'disabled'}><option value="2">2 (빠름)</option><option value="3" selected>3 (기본)</option><option value="4">4 (넓게)</option></select></div>
-    ${needCrawl ? `<div class="notice"><b>주의</b> 탐색은 저장·확정 버튼도 실제로 누릅니다. 테스트 DB·테스트 계정의 ${who}에서만 돌리세요. 삭제·결제·발송 같은 버튼은 기본 금지 목록으로 누르지 않습니다.</div>` : ''}
+      <label>탐색 범위</label><select id="scope" ${needCrawl ? '' : 'disabled'}><option value="full" selected>끝까지 — 새 화면이 안 나올 때까지</option><option value="quick">빠르게 — 깊이 3, 상태 30개</option></select></div>
+    ${needCrawl ? `<p class="hint"><b>끝까지</b>는 새 상태가 더 안 나올 때까지 누릅니다. 한 화면의 변형(필터·입력 조합)은 화면마다 10개까지만 만들고 다른 화면으로 넓게 갑니다. 소스 위치가 있으면 눌러서 못 간 코드의 화면을 주소로 직접 열어 봅니다.
+      화면이 많으면 몇 시간이 걸릴 수 있습니다. 언제든 <b>멈춤</b>을 누르고 나중에 다시 누르면 멈춘 곳부터 이어 가고, 한 번 누른 동작은 기억해 두었다가 다시 누르지 않습니다.</p>
+      <div class="notice"><b>주의</b> 탐색은 저장·확정 버튼도 실제로 누릅니다. 테스트 DB·테스트 계정의 ${who}에서만 돌리세요. 삭제·결제·발송 같은 버튼은 기본 금지 목록으로 누르지 않습니다.</div>` : ''}
     ${busyOther ? `<div class="notice">다른 작업(${esc(job.kind)})이 실행 중입니다. 끝나면 다시 누르세요.</div>` : ''}
-    <div class="irow"><button class="btn primary" id="doinit" ${!url || running ? 'disabled' : ''}>${running && mine ? '실행 중…' : (kind === 'init' ? 'Screen Map 만들기' : `${who} 탐색`)}</button></div>
+    <div class="irow"><button class="btn primary" id="doinit" ${!url || running ? 'disabled' : ''}>${running && mine ? '실행 중…' : mine && job.stopped ? '이어서' : (kind === 'init' ? 'Screen Map 만들기' : `${who} 탐색`)}</button>
+      <button class="btn" id="dostop" ${running && mine ? '' : 'hidden'}>멈춤</button></div>
+    <div id="iprog" class="iprog">${esc(running && mine && job.progress || '')}</div>
     <div id="ierr" class="err">${esc(mine && job.error || '')}</div>
     <pre class="log" id="ilog" ${mine && (job.log||[]).length ? '' : 'hidden'}>${esc(mine ? (job.log||[]).join('\n') : '')}</pre></div></main>`;
   const goset = $('#goset'); if (goset) goset.onclick = () => openEditor(apps.find(a => a.app === state.app));
@@ -926,19 +1103,26 @@ async function renderJob(v, kind, force){
   $('#doinit').onclick = async () => {
     $('#ierr').textContent = ''; $('#doinit').disabled = true; $('#doinit').textContent = '실행 중…';
     try {
-      if (kind === 'init') await api('/api/app/' + encodeURIComponent(state.app) + '/init', {depth: +$('#depth').value});
-      else await api('/api/app/' + encodeURIComponent(state.app) + '/crawl', {side, depth: +$('#depth').value});
+      if (kind === 'init') await api('/api/app/' + encodeURIComponent(state.app) + '/init', {scope: $('#scope').value});
+      else await api('/api/app/' + encodeURIComponent(state.app) + '/crawl', {side, scope: $('#scope').value});
+      $('#dostop').hidden = false; $('#dostop').disabled = false;
       poll();
     } catch (e) { $('#ierr').textContent = e.message; $('#doinit').disabled = false; $('#doinit').textContent = label; }
+  };
+  $('#dostop').onclick = async () => {
+    $('#dostop').disabled = true; $('#dostop').textContent = '멈추는 중…';  // 누르는 중인 동작만 끝내고 브라우저를 닫는다 (몇 초)
+    try { await api('/api/app/' + encodeURIComponent(state.app) + '/stop', {}); } catch (e) { $('#ierr').textContent = e.message; }
   };
   async function poll(){
     const j = await api('/api/app/' + encodeURIComponent(state.app) + '/job');
     if (j.steps){ $('#isteps').innerHTML = stepsHtml(j.steps); }
     const log = $('#ilog'); log.hidden = !(j.log||[]).length; log.textContent = (j.log||[]).join('\n'); log.scrollTop = log.scrollHeight;
     $('#ierr').textContent = j.error || '';
+    $('#iprog').textContent = j.running ? (j.progress || '') : '';
     if (j.running){ initTimer = setTimeout(poll, 2000); return; }
+    $('#dostop').hidden = true; $('#dostop').disabled = false; $('#dostop').textContent = '멈춤';
     if (j.ok){ await loadApps(); await loadApp(); render(); return; }  // 산출물이 생겼으니 지도를 그린다
-    $('#doinit').disabled = false; $('#doinit').textContent = '다시 시도';
+    $('#doinit').disabled = false; $('#doinit').textContent = j.stopped ? '이어서' : '다시 시도';
   }
   if (running && mine) poll();
 }

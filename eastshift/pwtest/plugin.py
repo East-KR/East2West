@@ -5,6 +5,8 @@ uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app>    # to-be 비
 uv run pytest e2e/<app> --base-url <to-be> --compare golden/<app> -n 4   # 브라우저 4개 (pytest-xdist). 워커의 결과를 컨트롤러가 모아 원장 하나로 남긴다
 
 비교 규칙(마스킹, 이름 매핑)은 오라클 디렉터리 안에만 둔다 (oracle.py). 테스트 코드나 명령행으로 바꿀 수 없다.
+승인 확인(oracle.precheck: 골든 전체의 해시 대조, 기록 설정)은 한 번만 한다: xdist 컨트롤러가 워커에 넘기고(pytest_configure_node),
+eastshift mutate가 띄운 pytest는 그 결과 파일(oracle.PRECHECK 환경 변수)을 받는다. 같은 오라클 폴더·같은 승인본의 것일 때만 쓴다.
 """
 from __future__ import annotations
 
@@ -67,22 +69,40 @@ def pytest_configure(config):
     config._jev_oracle = None
     config._eastshift_setup = {}
     if compare:
-        st = oracle.status(compare)
+        pre = oracle.given_precheck(compare, _handed_precheck(config)) or oracle.precheck(compare)
+        config._eastshift_precheck = pre
+        st = pre["status"]
         if not st["ok"] and not config.getoption("--allow-unapproved"):
             raise pytest.UsageError("oracle not approved, comparison refused:\n  " + "\n  ".join(st["problems"])
                                     + "\nA person reviews and approves in `uv run eastshift ui` (시나리오 승인 tab).")
         config._jev_oracle = st
-        recorded_setups = {json.dumps(json.loads(p.read_text(encoding="utf-8")).get("setup", {}), sort_keys=True)
-                           for p in oracle._golden_files(compare)}
-        if len(recorded_setups) > 1:
-            raise pytest.UsageError("golden tests have different setup settings; record them with one common reset path and fixed time")
-        if recorded_setups:
-            config._eastshift_setup = json.loads(next(iter(recorded_setups)))
+        if pre["setup_error"]:
+            raise pytest.UsageError(pre["setup_error"])
+        config._eastshift_setup = pre["setup"]
         nm = config.getoption("--name-map")
         if nm and nm.resolve().parent != compare.resolve():
             raise pytest.UsageError(f"--name-map must live in the oracle directory {compare} (it is part of what gets approved)")
     if config.getoption("--jev-capture"):
         _capture = mutation.Capture()
+
+
+def _handed_precheck(config) -> dict | None:
+    """이미 확인한 승인 상태: xdist 워커는 컨트롤러가 넘긴 것, eastshift mutate가 띄운 pytest는 그 파일 (oracle.PRECHECK)."""
+    given = (getattr(config, "workerinput", None) or {}).get("eastshift_precheck")
+    if given is None and os.environ.get(oracle.PRECHECK):
+        try:
+            given = json.loads(Path(os.environ[oracle.PRECHECK]).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            given = None
+    return given
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_configure_node(node):
+    """xdist 컨트롤러: 워커마다 골든 전체를 다시 해시하지 않게, 컨트롤러가 확인한 승인 상태를 넘긴다."""
+    pre = getattr(node.config, "_eastshift_precheck", None)
+    if pre is not None:
+        node.workerinput["eastshift_precheck"] = pre
 
 
 @pytest.hookimpl(trylast=True)  # junitxml 플러그인이 XML을 다 쓴 뒤에 원장이 그 사본을 챙긴다

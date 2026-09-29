@@ -18,13 +18,13 @@ from __future__ import annotations
 
 import json
 import re
-from collections import defaultdict
+from collections import defaultdict, deque
 from pathlib import Path
 from typing import Any
 from html import unescape as _unescape
 from urllib.parse import urlparse
 
-from ..crawl import landmarks, signature
+from ..crawl import landmarks, maximal_paths, serial, signature
 from . import fscache, html, oracle
 from .mutation import route_key
 from .report import _junit
@@ -127,21 +127,20 @@ def _records_from_crawl(out_dir: Path) -> list[dict[str, Any]]:
     g = json.loads((out_dir / "graph.json").read_text(encoding="utf-8"))
     nodes = {n["id"]: n for n in g["nodes"]}
     edges = {e["id"]: e for e in g["edges"]}
-    cands = [nodes[e["src"]]["path"] + [e["id"]] for e in g["edges"] if e["kind"] == "transition" and e["dst"] is not None]
-    cands.sort(key=len, reverse=True)
-    kept: list[list[int]] = []
-    for p in cands:
-        if not any(k[:len(p)] == p for k in kept):
-            kept.append(p)
-    kept.sort()
+    kept = maximal_paths([nodes[e["src"]]["path"] + [e["id"]] for e in g["edges"] if e["kind"] == "transition" and e["dst"] is not None])
+    roots = g.get("roots") or [g.get("start")]
+    starts = [nodes[edges[p[0]]["src"]] for p in kept]  # 경로의 첫 동작이 나가는 상태 = 그 경로의 시작점 (Crawler.scenario_paths와 같은 순서)
+    covered = {n.get("root", 0) for n in starts}
+    for n in sorted(nodes.values(), key=lambda n: n["id"]):  # 씨앗으로 연 화면 중 더 갈 곳이 없는 것
+        if n.get("root", 0) and not n["path"] and n["root"] not in covered:
+            kept.append([])
+            starts.append(n)
+            covered.add(n["root"])
     if not kept and nodes:
-        kept = [[]]
-    start = nodes[min(nodes)] if nodes else None
+        kept, starts = [[]], [nodes[min(nodes)]]
     recs = []
-    for i, path in enumerate(kept, 1):
-        if start is None:
-            break
-        steps = [{"index": 0, "kind": "goto", "text": g.get("start") or urlparse(start["url"]).path or "/", "url": start["url"], "title": start["title"],
+    for i, (path, start) in enumerate(zip(kept, starts), 1):
+        steps = [{"index": 0, "kind": "goto", "text": roots[start.get("root", 0)] or urlparse(start["url"]).path or "/", "url": start["url"], "title": start["title"],
                   "snapshot": start["snapshot"], "shot": start["screenshot"], "dialogs": []}]
         for j, eid in enumerate(path, 1):
             e, dst = edges[eid], nodes[edges[eid]["dst"]]
@@ -151,7 +150,7 @@ def _records_from_crawl(out_dir: Path) -> list[dict[str, Any]]:
             dialogs = [{"type": x["type"], "message": x["message"], "action": "dismiss" if e["mode"] == "dismiss" else "accept"} for x in e.get("dialogs", [])]
             steps.append({"index": j, "kind": kind, "text": text, "url": dst["url"], "title": dst["title"], "snapshot": dst["snapshot"], "shot": dst["screenshot"], "dialogs": dialogs})
         title = " → ".join([start["label"]] + [nodes[edges[eid]["dst"]]["label"] for eid in path])
-        recs.append({"name": f"crawl_{i:02d}", "title": title, "steps": steps, "assertions": [], "shot_dir": None})
+        recs.append({"name": f"crawl_{serial(i, len(kept))}", "title": title, "steps": steps, "assertions": [], "shot_dir": None})
     return recs
 
 
@@ -278,9 +277,10 @@ def _add_code_routes(g: dict[str, Any], crawl_dir: Path | None) -> None:
 def _annotate(g: dict[str, Any], tobe_routes: dict[str, dict[str, Any]] | None, new_paths: set[str]) -> None:
     """라우트마다 상태(status)와 캡처(as-is·to-be·표시용)를 정한다."""
     counts: dict[str, int] = defaultdict(int)
+    ran = {t["name"] for t in g["tests"] if t["status"]}
     for r in g["routes"].values():
         p = r["path"]
-        tested = g["compared"] and any(t["status"] for t in g["tests"] if t["name"] in r["tests"])
+        tested = g["compared"] and not ran.isdisjoint(r["tests"])
         if tobe_routes is not None and p in new_paths:
             status, asis_shot, tobe_shot = "new", "", r["shot"]
         else:
@@ -307,6 +307,15 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
     rorder: list[str] = []
     shots: dict[str, str] = {}
     tests = []
+    by_path: dict[str, list[dict[str, Any]]] = defaultdict(list)  # 주소 → 그 주소의 라우트 (만든 순서)
+    seen: dict[int, set[str]] = {}  # id(목록) → 그 목록에 든 것. 허브 화면은 테스트 수천 개가 지나므로 목록을 훑지 않는다
+
+    def add(coll: list[str], item: str) -> None:
+        got = seen.setdefault(id(coll), set(coll))
+        if item not in got:
+            got.add(item)
+            coll.append(item)
+
     for t in records:
         steps = t["steps"]
         by_step = defaultdict(list)
@@ -335,7 +344,7 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
             else:
                 # 같은 주소의 라우트 중 제목이 같은 것. 주소가 안 바뀌는 앱(frameset, 해시 없는 SPA)은 제목이 다른 기본 화면을 다른 라우트로 가른다.
                 # {id}가 있는 주소는 제목에 데이터(고객 이름)가 섞이므로 가르지 않는다
-                same_path = [r for r in routes.values() if r["path"] == path]
+                same_path = by_path[path]
                 match = next((r["id"] for r in same_path if r["name"] == head), None)
                 if match:
                     rid = match
@@ -347,6 +356,7 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
                 routes[rid] = {"id": rid, "path": path, "name": head, "base": sig, "states": [],
                                "shot": "", "tests": [], "failed": False, "accepted": False, "kinds": {}, "tab": tab0}
                 rorder.append(rid)
+                by_path[path].append(routes[rid])
             r = routes[rid]
             if sig not in nodes:
                 kind, label, _ = _state(snap, r["tab"])
@@ -365,9 +375,8 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
             visit = {"test": t["name"], "index": o["index"], "action": action, "dialogs": o.get("dialogs", []),
                      "checks": [html._val(a) for a in by_step.get(o["index"], [])], "shot": shot_id, "failed": o["index"] in failed}
             n["visits"].append(visit)
-            for coll in (n["tests"], r["tests"]):
-                if t["name"] not in coll:
-                    coll.append(t["name"])
+            add(n["tests"], t["name"])
+            add(r["tests"], t["name"])
             if o["index"] in failed:
                 n["failed"] = r["failed"] = True
             if o["index"] in accepted_steps:
@@ -379,17 +388,14 @@ def _build(app: str, records: list[dict[str, Any]], run: dict[str, Any] | None, 
                     e = sedges.setdefault((prev, sig), {"src": prev, "dst": sig, "actions": [], "tests": []})
                     if (w := _word(action)) not in e["actions"]:
                         e["actions"].append(w)
-                    if t["name"] not in e["tests"]:
-                        e["tests"].append(t["name"])
+                    add(e["tests"], t["name"])
                     pr = nodes[prev]["route"]
                     if pr != rid:
                         re_ = redges.setdefault((pr, rid), {"src": pr, "dst": rid, "actions": [], "tests": [], "from": []})
                         if (w := _word(action)) not in re_["actions"]:
                             re_["actions"].append(w)
-                        if t["name"] not in re_["tests"]:
-                            re_["tests"].append(t["name"])
-                        if prev not in re_["from"]:
-                            re_["from"].append(prev)
+                        add(re_["tests"], t["name"])
+                        add(re_["from"], prev)
             seq.append({"index": o["index"], "node": sig, "route": rid, "shot": shot_id, "action": _plain(action), "failed": o["index"] in failed})
             prev = sig
         tests.append({"name": t["name"], "title": t["title"], "status": status, "rows": rows, "seq": seq, "side": t.get("side")})
@@ -432,15 +438,18 @@ def layout(order: list[str], edges: list[dict[str, Any]], start: str | None) -> 
     depth: dict[str, int] = {}
     if start:
         depth[start] = 0
-        queue = [start]
+        queue = deque([start])
         while queue:
-            cur = queue.pop(0)
+            cur = queue.popleft()
             for nxt in out[cur]:
                 if nxt not in depth:
                     depth[nxt] = depth[cur] + 1
                     queue.append(nxt)
-    for n in order:
-        depth.setdefault(n, (max(depth.values()) + 1) if depth else 0)
+    deepest = max(depth.values()) if depth else -1
+    for n in order:  # 시작에서 못 가는 것은 하나씩 오른쪽 열로
+        if n not in depth:
+            deepest += 1
+            depth[n] = deepest
     cols: dict[int, list[str]] = defaultdict(list)
     for n in order:
         cols[depth[n]].append(n)
@@ -458,9 +467,9 @@ def layout(order: list[str], edges: list[dict[str, Any]], start: str | None) -> 
     paths = {}
     if start:  # 시작에서 각 노드까지 최단 경로 (패널의 '오는 길')
         prevs = {start: None}
-        queue = [start]
+        queue = deque([start])
         while queue:
-            cur = queue.pop(0)
+            cur = queue.popleft()
             for nxt in out[cur]:
                 if nxt not in prevs:
                     prevs[nxt] = cur
@@ -974,15 +983,17 @@ def fragment(g: dict[str, Any]) -> dict[str, Any]:
         parts.append(pill(mx, my, label, e["tests"], cls).replace("{src}", html._e(e["src"])).replace("{dst}", html._e(e["dst"])).replace("{path}", p))
     # 동작 이름을 끈 때의 되돌아가는 선: 같은 화면으로 돌아오는 선들을 차선 하나로 합친다 (이름이 없으면 따로 그을 이유가 없다)
     by_dst: dict[str, list[str]] = defaultdict(list)
+    back_tests: dict[str, set[str]] = defaultdict(set)
     for e in backs:
         by_dst[e["dst"]].append(e["src"])
+        back_tests[e["dst"]].update(e["tests"])
     for k, (dst, srcs) in enumerate(by_dst.items(), 1):
         ly = body_h + k * LANE
         tx, ty = xy[dst][0] + CARD_W * .5, xy[dst][1] + CARD_H
         xs = [xy[s][0] + CARD_W * .5 for s in srcs]
         lo, hi = min(xs + [tx]), max(xs + [tx])
         d = "".join(f"M{sx},{xy[s][1] + CARD_H} L{sx},{ly} " for s, sx in zip(srcs, xs)) + f"M{lo},{ly} L{hi},{ly} M{tx},{ly} L{tx},{ty + 6}"
-        tests = sorted({t for e in backs if e["dst"] == dst for t in e["tests"]})
+        tests = sorted(back_tests[dst])
         parts.append(f"<g class='edge back merged' data-src='{html._e(dst)}' data-dst='{html._e(dst)}' data-srcs='{html._e('|'.join(srcs))}' data-tests='{'|'.join(tests)}'>"
                      f"<path d='{d}' marker-end='url(#arrb)'/></g>")
     svg = (f"<svg class='links' width='{w}' height='{hgt}' viewBox='0 0 {w} {hgt}'><defs>"

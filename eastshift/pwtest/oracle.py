@@ -13,21 +13,45 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import time
 from pathlib import Path
 from typing import Any
 
-from . import fscache
+from . import fscache, gitblobs
 
 MANIFEST = "APPROVED.json"
 CONFIG = "oracle.json"
 
 
 def oracle_files(d: Path) -> dict[str, str]:
-    """승인 대상 전부: 골든 JSON, 규칙, 이름 매핑, 그리고 사람이 보고 승인한 단계별 화면(shots/)."""
-    return {p.relative_to(d).as_posix(): fscache.sha256(p)
-            for p in sorted(d.rglob("*")) if p.is_file() and p.name not in (MANIFEST, ".DS_Store")}
+    """승인 대상 전부: 골든 JSON, 규칙, 이름 매핑, 그리고 사람이 보고 승인한 단계별 화면(shots/).
+    git이 색인과 같다고 보는 파일은 blob id로 기억한 sha256을 쓰고, 나머지(바뀐 것, git에 없는 것)만 직접 해시한다 (gitblobs)."""
+    files = [r for r in _walk(d) if r.rsplit("/", 1)[-1] not in (MANIFEST, ".DS_Store")]
+    known = gitblobs.clean_sha256(d, files)
+    return {r: known.get(r) or fscache.sha256(d / r) for r in files}
+
+
+def _walk(d: Path) -> list[str]:
+    """d 아래 파일의 d 기준 경로 ('/'로 구분). sorted(d.rglob("*"))와 같은 순서(경로 조각 순)지만 Path를 만들지 않아 캡처 수만 장에도 빠르다.
+    폴더 심볼릭 링크는 따라가지 않는다."""
+    out: list[str] = []
+
+    def walk(path: str, rel: str) -> None:
+        try:
+            with os.scandir(path) as it:
+                entries = list(it)
+        except (FileNotFoundError, NotADirectoryError):
+            return
+        for e in entries:
+            if e.is_dir(follow_symlinks=False):
+                walk(e.path, f"{rel}{e.name}/")
+            elif e.is_file():
+                out.append(rel + e.name)
+
+    walk(str(d), "")
+    return sorted(out, key=lambda r: r.split("/"))
 
 
 def load_config(d: Path) -> dict[str, Any]:
@@ -48,6 +72,34 @@ def status(d: Path) -> dict[str, Any]:
     return {"ok": not problems, "problems": problems, "approved_by": man.get("approved_by"), "approved_at": man.get("approved_at"),
             "approval_id": hashlib.sha256(m.read_bytes()).hexdigest(),
             "note": man.get("note", "")}
+
+
+def recorded_setup(d: Path) -> dict[str, Any]:
+    """골든을 기록할 때의 공통 설정 (초기화 경로, 고정 시각). 테스트마다 다르면 ValueError: 비교가 기록과 같은 조건으로 돌 수 없다."""
+    setups = {json.dumps(fscache.json_load(p).get("setup", {}), sort_keys=True) for p in _golden_files(d)}
+    if len(setups) > 1:
+        raise ValueError("golden tests have different setup settings; record them with one common reset path and fixed time")
+    return json.loads(next(iter(setups))) if setups else {}
+
+
+PRECHECK = "EASTSHIFT_ORACLE_PRECHECK"  # (내부) eastshift mutate가 한 번 확인한 결과(precheck)를 적은 파일. 결함마다 띄우는 pytest가 읽는다
+
+
+def precheck(d: Path) -> dict[str, Any]:
+    """비교 전 확인 한 번: 승인 상태와 기록 설정. pytest 컨트롤러·eastshift mutate가 구해 xdist 워커·결함마다 띄우는 pytest에 넘긴다
+    (골든 전체를 프로세스마다 다시 해시하지 않게)."""
+    try:
+        setup, error = recorded_setup(d), ""
+    except ValueError as e:
+        setup, error = {}, str(e)
+    return {"dir": str(d.resolve()), "status": status(d), "setup": setup, "setup_error": error}
+
+
+def given_precheck(d: Path, given: dict[str, Any] | None) -> dict[str, Any] | None:
+    """넘겨받은 확인 결과가 이 오라클 폴더·지금 승인본(APPROVED.json 내용)의 것일 때만 쓴다. 아니면 None (직접 구한다)."""
+    if not given or given.get("dir") != str(d.resolve()) or given.get("status", {}).get("approval_id") != approval_id(d):
+        return None
+    return given
 
 
 def _golden_files(d: Path) -> list[Path]:

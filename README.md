@@ -44,7 +44,7 @@ uv run eastshift report --oracle golden/<app> --junit reports/junit-<app>.xml --
 수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다. 사본 폴더는 최근 30개만 두고 원장 JSON은 다 남긴다, `EASTSHIFT_KEEP_RUNS`):
 
 ```bash
-uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 Screen Map(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록)·시나리오(골든 관리)·시나리오 승인·검증 보고서·실행 이력, 지난 실행도 골라 본다
+uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 Screen Map(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록. 비교 지도의 "to-be 비교" 버튼이 비교를 다시 돌려 최신 실행으로 그린다)·시나리오(골든 관리)·시나리오 승인·검증 보고서·실행 이력, 지난 실행도 골라 본다
 uv run eastshift status golden/<app>     # 터미널용: 남은 실패, 종류, 지난 실행 대비 변화 (통과로 바뀜 / 새로 실패)
 ```
 
@@ -86,7 +86,7 @@ e2e/<app>/         Playwright 테스트            golden/<app>/   승인된 오
 eastshift.json        프로젝트 등록부: as-is/to-be 소스 위치·실행 주소 (eastshift ui 첫 화면에서 추가·설정)
 runs/<app>/        to-be 비교 실행 원장 (실행마다 JSON + JUnit·스크린샷 사본, mutations/ 결함 주입 결과) → eastshift ui / status
 scenarios/         YAML 시나리오 (스모크, 데모)  examples/       YAML 전환 예제, 비교 실험 코드, crawl 픽스처
-demo-app/          데모 서버. 포털(메인 데모: 라우트 7개 + 팝업·드로워·탭, as-is에만 있는 공지사항 화면, as-is/to-be 변형 6개 — 새 룩 tobe-modern 포함), 레거시 주문(frameset 특수 케이스), 예약(crawl), ERP 화면 12개(스모크)
+demo-app/          데모 서버. 포털(메인 데모: 라우트 7개 + 팝업·드로워·탭. as-is 소스 portal_asis/ 와 to-be 소스 portal_tobe/ 가 따로라 라우트 대조가 실제와 같다 — as-is에만 있는 공지사항, 변형 8개는 portal_app.py <port> <변형> 으로), 레거시 주문(frameset 특수 케이스), 예약(crawl), ERP 화면 12개(스모크)
 tools/             explore.py (요소 이름 탐색), guard_oracle.py (Claude Code hook: golden/ 편집·승인 차단)
 .claude/skills/    e2e-tests, smoke
 ```
