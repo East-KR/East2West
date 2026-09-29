@@ -44,7 +44,7 @@ uv run eastshift report --oracle golden/<app> --junit reports/junit-<app>.xml --
 수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다. 사본 폴더는 최근 30개만 두고 원장 JSON은 다 남긴다, `EASTSHIFT_KEEP_RUNS`):
 
 ```bash
-uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 Screen Map(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록. 비교 지도의 "to-be 비교" 버튼이 비교를 다시 돌려 최신 실행으로 그린다)·시나리오(골든 관리)·시나리오 승인·검증 보고서·실행 이력, 지난 실행도 골라 본다
+uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 Screen Map(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록. 비교 지도의 "to-be 비교" 버튼이 비교를 다시 돌려 최신 실행으로 그린다)·시나리오(골든 관리)·시나리오 승인(승인, 재승인 diff, as-is가 바뀌면 "as-is에서 다시 기록")·실행(이력 + 고른 실행의 판정, "바로 해결" 버튼으로 비교·결함 탐지 측정), 지난 실행도 골라 본다. 화면 소개: docs/confluence/
 uv run eastshift status golden/<app>     # 터미널용: 남은 실패, 종류, 지난 실행 대비 변화 (통과로 바뀜 / 새로 실패)
 ```
 
@@ -76,12 +76,14 @@ uv run eastshift routes <소스 폴더> --out crawl/<app>/routes.json           
 | [docs/SMOKE.md](docs/SMOKE.md) | 시나리오 하나로 화면 N개 스모크 (matrix) |
 | [docs/CRAWL.md](docs/CRAWL.md) | 화면 탐색기: 동작 방식, 안전장치, 산출물 |
 | [docs/YAML_RUNNER.md](docs/YAML_RUNNER.md) | Jev 러너: 시나리오 형식, expect 키, 동작 원리, 한계 |
+| [docs/confluence/](docs/confluence/eastshift-ui.confluence) | 통합 화면 소개글 (Confluence 위키 마크업 + portal 캡처 10장): 메뉴별 핵심 기능, 결함 주입 설명, 화면 버튼 ↔ 터미널 명령 대응 |
+| 설명서 HTML | [docs/eastshift-how.html](docs/eastshift-how.html) (작동 원리, Jev를 쓰는 곳·안 쓰는 곳), [docs/eastshift-overview.html](docs/eastshift-overview.html), [docs/eastshift-eli5.html](docs/eastshift-eli5.html) (쉬운 설명) |
 | 실험 기록 | [docs/JEV_VS_PLAYWRIGHT.md](docs/JEV_VS_PLAYWRIGHT.md) (요소 찾기 방식 비교 → 역할 분담의 근거), [docs/DEV_LOOP.md](docs/DEV_LOOP.md) (개발 루프 세 바퀴), [docs/COST_COMPARISON.md](docs/COST_COMPARISON.md) (Jev vs 일반 LLM 토큰 비용) |
 
 ## 저장소 구성
 
 ```
-eastshift/            패키지. pwtest/ (Playwright 검증), runner.py·snapshot.py·jev.py (Jev 러너), crawl.py, observe.py (비교 정규화)
+eastshift/            패키지. pwtest/ (Playwright 검증, 통합 화면 hub.py, 원장 ledger.py, 결함 주입 mutation.py), runner.py·snapshot.py·jev.py (Jev 러너), crawl.py·clicks.py (탐색, 누른 동작 기억), routes.py (라우트 대조), observe.py (비교 정규화)
 e2e/<app>/         Playwright 테스트            golden/<app>/   승인된 오라클 (골든, 스크린샷, 규칙, APPROVED.json)
 eastshift.json        프로젝트 등록부: as-is/to-be 소스 위치·실행 주소 (eastshift ui 첫 화면에서 추가·설정)
 runs/<app>/        to-be 비교 실행 원장 (실행마다 JSON + JUnit·스크린샷 사본, mutations/ 결함 주입 결과) → eastshift ui / status
