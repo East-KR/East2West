@@ -147,3 +147,7 @@ tools/             explore.py (요소 이름 탐색), guard_oracle.py (Claude Co
 ```
 
 `reports/`, `.eastshift-cache/`, `crawl/`, `.env`, `.auth/`는 커밋하지 않는다.
+
+## 라이선스
+
+[PolyForm Noncommercial 1.0.0](LICENSE). 개인·연구·교육·평가·비영리·공공 목적의 사용, 수정, 배포는 자유다. **상업적 사용**(회사 안에서의 사용, 유료 프로젝트·용역, 제품·서비스의 일부로 쓰는 것 모두)은 저작권자와 별도 서면 협의가 필요하다. 협의는 [GitHub 이슈](https://github.com/East-KR/eastshift/issues)로.

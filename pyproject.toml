@@ -3,6 +3,9 @@ name = "eastshift"
 version = "0.1.0"
 description = "EastShift: checks that a rebuilt (to-be) web app behaves exactly like the running as-is app, bugs included. Playwright equivalence tests with a human-approved oracle, a Jev YAML runner and a crawler"
 requires-python = ">=3.11"
+license = "PolyForm-Noncommercial-1.0.0"
+license-files = ["LICENSE"]
+authors = [{ name = "East" }]
 dependencies = [
   "playwright>=1.50",
   "typesafe-sdk>=0.6.0",
