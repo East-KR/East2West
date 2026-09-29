@@ -1,0 +1,649 @@
+{
+ "app": "portal",
+ "target": "http://127.0.0.1:8825",
+ "started": "2026-09-29 09:48:20",
+ "finished": "2026-09-29 09:49:41",
+ "junit": "runs/portal/20260929-094941/junit.xml",
+ "oracle": {
+  "approved_by": "East",
+  "approved_at": "2026-09-29 09:41:00",
+  "approval_id": "ca5ec8e5c2cc9f418d521d8c6d86f32a1c1f8f038de2c0b060edb2b5fb253646",
+  "ok": true
+ },
+ "cases": {
+  "test_portal_01": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_02": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_03": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_04": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_05": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_06": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_07": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_08": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_09": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_10": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_11": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_12": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 3명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 3명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_13": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_14": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_15": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_16": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_17": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_18": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "9월 30일(화) 22시부터 시스템 점검이 있습니다",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "주문 3건 처리 대기 2건 고객 2명",
+     "(없음)"
+    ],
+    [
+     "화면 문구",
+     "(없음)",
+     "주문 3건 미처리 주문 2건 고객 2명"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_vat_truncation": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_cancel_twice": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_filter_by_status[\\uc811\\uc218-ORD-1 \\ub178\\ud2b8\\ubd81]": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_filter_by_status[\\ubc30\\uc1a1\\uc911-ORD-2 \\ubcfc\\ud39c]": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_filter_by_status[\\uc644\\ub8cc-0\\uac74]": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_filter_by_status[\\ucde8\\uc18c-ORD-3 \\ub9c8\\uc6b0\\uc2a4]": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  },
+  "test_portal_new_order_other_customer": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 0 /orders: differs from golden",
+   "rows": [
+    [
+     "공지사항",
+     "(값 없음)",
+     "(없음)"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": []
+  }
+ },
+ "totals": {
+  "pass": 0,
+  "fail": 25
+ }
+}

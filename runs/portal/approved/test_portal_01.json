@@ -1,7 +1,7 @@
 {
  "test": "test_portal_01",
- "base_url": "http://127.0.0.1:8827",
- "recorded_at": "2026-09-27 21:33:07",
+ "base_url": "http://127.0.0.1:8820",
+ "recorded_at": "2026-09-29 09:36:45",
  "setup": {},
  "assertions": [
   {

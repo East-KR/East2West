@@ -1,7 +1,8 @@
 {
  "test": "test_portal_filter_by_status[\\ubc30\\uc1a1\\uc911-ORD-2 \\ubcfc\\ud39c]",
  "base_url": "http://127.0.0.1:8820",
- "recorded_at": "2026-09-25 22:36:22",
+ "recorded_at": "2026-09-29 09:37:56",
+ "setup": {},
  "assertions": [
   {
    "step": 4,
@@ -35,6 +36,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 주문 목록",
     "button \"필터\"",
     "button \"신규 주문\"",
@@ -60,8 +62,9 @@
     "text: 72,600원",
     "text: 취소"
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_/00.jpg"
   },
   {
@@ -76,6 +79,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 주문 목록",
     "button \"필터\"",
     "button \"신규 주문\"",
@@ -106,8 +110,9 @@
     "button \"적용\"",
     "button \"닫기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - complementary \"필터\":\n    - heading \"필터\" [level=2]\n    - text: 상태\n    - combobox \"상태\":\n      - option \"전체\" [selected]\n      - option \"접수\"\n      - option \"배송중\"\n      - option \"완료\"\n      - option \"취소\"\n    - button \"적용\"\n    - button \"닫기\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - complementary \"필터\":\n    - heading \"필터\" [level=2]\n    - text: 상태\n    - combobox \"상태\":\n      - option \"전체\" [selected]\n      - option \"접수\"\n      - option \"배송중\"\n      - option \"완료\"\n      - option \"취소\"\n    - button \"적용\"\n    - button \"닫기\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_/01.jpg"
   },
   {
@@ -122,6 +127,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 주문 목록",
     "button \"필터\"",
     "button \"신규 주문\"",
@@ -152,8 +158,9 @@
     "button \"적용\"",
     "button \"닫기\""
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - complementary \"필터\":\n    - heading \"필터\" [level=2]\n    - text: 상태\n    - combobox \"상태\":\n      - option \"전체\"\n      - option \"접수\"\n      - option \"배송중\" [selected]\n      - option \"완료\"\n      - option \"취소\"\n    - button \"적용\"\n    - button \"닫기\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 3건\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-1 노트북 김철수 1 1,375,000원 접수\":\n        - cell \"ORD-1 노트북\":\n          - link \"ORD-1 노트북\":\n            - /url: /orders/1\n        - cell \"김철수\"\n        - cell \"1\"\n        - cell \"1,375,000원\"\n        - cell \"접수\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"\n      - row \"ORD-3 마우스 김철수 2 72,600원 취소\":\n        - cell \"ORD-3 마우스\":\n          - link \"ORD-3 마우스\":\n            - /url: /orders/3\n        - cell \"김철수\"\n        - cell \"2\"\n        - cell \"72,600원\"\n        - cell \"취소\"\n  - complementary \"필터\":\n    - heading \"필터\" [level=2]\n    - text: 상태\n    - combobox \"상태\":\n      - option \"전체\"\n      - option \"접수\"\n      - option \"배송중\" [selected]\n      - option \"완료\"\n      - option \"취소\"\n    - button \"적용\"\n    - button \"닫기\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_/02.jpg"
   },
   {
@@ -168,6 +175,7 @@
     "link \"주문 관리\"",
     "link \"고객 관리\"",
     "link \"설정\"",
+    "link \"공지사항\"",
     "text: 주문 목록",
     "button \"필터\"",
     "button \"신규 주문\"",
@@ -183,8 +191,9 @@
     "text: 5,390원",
     "text: 배송중"
    ],
-   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 1건 · 상태 배송중\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"",
+   "snapshot": "- banner:\n  - text: 업무 포털\n  - link \"홈\":\n    - /url: /\n  - link \"주문 관리\":\n    - /url: /orders\n  - link \"고객 관리\":\n    - /url: /customers\n  - link \"설정\":\n    - /url: /settings\n  - link \"공지사항\":\n    - /url: /notices\n- main:\n  - heading \"주문 목록\" [level=1]\n  - button \"필터\"\n  - button \"신규 주문\"\n  - paragraph: 1건 · 상태 배송중\n  - table:\n    - rowgroup:\n      - row \"주문 고객 수량 합계 상태\":\n        - columnheader \"주문\"\n        - columnheader \"고객\"\n        - columnheader \"수량\"\n        - columnheader \"합계\"\n        - columnheader \"상태\"\n      - row \"ORD-2 볼펜 이영희 4 5,390원 배송중\":\n        - cell \"ORD-2 볼펜\":\n          - link \"ORD-2 볼펜\":\n            - /url: /orders/2\n        - cell \"이영희\"\n        - cell \"4\"\n        - cell \"5,390원\"\n        - cell \"배송중\"",
    "dialogs": [],
+   "api": [],
    "shot": "shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_/03.jpg"
   }
  ]
