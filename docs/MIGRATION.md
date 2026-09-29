@@ -220,7 +220,7 @@ python demo-app/portal_app.py 8821 tobe &          # 버그까지 그대로 옮�
 python demo-app/portal_app.py 8822 tobe-fixed &    # 버그 2개를 "고쳐버림"
 python demo-app/portal_app.py 8823 tobe-renamed &  # "신규 주문"→"주문 등록", "수량"→"주문 수량" + 부가세 반올림
 python demo-app/portal_app.py 8824 tobe-custom &   # 신규 주문 팝업의 품목이 커스텀 드롭다운 (React/MUI 방식)
-python demo-app/portal_app.py 8825 tobe-modern &   # 새 룩: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭. 글자·역할·동작은 같음 (프로젝트의 to-be 주소)
+python demo-app/portal_app.py 8825 tobe-modern &   # 새 룩: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭. 글자·역할·동작은 같고, 일부러 넣은 결함 하나: 고객 상세 '주문 보기'가 고객 필터를 잃음 → 24 같음 · 1 다름 (프로젝트의 to-be 주소)
 python demo-app/portal_app.py 8826 tobe-wip &      # 개발 중: 새 룩 + 설정 화면 없음(미개발) + 보고서 화면 새로(새 화면) + 부가세 반올림(다름). 비교 지도 색 데모
 uv run pytest e2e/portal --base-url http://127.0.0.1:8820 --record golden/portal
 uv run eastshift ui                                                                 # 사람: 시나리오 승인 탭에서 승인

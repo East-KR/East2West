@@ -7,8 +7,9 @@ python demo-app/portal_tobe/app.py <port> tobe          as-is 동작을 버그�
 python demo-app/portal_tobe/app.py <port> tobe-fixed    as-is 버그 두 개를 "고쳐버린" to-be (비교에서 잡혀야 하는 것)
 python demo-app/portal_tobe/app.py <port> tobe-renamed  라벨 변경("신규 주문"→"주문 등록", "수량"→"주문 수량") + 부가세 반올림. 라벨 뒤에 숨은 동작 차이까지 도달하는지
 python demo-app/portal_tobe/app.py <port> tobe-custom   tobe와 같은 동작, 신규 주문 팝업의 품목만 커스텀 드롭다운 (div role=combobox + listbox, React/MUI 방식)
-python demo-app/portal_tobe/app.py <port> tobe-modern   tobe와 같은 동작·같은 글자·같은 역할, 겉모습만 새로 만든 to-be: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭,
-                                                        아이콘(aria-hidden). 실제 전환처럼 "화면은 달라 보여도 동작은 같다"를 보여 준다
+python demo-app/portal_tobe/app.py <port> tobe-modern   겉모습만 새로 만든 to-be: 왼쪽 사이드바, 다른 색·글꼴, 카드·알약 버튼, 밑줄 탭, 아이콘(aria-hidden).
+                                                        실제 전환처럼 "화면은 달라 보여도 동작은 같다"를 보여 준다. 여기에 일부러 넣은 결함 하나: 고객 상세의 '주문 보기'가
+                                                        고객 필터를 잃고 전체 주문으로 간다 → 비교 24 같음 · 1 다름 (test_portal_16, /orders 빨강)
 python demo-app/portal_tobe/app.py <port> tobe-wip      개발 중인 to-be (새 룩): 설정 화면은 아직 없고(메뉴에도 없음, /settings 404 → 비교 지도의 "미개발"),
                                                         보고서 화면(/reports)이 새로 생김(→ "새 화면"). 부가세는 tobe-fixed처럼 반올림(→ "다름")
 (python demo-app/portal_app.py <port> <변형> 도 같다: 변형 이름으로 이 앱을 띄운다)
@@ -186,8 +187,11 @@ def customers_list() -> bytes:
 
 
 def customer_detail(c: dict) -> bytes:
+    # tobe-modern 에 일부러 넣은 결함 하나: '주문 보기'가 고객 필터를 잃고 전체 주문 목록으로 간다 (as-is: /orders?customer=<id> → "1건 · 고객 김철수",
+    # to-be: /orders → "3건"). 화면·캡처·다른 점 표에서 누가 봐도 다르고, 지나는 시나리오는 test_portal_16 하나라 비교 결과는 24 같음 · 1 다름
+    orders_link = "/orders" if VARIANT == "tobe-modern" else f"/orders?customer={c['id']}"
     body = (f"<h1>고객 상세 {c['name']}</h1><table><tr><th>등급</th><td>{c['grade']}</td></tr><tr><th>메모</th><td>{c['memo'] or '(없음)'}</td></tr></table>"
-            f"<div class='toolbar'><button type='button' onclick=\"openBox('memo')\">메모</button><a href='/orders?customer={c['id']}'>주문 보기</a></div>"
+            f"<div class='toolbar'><button type='button' onclick=\"openBox('memo')\">메모</button><a href='{orders_link}'>주문 보기</a></div>"
             f"<aside id='memo' aria-label='메모' hidden><h2>메모</h2><form method='post' action='/customers/{c['id']}/memo'><label>메모 내용 <textarea name='memo'>{c['memo']}</textarea></label>"
             "<button type='submit'>저장</button> <button type='button' onclick=\"closeBox('memo')\">닫기</button></form></aside>")
     return page(f"고객 상세 {c['name']}", body)
