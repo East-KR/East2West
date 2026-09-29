@@ -1,6 +1,7 @@
 """포털 데모의 to-be 앱 (새로 만든 시스템). 표준 라이브러리만 사용. as-is(demo-app/portal_asis/)와 코드를 공유하지 않는다:
 실제 전환처럼 as-is와 to-be 가 각자 완결된 소스여야 `eastshift routes` 가 각 폴더의 주소만 뽑고, 지도의 회색(코드에만 있음)이 사실을 반영한다.
-as-is 의 공지사항(/notices)은 여기에 없다 — 아직 개발되지 않은 화면 (비교 지도의 노랑).
+as-is 의 공지사항(/notices)은 메뉴·바로 가기 링크만 옮겨졌고 화면은 아직 없다(404) — "메뉴는 옮겼는데 화면은 아직"인 미개발 상태 (비교 지도의 노랑.
+탐색기는 4xx 화면을 라우트에서 뺀다). 홈은 as-is 의 운영 패치(점검 안내 줄, "처리 대기")를 따라간 상태라 asis-patched 로 기록한 골든과 같다.
 
 python demo-app/portal_tobe/app.py <port> tobe          as-is 동작을 버그까지 그대로 옮김 (겉모습도 같음)
 python demo-app/portal_tobe/app.py <port> tobe-fixed    as-is 버그 두 개를 "고쳐버린" to-be (비교에서 잡혀야 하는 것)
@@ -82,7 +83,7 @@ CSS_MODERN = ("[hidden]{display:none!important}*{box-sizing:border-box}body{marg
               "[role=tab][aria-selected=true]{color:#4a3bc9;border-bottom-color:#4a3bc9}[role=tabpanel]{background:#fff;border-radius:0 0 14px 14px;padding:16px 18px;box-shadow:0 1px 3px rgba(28,27,46,.08);margin-bottom:16px}"
               "[role=tabpanel] table{box-shadow:none;border-radius:0}label{display:block;margin:10px 0;font-size:14px;color:#3d3a5c}"
               "input,select,textarea{font:inherit;padding:8px 10px;border:1px solid #d9d5ee;border-radius:10px;background:#fbfbfe;min-width:180px}form>a{margin-left:10px;color:#6f6c8c}")
-ICONS = {"홈": "⌂", "주문 관리": "▤", "고객 관리": "◉", "설정": "⚙", "보고서": "▦"}
+ICONS = {"홈": "⌂", "주문 관리": "▤", "고객 관리": "◉", "설정": "⚙", "보고서": "▦", "공지사항": "▣"}
 
 
 def vat(supply: int) -> int:
@@ -96,11 +97,11 @@ def L(label: str) -> str:
 
 def page(title: str, body: str) -> bytes:
     if VARIANT in ("tobe-modern", "tobe-wip"):  # 사이드바: 같은 글자·같은 순서의 링크. 아이콘은 aria-hidden이라 접근성 이름에 들어가지 않는다
-        menu = (("/", "홈"), ("/orders", "주문 관리"), ("/customers", "고객 관리")) + ((("/reports", "보고서"),) if VARIANT == "tobe-wip" else (("/settings", "설정"),))
+        menu = (("/", "홈"), ("/orders", "주문 관리"), ("/customers", "고객 관리")) + ((("/reports", "보고서"),) if VARIANT == "tobe-wip" else (("/settings", "설정"),)) + (("/notices", "공지사항"),)
         links = "".join(f"<a href='{h}'><i aria-hidden='true'>{ICONS[t]}</i>{t}</a>" for h, t in menu)
         nav, css = f"<header><b>업무 포털</b>{links}</header>", CSS_MODERN
     else:
-        nav, css = "<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a></header>", CSS
+        nav, css = "<header><b>업무 포털</b><a href='/'>홈</a><a href='/orders'>주문 관리</a><a href='/customers'>고객 관리</a><a href='/settings'>설정</a><a href='/notices'>공지사항</a></header>", CSS
     return (f"<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>{title}</title><style>{css}</style><script>{JS}</script></head>"
             f"<body>{nav}<main>{body}</main></body></html>").encode()
 
@@ -121,9 +122,11 @@ def order_total(o: dict) -> tuple[int, int, int]:
 
 def home() -> bytes:
     open_n = sum(o["status"] not in ("취소", "완료") for o in DB()["orders"])
-    return page("홈", "<h1>포털 홈</h1><div class='cards'>"
-                f"<div class='card'>주문<b>{len(DB()["orders"])}건</b></div><div class='card'>미처리 주문<b>{open_n}건</b></div><div class='card'>고객<b>{len(DB()["customers"])}명</b></div></div>"
-                "<h2>바로 가기</h2><ul><li><a href='/orders'>주문 목록 열기</a></li><li><a href='/customers'>고객 목록 열기</a></li><li><a href='/settings'>설정 열기</a></li></ul>")
+    # as-is 의 운영 패치(asis-patched: 점검 안내 줄, 카드 "처리 대기")를 to-be 도 따라간 상태. 홈의 글자가 as-is 와 같아야 비교가 같음이 된다
+    return page("홈", "<h1>포털 홈</h1><p>9월 30일(화) 22시부터 시스템 점검이 있습니다</p><div class='cards'>"
+                f"<div class='card'>주문<b>{len(DB()["orders"])}건</b></div><div class='card'>처리 대기<b>{open_n}건</b></div><div class='card'>고객<b>{len(DB()["customers"])}명</b></div></div>"
+                "<h2>바로 가기</h2><ul><li><a href='/orders'>주문 목록 열기</a></li><li><a href='/customers'>고객 목록 열기</a></li><li><a href='/settings'>설정 열기</a></li>"
+                "<li><a href='/notices'>공지사항 열기</a></li></ul>")
 
 
 def orders_list(q: dict) -> bytes:

@@ -9,7 +9,7 @@
         "src": "demo-app/portal_tobe",
         "url": "http://127.0.0.1:8825"
       },
-      "note": "메인 데모. as-is 와 to-be 는 소스가 따로다 (portal_asis/, portal_tobe/). 실행은 portal_app.py <port> <변형>: asis(8820, 공지사항 /notices 는 as-is 에만 있음 → 비교 지도의 노랑) · asis-patched(운영 패치 뒤) · tobe(8821, 겉모습까지 같음) · tobe-fixed(8822) · tobe-renamed(8823) · tobe-custom(8824) · tobe-modern(8825, 새 룩 — 사이드바·다른 색·글꼴, 동작은 같음) · tobe-wip(8826, 새 룩 + 설정 미개발 + 보고서 새 화면 + 부가세 반올림: 비교 지도의 노랑·파랑·빨강 데모)",
+      "note": "메인 데모. as-is 와 to-be 는 소스가 따로다 (portal_asis/, portal_tobe/). 실행은 portal_app.py <port> <변형>: asis-patched(8820, 골든의 기준. 공지사항 /notices 화면은 as-is 에만 있고 to-be 는 링크만 → 비교 지도의 노랑) · asis(운영 패치 전: 승인 탭 '화면 바뀜' 데모용) · tobe(8821, 겉모습까지 같음) · tobe-fixed(8822) · tobe-renamed(8823) · tobe-custom(8824) · tobe-modern(8825, 새 룩 — 사이드바·다른 색·글꼴, 동작은 같음) · tobe-wip(8826, 새 룩 + 설정 미개발 + 보고서 새 화면 + 부가세 반올림: 비교 지도의 노랑·파랑·빨강 데모)",
       "created_at": "2026-09-25T23:05:00"
     },
     "legacy": {
