@@ -44,7 +44,7 @@ uv run eastshift report --oracle golden/<app> --junit reports/junit-<app>.xml --
 수정 → 재실행 루프 (to-be 비교는 실행마다 `runs/<app>/`에 원장과 JUnit·스크린샷 사본을 남긴다. 사본 폴더는 최근 30개만 두고 원장 JSON은 다 남긴다, `EASTSHIFT_KEEP_RUNS`):
 
 ```bash
-uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 Screen Map(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록)·시나리오(골든 관리)·시나리오 승인·검증 보고서·실행 이력, 지난 실행도 골라 본다
+uv run eastshift ui                      # 통합 화면 http://127.0.0.1:8790 — 프로젝트 목록(추가: as-is/to-be 소스 위치·주소를 폴더 창에서 고름) → 프로젝트별 Screen Map(첫 탭. as-is 탐색 / to-be 탐색 / to-be 비교(다름·미개발·새 화면) 셋을 오가고, 없으면 버튼 하나로 탐색·기록. 비교 지도의 "to-be 비교" 버튼이 비교를 다시 돌려 최신 실행으로 그린다)·시나리오(골든 관리)·시나리오 승인·검증 보고서·실행 이력, 지난 실행도 골라 본다
 uv run eastshift status golden/<app>     # 터미널용: 남은 실패, 종류, 지난 실행 대비 변화 (통과로 바뀜 / 새로 실패)
 ```
 

@@ -18,7 +18,7 @@ uv run eastshift ui [--golden golden] [--port 8790]      → http://127.0.0.1:87
                                     라우트 목록(crawl/<app>[-tobe]/routes.json)을 뽑는다 → 지도가 '코드에만 있는 화면'을 회색으로 표시, full이면 탐색의 씨앗(--seeds)
                                     scope: full = 새 상태가 안 나올 때까지 (FULL_CRAWL: 라우트마다 상태 10개), quick = 깊이만 (상태 30개). 화면의 기본은 full
   POST /api/app/<app>/stop          실행 중인 작업 멈춤 (작업의 프로세스 그룹에 SIGTERM). 탐색은 다시 누르면 멈춘 곳부터, 누른 동작은 기억에서 (eastshift.clicks)
-  POST /api/app/<app>/compare       to-be 비교 다시 실행 (pytest --compare, 보고서의 '바로 해결' 버튼)
+  POST /api/app/<app>/compare       to-be 비교 다시 실행 (pytest --compare). 보고서의 '바로 해결' 버튼과 비교 지도 출처 바의 'to-be 비교' 버튼이 부른다
   POST /api/app/<app>/mutate        결함 탐지 측정 실행 (eastshift mutate --compare, 보고서의 '바로 해결' 버튼)
   GET  /api/app/<app>/job           위 작업의 진행 (단계·로그·탐색의 한 줄 진행 progress·멈춤 여부). /init 도 같은 것. 앱마다 한 번에 하나
   POST /api/projects                프로젝트 추가 {name, asis:{src,url}, tobe:{src,url}, note}
@@ -749,6 +749,9 @@ pre.log{margin:0;background:var(--sunk);border-radius:10px;padding:12px 14px;fon
 .srcbar > button small{font-size:11px;font-weight:500;color:var(--faint)}
 .srcbar .sp{flex:1}
 .srcbar .slot{display:flex;align-items:center;margin-left:6px}.srcbar .slot .pgh{flex-wrap:nowrap}.srcbar .slot .chips{flex-wrap:nowrap}
+.jobline{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line);background:var(--accent-soft);font-size:13px;flex:none;min-width:0}
+.jobline span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jobline code{font:12px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.jobline .bad{color:var(--bad)}.jobline.fail{background:var(--bad-soft)}.jobline.ok{background:var(--ok-soft,var(--accent-soft))}
 .mapbody{flex:1;min-height:0;position:relative}.mapbody .pg{height:100%}
 .mapbody main.init{height:100%;overflow:auto;padding-block:28px 60px;box-sizing:border-box}
 /* 프로젝트 목록 */
@@ -1004,16 +1007,47 @@ function render(){
 function renderMap(v){
   const src = mapSrc(), m = data.maps || {};
   const bar = `<div class="srcbar">${SRC.map(([k, l]) => `<button class="${k === src ? 'on' : ''}" data-src="${k}">${l}${m[k] ? '' : `<small>${k === 'compare' ? '골든 전' : '탐색 전'}</small>`}</button>`).join('')}
-    <span class="sp"></span>${src !== 'compare' && m[src] ? `<button class="btn sm" data-recrawl>다시 탐색</button>` : ''}<div class="slot" id="mapslot"></div></div>`;  // slot: 지도 조각이 자기 상태 칩·(i) 를 여기로 옮겨 놓는다
-  v.innerHTML = `<div class="mapwrap">${bar}<div class="mapbody" id="mapbody"></div></div>`;
+    <span class="sp"></span>${src === 'compare' && data.golden ? `<button class="btn sm primary" data-compare title="to-be 를 지금 다시 비교합니다 (pytest --compare). 끝나면 새 실행으로 이 지도를 다시 그립니다">to-be 비교</button>` : ''}${src !== 'compare' && m[src] ? `<button class="btn sm" data-recrawl>다시 탐색</button>` : ''}<div class="slot" id="mapslot"></div></div>`;  // slot: 지도 조각이 자기 상태 칩·(i) 를 여기로 옮겨 놓는다
+  v.innerHTML = `<div class="mapwrap">${bar}<div class="jobline" id="mapjob" hidden></div><div class="mapbody" id="mapbody"></div></div>`;
   for (const b of v.querySelectorAll('[data-src]')) b.onclick = () => { state.src = b.dataset.src; state.sub = ''; setHash(); };
   const rc = v.querySelector('[data-recrawl]'); if (rc) rc.onclick = () => renderJob($('#mapbody'), src, true);
+  const cb = v.querySelector('[data-compare]'); if (cb) wireCompare(cb, v.querySelector('#mapjob'));
   $('#runsel').hidden = !data.runs.length || src !== 'compare';
   const body = $('#mapbody');
   if (src === 'compare' ? !data.golden : !m[src]){ renderJob(body, src === 'compare' ? 'init' : src, false); return; }
   const q = '?src=' + src + (src === 'compare' && state.run ? '&run=' + encodeURIComponent(state.run) : '');
   setWhere(SRC.find(x => x[0] === src)[1]);
   mountPage(body, 'map', q);
+}
+
+// 비교 지도의 'to-be 비교' 버튼: 실행 탭의 '바로 해결'과 같은 작업(POST /compare → pytest --compare)을 여기서 바로 돌린다.
+// 진행은 출처 바 아래 한 줄로 보이고, 끝나면 최신 실행을 골라 지도를 다시 그린다 (state.run = null → 최신)
+function wireCompare(btn, line){
+  const tobe = ((data.project || {}).tobe || {}).url || '';
+  if (!tobe){ btn.disabled = true; btn.title = 'to-be 주소가 없습니다 — 프로젝트 설정에서 적으세요'; }
+  const idle = () => { btn.disabled = !tobe; btn.textContent = 'to-be 비교'; };
+  const showJob = j => {
+    const step = (j.steps || []).find(s => s.state === 'run') || (j.steps || []).slice(-1)[0];
+    const last = (j.log || []).slice(-1)[0] || '';
+    line.hidden = false; line.className = 'jobline' + (j.running ? '' : j.ok ? ' ok' : ' fail');
+    line.innerHTML = j.running ? `<b>to-be 비교 실행 중</b><span>${esc(step ? step.label : '')}</span><code>${esc(last)}</code>`
+      : j.ok ? `<b>끝.</b><span>새 실행으로 지도를 다시 그립니다.</span>` : `<b class="bad">실패</b><span>${esc(j.error || last)}</span>`;
+  };
+  async function poll(first){
+    let j; try { j = await api('/api/app/' + encodeURIComponent(state.app) + '/job'); } catch (e) { return; }
+    if (j.kind !== 'compare'){ if (j.running){ btn.disabled = true; btn.title = `다른 작업(${j.kind})이 실행 중입니다`; initTimer = setTimeout(() => poll(true), 2000); } else idle(); return; }
+    if (j.running){ btn.disabled = true; btn.textContent = '비교 중…'; showJob(j); initTimer = setTimeout(() => poll(false), 2000); return; }
+    if (first) return;  // 예전에 끝난 비교는 다시 보여주지 않는다
+    showJob(j);
+    if (j.ok){ initTimer = setTimeout(async () => { await loadApps(); state.run = null; await loadApp(); render(); }, 900); return; }
+    idle();
+  }
+  btn.onclick = async () => {
+    btn.disabled = true; btn.textContent = '비교 중…';
+    try { showJob(await api('/api/app/' + encodeURIComponent(state.app) + '/compare', {})); initTimer = setTimeout(() => poll(false), 2000); }
+    catch (e) { line.hidden = false; line.className = 'jobline fail'; line.innerHTML = `<b class="bad">시작하지 못했습니다</b><span>${esc(e.message)}</span>`; idle(); }
+  };
+  poll(true);
 }
 
 // 작업 화면: kind = init (골든 시나리오 지도: 탐색 → 초안 → 기록) | asis | tobe (탐색만). 서버가 순서대로 돌리고 단계·로그를 2초마다 보여준다
