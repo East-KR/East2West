@@ -49,7 +49,7 @@ def test_oracle_refuses_bad_rules_but_still_reads_them(tmp_path, capsys):
     (d / "oracle.json").write_text(json.dumps({"difference_rules": [{"class": "env", "what": "("}]}), encoding="utf-8")
     pre = oracle.precheck(d)
     assert "모르는" not in pre["config_error"] and "reason" in pre["config_error"] and "정규식" in pre["config_error"]
-    assert oracle.load_config(d)["difference_rules"]  # 승인 화면이 틀린 파일도 보여 줄 수 있게 읽기는 그대로
+    assert oracle.load_config(d)["difference_rules"]  # 통합 화면이 틀린 파일도 보여 줄 수 있게 읽기는 그대로
     assert cli.main(["oracle-status", str(d)]) == 1 and "invalid rules" in capsys.readouterr().out
     (d / "oracle.json").write_text(json.dumps({"difference_rules": [SAME]}), encoding="utf-8")
     assert oracle.precheck(d)["config_error"] == "" and oracle.config_problems(d) == []

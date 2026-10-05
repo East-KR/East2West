@@ -101,7 +101,7 @@ def precheck(d: Path) -> dict[str, Any]:
 
 def config_problems(d: Path) -> list[str]:
     """oracle.json 의 틀린 규칙 (지금은 difference_rules: 모르는 갈래, 빈 사유, 틀린 정규식, 범위 없음). 있으면 비교를 거부한다.
-    load_config 는 그대로 읽어 준다: 승인 화면이 틀린 파일도 사람에게 보여 줘야 하므로."""
+    load_config 는 그대로 읽어 준다: 통합 화면이 틀린 파일도 사람에게 보여 줘야 하므로."""
     from . import rules
     try:
         cfg = load_config(d)

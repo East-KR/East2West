@@ -1,0 +1,38 @@
+[
+  {
+    "id": "vat-truncation",
+    "kind": "quirk",
+    "title": "주문 부가세가 반올림이 아니라 10원 단위로 잘린다",
+    "severity": "mid",
+    "strange": "공급가액 3,675원의 부가세(10% = 367.5원)가 360원으로 나온다. 10원 미만을 버린다.",
+    "expected": "부가세는 보통 원 단위로 반올림한다 (367.5원 → 368원).",
+    "impact": "주문마다 부가세가 최대 9원 적게 잡혀 합계·세금계산서 금액이 달라질 수 있다.",
+    "repro": ["주문 관리 → 신규 주문", "고객 김철수, 품목 볼펜, 수량 3 → 저장", "주문 상세의 부가세를 본다"],
+    "observed": "공급가액 3,675원 · 부가세 360원 · 합계 4,035원",
+    "cause": "부가세 계산이 supply * 0.1 // 10 * 10 (10원 절사)",
+    "evidence": ["demo-app/portal_asis/app.py:61-62 (vat)", "e2e/portal/test_portal.py:302 (test_portal_vat_truncation)"],
+    "verified": "run",
+    "tests": ["test_portal_vat_truncation"],
+    "routes": ["/orders/{id}"],
+    "options": ["현행 유지: to-be 도 10원 절사", "수정: to-be 는 원 단위 반올림 (기존 주문 금액과 달라지므로 시행일을 정한다)"],
+    "shot": {"test": "test_portal_vat_truncation", "step": 5, "caption": "저장 뒤 주문 상세: 부가세 360원"}
+  },
+  {
+    "id": "cancel-twice",
+    "kind": "quirk",
+    "title": "이미 취소된 주문을 다시 취소할 수 있고 이력에 취소가 두 번 쌓인다",
+    "severity": "low",
+    "strange": "취소 상태인 주문에서도 '주문 취소'가 동작하고, 확인을 누르면 이력에 '취소'가 한 줄 더 생긴다.",
+    "expected": "이미 취소된 주문은 다시 취소하지 못하게 막거나 버튼을 숨긴다.",
+    "impact": "주문 이력이 실제보다 많은 취소를 보여 고객 응대·통계에서 헷갈릴 수 있다.",
+    "repro": ["주문 관리 → ORD-3 마우스 (상태 취소)", "주문 취소 → 확인", "이력 탭을 본다"],
+    "observed": "이력: 1. 접수 · 2. 취소 · 3. 취소",
+    "cause": "취소 처리에 현재 상태 검사가 없다 (상태를 '취소'로 덮어쓰고 이력에 추가)",
+    "evidence": ["demo-app/portal_asis/app.py:239-242 (orders/<id>/cancel)", "e2e/portal/test_portal.py:317 (test_portal_cancel_twice)"],
+    "verified": "run",
+    "tests": ["test_portal_cancel_twice"],
+    "routes": ["/orders/{id}"],
+    "options": ["현행 유지: to-be 도 다시 취소되고 이력이 쌓인다", "수정: 이미 취소된 주문은 '이미 취소된 주문입니다' 알림으로 막는다"],
+    "shot": {"test": "test_portal_cancel_twice", "step": 3, "caption": "이력 탭: 취소가 두 번"}
+  }
+]
