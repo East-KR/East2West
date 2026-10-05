@@ -1,10 +1,10 @@
-"""화면 지도 데모 포털(demo-app/portal_app.py)의 as-is 흐름. eastshift crawl 초안 176개 중 팝업·드로워·탭·확인창을 지나는 경로 18개를 골랐다.
+"""화면 지도 데모 포털(demo-app/portal_app.py)의 as-is 흐름. east2west crawl 초안 176개 중 팝업·드로워·탭·확인창을 지나는 경로 18개를 골랐다.
 
 as-is 동작 보존: 부가세 10원 절사, 이미 취소된 주문도 다시 취소(이력에 두 번). to-be(tobe 모드)는 둘 다 "고쳐서" 비교에서 잡혀야 한다.
 """
 import pytest
 
-from eastshift.runner import _expand
+from east2west.runner import _expand
 
 
 def test_portal_01(ui):

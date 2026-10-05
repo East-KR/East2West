@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from eastshift import triage
+from east2west import triage
 
 
 class FakeClient:

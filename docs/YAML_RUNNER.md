@@ -1,9 +1,9 @@
-# Jev 러너 (`eastshift run`): 자연어 YAML 시나리오
+# Jev 러너 (`east2west run`): 자연어 YAML 시나리오
 
 자연어로 쓴 스텝을 **TypeSafe Jev**가 "어느 요소를 조작할지" 결정하고 Playwright가 실행한다. 한 번 고른 요소는 캐시로 재생하므로
 두 번째 실행부터는 Jev 호출이 0이다. 텍스트 생성 LLM은 쓰지 않는다. 입력값은 시나리오에 고정하고, 검증은 결정론적 assert로.
 
-EastShift 안에서 이 러너의 자리: 전체 화면 스모크([SMOKE.md](SMOKE.md))와 crawl이 만든 시나리오 재생. 핵심 업무 흐름의 as-is/to-be 동등성 검증은
+East2West 안에서 이 러너의 자리: 전체 화면 스모크([SMOKE.md](SMOKE.md))와 crawl이 만든 시나리오 재생. 핵심 업무 흐름의 as-is/to-be 동등성 검증은
 Playwright 테스트([MIGRATION.md](MIGRATION.md))가 맡는다. 근거는 [JEV_VS_PLAYWRIGHT.md](JEV_VS_PLAYWRIGHT.md).
 
 ## 실행
@@ -11,26 +11,26 @@ Playwright 테스트([MIGRATION.md](MIGRATION.md))가 맡는다. 근거는 [JEV_
 ```bash
 cp .env.example .env   # TYPESAFE_API_KEY 채우기 (캐시가 없는 스텝에서 요소를 고를 때만 필요)
 
-uv run eastshift run scenarios/naver_search.yaml scenarios/naver_hotel.yaml            # 캐시 있으면 재생, 없으면 Jev
-uv run eastshift run scenarios/naver_flight.yaml scenarios/coupang_home.yaml --headed   # 이 둘은 headed 필요 (아래 참고)
-uv run eastshift run scenarios/demoqa_form.yaml --no-cache                              # 매 스텝 Jev
+uv run east2west run scenarios/naver_search.yaml scenarios/naver_hotel.yaml            # 캐시 있으면 재생, 없으면 Jev
+uv run east2west run scenarios/naver_flight.yaml scenarios/coupang_home.yaml --headed   # 이 둘은 headed 필요 (아래 참고)
+uv run east2west run scenarios/demoqa_form.yaml --no-cache                              # 매 스텝 Jev
 ```
 
 옵션: `--margin 0.1` (1위-2위 확률 차 최소값), `--max-candidates 60`, `--settle-ms 1500`, `--no-cache`, `--headed`,
 `--storage-state .auth/x.json` (로그인 상태 재사용), `--replay-only` (CI 모드: Jev를 부르지 않고 캐시만 재생, API 키 불필요),
-`--base-url http://host:port` (goto 상대 경로 기준, 기본 `EASTSHIFT_BASE_URL`), `--cache-dir DIR` (기본 `.eastshift-cache`), `--junit reports/junit.xml` (CI 리포트),
+`--base-url http://host:port` (goto 상대 경로 기준, 기본 `EAST2WEST_BASE_URL`), `--cache-dir DIR` (기본 `.east2west-cache`), `--junit reports/junit.xml` (CI 리포트),
 `--workers N` (시나리오·matrix 행을 브라우저 N개로 나눠 돌린다. 행마다 캐시·골든·리포트가 따로라 결과는 같다. 서버 상태를 바꾸는 시나리오나 로그인 세션 하나를 나눠 쓰는 경우는 1).
 
 골든 기록·비교 (`--record DIR` / `--compare DIR`, `--compare-ignore REGEX`, `--compare-url`, `--compare-unordered`)도 있다.
-사람 승인, 결함 주입, 검증 보고서가 붙은 것은 Playwright 쪽이므로 전환 검증에는 그쪽을 쓴다. YAML 버전의 예제는 `examples/yaml-migration/`.
+골든 승인, 결함 주입, 검증 보고서가 붙은 것은 Playwright 쪽이므로 전환 검증에는 그쪽을 쓴다. YAML 버전의 예제는 `examples/yaml-migration/`.
 
 ## 새 시나리오 만드는 순서 (직접 쓸 때)
 
-1. **요소 이름 탐색**: `uv run python tools/explore.py <url> "button:팝업 닫기;tab:어디로 여행 가시나요?" 80` 로 페이지의 role/name과 앞선 라벨을 본다 (`;`로 클릭을 이어서 패널이 열린 상태를 볼 수 있음, `HEADED=1` 로 headed). 흐름이 많은 화면은 `eastshift crawl`이 초안을 만든다 ([CRAWL.md](CRAWL.md)).
+1. **요소 이름 탐색**: `uv run python tools/explore.py <url> "button:팝업 닫기;tab:어디로 여행 가시나요?" 80` 로 페이지의 role/name과 앞선 라벨을 본다 (`;`로 클릭을 이어서 패널이 열린 상태를 볼 수 있음, `HEADED=1` 로 headed). 흐름이 많은 화면은 `east2west crawl`이 초안을 만든다 ([CRAWL.md](CRAWL.md)).
 2. **스텝을 쓴다**: 사람이 하는 동작을 한 스텝에 하나씩. 값이 필요한 스텝은 `fill:`로 값을 준다. 사이트가 요구하는 "적용", "선택완료" 같은 확정 단계를 빠뜨리지 않는다.
 3. **assert를 강하게 쓴다**: 페이지 어딘가에 있는 단어(`text: 부산`) 대신 URL 파라미터, 입력값(`field`), 스냅샷의 `[checked]`/`[selected]`처럼 우회 충족이 안 되는 것으로.
 4. **`--no-cache --headed`로 첫 실행**: 스텝별로 Jev가 고른 요소, confidence, margin을 보고 문장이 모호하면(margin < 0.1) 문장을 구체화한다. 실패하면 `reports/<시나리오>-step<N>-fail.png`와 리포트 JSON의 `pool`(Jev가 본 후보 표)을 본다.
-5. **두 번째 실행부터는 캐시 재생** (Jev 호출 0). UI가 바뀌어 요소를 못 찾으면 그 스텝만 Jev가 다시 골라 캐시를 고친다. 캐시를 초기화하려면 `.eastshift-cache/<시나리오>.json` 삭제.
+5. **두 번째 실행부터는 캐시 재생** (Jev 호출 0). UI가 바뀌어 요소를 못 찾으면 그 스텝만 Jev가 다시 골라 캐시를 고친다. 캐시를 초기화하려면 `.east2west-cache/<시나리오>.json` 삭제.
 6. CI에서는 캐시 디렉터리를 저장소에 커밋하거나 아티팩트로 유지하면 평상시 LLM 비용이 0이 된다. (이 저장소는 캐시를 커밋하지 않는다.)
 
 ## 시나리오 형식
@@ -82,12 +82,12 @@ steps:
 6. **프레임**: 최상위 문서와 보이는 frame/iframe을 모두 후보로 본다 (`button "저장" @frame "main"`). frameset 문서처럼 body가 없어도 동작한다.
    캐시된 프레임에 요소가 없으면 다른 프레임에서 같은 (role, name)을 찾는다. as-is(frameset)에서 만든 캐시가 to-be(단일 페이지)에서 그대로 재생되는 이유.
    스스로 닫히는 팝업(우편번호 찾기 등)이 닫히면 남은 창으로 돌아온다.
-7. 성공한 선택은 `.eastshift-cache/<시나리오>.json`에 **스텝 문장을 키로** 저장. 다음 실행은 캐시된 요소가 있으면 **Jev 없이 재생**, 없으면 Jev로 다시 골라 캐시를 고치고 `⚠ HEALED`로 표시한다. `--replay-only`에서는 캐시 미스가 곧 실패다.
+7. 성공한 선택은 `.east2west-cache/<시나리오>.json`에 **스텝 문장을 키로** 저장. 다음 실행은 캐시된 요소가 있으면 **Jev 없이 재생**, 없으면 Jev로 다시 골라 캐시를 고치고 `⚠ HEALED`로 표시한다. `--replay-only`에서는 캐시 미스가 곧 실패다.
 8. `reports/<시나리오>-<시각>.json`에 스텝별 결과, Jev 확률 top3, 보낸 후보 표를 기록. 실패 스크린샷과 최종 스크린샷을 남긴다.
 
-## 실패 원인 분류 (`--triage`, `eastshift triage`)
+## 실패 원인 분류 (`--triage`, `east2west triage`)
 
-실패하거나 골든과 다른 스텝의 근거를 Jev Choice에 보내 **정해진 분류표 안에서** 원인을 고른다 (`eastshift/triage.py`). 근거는 러너가 이미 남기는 것뿐이다:
+실패하거나 골든과 다른 스텝의 근거를 Jev Choice에 보내 **정해진 분류표 안에서** 원인을 고른다 (`east2west/triage.py`). 근거는 러너가 이미 남기는 것뿐이다:
 실패 사유 문구, 직전 스텝 이력(6개), 골든 diff(40줄), 마지막 동작 이후 HTTP/JS 오류, 대화상자, Jev 확률 top3, 화면 스냅샷 앞 1,500자.
 텍스트 생성은 없고, 확률 분포가 나오므로 margin이 낮은 것만 사람이 본다. 스텝당 200~300ms, 입력 1천 토큰 안팎.
 
@@ -100,24 +100,24 @@ steps:
 | `test_bug` | 문장 모호, 단계 누락, 약한 expect, 변수 미설정, 캐시 미준비 | 시나리오 문장·단계·expect 검토 |
 | `abstain` | 근거 부족 (Jev 호출 실패 포함) | 사람 검토 |
 
-분류는 제안이다. 조치 문구도 "…으로 보임"으로 쓰고, 최종 판정은 골든 승인처럼 사람이 한다.
+분류는 제안이다. 조치 문구도 "…으로 보임"으로 쓰고, 최종 판정은 사람이 한다.
 
 같은 요청에 Noul 두 개가 붙는다: `retry_may_pass` (그대로 재실행하면 통과할 가능성), `likely_widespread` (같은 원인이 다른 화면에도 퍼져 있을 가능성).
 
 ```bash
-uv run eastshift run scenarios/<app>/*.yaml --base-url $TOBE --compare golden/<app> --triage --junit reports/junit.xml   # 실행 중 분류
-uv run eastshift triage reports/<stem>-<시각>.json                                                                       # 리포트 JSON만으로 사후 분류
+uv run east2west run scenarios/<app>/*.yaml --base-url $TOBE --compare golden/<app> --triage --junit reports/junit.xml   # 실행 중 분류
+uv run east2west triage reports/<stem>-<시각>.json                                                                       # 리포트 JSON만으로 사후 분류
 ```
 
 - 실행 중 분류는 스텝 줄 아래 `⚑ triage ui_changed p=0.77 margin=0.65 | retry 0.12 | widespread 0.70 | <조치>`로 찍히고, 리포트 JSON의 스텝에 `triage`, 시나리오에 분류별 건수가 들어간다. JUnit 실패 메시지 앞에도 `[triage <분류> p=…]`가 붙는다.
-- `eastshift triage`는 브라우저 없이 리포트 JSON만 쓴다. 스냅샷·오류 이벤트가 없어 근거가 적으므로, 실행 중 `--triage`가 더 정확하다. 결과는 `<리포트>-triage.json`.
+- `east2west triage`는 브라우저 없이 리포트 JSON만 쓴다. 스냅샷·오류 이벤트가 없어 근거가 적으므로, 실행 중 `--triage`가 더 정확하다. 결과는 `<리포트>-triage.json`.
 - Jev 호출이 실패해도 테스트 실행은 깨지지 않는다 (`abstain` + `error`로 기록).
 - 같은 원인이 퍼진 경우: 요약에서 한 분류가 4건 이상이면 앞 3줄만 보이고 나머지는 "외 N건"으로 묶는다. 서버가 죽어 같은 사유로 화면마다
   실패하면 처음 한 번만 Jev에 묻고(`environment`, widespread ≥ 0.7) 나머지는 그 결과를 재사용한다 (`reused: true`).
 - `--replay-only`(API 키 없는 CI)와는 같이 못 쓴다.
 
 **한계**: Jev는 화면을 다시 열어 보지 않고 diff와 문구로 고른다. `real_defect`와 `ui_changed`의 구분은 diff에 값 변화가 보일 때만 정확하다.
-첫 스텝이 실패하면 뒤 스텝은 skip이라 분류 대상이 아니다. 최종 판정은 골든 승인처럼 사람이 한다. 데모 앱 3종(결함 주입, 라벨 변경, 죽은 포트)에서 확인한 결과이며 통계적 근거는 아니다.
+첫 스텝이 실패하면 뒤 스텝은 skip이라 분류 대상이 아니다. 최종 판정은 사람이 한다. 데모 앱 3종(결함 주입, 라벨 변경, 죽은 포트)에서 확인한 결과이며 통계적 근거는 아니다.
 
 ## 2026-09-22 실행 기록 (7개 시나리오, 총 37 Jev 스텝)
 

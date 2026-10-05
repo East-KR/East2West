@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="East2West의 목적과 차세대 전환 검증 흐름을 한눈에 설명합니다.">
+  <title>East2West 한눈에 보기</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18273b;
+      --muted: #53657b;
+      --line: #d8e2ed;
+      --paper: #f5f8fb;
+      --white: #fff;
+      --blue: #2464d8;
+      --blue-soft: #eaf1ff;
+      --teal: #087e78;
+      --teal-soft: #e5f5f2;
+      --orange: #a85a16;
+      --orange-soft: #fff1df;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+      word-break: keep-all;
+    }
+    main { max-width: 1040px; margin: 0 auto; padding: 56px 28px 72px; }
+    .eyebrow { margin: 0 0 12px; color: var(--blue); font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.6rem); letter-spacing: -.055em; line-height: 1.18; }
+    h2 { margin: 0 0 18px; font-size: clamp(1.3rem, 2.6vw, 1.8rem); letter-spacing: -.035em; }
+    p { margin: 0; }
+    .lead { max-width: 760px; margin-top: 18px; color: var(--muted); font-size: clamp(1rem, 2vw, 1.2rem); }
+    .lead strong { color: var(--ink); }
+    .idea {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin: 34px 0 54px;
+      padding: 20px 24px;
+      background: var(--ink);
+      color: var(--white);
+      border-radius: 18px;
+    }
+    .idea .mark { flex: none; font-size: 1.8rem; line-height: 1; }
+    .idea strong { display: block; font-size: 1.13rem; }
+    .idea span { display: block; margin-top: 3px; color: #d7e3f2; font-size: .95rem; }
+    .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+    .section-heading h2 { margin: 0; }
+    .section-heading p { color: var(--muted); font-size: .9rem; }
+    .flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 0; }
+    .flow li { position: relative; min-width: 0; padding: 22px 18px 20px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; }
+    .flow li:not(:last-child)::after { content: "→"; position: absolute; z-index: 1; top: 28px; right: -17px; width: 24px; height: 24px; color: var(--blue); background: var(--paper); border-radius: 50%; text-align: center; line-height: 24px; font-size: 1.1rem; font-weight: 700; }
+    .step { display: block; margin-bottom: 22px; color: var(--blue); font-size: .82rem; font-weight: 700; }
+    .flow strong { display: block; margin-bottom: 8px; font-size: 1.08rem; }
+    .flow p { color: var(--muted); font-size: .91rem; }
+    .flow li:nth-child(2) { background: var(--blue-soft); border-color: #c8d9fb; }
+    .flow li:nth-child(3) { background: var(--teal-soft); border-color: #b7e1da; }
+    .flow li:nth-child(3) .step { color: var(--teal); }
+    .flow li:last-child { background: var(--orange-soft); border-color: #f4d8b6; }
+    .flow li:last-child .step { color: var(--orange); }
+    .lower { display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; margin-top: 42px; }
+    .panel { padding: 25px 28px; background: var(--white); border: 1px solid var(--line); border-radius: 18px; }
+    .panel h2 { margin-bottom: 16px; font-size: 1.22rem; }
+    .point { display: grid; grid-template-columns: 84px 1fr; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .point:first-of-type { border-top: 0; padding-top: 0; }
+    .point b { color: var(--blue); font-size: .91rem; }
+    .point p { color: var(--muted); font-size: .91rem; }
+    .example { margin-top: 17px; padding: 18px 20px; background: var(--paper); border-radius: 12px; }
+    .example .label { color: var(--muted); font-size: .8rem; font-weight: 700; }
+    .values { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: .94rem; }
+    .values strong { color: var(--ink); }
+    .values .arrow { color: var(--blue); font-weight: 700; }
+    .example p { margin-top: 8px; color: var(--orange); font-size: .88rem; font-weight: 600; }
+    footer { margin-top: 32px; color: var(--muted); font-size: .84rem; }
+    a { color: var(--blue); text-underline-offset: 3px; }
+    @media (max-width: 760px) {
+      main { padding: 36px 18px 52px; }
+      .idea { margin: 28px 0 42px; }
+      .section-heading { display: block; }
+      .section-heading p { margin-top: 4px; }
+      .flow { grid-template-columns: 1fr; gap: 11px; }
+      .flow li { padding: 17px 20px; }
+      .flow li:not(:last-child)::after { top: auto; bottom: -18px; right: calc(50% - 12px); content: "↓"; }
+      .step { margin-bottom: 7px; }
+      .flow strong { margin-bottom: 3px; }
+      .lower { grid-template-columns: 1fr; margin-top: 30px; }
+    }
+    @media (max-width: 380px) {
+      .idea { align-items: flex-start; padding: 18px; }
+      .panel { padding: 20px; }
+      .point { grid-template-columns: 1fr; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">East2West · 한눈에 보기</p>
+      <h1>새 시스템이 옛 시스템처럼<br>동작하는지 확인합니다.</h1>
+      <p class="lead">차세대 전환에서 <strong>실행 중인 기존 시스템(as-is)의 실제 동작</strong>을 기준으로 삼아, 새 시스템(to-be)의 결과를 비교하는 검증 도구입니다.</p>
+    </header>
+
+    <div class="idea" role="note" aria-label="핵심 원칙">
+      <div class="mark" aria-hidden="true">“</div>
+      <div><strong>정답은 설계서가 아니라, 기록된 as-is 관찰 결과</strong><span>기존 버그까지 재현해야 동등하다고 판단합니다. 이상한 as-is 동작은 따로 기록해 고객과 정합니다.</span></div>
+    </div>
+
+    <section aria-labelledby="flow-title">
+      <div class="section-heading">
+        <h2 id="flow-title">검증은 이렇게 진행됩니다</h2>
+        <p>같은 시나리오를 두 시스템에 실행합니다.</p>
+      </div>
+      <ol class="flow">
+        <li><span class="step">01 · 준비</span><strong>업무 흐름 선택</strong><p>주문 저장처럼 꼭 같아야 할 동작을 테스트로 만듭니다.</p></li>
+        <li><span class="step">02 · 기록</span><strong>as-is 실행</strong><p>단계마다 화면 내용, 입력값, 알림 등을 기준으로 저장합니다.</p></li>
+        <li><span class="step">03 · 승인</span><strong>자동 승인</strong><p>바뀐 기준에 도장을 찍어 실행마다 어느 기준으로 돌렸는지 묶습니다.</p></li>
+        <li><span class="step">04 · 검증</span><strong>탐지력 측정</strong><p>결함을 주입해 테스트가 실제 차이를 잡는지 확인합니다.</p></li>
+        <li><span class="step">05 · 비교</span><strong>to-be 실행</strong><p>같은 기준과 비교하고 차이와 근거를 보고합니다.</p></li>
+      </ol>
+    </section>
+
+    <div class="lower">
+      <section class="panel" aria-labelledby="tools-title">
+        <h2 id="tools-title">시스템을 이루는 세 가지</h2>
+        <div class="point"><b>Playwright</b><p>중요한 업무 흐름을 단계별로 기록하고 정확히 비교합니다.</p></div>
+        <div class="point"><b>탐색 · 스모크</b><p>화면 경로를 찾고 많은 화면을 넓게 훑어 빠진 곳을 살핍니다.</p></div>
+        <div class="point"><b>통합 화면</b><p>Screen Map, 시나리오, 비교 결과와 실행 이력, as-is 이상 동작을 한곳에서 봅니다.</p></div>
+      </section>
+      <section class="panel" aria-labelledby="result-title">
+        <h2 id="result-title">결과는 무엇을 알려주나요?</h2>
+        <p>어느 단계에서 무엇이 달라졌는지 보여주고, 승인본과 테스트가 믿을 만한지도 함께 확인합니다.</p>
+        <div class="example" aria-label="비교 예시">
+          <div class="label">예 · 부가세 계산</div>
+          <div class="values"><span>as-is <strong>120원</strong></span><span class="arrow" aria-hidden="true">→</span><span>to-be <strong>124원</strong></span></div>
+          <p>금액이 달라 동등성 차이로 보고합니다.</p>
+        </div>
+      </section>
+    </div>
+
+    <footer>더 자세한 절차는 <a href="MIGRATION.md">전환 검증 문서</a>를 참고하세요.</footer>
+  </main>
+</body>
+</html>

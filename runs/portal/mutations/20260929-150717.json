@@ -8,7 +8,7 @@
  "oracle_approved_at": "2026-09-29 09:41:00",
  "oracle_approval_id": "ca5ec8e5c2cc9f418d521d8c6d86f32a1c1f8f038de2c0b060edb2b5fb253646",
  "source_sha256": "b1c02b95afb7e7bd08b47af3a1e54d8f0fe1285b861c5665c659e1a6e3f327c8",
- "source_dir": "/Users/a85348/Desktop/Dev/jev/parity/e2e/portal",
+ "source_dir": "/Users/a85348/Desktop/Dev/jev/East2West/e2e/portal",
  "mode": "expects+golden",
  "compare": "golden/portal",
  "total": 135,

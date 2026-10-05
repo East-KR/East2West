@@ -1,10 +1,10 @@
-"""오라클 디렉터리(oracle.py): 승인 해시가 골든·규칙·이름 매핑·캡처 전부를 덮고, 승인 뒤 어떤 변경도 비교를 거부하게 한다. 임시 디렉터리에서만 쓴다."""
+"""오라클 디렉터리(oracle.py): 승인 해시가 골든·규칙·이름 매핑·캡처 전부를 덮고, 승인 뒤 어떤 변경도 잡는다. 승인은 자동(auto_approve). 임시 디렉터리에서만 쓴다."""
 import json
 from pathlib import Path
 
 import pytest
 
-from eastshift.pwtest import oracle
+from east2west.pwtest import oracle
 
 
 def _golden(d: Path, name: str, snapshot: str, assertions=()):
@@ -26,9 +26,9 @@ def oracle_dir(tmp_path):
     return d
 
 
-def test_unapproved_status_names_where_to_approve(oracle_dir):
+def test_unapproved_status_says_approval_is_automatic(oracle_dir):
     st = oracle.status(oracle_dir)
-    assert not st["ok"] and "never been approved" in st["problems"][0] and "eastshift ui" in st["problems"][0]
+    assert not st["ok"] and "never been approved" in st["problems"][0] and "automatically" in st["problems"][0]
 
 
 def test_stamp_covers_every_file_and_any_change_is_detected(oracle_dir):
@@ -37,7 +37,7 @@ def test_stamp_covers_every_file_and_any_change_is_detected(oracle_dir):
     oracle.stamp(oracle_dir, "east", "", files)
     st = oracle.status(oracle_dir)
     assert st["ok"] and st["approved_by"] == "east"
-    assert oracle.approved_assertions(oracle_dir) == {"test_a": [{"step": 1, "kind": "text", "target": "합계 1,200원", "value": None}]}
+    assert json.loads((oracle_dir / oracle.MANIFEST).read_text(encoding="utf-8"))["assertions"] == {"test_a": [{"step": 1, "kind": "text", "target": "합계 1,200원", "value": None}]}
     # 규칙 한 글자, 캡처 한 바이트, 파일 추가·삭제 모두 거부
     (oracle_dir / oracle.CONFIG).write_text(json.dumps({"ignore": [r"주문번호 \d*"]}), encoding="utf-8")
     assert oracle.status(oracle_dir)["problems"] == ["changed since approval: oracle.json"]
@@ -61,20 +61,19 @@ def test_fingerprint_changes_with_content_and_ds_store_is_ignored(oracle_dir):
     assert oracle.fingerprint(oracle_dir) != fp
 
 
-def test_approve_from_review_refuses_stale_fingerprint_and_blank_name(oracle_dir):
-    fp = oracle.fingerprint(oracle_dir)
-    with pytest.raises(ValueError):
-        oracle.approve_from_review(oracle_dir, "east", "", "stale")
-    with pytest.raises(ValueError):
-        oracle.approve_from_review(oracle_dir, "   ", "", fp)
-    rec = oracle.approve_from_review(oracle_dir, " east ", "note", fp)
-    assert rec["approved_by"] == "east" and oracle.status(oracle_dir)["ok"]
-
-
-def test_no_terminal_approval_path(oracle_dir):
-    """승인은 웹(approve_from_review)뿐이다. 터미널 승인 함수는 없다."""
-    assert not hasattr(oracle, "approve")
-    assert not (oracle_dir / oracle.MANIFEST).exists()
+def test_auto_approve_stamps_only_a_changed_oracle_and_says_what_changed(oracle_dir):
+    """승인은 자동(auto_approve)뿐이다. 사람 이름이 아니라 AUTO_BY 로 남고, 같으면 다시 찍지 않는다 (앞선 원장이 '다른 승인본'이 되지 않게)."""
+    assert not hasattr(oracle, "approve") and not hasattr(oracle, "approve_from_review")
+    assert oracle.auto_approve(oracle_dir, "외부 도구") == "처음 승인 · 외부 도구"
+    st = oracle.status(oracle_dir)
+    assert st["ok"] and st["approved_by"] == oracle.AUTO_BY and st["note"] == "처음 승인 · 외부 도구"
+    first = oracle.approval_id(oracle_dir)
+    assert oracle.auto_approve(oracle_dir) == "" and oracle.approval_id(oracle_dir) == first
+    _golden(oracle_dir, "test_b", "- text: x\n")
+    (oracle_dir / oracle.CONFIG).write_text(json.dumps({"ignore": []}), encoding="utf-8")
+    (oracle_dir / "name_map.tobe.json").unlink()
+    assert oracle.auto_approve(oracle_dir) == "추가 1 · 바뀜 1 · 지움 1 (파일)" and oracle.status(oracle_dir)["ok"]
+    assert oracle.auto_approve(oracle_dir.parent / "none") == ""  # 골든 폴더가 없으면 찍지 않는다
 
 
 def test_mask_hits_show_what_each_rule_actually_hides(oracle_dir):

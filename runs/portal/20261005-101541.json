@@ -1,0 +1,375 @@
+{
+ "app": "portal",
+ "target": "http://127.0.0.1:8825",
+ "started": "2026-10-05 10:14:19",
+ "finished": "2026-10-05 10:15:41",
+ "junit": "runs/portal/20261005-101541/junit.xml",
+ "oracle": {
+  "approved_by": "East",
+  "approved_at": "2026-09-29 09:41:00",
+  "approval_id": "ca5ec8e5c2cc9f418d521d8c6d86f32a1c1f8f038de2c0b060edb2b5fb253646",
+  "ok": true
+ },
+ "cases": {
+  "test_portal_01": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_01-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_01-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_01-tobe-02.jpg"
+   }
+  },
+  "test_portal_02": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_02-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_02-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_02-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_02-tobe-03.jpg"
+   }
+  },
+  "test_portal_03": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_03-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_03-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_03-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_03-tobe-03.jpg"
+   }
+  },
+  "test_portal_04": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_04-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_04-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_04-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_04-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_04-tobe-04.jpg"
+   }
+  },
+  "test_portal_05": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_05-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_05-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_05-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_05-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_05-tobe-04.jpg"
+   }
+  },
+  "test_portal_06": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_06-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_06-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_06-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_06-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_06-tobe-04.jpg",
+    "5": "runs/portal/20261005-101541/shots/test_portal_06-tobe-05.jpg"
+   }
+  },
+  "test_portal_07": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_07-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_07-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_07-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_07-tobe-03.jpg"
+   }
+  },
+  "test_portal_08": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_08-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_08-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_08-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_08-tobe-03.jpg"
+   }
+  },
+  "test_portal_09": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_09-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_09-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_09-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_09-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_09-tobe-04.jpg"
+   }
+  },
+  "test_portal_10": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_10-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_10-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_10-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_10-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_10-tobe-04.jpg"
+   }
+  },
+  "test_portal_11": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_11-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_11-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_11-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_11-tobe-03.jpg"
+   }
+  },
+  "test_portal_12": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_12-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_12-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_12-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_12-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_12-tobe-04.jpg",
+    "5": "runs/portal/20261005-101541/shots/test_portal_12-tobe-05.jpg",
+    "6": "runs/portal/20261005-101541/shots/test_portal_12-tobe-06.jpg"
+   }
+  },
+  "test_portal_13": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_13-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_13-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_13-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_13-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_13-tobe-04.jpg",
+    "5": "runs/portal/20261005-101541/shots/test_portal_13-tobe-05.jpg",
+    "6": "runs/portal/20261005-101541/shots/test_portal_13-tobe-06.jpg"
+   }
+  },
+  "test_portal_14": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_14-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_14-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_14-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_14-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_14-tobe-04.jpg"
+   }
+  },
+  "test_portal_15": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_15-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_15-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_15-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_15-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_15-tobe-04.jpg"
+   }
+  },
+  "test_portal_16": {
+   "status": "fail",
+   "kind": "golden_diff",
+   "summary": "step 3 link \"주문 보기\": differs from golden",
+   "rows": [
+    [
+     "화면 문구",
+     "2건 · 고객 김철수",
+     "(없음)"
+    ],
+    [
+     "to-be에만 있는 화면 내용",
+     "(없음)",
+     "3건 · (값 없음) · 이영희"
+    ]
+   ],
+   "screenshot": "",
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_16-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_16-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_16-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_16-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_16-tobe-04.jpg"
+   }
+  },
+  "test_portal_17": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_17-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_17-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_17-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_17-tobe-03.jpg"
+   }
+  },
+  "test_portal_18": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_18-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_18-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_18-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_18-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_18-tobe-04.jpg"
+   }
+  },
+  "test_portal_vat_truncation": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_vat_truncation-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_vat_truncation-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_vat_truncation-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_vat_truncation-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_vat_truncation-tobe-04.jpg",
+    "5": "runs/portal/20261005-101541/shots/test_portal_vat_truncation-tobe-05.jpg"
+   }
+  },
+  "test_portal_cancel_twice": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_cancel_twice-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_cancel_twice-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_cancel_twice-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_cancel_twice-tobe-03.jpg"
+   }
+  },
+  "test_portal_filter_by_status[\\uc811\\uc218-ORD-1 \\ub178\\ud2b8\\ubd81]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_uc811_uc218-ORD-1_ub178_ud2b8_ubd81_-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_uc811_uc218-ORD-1_ub178_ud2b8_ubd81_-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_uc811_uc218-ORD-1_ub178_ud2b8_ubd81_-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_uc811_uc218-ORD-1_ub178_ud2b8_ubd81_-tobe-03.jpg"
+   }
+  },
+  "test_portal_filter_by_status[\\ubc30\\uc1a1\\uc911-ORD-2 \\ubcfc\\ud39c]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_ubc30_uc1a1_uc911-ORD-2_ubcfc_ud39c_-tobe-03.jpg"
+   }
+  },
+  "test_portal_filter_by_status[\\uc644\\ub8cc-0\\uac74]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_uc644_ub8cc-0_uac74_-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_uc644_ub8cc-0_uac74_-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_uc644_ub8cc-0_uac74_-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_uc644_ub8cc-0_uac74_-tobe-03.jpg"
+   }
+  },
+  "test_portal_filter_by_status[\\ucde8\\uc18c-ORD-3 \\ub9c8\\uc6b0\\uc2a4]": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_ucde8_uc18c-ORD-3_ub9c8_uc6b0_uc2a4_-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_ucde8_uc18c-ORD-3_ub9c8_uc6b0_uc2a4_-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_ucde8_uc18c-ORD-3_ub9c8_uc6b0_uc2a4_-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_filter_by_status_ucde8_uc18c-ORD-3_ub9c8_uc6b0_uc2a4_-tobe-03.jpg"
+   }
+  },
+  "test_portal_new_order_other_customer": {
+   "status": "pass",
+   "kind": "same",
+   "summary": "",
+   "rows": [],
+   "build_ids": [],
+   "tobe_shots": {
+    "0": "runs/portal/20261005-101541/shots/test_portal_new_order_other_customer-tobe-00.jpg",
+    "1": "runs/portal/20261005-101541/shots/test_portal_new_order_other_customer-tobe-01.jpg",
+    "2": "runs/portal/20261005-101541/shots/test_portal_new_order_other_customer-tobe-02.jpg",
+    "3": "runs/portal/20261005-101541/shots/test_portal_new_order_other_customer-tobe-03.jpg",
+    "4": "runs/portal/20261005-101541/shots/test_portal_new_order_other_customer-tobe-04.jpg",
+    "5": "runs/portal/20261005-101541/shots/test_portal_new_order_other_customer-tobe-05.jpg"
+   }
+  }
+ },
+ "totals": {
+  "pass": 24,
+  "fail": 1
+ }
+}

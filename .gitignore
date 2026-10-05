@@ -1,6 +1,6 @@
 .venv/
 __pycache__/
-.eastshift-cache/
+.east2west-cache/
 /reports/
 .env
 .auth/

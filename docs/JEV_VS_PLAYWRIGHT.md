@@ -1,7 +1,7 @@
 # 전환 검증: Jev 러너(자연어 YAML) vs Playwright 스크립트 (2026-09-24)
 
 같은 4개 시나리오(`examples/yaml-migration/scenarios/*.yaml` ↔ `e2e/legacy/test_orders.py`), 같은 as-is/to-be 앱(`demo-app/legacy_app.py`),
-같은 골든 비교 로직(`eastshift/observe.py`). 다른 것은 요소를 찾는 방법뿐이다: Jev(자연어 → 요소, 캐시) vs `getByRole` + 프레임 무관 helper(`eastshift/pwtest/ui.py`).
+같은 골든 비교 로직(`east2west/observe.py`). 다른 것은 요소를 찾는 방법뿐이다: Jev(자연어 → 요소, 캐시) vs `getByRole` + 프레임 무관 helper(`east2west/pwtest/ui.py`).
 
 ```bash
 uv run pytest e2e/legacy --base-url http://127.0.0.1:8801 --record golden/legacy     # as-is
@@ -9,7 +9,7 @@ uv run pytest e2e/legacy --base-url http://127.0.0.1:8803 --compare golden/legac
 uv run pytest e2e/legacy --base-url http://127.0.0.1:8804 --compare golden/legacy --name-map golden/legacy/name_map.tobe-renamed.json
 ```
 
-| to-be | Jev 러너 (`eastshift run`) | Playwright (`pytest`) |
+| to-be | Jev 러너 (`east2west run`) | Playwright (`pytest`) |
 | :--- | :--- | :--- |
 | `tobe` 충실한 전환 (frameset→단일 페이지, URL 변경) | 4/4 PASS, 차이 0 | 4/4 PASS, 차이 0 |
 | `tobe-fixed` as-is 버그 2개를 고침 | 3/4 탐지 (부가세 120→124, alert 문구, 수량 0) | 3/4 탐지, 같은 diff |

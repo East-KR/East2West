@@ -1,5 +1,5 @@
 """포털 데모의 as-is 앱 (기존 시스템). 표준 라이브러리만 사용. to-be(demo-app/portal_tobe/)와 코드를 공유하지 않는다:
-실제 전환처럼 as-is와 to-be 가 각자 완결된 소스여야 `eastshift routes` 가 각 폴더의 주소만 뽑고, 지도의 회색(코드에만 있음)이 사실을 반영한다.
+실제 전환처럼 as-is와 to-be 가 각자 완결된 소스여야 `east2west routes` 가 각 폴더의 주소만 뽑고, 지도의 회색(코드에만 있음)이 사실을 반영한다.
 
 python demo-app/portal_asis/app.py <port> asis          as-is (버그 포함)
 python demo-app/portal_asis/app.py <port> asis-patched  as-is에 운영 패치가 들어온 뒤: 홈에 점검 안내 한 줄, 요약 카드 "미처리 주문" → "처리 대기".

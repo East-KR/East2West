@@ -1,5 +1,5 @@
 """결함 주입(mutation.py)의 자리 찾기·적용·생성: 응답 문자열만으로 검사한다. 브라우저·pytest 서브프로세스는 돌리지 않는다."""
-from eastshift.pwtest import mutation as m
+from east2west.pwtest import mutation as m
 
 HTML = """<html><head><title>주문 등록 2024</title><style>.a{width:120px}</style></head>
 <body><h1>주문 등록</h1><input name="qty" value="10" size="5"><span data-price="1,200">단가 1,200원</span>

@@ -1,7 +1,7 @@
 [project]
-name = "eastshift"
+name = "east2west"
 version = "0.1.0"
-description = "EastShift: checks that a rebuilt (to-be) web app behaves exactly like the running as-is app, bugs included. Playwright equivalence tests with a human-approved oracle, a Jev YAML runner and a crawler"
+description = "East2West: checks that a rebuilt (to-be) web app behaves exactly like the running as-is app, bugs included. Playwright equivalence tests with an automatically approved as-is oracle, a Jev YAML runner and a crawler"
 requires-python = ">=3.11"
 license = "PolyForm-Noncommercial-1.0.0"
 license-files = ["LICENSE"]
@@ -14,17 +14,17 @@ dependencies = [
 ]
 
 [project.scripts]
-eastshift = "eastshift.cli:main"
+east2west = "east2west.cli:main"
 
 [project.entry-points.pytest11]
-eastshift = "eastshift.pwtest.plugin"
+east2west = "east2west.pwtest.plugin"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["eastshift"]
+packages = ["east2west"]
 
 [tool.pytest.ini_options]
 testpaths = ["e2e", "tests"]

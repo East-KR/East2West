@@ -1,5 +1,5 @@
 # Jev 없이 도는 스모크: 조회 버튼은 screens.targets.yaml에 적힌 이름 그대로, 상세는 첫 데이터 행의 링크.
-# 대상은 `eastshift targets`가 규칙으로 정하고, 애매한 화면만 사람이나 Claude Code가 고른다.
+# 대상은 `east2west targets`가 규칙으로 정하고, 애매한 화면만 사람이나 Claude Code가 고른다.
 name: "스모크 - ${SCREEN}: 열기, 기본 조회, 첫 항목 상세"
 matrix_file: screens.targets.yaml
 steps:

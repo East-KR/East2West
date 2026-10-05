@@ -1,9 +1,9 @@
-"""소스 라우트 추출(eastshift routes)과 지도의 '코드에만 있음' 회색 카드. 임시 폴더와 저장소의 demo-app 만 읽는다."""
+"""소스 라우트 추출(east2west routes)과 지도의 '코드에만 있음' 회색 카드. 임시 폴더와 저장소의 demo-app 만 읽는다."""
 import json
 from pathlib import Path
 
-from eastshift import routes
-from eastshift.pwtest import map as screen_map
+from east2west import routes
+from east2west.pwtest import map as screen_map
 
 
 def test_normalize_matches_map_route_keys():
@@ -129,7 +129,7 @@ def test_map_marks_code_only_routes_gray(tmp_path):
     assert "/orders/{id}/cancel" not in g["routes"]  # 동작(POST)은 화면이 아니다
     assert g["counts"]["unreached"] == 1
     page = screen_map.render(g)
-    assert "data-st='unreached'" in page and "코드에만 있음<b>1</b>" in page and "소스 화면 4 중 3 도달" in page and "node unreached" in page and "a.py:9" in page
+    assert "data-st='unreached'" in page and "미방문<b>1</b>" in page and "소스 화면 4 중 3 도달" in page and "node unreached" in page and "a.py:9" in page
     assert "화면<b>3</b>" in page  # 찾은 화면 수에는 회색을 세지 않는다
     # 잣대가 없으면 회색도 없다
     (d / "routes.json").unlink()

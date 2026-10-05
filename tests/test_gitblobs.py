@@ -8,7 +8,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from eastshift.pwtest import gitblobs, oracle, plugin
+from east2west.pwtest import gitblobs, oracle, plugin
 
 
 def git(repo: Path, *args: str) -> None:
@@ -115,16 +115,16 @@ def test_precheck_is_used_only_for_the_same_oracle_and_approval(repo, tmp_path, 
     oracle.stamp(d, "someone", "", oracle.oracle_files(d))                  # 다시 승인됨 → 넘겨받은 것은 옛 승인본의 것
     assert oracle.given_precheck(d, pre) is None
 
-    worker = SimpleNamespace(workerinput={"eastshift_precheck": pre})
+    worker = SimpleNamespace(workerinput={"east2west_precheck": pre})
     assert plugin._handed_precheck(worker) is pre                            # xdist 워커
     f = tmp_path / "pre.json"
     f.write_text(json.dumps(pre), encoding="utf-8")
     monkeypatch.setenv(oracle.PRECHECK, str(f))
-    assert plugin._handed_precheck(SimpleNamespace()) == pre                 # eastshift mutate가 띄운 pytest
+    assert plugin._handed_precheck(SimpleNamespace()) == pre                 # east2west mutate가 띄운 pytest
 
-    node = SimpleNamespace(config=SimpleNamespace(_eastshift_precheck=pre), workerinput={})
+    node = SimpleNamespace(config=SimpleNamespace(_east2west_precheck=pre), workerinput={})
     plugin.pytest_configure_node(node)
-    assert node.workerinput["eastshift_precheck"] is pre                     # 컨트롤러가 워커에 넘긴다
+    assert node.workerinput["east2west_precheck"] is pre                     # 컨트롤러가 워커에 넘긴다
 
 
 def test_recorded_setup_differences_are_reported(tmp_path):
@@ -149,7 +149,7 @@ def test_xdist_workers_take_the_controllers_precheck(tmp_path):
     oracle.stamp(g, "east", "", oracle.oracle_files(g))
     (tmp_path / "conftest.py").write_text(textwrap.dedent("""
         import os
-        from eastshift.pwtest import oracle
+        from east2west.pwtest import oracle
         real = oracle.precheck
         def counted(d):
             with open(os.environ["PRECHECK_LOG"], "a") as f:

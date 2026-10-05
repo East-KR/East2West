@@ -1,4 +1,4 @@
-"""eastshift crawl 병렬 탐색: 브라우저 여러 개가 나눠 눌러도 그래프(상태·edge id·도착·종류)가 한 줄로 누를 때와 같다.
+"""east2west crawl 병렬 탐색: 브라우저 여러 개가 나눠 눌러도 그래프(상태·edge id·도착·종류)가 한 줄로 누를 때와 같다.
 채우기(filled), confirm 취소(dismiss), 목록 대표·적응 확장이 모두 한 번씩 나오는 작은 앱으로 확인한다."""
 import json
 import threading
@@ -9,8 +9,8 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from eastshift import crawl
-from eastshift.crawl import Crawler, _workers
+from east2west import crawl
+from east2west.crawl import Crawler, _workers
 
 STATUS = ["접수", "취소"]
 
@@ -76,9 +76,9 @@ def test_parallel_graph_matches_serial(base, tmp_path):
 
 
 def test_worker_default(monkeypatch, tmp_path):
-    monkeypatch.delenv("EASTSHIFT_CRAWL_WORKERS", raising=False)
+    monkeypatch.delenv("EAST2WEST_CRAWL_WORKERS", raising=False)
     assert _workers(None) == 4 and _workers(tmp_path / "state.json") == 1   # 로그인 세션을 나눠 쓰면 한 줄로
-    monkeypatch.setenv("EASTSHIFT_CRAWL_WORKERS", "2")
+    monkeypatch.setenv("EAST2WEST_CRAWL_WORKERS", "2")
     assert _workers(tmp_path / "state.json") == 2
 
 
@@ -122,8 +122,8 @@ def test_resume_after_interrupt_matches_uninterrupted(base, tmp_path, monkeypatc
 
 def test_graph_md_diagram_falls_back_to_routes_then_none():
     """mermaid 한도(선 500개)를 넘으면 주소 단위로 합쳐 그리고, 그래도 넘으면 그림을 빼고 Screen Map을 가리킨다. 동작 표는 그대로."""
-    from eastshift.crawl import MERMAID_EDGES, Edge, Node, Step
-    from eastshift.snapshot import Element
+    from east2west.crawl import MERMAID_EDGES, Edge, Node, Step
+    from east2west.snapshot import Element
 
     def crawler(n_routes: int, per_route: int) -> Crawler:
         c = Crawler("http://127.0.0.1:1/")
@@ -149,7 +149,7 @@ def test_graph_md_diagram_falls_back_to_routes_then_none():
     (dict(max_depth=1), dict(max_depth=2)),                                   # 깊이
 ], ids=["states", "actions", "depth"])
 def test_click_memo_widening_clicks_only_new_actions(base, tmp_path, monkeypatch, small, big):
-    """상한을 올려 다시 탐색하면 새로 생긴 동작만 실제로 누르고, 결과는 큰 상한으로 한 번에 돌린 것과 같다 (eastshift.clicks)."""
+    """상한을 올려 다시 탐색하면 새로 생긴 동작만 실제로 누르고, 결과는 큰 상한으로 한 번에 돌린 것과 같다 (east2west.clicks)."""
     real, clicked = Crawler._attempt, []
     monkeypatch.setattr(Crawler, "_attempt", lambda self, *a, **k: (clicked.append(1), real(self, *a, **k))[1])
     opts = dict(settle_ms=50, reps=3, inputs={"이름": "홍길동"}, workers=2)
@@ -173,7 +173,7 @@ def test_click_memo_widening_clicks_only_new_actions(base, tmp_path, monkeypatch
 
 
 def test_click_memo_is_dropped_when_source_or_start_screen_changes(base, tmp_path):
-    from eastshift.clicks import ClickMemo
+    from east2west.clicks import ClickMemo
     memo = tmp_path / "clicks.jsonl"
     opts = dict(max_depth=1, settle_ms=50, workers=2)
     Crawler(base + "/", **opts).run(clicks=memo, sources={"tobe-src": "git:aaa"})
@@ -194,7 +194,7 @@ def test_click_memo_is_dropped_when_source_or_start_screen_changes(base, tmp_pat
 
 
 def test_click_memo_file_format(tmp_path):
-    from eastshift.clicks import ClickMemo
+    from east2west.clicks import ClickMemo
     p = tmp_path / "clicks.jsonl"
     m = ClickMemo(p, {"v": 1})
     assert m.reason == "처음 탐색"
@@ -221,7 +221,7 @@ def test_click_memo_file_format(tmp_path):
 def test_sources_for_follows_registry_and_git_state(tmp_path):
     """소스 버전: 그 폴더의 커밋된 내용과 커밋 안 된 변경. 같은 저장소의 다른 폴더 커밋에는 바뀌지 않는다."""
     import subprocess
-    from eastshift.clicks import source_version, sources_for
+    from east2west.clicks import source_version, sources_for
     repo = tmp_path / "repo"
     src = repo / "tobe"
     src.mkdir(parents=True)
@@ -230,7 +230,7 @@ def test_sources_for_follows_registry_and_git_state(tmp_path):
     (repo / "docs" / "note.md").write_text("x\n", encoding="utf-8")
     g = lambda *a: subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t", *a], check=True, capture_output=True)
     g("init", "-q"); g("add", "-A"); g("commit", "-qm", "1")
-    reg = tmp_path / "eastshift.json"
+    reg = tmp_path / "east2west.json"
     reg.write_text(json.dumps({"projects": {"shop": {"tobe": {"src": str(src), "url": "http://127.0.0.1:8821"}}}}), encoding="utf-8")
     assert sources_for("http://127.0.0.1:9999/", reg) == {}                     # 등록부에 없는 주소
     v1 = sources_for("http://127.0.0.1:8821/login", reg)[str(src)]

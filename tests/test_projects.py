@@ -1,4 +1,4 @@
-"""프로젝트 등록부(eastshift.json)와 통합 화면의 프로젝트 API. 작업 디렉터리 밖은 만지지 않는다."""
+"""프로젝트 등록부(east2west.json)와 통합 화면의 프로젝트 API. 작업 디렉터리 밖은 만지지 않는다."""
 import json
 import threading
 from http.server import ThreadingHTTPServer
@@ -8,7 +8,7 @@ from urllib.request import Request, urlopen
 
 import pytest
 
-from eastshift.pwtest import hub, ledger, projects
+from east2west.pwtest import hub, ledger, projects
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def ws(tmp_path, monkeypatch):
     (tmp_path / "src-old").mkdir()
     (tmp_path / "src-new").mkdir()
     (tmp_path / "src-old" / "app.py").write_text("", encoding="utf-8")
-    return {"file": tmp_path / "eastshift.json", "tests": tmp_path / "e2e", "golden": tmp_path / "golden", "old": tmp_path / "src-old", "new": tmp_path / "src-new"}
+    return {"file": tmp_path / "east2west.json", "tests": tmp_path / "e2e", "golden": tmp_path / "golden", "old": tmp_path / "src-old", "new": tmp_path / "src-new"}
 
 
 def spec(ws, **kw):
@@ -94,7 +94,7 @@ def test_hub_projects_without_golden(ws):
     with pytest.raises(KeyError):
         h.app("nope")
     with pytest.raises(KeyError):
-        h.approve("shop", by="x", fingerprint="x")  # 골든 없음
+        h.start_record("shop")  # 골든 없음: 다시 기록할 것이 없다 (처음 기록은 init)
     h.update_project("shop", spec(ws, note="n"))
     assert h.apps()[0]["note"] == "n"
     assert h.remove_project("shop")["kept"] == [str(ws["tests"] / "shop")]
