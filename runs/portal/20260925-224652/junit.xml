@@ -35,7 +35,7 @@ step 2 button "필터": differs from golden
      button "필터"
     -button "신규 주문"
     +button "주문 등록"
-     text: 3건</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_04" time="6.737"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;eastshift.pwtest.ui.UI object at 0x109bec0e0&gt;
+     text: 3건</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_04" time="6.737"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;east2west.pwtest.ui.UI object at 0x109bec0e0&gt;
 
     def test_portal_04(ui):
         """포털 홈 → 주문 목록 → 주문 목록 → 신규 주문 → 신규 주문"""
@@ -50,12 +50,12 @@ step 2 button "필터": differs from golden
 
 e2e/portal/test_portal.py:60: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-eastshift/pwtest/ui.py:153: in act
+east2west/pwtest/ui.py:153: in act
     loc = self.locate(role, name, nth)
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;eastshift.pwtest.ui.UI object at 0x109bec0e0&gt;, role = 'button'
+self = &lt;east2west.pwtest.ui.UI object at 0x109bec0e0&gt;, role = 'button'
 name = '신규 주문', nth = None
 
     def locate(self, role: str, name: str, nth: int | None = None) -&gt; Locator:
@@ -73,7 +73,7 @@ name = '신규 주문', nth = None
 &gt;               raise AssertionError(f'{role} "{name}" not found in any frame')
 E               AssertionError: button "신규 주문" not found in any frame
 
-eastshift/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_04" time="0.016"><error message="failed on teardown with &quot;Failed: step 1 link &quot;주문 관리&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&#10;step 2 button &quot;필터&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 1 link "주문 관리": differs from golden
+east2west/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_04" time="0.016"><error message="failed on teardown with &quot;Failed: step 1 link &quot;주문 관리&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&#10;step 2 button &quot;필터&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 1 link "주문 관리": differs from golden
     --- as-is(golden)
     +++ actual
     @@ -7,3 +7,3 @@
@@ -88,7 +88,7 @@ step 2 button "필터": differs from golden
      button "필터"
     -button "신규 주문"
     +button "주문 등록"
-     text: 3건</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_05" time="6.714"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;eastshift.pwtest.ui.UI object at 0x109c95e50&gt;
+     text: 3건</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_05" time="6.714"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;east2west.pwtest.ui.UI object at 0x109c95e50&gt;
 
     def test_portal_05(ui):
         """포털 홈 → 주문 목록 → 주문 목록 → 신규 주문 → 주문 상세 ORD-1"""
@@ -103,12 +103,12 @@ step 2 button "필터": differs from golden
 
 e2e/portal/test_portal.py:73: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-eastshift/pwtest/ui.py:153: in act
+east2west/pwtest/ui.py:153: in act
     loc = self.locate(role, name, nth)
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;eastshift.pwtest.ui.UI object at 0x109c95e50&gt;, role = 'button'
+self = &lt;east2west.pwtest.ui.UI object at 0x109c95e50&gt;, role = 'button'
 name = '신규 주문', nth = None
 
     def locate(self, role: str, name: str, nth: int | None = None) -&gt; Locator:
@@ -126,7 +126,7 @@ name = '신규 주문', nth = None
 &gt;               raise AssertionError(f'{role} "{name}" not found in any frame')
 E               AssertionError: button "신규 주문" not found in any frame
 
-eastshift/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_05" time="0.025"><error message="failed on teardown with &quot;Failed: step 1 link &quot;주문 관리&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&#10;step 2 button &quot;필터&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 1 link "주문 관리": differs from golden
+east2west/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_05" time="0.025"><error message="failed on teardown with &quot;Failed: step 1 link &quot;주문 관리&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&#10;step 2 button &quot;필터&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 1 link "주문 관리": differs from golden
     --- as-is(golden)
     +++ actual
     @@ -7,3 +7,3 @@
@@ -141,7 +141,7 @@ step 2 button "필터": differs from golden
      button "필터"
     -button "신규 주문"
     +button "주문 등록"
-     text: 3건</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_06" time="6.737"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;eastshift.pwtest.ui.UI object at 0x109c5b440&gt;
+     text: 3건</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_06" time="6.737"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;east2west.pwtest.ui.UI object at 0x109c5b440&gt;
 
     def test_portal_06(ui):
         """포털 홈 → 주문 목록 → 주문 목록 → 신규 주문 → 주문 목록 (입력 후)"""
@@ -156,12 +156,12 @@ step 2 button "필터": differs from golden
 
 e2e/portal/test_portal.py:89: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-eastshift/pwtest/ui.py:153: in act
+east2west/pwtest/ui.py:153: in act
     loc = self.locate(role, name, nth)
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;eastshift.pwtest.ui.UI object at 0x109c5b440&gt;, role = 'button'
+self = &lt;east2west.pwtest.ui.UI object at 0x109c5b440&gt;, role = 'button'
 name = '신규 주문', nth = None
 
     def locate(self, role: str, name: str, nth: int | None = None) -&gt; Locator:
@@ -179,7 +179,7 @@ name = '신규 주문', nth = None
 &gt;               raise AssertionError(f'{role} "{name}" not found in any frame')
 E               AssertionError: button "신규 주문" not found in any frame
 
-eastshift/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_06" time="0.021"><error message="failed on teardown with &quot;Failed: step 1 link &quot;주문 관리&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&#10;step 2 button &quot;필터&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 1 link "주문 관리": differs from golden
+east2west/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_06" time="0.021"><error message="failed on teardown with &quot;Failed: step 1 link &quot;주문 관리&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&#10;step 2 button &quot;필터&quot;: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 1 link "주문 관리": differs from golden
     --- as-is(golden)
     +++ actual
     @@ -7,3 +7,3 @@
@@ -244,7 +244,7 @@ step 2 button "필터": differs from golden
      button "필터"
     -button "신규 주문"
     +button "주문 등록"
-     text: 2건 · 고객 김철수</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_17" time="2.130" /><testcase classname="e2e.portal.test_portal" name="test_portal_18" time="2.688" /><testcase classname="e2e.portal.test_portal" name="test_portal_vat_truncation" time="5.653"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;eastshift.pwtest.ui.UI object at 0x109d0c620&gt;
+     text: 2건 · 고객 김철수</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_17" time="2.130" /><testcase classname="e2e.portal.test_portal" name="test_portal_18" time="2.688" /><testcase classname="e2e.portal.test_portal" name="test_portal_vat_truncation" time="5.653"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;east2west.pwtest.ui.UI object at 0x109d0c620&gt;
 
     def test_portal_vat_truncation(ui):
         """신규 주문 팝업에서 볼펜 3개 저장 → 상세의 부가세는 10원 절사 (as-is 동작 보존: 3,675원의 10%는 367.5원 → 360원)"""
@@ -253,12 +253,12 @@ step 2 button "필터": differs from golden
 
 e2e/portal/test_portal.py:305: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-eastshift/pwtest/ui.py:153: in act
+east2west/pwtest/ui.py:153: in act
     loc = self.locate(role, name, nth)
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;eastshift.pwtest.ui.UI object at 0x109d0c620&gt;, role = 'button'
+self = &lt;east2west.pwtest.ui.UI object at 0x109d0c620&gt;, role = 'button'
 name = '신규 주문', nth = None
 
     def locate(self, role: str, name: str, nth: int | None = None) -&gt; Locator:
@@ -276,7 +276,7 @@ name = '신규 주문', nth = None
 &gt;               raise AssertionError(f'{role} "{name}" not found in any frame')
 E               AssertionError: button "신규 주문" not found in any frame
 
-eastshift/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_vat_truncation" time="0.023"><error message="failed on teardown with &quot;Failed: step 0 /orders: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 0 /orders: differs from golden
+east2west/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_vat_truncation" time="0.023"><error message="failed on teardown with &quot;Failed: step 0 /orders: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 0 /orders: differs from golden
     --- as-is(golden)
     +++ actual
     @@ -7,3 +7,3 @@
@@ -414,7 +414,7 @@ step 3 button "적용": differs from golden
      button "필터"
     -button "신규 주문"
     +button "주문 등록"
-     text: 1건 · 상태 취소</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_new_order_other_customer" time="5.652"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;eastshift.pwtest.ui.UI object at 0x109e83230&gt;
+     text: 1건 · 상태 취소</error></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_new_order_other_customer" time="5.652"><failure message="AssertionError: button &quot;신규 주문&quot; not found in any frame">ui = &lt;east2west.pwtest.ui.UI object at 0x109e83230&gt;
 
     def test_portal_new_order_other_customer(ui):
         """신규 주문 팝업에서 이영희·마우스 2개 저장 → 상세에 고객 이영희, 공급가액 66,000원, 부가세 6,600원"""
@@ -423,12 +423,12 @@ step 3 button "적용": differs from golden
 
 e2e/portal/test_portal.py:343: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-eastshift/pwtest/ui.py:153: in act
+east2west/pwtest/ui.py:153: in act
     loc = self.locate(role, name, nth)
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = &lt;eastshift.pwtest.ui.UI object at 0x109e83230&gt;, role = 'button'
+self = &lt;east2west.pwtest.ui.UI object at 0x109e83230&gt;, role = 'button'
 name = '신규 주문', nth = None
 
     def locate(self, role: str, name: str, nth: int | None = None) -&gt; Locator:
@@ -446,7 +446,7 @@ name = '신규 주문', nth = None
 &gt;               raise AssertionError(f'{role} "{name}" not found in any frame')
 E               AssertionError: button "신규 주문" not found in any frame
 
-eastshift/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_new_order_other_customer" time="0.030"><error message="failed on teardown with &quot;Failed: step 0 /orders: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 0 /orders: differs from golden
+east2west/pwtest/ui.py:86: AssertionError</failure></testcase><testcase classname="e2e.portal.test_portal" name="test_portal_new_order_other_customer" time="0.030"><error message="failed on teardown with &quot;Failed: step 0 /orders: differs from golden&#10;    --- as-is(golden)&#10;    +++ actual&#10;    @@ -7,3 +7,3 @@&#10;     button &quot;필터&quot;&#10;    -button &quot;신규 주문&quot;&#10;    +button &quot;주문 등록&quot;&#10;     text: 3건&quot;">step 0 /orders: differs from golden
     --- as-is(golden)
     +++ actual
     @@ -7,3 +7,3 @@

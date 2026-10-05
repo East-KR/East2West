@@ -1,5 +1,5 @@
 """골든 비교의 정규화(observe.py): 레이아웃 차이는 같다고 보고, 값·대화상자·이름 차이는 잡아야 한다. 브라우저 없이 스냅샷 문자열로 검사한다."""
-from eastshift.observe import CompareOptions, compare, flatten, mask, observation, relative_url, rename
+from east2west.observe import CompareOptions, compare, flatten, mask, observation, relative_url, rename
 
 FRAMESET = """\
 ## frame top
@@ -125,3 +125,30 @@ def test_compare_flags_step_text_change():
     g = _obs("- text: x\n")
     a = dict(_obs("- text: x\n"), text="등록")
     assert compare(g, a, CompareOptions())[0].startswith("! step text changed")
+
+
+def _reqs(*reqs: str, snapshot: str = "- text: x\n"):
+    return observation(index=0, kind="click", text="조회", url="http://x/a", title="t", snapshot=snapshot, dialogs=[],
+                       opts=CompareOptions(), requests=list(reqs))
+
+
+def test_compare_flags_a_shared_request_called_a_different_number_of_times():
+    """요청 횟수도 동작이다: as-is 가 한 번 누름에 목록을 두 번 읽으면 to-be 도 두 번이어야 한다."""
+    g = _reqs("GET /orders/list", "GET /orders/list", "GET /codes")
+    assert compare(g, _reqs("GET /orders/list", "GET /codes"), CompareOptions()) == ["requests: GET /orders/list ×2 → ×1"]
+    assert compare(g, _reqs("GET /codes", "GET /orders/list", "GET /orders/list"), CompareOptions()) == []
+
+
+def test_request_counts_skip_one_sided_paths_old_goldens_and_ignored_paths():
+    g = _reqs("GET /legacy/list.do", "GET /poll", "GET /poll")
+    assert compare(g, _reqs("GET /api/list", "GET /api/list", "GET /poll"), CompareOptions(request_ignore=[r"^/poll$"])) == []  # API 가 바뀐 주소는 한쪽만 부른 것
+    assert compare({k: v for k, v in g.items() if k != "requests"}, _reqs("GET /poll"), CompareOptions()) == []  # 요청을 기록하지 않은 옛 골든
+    assert observation(index=0, kind="goto", text="/", url="http://x/", title="", snapshot="", dialogs=[], opts=CompareOptions()).get("requests") is None
+
+
+def test_request_counts_follow_the_address_map():
+    g = _reqs("GET /sys/UserList/show.do", "GET /sys/UserList/show.do")
+    a = _reqs("GET /api/v1/sys/UserList/show")
+    nm = {"/sys/{screen}/show.do": "/api/v1/sys/{screen}/show"}
+    assert compare(g, a, CompareOptions(), name_map=nm) == ["requests: GET /api/v1/sys/UserList/show ×2 → ×1"]
+    assert compare(g, a, CompareOptions()) == []  # 매핑이 없으면 다른 주소라 보지 않는다

@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from eastshift.observe import CompareOptions, observation
-from eastshift.pwtest import oracle, report
-from eastshift.pwtest.identity import canonical_ids
-from eastshift.pwtest.ui import UI
-from eastshift.pwtest.evidence import source_hash
-from eastshift.runner import Runner
+from east2west.observe import CompareOptions, observation
+from east2west.pwtest import oracle, report
+from east2west.pwtest.identity import canonical_ids
+from east2west.pwtest.ui import UI
+from east2west.pwtest.evidence import source_hash
+from east2west.runner import Runner
 
 
 def _ui(snapshot: str, *, url: str = "http://tobe.test/orders") -> UI:
@@ -88,7 +88,7 @@ def test_api_response_difference_is_reported():
                          snapshot='- heading "주문"', dialogs=[], opts=CompareOptions(),
                          api=[{"path": "/api/orders", "method": "POST", "status": 200, "body": '{"total": 100}'}])
     after = {**before, "api": [{"path": "/api/orders", "method": "POST", "status": 200, "body": '{"total": 101}'}]}
-    from eastshift.observe import compare
+    from east2west.observe import compare
     assert any("api responses" in x for x in compare(before, after, CompareOptions()))
 
 
@@ -98,7 +98,7 @@ def test_collision_ids_and_junit_cases_remain_distinct(tmp_path):
     assert len(set(ids.values())) == 2
     junit = tmp_path / "junit.xml"
     junit.write_text("<testsuite>" + "".join(
-        f'<testcase name="test_save"><properties><property name="eastshift_id" value="{ident}"/></properties></testcase>'
+        f'<testcase name="test_save"><properties><property name="east2west_id" value="{ident}"/></properties></testcase>'
         for ident in ids.values()) + "</testsuite>")
     assert {x["name"] for x in report._junit(junit)["cases"]} == set(ids.values())
 
@@ -131,7 +131,7 @@ def test_report_separates_evidence_equivalence_and_coverage(tmp_path):
     report.write(oracle_dir=golden, junits=[junit], mutations=[mutation], out=out)
     assert "증거 유효성: 유효" in out.read_text()
     assert "실행한 시나리오 동등성: 차이 또는 실패 있음" in out.read_text()
-    assert not out.with_suffix(".html").exists()  # 화면은 eastshift ui 가 만든다. 파일은 markdown 하나뿐
+    assert not out.with_suffix(".html").exists()  # 화면은 east2west ui 가 만든다. 파일은 markdown 하나뿐
     assert "주문 저장" in report.render_html(golden, result)
     stale = json.loads(mutation.read_text())
     stale["source_sha256"] = "older-code"

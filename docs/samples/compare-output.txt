@@ -32,7 +32,7 @@ step 3 button "저장": differs from golden
 =================================== FAILURES ===================================
 _______________________________ test_order_save ________________________________
 
-ui = <eastshift.pwtest.ui.UI object at 0x10adf9b80>
+ui = <east2west.pwtest.ui.UI object at 0x10adf9b80>
 
     def test_order_save(ui):
         """볼펜 1개 계산 후 저장 (부가세 10원 절사 동작 보존)"""
@@ -45,11 +45,11 @@ ui = <eastshift.pwtest.ui.UI object at 0x10adf9b80>
 
 e2e/legacy/test_orders.py:16: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-eastshift/pwtest/ui.py:232: in expect_field
+east2west/pwtest/ui.py:232: in expect_field
     self._poll(lambda: (lambda v: (v == value, v))(current()), f'field "{name}" == {value!r}')
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <eastshift.pwtest.ui.UI object at 0x10adf9b80>
+self = <east2west.pwtest.ui.UI object at 0x10adf9b80>
 check = <function UI.expect_field.<locals>.<lambda> at 0x10b0668e0>
 what = 'field "부가세" == \'120\''
 
@@ -64,10 +64,10 @@ what = 'field "부가세" == \'120\''
 >       raise AssertionError(f"{what}: got {last!r}")
 E       AssertionError: field "부가세" == '120': got '124'
 
-eastshift/pwtest/ui.py:193: AssertionError
+east2west/pwtest/ui.py:193: AssertionError
 ___________________________ test_qty_required_alert ____________________________
 
-ui = <eastshift.pwtest.ui.UI object at 0x10ad6d010>
+ui = <east2west.pwtest.ui.UI object at 0x10ad6d010>
 
     def test_qty_required_alert(ui):
         """수량 없이 저장하면 alert, 저장 안 됨"""
@@ -79,7 +79,7 @@ ui = <eastshift.pwtest.ui.UI object at 0x10ad6d010>
 e2e/legacy/test_orders.py:29: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <eastshift.pwtest.ui.UI object at 0x10ad6d010>, message = '수량을 입력하세요.'
+self = <east2west.pwtest.ui.UI object at 0x10ad6d010>, message = '수량을 입력하세요.'
 
     def expect_dialog(self, message: str) -> None:
         """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다). 평범한 assert는 -O에서 사라지므로 쓰지 않는다."""
@@ -89,10 +89,10 @@ self = <eastshift.pwtest.ui.UI object at 0x10ad6d010>, message = '수량을 입�
 >           raise AssertionError(f"last dialog {last!r} != {message!r}")
 E           AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '수량을 입력하세요.'
 
-eastshift/pwtest/ui.py:244: AssertionError
+east2west/pwtest/ui.py:244: AssertionError
 _____________________________ test_qty_zero_saved ______________________________
 
-ui = <eastshift.pwtest.ui.UI object at 0x10b125820>
+ui = <east2west.pwtest.ui.UI object at 0x10b125820>
 
     def test_qty_zero_saved(ui):
         """수량 0은 막지 않고 합계 0원으로 저장된다 (as-is 버그 보존)"""
@@ -104,7 +104,7 @@ ui = <eastshift.pwtest.ui.UI object at 0x10b125820>
 e2e/legacy/test_orders.py:50: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <eastshift.pwtest.ui.UI object at 0x10b125820>, message = '저장하시겠습니까?'
+self = <east2west.pwtest.ui.UI object at 0x10b125820>, message = '저장하시겠습니까?'
 
     def expect_dialog(self, message: str) -> None:
         """가장 최근 alert/confirm/prompt 문구와 정확히 같아야 한다 (부분 일치는 문구 변경을 놓친다). 평범한 assert는 -O에서 사라지므로 쓰지 않는다."""
@@ -114,9 +114,9 @@ self = <eastshift.pwtest.ui.UI object at 0x10b125820>, message = '저장하시�
 >           raise AssertionError(f"last dialog {last!r} != {message!r}")
 E           AssertionError: last dialog '수량은 1 이상이어야 합니다.' != '저장하시겠습니까?'
 
-eastshift/pwtest/ui.py:244: AssertionError
+east2west/pwtest/ui.py:244: AssertionError
 
-실행 원장: runs/legacy/20260925-182127.json  (eastshift status golden/legacy)
+실행 원장: runs/legacy/20260925-182127.json  (east2west status golden/legacy)
 =========================== short test summary info ============================
 FAILED e2e/legacy/test_orders.py::test_order_save - AssertionError: field "부...
 FAILED e2e/legacy/test_orders.py::test_qty_required_alert - AssertionError: l...

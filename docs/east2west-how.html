@@ -1,0 +1,348 @@
+<title>East2West 작동 원리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#F2F4F1; --card:#FFFFFF; --ink:#172326; --muted:#58666A; --faint:#8C989B; --line:#D8DFDC;
+  --teal:#0E6B61; --teal-soft:#DDEEEA; --red:#B3261E; --red-soft:#FBE4E1; --amber:#A85807; --amber-soft:#FBEBD5;
+  --blue:#2F5FB3; --blue-soft:#E1E9F7; --grey:#8C989B; --grey-soft:#ECEFEE; --jev:#6B3FA0; --jev-soft:#EEE6F7;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#12191B; --card:#1A2427; --ink:#E6ECEA; --muted:#A3B0AE; --faint:#6F7D7C; --line:#2C3A3D;
+  --teal:#4FB8A8; --teal-soft:#153633; --red:#E8746B; --red-soft:#3A1E1C; --amber:#E0A04F; --amber-soft:#3A2A14;
+  --blue:#7FA6EA; --blue-soft:#1B2A45; --grey:#7D8A8C; --grey-soft:#253033; --jev:#B894E6; --jev-soft:#2B2140; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12191B; --card:#1A2427; --ink:#E6ECEA; --muted:#A3B0AE; --faint:#6F7D7C; --line:#2C3A3D;
+  --teal:#4FB8A8; --teal-soft:#153633; --red:#E8746B; --red-soft:#3A1E1C; --amber:#E0A04F; --amber-soft:#3A2A14;
+  --blue:#7FA6EA; --blue-soft:#1B2A45; --grey:#7D8A8C; --grey-soft:#253033; --jev:#B894E6; --jev-soft:#2B2140; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.7 var(--sans);-webkit-font-smoothing:antialiased;padding-inline:clamp(16px,4vw,40px);padding-block:40px 80px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(30px,5vw,46px);font-weight:700;line-height:1.15}
+h2{font-size:clamp(22px,3vw,28px);font-weight:700}
+h3{font-size:18px;font-weight:700}
+p{margin:0}
+code,.mono{font-family:var(--mono);font-size:.88em}
+.eyebrow{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.lede{font-size:18px;color:var(--muted);max-width:60ch}
+header.top{display:flex;flex-direction:column;gap:14px}
+svg text{font-family:var(--sans)}
+.figure{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;overflow-x:auto}
+.figure svg{display:block;min-width:720px;width:100%;height:auto}
+.caption{font-size:13.5px;color:var(--muted);margin-top:10px}
+section.feat{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:start}
+section.feat .pic{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+section.feat .pic svg{display:block;width:100%;height:auto}
+.num{font:600 13px var(--mono);color:var(--faint)}
+.say{font-size:19px;font-weight:600;line-height:1.5;margin-top:6px}
+.real{margin-top:14px;display:flex;flex-direction:column;gap:10px;font-size:15px;color:var(--ink)}
+.real ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.tag{display:inline-flex;align-items:center;gap:6px;font:600 12px var(--sans);border-radius:999px;padding:3px 10px;margin-top:10px}
+.tag.det{background:var(--teal-soft);color:var(--teal)}
+.tag.jev{background:var(--jev-soft);color:var(--jev)}
+.tag.human{background:var(--amber-soft);color:var(--amber)}
+.jevbox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,3vw,30px);display:flex;flex-direction:column;gap:22px}
+.jevgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.use{border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--paper)}
+.use h3{font-size:16px}
+.use .q{font:13px/1.55 var(--mono);background:var(--jev-soft);color:var(--ink);border-radius:8px;padding:10px 12px}
+.use .gate{font-size:13.5px;color:var(--muted);margin:8px 0 0}
+.use .gate b{color:var(--ink)}
+.use.no{background:transparent;border-style:dashed}
+.table{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:560px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td b{font-weight:600}
+.yes{color:var(--jev);font-weight:600}.nope{color:var(--teal);font-weight:600}
+.close{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+@media (max-width:760px){section.feat{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">East2West · 전환 검증</div>
+  <h1>새 시스템이 기존 시스템과<br>똑같이 동작하는지 확인하는 도구</h1>
+  <p class="lede">새 시스템이 기존 시스템과 버그까지 똑같이 동작하는지 확인합니다. 비교와 승인은 기계가 정해진 규칙대로 하고, as-is의 이상한 동작을 어떻게 할지는 사람이 정합니다. Jev는 세 곳에서만 씁니다.</p>
+</header>
+
+<!-- 흐름 -->
+<div>
+  <div class="figure" role="img" aria-label="탐색, 기록, 승인, 결함 주입, 비교, 판정으로 이어지는 여섯 단계 흐름">
+    <svg viewBox="0 0 1000 210" fill="none">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--faint)"/></marker></defs>
+      <g font-size="13">
+        <!-- boxes -->
+        <g><rect x="10" y="40" width="140" height="92" rx="12" fill="var(--teal-soft)"/><text x="80" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)" font-size="16">① 탐색</text><text x="80" y="96" text-anchor="middle" fill="var(--muted)">기존 시스템의</text><text x="80" y="114" text-anchor="middle" fill="var(--muted)">화면을 모두 훑는다</text></g>
+        <g><rect x="176" y="40" width="140" height="92" rx="12" fill="var(--teal-soft)"/><text x="246" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)" font-size="16">② 기록</text><text x="246" y="96" text-anchor="middle" fill="var(--muted)">실제 동작을</text><text x="246" y="114" text-anchor="middle" fill="var(--muted)">기준으로 저장</text></g>
+        <g><rect x="342" y="40" width="140" height="92" rx="12" fill="var(--teal-soft)"/><text x="412" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)" font-size="16">③ 승인</text><text x="412" y="96" text-anchor="middle" fill="var(--muted)">바뀐 기준에</text><text x="412" y="114" text-anchor="middle" fill="var(--muted)">자동으로 도장</text></g>
+        <g><rect x="508" y="40" width="140" height="92" rx="12" fill="var(--teal-soft)"/><text x="578" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)" font-size="16">④ 결함 주입</text><text x="578" y="96" text-anchor="middle" fill="var(--muted)">테스트가 결함을</text><text x="578" y="114" text-anchor="middle" fill="var(--muted)">잡는지 측정</text></g>
+        <g><rect x="674" y="40" width="140" height="92" rx="12" fill="var(--teal-soft)"/><text x="744" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)" font-size="16">⑤ 비교</text><text x="744" y="96" text-anchor="middle" fill="var(--muted)">새 시스템을</text><text x="744" y="114" text-anchor="middle" fill="var(--muted)">같은 기준으로 비교</text></g>
+        <g><rect x="840" y="40" width="150" height="92" rx="12" fill="var(--teal-soft)"/><text x="915" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)" font-size="16">⑥ 판정</text><text x="915" y="96" text-anchor="middle" fill="var(--muted)">신뢰 여부와</text><text x="915" y="114" text-anchor="middle" fill="var(--muted)">차이를 정리</text></g>
+        <path d="M150 86 H172" stroke="var(--faint)" stroke-width="2" marker-end="url(#ar)"/><path d="M316 86 H338" stroke="var(--faint)" stroke-width="2" marker-end="url(#ar)"/><path d="M482 86 H504" stroke="var(--faint)" stroke-width="2" marker-end="url(#ar)"/><path d="M648 86 H670" stroke="var(--faint)" stroke-width="2" marker-end="url(#ar)"/><path d="M814 86 H836" stroke="var(--faint)" stroke-width="2" marker-end="url(#ar)"/>
+        <!-- loop back -->
+        <path d="M915 132 V172 H744 V136" stroke="var(--faint)" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#ar)"/>
+        <text x="830" y="194" text-anchor="middle" fill="var(--muted)" font-size="12.5">새 시스템을 수정하고 다시 비교 (실행 기록은 원장에 쌓인다)</text>
+        <!-- legend -->
+        <rect x="10" y="10" width="12" height="12" rx="3" fill="var(--teal-soft)"/><text x="28" y="20" fill="var(--muted)" font-size="12">기계가 정해진 규칙대로</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<h2>핵심 기능 다섯 가지</h2>
+
+<!-- 1 Screen Map -->
+<section class="feat">
+  <div class="pic" role="img" aria-label="화면 카드들이 선으로 이어진 지도. 초록은 같음, 빨강은 다름, 노랑은 새 앱에 없음, 파랑은 새 앱에만 있음, 회색은 코드에만 있음">
+    <svg viewBox="0 0 420 260" fill="none">
+      <g font-size="12" font-weight="600">
+        <path d="M110 70 C150 70 150 70 180 70" stroke="var(--teal)" stroke-width="2"/><path d="M110 70 C150 70 150 170 180 170" stroke="var(--teal)" stroke-width="2"/>
+        <path d="M280 70 C310 70 310 70 330 70" stroke="var(--teal)" stroke-width="2"/><path d="M280 170 C310 170 310 170 330 170" stroke="var(--teal)" stroke-width="2"/>
+        <rect x="10" y="40" width="100" height="62" rx="8" fill="var(--card)" stroke="var(--teal)" stroke-width="2"/><rect x="10" y="40" width="100" height="6" rx="3" fill="var(--teal)"/><text x="60" y="80" text-anchor="middle" fill="var(--ink)">포털 홈</text>
+        <rect x="180" y="40" width="100" height="62" rx="8" fill="var(--card)" stroke="var(--red)" stroke-width="2"/><rect x="180" y="40" width="100" height="6" rx="3" fill="var(--red)"/><text x="230" y="80" text-anchor="middle" fill="var(--ink)">주문 목록</text>
+        <rect x="180" y="140" width="100" height="62" rx="8" fill="var(--card)" stroke="var(--amber)" stroke-width="2"/><rect x="180" y="140" width="100" height="6" rx="3" fill="var(--amber)"/><text x="230" y="180" text-anchor="middle" fill="var(--ink)">공지사항</text>
+        <rect x="330" y="40" width="80" height="62" rx="8" fill="var(--card)" stroke="var(--teal)" stroke-width="2"/><rect x="330" y="40" width="80" height="6" rx="3" fill="var(--teal)"/><text x="370" y="80" text-anchor="middle" fill="var(--ink)">주문 상세</text>
+        <rect x="330" y="140" width="80" height="62" rx="8" fill="var(--card)" stroke="var(--blue)" stroke-width="2"/><rect x="330" y="140" width="80" height="6" rx="3" fill="var(--blue)"/><text x="370" y="180" text-anchor="middle" fill="var(--ink)">보고서</text>
+        <rect x="10" y="150" width="100" height="52" rx="8" fill="var(--grey-soft)" stroke="var(--grey)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="60" y="182" text-anchor="middle" fill="var(--muted)">/reports</text>
+      </g>
+      <g font-size="11.5" fill="var(--muted)">
+        <circle cx="16" cy="236" r="5" fill="var(--teal)"/><text x="26" y="240">같음</text>
+        <circle cx="76" cy="236" r="5" fill="var(--red)"/><text x="86" y="240">다름</text>
+        <circle cx="136" cy="236" r="5" fill="var(--amber)"/><text x="146" y="240">새 앱에 없음</text>
+        <circle cx="236" cy="236" r="5" fill="var(--blue)"/><text x="246" y="240">새 앱에만</text>
+        <circle cx="318" cy="236" r="5" fill="var(--grey)"/><text x="328" y="240">코드에만</text>
+      </g>
+    </svg>
+  </div>
+  <div>
+    <div class="num">1 · Screen Map</div>
+    <p class="say">전체 화면을 지도로 펼치고, 달라진 곳을 색으로 표시합니다.</p>
+    <div class="real">
+      <ul>
+        <li>화면은 카드, 이동 경로는 선입니다.</li>
+        <li>빨강은 비교 실패, 노랑·파랑은 한쪽에만 있는 화면, 회색은 코드에만 있는 화면입니다.</li>
+      </ul>
+    </div>
+    <span class="tag det">규칙 기반</span>
+  </div>
+</section>
+
+<!-- 2 기준 기록 + 승인 -->
+<section class="feat">
+  <div class="pic" role="img" aria-label="기존 시스템의 화면 기록이 기준 파일이 되고, 기록이 끝나면 파일 해시에 자동으로 승인 도장이 찍힌다. 기준이 바뀌면 다음 기록·비교가 다시 찍고 실행마다 어느 승인본이었는지 남긴다">
+    <svg viewBox="0 0 420 250" fill="none">
+      <g font-size="12.5">
+        <rect x="14" y="30" width="116" height="150" rx="10" fill="var(--card)" stroke="var(--line)"/>
+        <text x="72" y="54" text-anchor="middle" font-weight="700" fill="var(--ink)">기존 시스템</text>
+        <rect x="28" y="66" width="88" height="10" rx="3" fill="var(--grey-soft)"/><rect x="28" y="84" width="60" height="10" rx="3" fill="var(--grey-soft)"/>
+        <text x="30" y="118" fill="var(--red)" font-weight="600">부가세 360원</text><text x="30" y="136" fill="var(--faint)" font-size="11">(10원 절사 버그)</text>
+        <path d="M130 105 H168" stroke="var(--faint)" stroke-width="2"/><path d="M162 99 L170 105 L162 111" stroke="var(--faint)" stroke-width="2"/>
+        <rect x="174" y="30" width="112" height="150" rx="10" fill="var(--card)" stroke="var(--line)"/>
+        <text x="230" y="54" text-anchor="middle" font-weight="700" fill="var(--ink)">기준 기록</text>
+        <text x="186" y="80" fill="var(--muted)" font-family="var(--mono)" font-size="11">step 3</text><text x="186" y="98" fill="var(--ink)" font-family="var(--mono)" font-size="11">부가세 360원</text>
+        <text x="186" y="124" fill="var(--muted)" font-family="var(--mono)" font-size="11">shots/03.jpg</text><text x="186" y="150" fill="var(--muted)" font-family="var(--mono)" font-size="11">oracle.json</text>
+        <g transform="rotate(-10 350 105)"><circle cx="350" cy="105" r="48" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="3"/><text x="350" y="100" text-anchor="middle" font-weight="700" fill="var(--teal)" font-size="16">자동 승인</text><text x="350" y="120" text-anchor="middle" fill="var(--teal)" font-family="var(--mono)" font-size="10">sha256…3fa9</text></g>
+        <text x="14" y="218" fill="var(--muted)">기준이 바뀌면 다음 기록·비교가 다시 찍고</text><text x="14" y="238" fill="var(--teal)" font-weight="700">→ 실행마다 어느 승인본이었는지 남김</text>
+      </g>
+    </svg>
+  </div>
+  <div>
+    <div class="num">2 · 기준 기록과 승인</div>
+    <p class="say">기존 시스템의 실제 동작이 곧 기대값입니다.</p>
+    <div class="real">
+      <ul>
+        <li>테스트가 기존 시스템의 화면을 단계마다 기록합니다.</li>
+        <li>기록이 끝나면 파일 해시에 승인 도장(승인자 '자동 승인')이 찍히고, 원장은 실행마다 어느 승인본으로 돌렸는지 남깁니다.</li>
+        <li>골든을 손으로 고치거나 도장을 손으로 찍는 것은 hook이 막습니다.</li>
+      </ul>
+    </div>
+    <span class="tag det">규칙 기반</span> <span class="tag human">손 수정 차단</span>
+  </div>
+</section>
+
+<!-- 3 믿을 수 있는가 -->
+<section class="feat">
+  <div class="pic" role="img" aria-label="확인 항목 목록. 두 항목이 빨갛고 옆에 바로 해결 버튼이 있다">
+    <svg viewBox="0 0 420 230" fill="none">
+      <g font-size="12.5">
+        <rect x="10" y="10" width="400" height="210" rx="12" fill="var(--card)" stroke="var(--line)"/>
+        <text x="28" y="40" font-weight="700" fill="var(--ink)" font-size="14">믿을 수 있는가</text>
+        <rect x="20" y="54" width="380" height="32" rx="7" fill="var(--red-soft)"/><circle cx="36" cy="70" r="5" fill="var(--red)"/><text x="50" y="74" fill="var(--ink)">비교 때 코드가 지금과 같음</text><rect x="296" y="60" width="96" height="20" rx="10" fill="none" stroke="var(--teal)"/><text x="344" y="74" text-anchor="middle" fill="var(--teal)" font-size="11" font-weight="600">비교 다시 실행</text>
+        <rect x="20" y="90" width="380" height="32" rx="7" fill="var(--red-soft)"/><circle cx="36" cy="106" r="5" fill="var(--red)"/><text x="50" y="110" fill="var(--ink)">결함 탐지 측정</text><rect x="296" y="96" width="96" height="20" rx="10" fill="none" stroke="var(--teal)"/><text x="344" y="110" text-anchor="middle" fill="var(--teal)" font-size="11" font-weight="600">측정 실행</text>
+        <circle cx="36" cy="142" r="5" fill="var(--teal)"/><text x="50" y="146" fill="var(--ink)">기준이 승인됨</text>
+        <circle cx="36" cy="170" r="5" fill="var(--teal)"/><text x="50" y="174" fill="var(--ink)">기록된 테스트를 빠짐없이 실행</text>
+        <circle cx="36" cy="198" r="5" fill="var(--teal)"/><text x="50" y="202" fill="var(--ink)">기대값을 임의로 바꾸지 않음</text>
+      </g>
+    </svg>
+  </div>
+  <div>
+    <div class="num">3 · 신뢰 확인과 바로 해결</div>
+    <p class="say">결과를 믿어도 되는지부터 확인합니다.</p>
+    <div class="real">
+      <ul>
+        <li>기준 승인, 코드 변경, 누락 테스트를 먼저 확인하고 하나라도 걸리면 "보류"입니다.</li>
+        <li>다시 실행하면 풀리는 항목은 버튼 하나로 해결됩니다.</li>
+      </ul>
+    </div>
+    <span class="tag det">규칙 기반</span>
+  </div>
+</section>
+
+<!-- 4 빠짐없이 -->
+<section class="feat">
+  <div class="pic" role="img" aria-label="세 개의 원이 겹친다. 소스 코드의 화면, 탐색이 닿은 화면, 시나리오가 지나간 화면. 겹치지 않는 곳이 놓친 화면이다. 아래에 결함 주입 탐지율 97퍼센트">
+    <svg viewBox="0 0 420 250" fill="none">
+      <g font-size="12.5">
+        <circle cx="150" cy="100" r="78" fill="var(--grey-soft)" stroke="var(--grey)" stroke-width="1.5"/>
+        <circle cx="240" cy="100" r="78" fill="var(--teal-soft)" fill-opacity=".75" stroke="var(--teal)" stroke-width="1.5"/>
+        <circle cx="195" cy="150" r="60" fill="var(--blue-soft)" fill-opacity=".7" stroke="var(--blue)" stroke-width="1.5"/>
+        <text x="96" y="70" fill="var(--ink)" font-weight="600">소스 코드</text><text x="96" y="88" fill="var(--muted)" font-size="11.5">routes.py</text>
+        <text x="266" y="70" fill="var(--ink)" font-weight="600">탐색</text><text x="266" y="88" fill="var(--muted)" font-size="11.5">crawl.py</text>
+        <text x="195" y="188" text-anchor="middle" fill="var(--ink)" font-weight="600">시나리오</text>
+        <text x="100" y="128" fill="var(--grey)" font-weight="700">회색</text>
+        <text x="10" y="236" fill="var(--muted)">결함 148개를 하나씩 넣어</text>
+        <rect x="186" y="224" width="170" height="14" rx="7" fill="var(--grey-soft)"/><rect x="186" y="224" width="165" height="14" rx="7" fill="var(--teal)"/>
+        <text x="366" y="236" fill="var(--ink)" font-weight="700" font-family="var(--mono)">97%</text>
+      </g>
+    </svg>
+  </div>
+  <div>
+    <div class="num">4 · 빠짐없이 확인했다는 근거</div>
+    <p class="say">놓친 화면과 못 잡는 결함을 드러냅니다.</p>
+    <div class="real">
+      <ul>
+        <li>탐색으로 실제 도달한 화면을, 소스 라우트로 있어야 할 화면을 모읍니다.</li>
+        <li>결함을 일부러 넣어 테스트가 잡는지 측정합니다. 결함마다 먼저 잡은 테스트에서 멈추므로 "잡은 결함 0건"인 테스트가 약한 테스트라는 뜻은 아닙니다. 약한 테스트는 생존 결함으로 드러납니다.</li>
+      </ul>
+    </div>
+    <span class="tag det">규칙 기반</span> <span class="tag jev">Jev · 목록 표본 선택</span>
+  </div>
+</section>
+
+<!-- 5 다른 점 -->
+<section class="feat">
+  <div class="pic" role="img" aria-label="무엇이, as-is, to-be 세 칸 표. 부가세 360원이 368원으로, 합계 4035원이 4043원으로 바뀌었다">
+    <svg viewBox="0 0 420 200" fill="none">
+      <g font-size="13">
+        <rect x="10" y="10" width="400" height="180" rx="12" fill="var(--card)" stroke="var(--line)"/>
+        <text x="28" y="42" fill="var(--muted)" font-size="11.5" font-weight="600">무엇이</text><text x="170" y="42" fill="var(--muted)" font-size="11.5" font-weight="600">as-is 기준</text><text x="300" y="42" fill="var(--muted)" font-size="11.5" font-weight="600">to-be</text>
+        <path d="M20 54 H400" stroke="var(--line)"/>
+        <text x="28" y="82" fill="var(--ink)">부가세</text><text x="170" y="82" fill="var(--muted)" font-family="var(--mono)">360원</text><text x="300" y="82" fill="var(--red)" font-weight="700" font-family="var(--mono)">368원</text>
+        <path d="M20 96 H400" stroke="var(--line)"/>
+        <text x="28" y="124" fill="var(--ink)">합계</text><text x="170" y="124" fill="var(--muted)" font-family="var(--mono)">4,035원</text><text x="300" y="124" fill="var(--red)" font-weight="700" font-family="var(--mono)">4,043원</text>
+        <rect x="28" y="146" width="130" height="28" rx="6" fill="var(--grey-soft)"/><text x="93" y="165" text-anchor="middle" fill="var(--muted)" font-size="11.5">실패 순간 화면 ▸</text>
+      </g>
+    </svg>
+  </div>
+  <div>
+    <div class="num">5 · 차이를 읽기 쉽게</div>
+    <p class="say">diff 로그 대신 "무엇이 · 기존 · 새 값" 표와 캡처로 보여 줍니다.</p>
+    <div class="real">
+      <ul>
+        <li>레이아웃이 바뀌어도 내용이 같으면 같다고 봅니다.</li>
+        <li>주문번호·날짜처럼 매번 바뀌는 값은 가립니다.</li>
+      </ul>
+    </div>
+    <span class="tag det">규칙 기반</span>
+  </div>
+</section>
+
+<!-- Jev -->
+<section class="jevbox" aria-labelledby="scaleh">
+  <div class="eyebrow">큰 시스템에서는</div>
+  <h2 id="scaleh">화면이 수천 개여도 같은 방식으로 돕니다</h2>
+  <div class="real">
+    <ul>
+      <li><b>모듈 단위로 나눕니다.</b> 앱 하나를 모듈마다 프로젝트로 등록하면(같은 주소, 다른 시나리오 묶음) 지도·비교·결함 주입이 모듈 단위로 돕니다.</li>
+      <li><b>오래 걸리는 일은 나눠서, 끊겨도 이어서.</b> 비교와 스모크는 브라우저 여러 개로 나눠 돌리고 결과는 실행 한 건으로 남습니다. 결함 주입은 결함마다 먼저 잡은 테스트에서 멈추고, 중간에 끊기면 남은 결함만 다시 돕니다.</li>
+      <li><b>화면은 목록만 먼저.</b> 시나리오 탭은 시나리오 수천 개여도 목록만 싣고, 고른 시나리오의 단계·캡처만 그때 받습니다.</li>
+    </ul>
+  </div>
+  <div><span class="tag det">규칙 기반</span></div>
+</section>
+
+<section class="jevbox" aria-labelledby="jevh">
+  <div class="eyebrow" style="color:var(--jev)">Jev는 어디에 쓰였나</div>
+  <h2 id="jevh">Jev는 객관식 문제만 푸는 작은 모델입니다</h2>
+  <div class="figure" style="background:var(--paper)" role="img" aria-label="질문과 후보 목록이 Jev에 들어가고, 후보별 확률이 나온다. 1등과 2등의 확률 차이가 기준보다 크면 행동하고, 작으면 멈추거나 사람에게 넘긴다">
+    <svg viewBox="0 0 1000 220" fill="none">
+      <defs><marker id="arj" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--faint)"/></marker></defs>
+      <g font-size="13">
+        <rect x="10" y="30" width="250" height="160" rx="12" fill="var(--card)" stroke="var(--line)"/>
+        <text x="28" y="58" font-weight="700" fill="var(--ink)">질문 + 후보</text>
+        <text x="28" y="84" fill="var(--muted)" font-size="12">"예약하기 버튼 누르기"</text>
+        <text x="28" y="110" fill="var(--ink)" font-family="var(--mono)" font-size="12">c0 button "예약하기"</text>
+        <text x="28" y="130" fill="var(--ink)" font-family="var(--mono)" font-size="12">c1 link "예약 조회"</text>
+        <text x="28" y="150" fill="var(--ink)" font-family="var(--mono)" font-size="12">c2 button "취소"</text>
+        <text x="28" y="170" fill="var(--faint)" font-family="var(--mono)" font-size="12">abstain (해당 없음)</text>
+        <path d="M262 110 H330" stroke="var(--faint)" stroke-width="2" marker-end="url(#arj)"/>
+        <rect x="336" y="66" width="150" height="88" rx="44" fill="var(--jev-soft)" stroke="var(--jev)" stroke-width="2"/>
+        <text x="411" y="104" text-anchor="middle" font-weight="700" fill="var(--jev)" font-size="18">Jev</text>
+        <text x="411" y="126" text-anchor="middle" fill="var(--jev)" font-size="11.5">문장을 생성하지 않음</text>
+        <path d="M488 110 H556" stroke="var(--faint)" stroke-width="2" marker-end="url(#arj)"/>
+        <rect x="562" y="30" width="200" height="160" rx="12" fill="var(--card)" stroke="var(--line)"/>
+        <text x="580" y="58" font-weight="700" fill="var(--ink)">후보별 확률</text>
+        <text x="580" y="90" fill="var(--ink)" font-family="var(--mono)" font-size="12">c0</text><rect x="610" y="80" width="126" height="12" rx="6" fill="var(--jev)"/><text x="742" y="90" fill="var(--muted)" font-family="var(--mono)" font-size="11">.91</text>
+        <text x="580" y="116" fill="var(--ink)" font-family="var(--mono)" font-size="12">c1</text><rect x="610" y="106" width="8" height="12" rx="6" fill="var(--jev)" fill-opacity=".45"/><text x="624" y="116" fill="var(--muted)" font-family="var(--mono)" font-size="11">.06</text>
+        <text x="580" y="142" fill="var(--ink)" font-family="var(--mono)" font-size="12">c2</text><rect x="610" y="132" width="4" height="12" rx="6" fill="var(--jev)" fill-opacity=".3"/><text x="620" y="142" fill="var(--muted)" font-family="var(--mono)" font-size="11">.03</text>
+        <text x="580" y="174" fill="var(--jev)" font-size="12" font-weight="600">margin = .91 − .06 = .85</text>
+        <path d="M764 90 H830" stroke="var(--faint)" stroke-width="2" marker-end="url(#arj)"/>
+        <path d="M764 140 H830" stroke="var(--faint)" stroke-width="2" marker-end="url(#arj)"/>
+        <rect x="836" y="62" width="154" height="46" rx="10" fill="var(--teal-soft)"/><text x="913" y="82" text-anchor="middle" font-weight="700" fill="var(--teal)">margin ≥ 기준</text><text x="913" y="99" text-anchor="middle" fill="var(--teal)" font-size="12">실행하고 캐시에 저장</text>
+        <rect x="836" y="118" width="154" height="46" rx="10" fill="var(--amber-soft)"/><text x="913" y="138" text-anchor="middle" font-weight="700" fill="var(--amber)">margin &lt; 기준</text><text x="913" y="155" text-anchor="middle" fill="var(--amber)" font-size="12">중단 · 규칙 대체 · 사람 검토</text>
+      </g>
+    </svg>
+  </div>
+  <p style="max-width:68ch">ChatGPT 같은 모델은 글을 씁니다. Jev는 글을 쓰지 않습니다. 우리가 문제와 보기(후보)를 주면 <b>보기 중 하나를 고르고, 각 보기에 얼마나 자신 있는지 점수</b>를 붙여 돌려줍니다. 보기에는 늘 "해당 없음"이 있어서 억지로 고르지 않아도 됩니다.</p>
+  <p style="max-width:68ch">위 그림에서는 "예약하기 버튼 누르기"라는 문제에 보기 셋을 줬고, Jev가 <code>c0 button "예약하기"</code>에 .91, 나머지에 .06과 .03을 매겼습니다. 1등과 2등의 점수 차이(margin)가 .85로 크니 확신이 있다고 보고 실행합니다. 이 차이가 기준보다 작으면 "찍은 것"으로 보고 실행하지 않습니다. 멈추거나, 규칙으로 대신하거나, 사람에게 넘깁니다.</p>
+
+  <div class="jevgrid">
+    <div class="use">
+      <h3>① YAML 러너의 <code>do:</code> 단계</h3>
+      <p>시나리오에 "예약하기 버튼 누르기"라고 적으면, 화면에 있는 버튼·링크 목록을 보기로 주고 어느 것을 누를지 고르게 합니다.</p>
+      <p class="gate"><b>왜 Jev인가.</b> 화면에 실제로 있는 것 중에서만 고르니 없는 버튼을 지어내지 못합니다. 한 번 고른 답은 기억해 두어, 다음부터는 Jev 없이 그 버튼을 바로 누릅니다.</p>
+    </div>
+    <div class="use">
+      <h3>② 탐색의 목록 표본</h3>
+      <p>주문 목록이 300행이면 300개를 다 누르지 않습니다. "상태"처럼 상세 화면이 갈라지는 열을 골라, 그 열의 값마다 한 행씩만 누릅니다. Jev에게는 "이 열은 상태·유형·금액·날짜·이름 중 무엇인가"를 고르게 합니다.</p>
+      <p class="gate"><b>왜 Jev인가.</b> 열 이름이 "구분", "Flag", "STS"처럼 제각각이라 이름 규칙만으로는 놓칩니다. 자신 없으면 규칙으로 고른 값을 쓰고 검토 표시를 남깁니다.</p>
+    </div>
+    <div class="use">
+      <h3>③ 실패 원인 분류 (triage)</h3>
+      <p>스모크에서 실패한 단계마다 "화면이 바뀜 · 진짜 결함 · 서버 문제 · 타이밍 · 시나리오 오류" 다섯 보기 중 하나를 고르게 합니다.</p>
+      <p class="gate"><b>왜 Jev인가.</b> 답이 다섯 가지 중 하나라 개수를 셀 수 있습니다("서버 문제 40건"). 자신 없는 것만 사람이 봅니다.</p>
+    </div>
+    <div class="use no">
+      <h3>Jev를 쓰지 않는 곳</h3>
+      <p>"같다 / 다르다"를 판정하는 곳에는 모델이 없습니다. 정해진 규칙으로만 비교합니다.</p>
+      <p class="gate">기록, 비교, 승인, 결함 주입, Screen Map은 Jev 없이 돕니다. API 키가 없어도 전환 검증 전체를 돌릴 수 있고, 같은 입력이면 늘 같은 결과가 나옵니다.</p>
+    </div>
+  </div>
+
+  <div class="table">
+    <table>
+      <thead><tr><th>기능</th><th>Jev</th><th>무엇을 고르나</th><th>확신이 없을 때</th></tr></thead>
+      <tbody>
+        <tr><td><b>YAML 러너</b> <code>do:</code></td><td class="yes">사용</td><td>누를 요소 하나</td><td>중단하고 실패 처리 (margin &lt; 0.1)</td></tr>
+        <tr><td><b>탐색 목록 표본</b></td><td class="yes">선택 사항</td><td>열의 종류</td><td>규칙으로 대체하고 검토 표시 (margin &lt; 0.2)</td></tr>
+        <tr><td><b>실패 분류</b></td><td class="yes">선택 사항</td><td>원인 분류 하나</td><td>사람 검토로 넘김</td></tr>
+        <tr><td><b>Playwright 동등성 검증</b></td><td class="nope">사용 안 함</td><td>—</td><td>—</td></tr>
+        <tr><td><b>승인 · 결함 주입 · Screen Map · 판정</b></td><td class="nope">사용 안 함</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:14px;color:var(--muted)"><b>왜 글 쓰는 LLM이 아닌가.</b> 글 쓰는 모델은 자신이 없어도 그럴듯한 답을 씁니다. Jev는 보기마다 점수를 주기 때문에 "자신 없으면 멈춘다"를 숫자(margin)로 걸 수 있습니다. 문제 하나가 약 1,500토큰으로 작아 비용도 낮습니다.</p>
+</section>
+
+<section class="close">
+  <h2>한 줄로</h2>
+  <p>기준은 기존 시스템이, 비교와 승인은 기계가, 이상한 as-is 동작의 결정은 사람이 합니다. Jev는 확신이 있을 때만 씁니다.</p>
+</section>
+
+</div>

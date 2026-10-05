@@ -1,12 +1,12 @@
-# 화면 탐색으로 시나리오 만들기 (`eastshift crawl`, 프로토타입)
+# 화면 탐색으로 시나리오 만들기 (`east2west crawl`, 프로토타입)
 
 시작 화면에서 누를 수 있는 동작을 모두 눌러 보고, 화면 상태 그래프를 만든 뒤, 그 그래프의 모든 전이를 지나는 시나리오 YAML을 만든다.
 Jev도 텍스트 생성 LLM도 부르지 않는다. 시나리오와 함께 재생 캐시를 쓰므로 첫 실행부터 Jev 호출 0으로 재생된다. UI가 바뀌면 그 스텝만 Jev가 다시 골라 캐시를 고친다.
 
 ```bash
-uv run eastshift crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --dry-run   # 누르기 전에 확인
-uv run eastshift crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --depth 4
-uv run eastshift run crawl/demo/crawl_*.yaml --cache-dir crawl/demo/cache --replay-only --base-url http://127.0.0.1:8787
+uv run east2west crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --dry-run   # 누르기 전에 확인
+uv run east2west crawl http://127.0.0.1:8787/login --fixtures examples/crawl/demo_fixtures.yaml --out crawl/demo --depth 4
+uv run east2west run crawl/demo/crawl_*.yaml --cache-dir crawl/demo/cache --replay-only --base-url http://127.0.0.1:8787
 ```
 
 산출물 (`--out`): `graph.md` (mermaid 흐름도, 동작 표, 픽스처가 없는 입력칸), `graph.json`, `screens/n<id>.png`, `crawl_NN.yaml`, `cache/`,
@@ -15,8 +15,8 @@ uv run eastshift run crawl/demo/crawl_*.yaml --cache-dir crawl/demo/cache --repl
 ### 끝까지 탐색 (통합 화면의 기본)
 
 ```bash
-uv run eastshift routes <as-is 소스> --out crawl/<app>/routes.json
-uv run eastshift crawl http://127.0.0.1:8820 --out crawl/<app> --depth 50 --max-states 20000 --max-actions 1000 --route-states 10 --seeds crawl/<app>/routes.json
+uv run east2west routes <as-is 소스> --out crawl/<app>/routes.json
+uv run east2west crawl http://127.0.0.1:8820 --out crawl/<app> --depth 50 --max-states 20000 --max-actions 1000 --route-states 10 --seeds crawl/<app>/routes.json
 ```
 
 "전부"는 두 가지로 나뉜다. **모든 화면(라우트)에 한 번씩**은 목표로 삼을 수 있고, **모든 상태 조합**은 끝이 없다 (한 화면의 필터·입력·팝업 조합이 곱해진다).
@@ -35,8 +35,8 @@ uv run eastshift crawl http://127.0.0.1:8820 --out crawl/<app> --depth 50 --max-
 - 흐름도는 mermaid 한도(선 500개, 글자 5만 자)를 넘으면 주소 단위로 합쳐 그리고, 그래도 넘으면 빼고 통합 화면의 Screen Map(as-is 탐색)을 가리킨다. 동작 표는 늘 전부 있다.
 - 탐색은 상태 하나를 다 누를 때마다 `--out`의 `.crawl-partial.jsonl`에 덧붙인다. 끊긴 뒤 같은 설정(시작 주소, 픽스처, 깊이, 예산 …)으로 다시 돌리면 거기서 이어 가고, 끝나면 지운다. 설정이 다르면 처음부터 한다.
 - 누른 결과는 `cache/clicks.jsonl`(캡처는 `cache/clicks/`)에 기억된다. 상한(`--depth`, `--max-states`, `--max-actions`)을 올리거나 픽스처·deny를 바꿔 다시 탐색하면
-  기억에 있는 동작은 누르지 않고 새로 생긴 동작만 누른다. 결과는 큰 상한으로 한 번에 돌린 것과 같다 (`eastshift/clicks.py`). 그래서 작은 상한으로 먼저 보고 넓혀 가도 된다.
-  기억을 버리는 때: 시작 주소가 등록부(`eastshift.json`)의 as-is/to-be 주소와 같은 origin이면 그 소스의 git 커밋이나 커밋 안 된 변경이 바뀔 때 (to-be는 개발하면서 늘 바뀐다),
+  기억에 있는 동작은 누르지 않고 새로 생긴 동작만 누른다. 결과는 큰 상한으로 한 번에 돌린 것과 같다 (`east2west/clicks.py`). 그래서 작은 상한으로 먼저 보고 넓혀 가도 된다.
+  기억을 버리는 때: 시작 주소가 등록부(`east2west.json`)의 as-is/to-be 주소와 같은 origin이면 그 소스의 git 커밋이나 커밋 안 된 변경이 바뀔 때 (to-be는 개발하면서 늘 바뀐다),
   시작 화면 구조가 달라질 때, `--settle-ms`·로그인 상태 파일이 바뀔 때. 등록부에 없는 주소는 코드 변경을 알 수 없으니, 앱이 바뀌었거나 저장 버튼으로 데이터가 쌓였으면 `cache/clicks.jsonl`을 지우고 돌린다.
   시간 초과 같은 오류는 다음 탐색에서 한 번 더 누르고, 두 번 연속이면 기억을 쓴다 (늘 가려진 버튼에 탐색마다 제한 시간을 쓰지 않게).
   포털 데모 실측: 깊이 2(45회) → 깊이 3으로 넓힘 = 새로 110회 + 기억 45회 (처음부터 깊이 3 = 155회), 결과(graph.json, test_crawl.py) 동일. 같은 탐색을 다시 하면 18회(오류 재시도) → 0회.
@@ -52,7 +52,7 @@ crawl은 **흐름 지도와 초안**을 만든다. 최종 검증이 아니다.
 | :--- | :--- |
 | `graph.md` | 화면에서 가능한 흐름 목록. 테스트를 쓸 때 "무엇을 테스트할지"를 LLM 탐색 없이 얻는다 |
 | `crawl_NN.yaml` + `cache/` | 스모크: 화면 이동이 되는지 넓게 훑기 (Jev 러너, 캐시 재생) |
-| `test_crawl.py` | 전환 검증: 검토 후 `e2e/<app>/`로 옮기면 골든 기록 · 사람 승인 · 결함 주입 · 보고서 흐름을 그대로 탄다 |
+| `test_crawl.py` | 전환 검증: 검토 후 `e2e/<app>/`로 옮기면 골든 기록(자동 승인) · 결함 주입 · 보고서 흐름을 그대로 탄다 |
 
 자동 검증(expect)은 화면 이동만 본다. 2026-09-24 ERP 거래처 관리에서 crawl 테스트의 결함 탐지율은 expect만으로 46%(11/24: 500, 조건문, 숫자는 잡고
 라벨·상세 데이터 변경은 못 잡음), 골든 비교를 더하면 100%(24/24)였다. 전환 검증에 쓸 때는 반드시 골든 비교와 함께 쓴다.
@@ -68,14 +68,14 @@ crawl은 **흐름 지도와 초안**을 만든다. 최종 검증이 아니다.
   "입력 후" 구분은 페이지와 보이는 프레임들의 경로가 같은지로 본다 (frameset은 페이지 URL이 늘 같다).
   동작 뒤 해시가 같고 대화상자도 없으면 화면 안 동작, 아니면 전이. alert/confirm만 뜨고 화면이 그대로여도 전이(자기 자신으로)로 본다.
 - **재생**: 동작마다 새 브라우저 컨텍스트에서 시작 URL부터 경로를 다시 재생한 뒤 누른다. 뒤로가기는 쓰지 않는다.
-- **병렬**: 한 상태의 동작들은 서로 독립이라 브라우저 여러 개가 나눠 누른다. 결과 반영(edge 번호, 새 상태 등록)은 한 줄로 원래 순서대로 하므로 그래프·시나리오는 작업 수와 무관하게 같다 (portal 데모 깊이 3: 262초 → 4개 93초, 8개 65초, 산출물 동일). 작업 수는 환경변수 `EASTSHIFT_CRAWL_WORKERS` (기본 4, `--storage-state`를 쓰면 1: 컨텍스트들이 로그인 세션 하나를 나눠 쓰면 서버 세션 상태가 섞일 수 있다. 세션을 나눠 써도 되는 앱이면 값을 직접 준다). 대상 서버가 동시 요청을 못 받으면 1로 둔다.
+- **병렬**: 한 상태의 동작들은 서로 독립이라 브라우저 여러 개가 나눠 누른다. 결과 반영(edge 번호, 새 상태 등록)은 한 줄로 원래 순서대로 하므로 그래프·시나리오는 작업 수와 무관하게 같다 (portal 데모 깊이 3: 262초 → 4개 93초, 8개 65초, 산출물 동일). 작업 수는 환경변수 `EAST2WEST_CRAWL_WORKERS` (기본 4, `--storage-state`를 쓰면 1: 컨텍스트들이 로그인 세션 하나를 나눠 쓰면 서버 세션 상태가 섞일 수 있다. 세션을 나눠 써도 되는 앱이면 값을 직접 준다). 대상 서버가 동시 요청을 못 받으면 1로 둔다.
 - **입력**: 입력칸은 누르지 않는다. 입력칸이 있는 상태에서는 전이 동작을 두 번 누른다.
   - 그대로: 빈 폼 (필수값 누락 경로)
   - 채워서: 픽스처 값과 다른 입력칸 값을 바꾸는 화면 안 버튼 하나 (캘린더 날짜 → 체크인 입력칸). 결과가 "그대로"와 같으면 기록하지 않는다.
   - 같은 URL 안에서 채운 뒤 도달한 상태는 따로 센다 ("(입력 후)"). 모달은 배경 폼의 값이 스냅샷에 안 나와서, 이렇게 구분하지 않으면 확정 시 성공/실패 경로가 하나로 합쳐진다.
 - **가지치기**: (프레임, 역할, 범위 라벨, 숫자를 가린 이름)이 같은 요소가 `--group-min`(3)개 이상이면 첫 요소만 누른다. 캘린더 31일은 1개, 행이 2개인 표는 둘 다 누른다.
   `--depth` (전이 수), `--max-states`, `--max-actions`, `--route-states`(라우트마다)로 상한을 둔다. 위 "끝까지 탐색" 참고.
-- **목록 표본** (`eastshift/lists.py`): 목록 행은 링크 이름에 데이터가 들어가서(ORD-1 노트북, ORD-2 볼펜) 위 규칙으로는 안 묶이고, 행 1,000개면 1,000번 누르게 된다.
+- **목록 표본** (`east2west/lists.py`): 목록 행은 링크 이름에 데이터가 들어가서(ORD-1 노트북, ORD-2 볼펜) 위 규칙으로는 안 묶이고, 행 1,000개면 1,000번 누르게 된다.
   그래서 표(`table`/`grid`)의 행과 목록(`list`)의 항목을 **템플릿**으로 보고 같은 열의 요소를 한 그룹으로 묶은 뒤, 행 몇 개만 대표로 누른다 (항목마다 링크 하나뿐인 목록은 메뉴라 전부 누른다).
   - **분기 열**: 값에 따라 상세가 달라질 수 있는 열. 픽스처 `pick`(사람) > **Jev 분류**(`--classify jev|auto`, 열마다 Choice: branch/key/measure/text/action, 캐시 `cache/lists.json`, margin < `--min-margin`이면 규칙으로 대신하고 graph.md에 **검토** 표시) > 규칙(값 종류 2~6, 숫자·날짜·긴 값 아님, 머리글에 상태·유형·등급 같은 말이 있으면 우선).
   - **대표 선택**: 분기 열 값 조합(층)마다 첫 행, 상한 `--reps`(3). 예산이 남으면 층마다 둘째 행. 분기 열이 없으면 첫 행과 끝 행.
@@ -141,6 +141,6 @@ pick:                        # 목록 표본의 분기 열 (목록 제목 → �
 - 상태 구분이 스냅샷 구조 해시라서, 텍스트가 계속 바뀌는 화면(시계, 광고 순환)은 매번 새 상태가 된다. SPA에서 URL이 안 바뀌면 "(입력 후)" 구분이 화면 이동 뒤에도 남을 수 있다.
 - 동작마다 경로를 처음부터 재생하므로 깊이가 깊을수록 느리다 (경로 길이 × 동작 수).
 - 탐색은 "정해진 조건(픽스처, deny, 예산, 로그인 상태) 안에서 누를 수 있는 것을 다 눌렀다"까지만 보장한다. 무엇을 놓쳤는지는 탐색만으로 알 수 없다.
-  잣대는 소스다: `eastshift routes <소스> --out crawl/<app>/routes.json`이 라우팅 선언에서 화면 주소 목록을 뽑고, 통합 화면의 지도가 그 목록과 대조해 못 간 화면을 회색으로 표시한다 (통합 화면의 탐색 버튼은 이를 자동으로 돌린다).
+  잣대는 소스다: `east2west routes <소스> --out crawl/<app>/routes.json`이 라우팅 선언에서 화면 주소 목록을 뽑고, 통합 화면의 지도가 그 목록과 대조해 못 간 화면을 회색으로 표시한다 (통합 화면의 탐색 버튼은 이를 자동으로 돌린다).
   graph.md의 "탐색하지 않은 상태(깊이 도달)"·"픽스처 값이 없는 입력칸" 절과 `state budget` 사유가 붙은 전이가 못 간 이유를 말해 준다. 깊이는 상한일 뿐이고, 저장 버튼이 데이터를 만들면 상태는 계속 늘어나므로 탐색 전 테스트 DB 초기화가 먼저다.
 - Jev 러너의 한계를 그대로 가진다: 이름 없는 아이콘 버튼, `div onclick`, 호버, 드래그, 스크롤은 동작 목록에 안 잡힌다.

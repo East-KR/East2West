@@ -9,7 +9,7 @@ One YAML scenario, one screen list. Which button is "조회" on each screen is d
 
 Checking computed values or as-is/to-be equivalence of a flow is the `e2e-tests` skill; this sweep answers "does every screen basically work".
 
-A screen whose flows go beyond open → query → detail (tabs, modals, multi-step forms) can get its own navigation smoke from the crawler instead of a list row: `eastshift crawl <path> --out crawl/<app>-<screen>` ([docs/CRAWL.md](../../../docs/CRAWL.md)). Run `--dry-run` first and show the user what it will click; it presses save/confirm buttons for real.
+A screen whose flows go beyond open → query → detail (tabs, modals, multi-step forms) can get its own navigation smoke from the crawler instead of a list row: `east2west crawl <path> --out crawl/<app>-<screen>` ([docs/CRAWL.md](../../../docs/CRAWL.md)). Run `--dry-run` first and show the user what it will click; it presses save/confirm buttons for real.
 
 ## 1. Build the screen list
 
@@ -20,7 +20,7 @@ Done when every menu entry of the batch is a row in exactly one group, or listed
 ## 2. Settle each screen's target
 
 ```bash
-uv run eastshift targets scenarios/<app>/screens.yaml --base-url <as-is> --out scenarios/<app>/screens.targets.yaml
+uv run east2west targets scenarios/<app>/screens.yaml --base-url <as-is> --out scenarios/<app>/screens.targets.yaml
 ```
 
 It opens each screen without clicking and lists its buttons. A screen whose buttons contain exactly one common query name (조회, 검색, 찾기, 조회하기, 검색하기, Search, Find; `--names` to change) is settled `by: rule`. Every other row is `by: review` with its `candidates`.
@@ -32,7 +32,7 @@ Done when no row is left `by: review`.
 ## 3. Run on the reference app
 
 ```bash
-uv run eastshift run scenarios/<app>/screen_smoke_targets.yaml --base-url <as-is> --settle-ms 500
+uv run east2west run scenarios/<app>/screen_smoke_targets.yaml --base-url <as-is> --settle-ms 500
 ```
 
 In migration work the reference is the as-is. For every failing row:
@@ -48,7 +48,7 @@ Done when every row passes on the reference app.
 ## 4. Run on the target
 
 ```bash
-uv run eastshift run scenarios/<app>/screen_smoke_targets.yaml --base-url <target> --junit reports/junit-<app>.xml
+uv run east2west run scenarios/<app>/screen_smoke_targets.yaml --base-url <target> --junit reports/junit-<app>.xml
 ```
 
 Hundreds of screens: add `--workers 4` (one browser per worker; rows are independent so the results are the same). Keep 1 when the scenario changes server state or all rows share one login session.

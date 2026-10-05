@@ -18,5 +18,5 @@ n6 예약 완료: 1 actions
 n7 객실 예약 (입력 후): 5 actions
 
 == states 10, actions {'transition': 13, 'local': 13, 'external': 0, 'error': 0, 'denied': 0} | crawl/reservation/graph.md | 6 scenarios
-   uv run eastshift run crawl/reservation/crawl_*.yaml --cache-dir crawl/reservation/cache --replay-only
+   uv run east2west run crawl/reservation/crawl_*.yaml --cache-dir crawl/reservation/cache --replay-only
    Playwright 테스트: crawl/reservation/test_crawl.py (검토 후 e2e/<app>/로 옮기면 승인·결함 주입 흐름에 올라간다)
