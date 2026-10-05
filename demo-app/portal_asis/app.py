@@ -3,7 +3,7 @@
 
 python demo-app/portal_asis/app.py <port> asis          as-is (버그 포함)
 python demo-app/portal_asis/app.py <port> asis-patched  as-is에 운영 패치가 들어온 뒤: 홈에 점검 안내 한 줄, 요약 카드 "미처리 주문" → "처리 대기".
-                                                        재기록하면 승인 탭에 "화면 바뀜"과 단계별 "지난 승인 대비"가 뜨는 데모 (기대값은 그대로)
+                                                        재기록하면 바뀐 골든이 자동 승인되는 데모 (기대값은 그대로)
 (python demo-app/portal_app.py <port> <변형> 도 같다: 변형 이름으로 이 앱을 띄운다)
 
 라우트

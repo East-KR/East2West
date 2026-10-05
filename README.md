@@ -2,7 +2,7 @@
 
 새로 만든 시스템(to-be)이 기존 시스템(as-is)과 **버그까지 똑같이** 동작하는지 검증하는 도구. 차세대 전환 프로젝트용.
 
-![to-be 비교 지도: 초록 같음 · 빨강 다름 · 노랑 미개발](docs/confluence/img/02-map-compare.png)
+![to-be 비교 지도: 초록 같음 · 빨강 결함 · 노랑 못 찾음](docs/confluence/img/02-map-compare.png)
 
 정답(오라클)은 코드의 의도가 아니라 **실행 중인 as-is의 관찰 결과**다. 세 가지 약속 위에 서 있다.
 
@@ -21,7 +21,7 @@ python demo-app/portal_app.py 8825 tobe-modern &    # to-be (새 룩 + 일부러
 uv run east2west ui                                 # http://127.0.0.1:8790
 ```
 
-`portal` 프로젝트를 열면 위 지도가 보인다. 화면 7개 중 5개 같음, `/orders` 하나가 **다름**(고객 상세의 "주문 보기"가 다른 고객 주문까지 보여 줌), `/notices` 하나가 **미개발**(as-is에만 있는 공지사항). 실행 탭의 판정은 "차이 있음 — 25개 중 1개, 신뢰 확인 16/16, 결함 탐지 134/135".
+`portal` 프로젝트를 열면 위 지도가 보인다. 화면 7개 중 5개 같음, `/orders` 하나가 **결함**(고객 상세의 "주문 보기"가 다른 고객 주문까지 보여 줌), `/notices` 하나가 **못 찾음**(as-is에만 있는 공지사항, to-be 미개발). 실행 탭의 판정은 "차이 있음 — 25개 중 1개, 신뢰 확인 16/16, 결함 탐지 134/135". as-is 이상 동작 탭에는 데모 as-is에 일부러 넣은 버그 두 건(부가세 10원 절사, 이미 취소된 주문의 중복 취소)이 고객 결정 전으로 올라 있다.
 
 ## 흐름
 
@@ -32,14 +32,16 @@ uv run east2west ui                                 # http://127.0.0.1:8790
 | 단계 | 화면에서 | 터미널에서 (CI·에이전트) |
 | :--- | :--- | :--- |
 | ① 탐색 · ② 기록 | Screen Map 탭 "Screen Map 만들기" (탐색 → 시나리오 초안 → 기록) | `uv run east2west crawl <시작 URL> --out crawl/<app>` · `uv run pytest e2e/<app> --base-url $ASIS --record golden/<app>` |
-| ③ 결함 주입 | 실행 탭 "결함 탐지 측정" | `uv run east2west mutate e2e/<app> --base-url $ASIS --compare golden/<app>` |
-| ④ to-be 비교 | Screen Map "to-be 비교" · 실행 탭 "비교 다시 실행" | `uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml` |
+| ③ 결함 주입 | 실행 탭 "결함 탐지 측정 실행" (빨간 항목 옆 바로 해결) | `uv run east2west mutate e2e/<app> --base-url $ASIS --compare golden/<app> --max-per-op 100` |
+| ④ to-be 비교 | Screen Map "to-be 비교" · 실행 탭 "to-be 비교 다시 실행" (바로 해결) | `uv run pytest e2e/<app> --base-url $TOBE --compare golden/<app> --junitxml reports/junit-<app>.xml` |
 | ⑤ 판정 | 실행 탭 | `uv run east2west report --oracle golden/<app> --junit reports/junit-<app>.xml --mutation reports/mutation-<app>-golden.json --out reports/verification-<app>.md` |
 | 수정 → 재실행 | 실행 탭 "지난 실행 대비" | `uv run east2west status golden/<app>` |
 
 사람이 보는 화면은 전부 `east2west ui` 한 곳이고, 파일로 따로 떨구는 명령은 없다. 절차와 신뢰 장치 전체는 [docs/MIGRATION.md](docs/MIGRATION.md).
 
 ## 통합 화면
+
+`east2west ui` 하나로 본다. 첫 화면은 프로젝트 목록이고, 프로젝트를 열면 왼쪽 메뉴가 **Screen Map → 시나리오 → as-is 이상 동작 → 실행** 순서다. 위쪽의 실행 고르기로 어느 비교 실행을 볼지 정한다.
 
 ### 프로젝트
 
@@ -69,12 +71,20 @@ uv run east2west ui                                 # http://127.0.0.1:8790
 
 카드를 누르면 그 화면 한 장: 캡처(as-is ↔ to-be 전환, 누르면 두 장을 나란히 크게. to-be 는 비교 실행의 같은 단계 캡처가 먼저, 없으면 to-be 탐색 캡처)와 그 아래 이 화면의 테스트(다른 것이 맨 위). 테스트를 누르면 시나리오 상세가 창 가득 열린다: **단계별 캡처**(필름이 AS-IS 줄과 TO-BE 줄로 나뉘어 같은 단계가 위아래로 맞는다), **단계별 비교**(왼쪽 as-is · 오른쪽 to-be), 아래에 이 화면의 다른 점 모음. 탐색 지도는 "다시 탐색"으로 갱신하고, 소스 위치가 있으면 라우트 대조로 "소스 화면 N 중 M 도달"을 같이 보여 준다.
 
+![지도에서 연 시나리오 상세: 단계별 캡처(AS-IS · TO-BE 두 줄)와 단계별 비교](docs/confluence/img/11-map-scenario.png)
+
 ### 시나리오
 
 ![시나리오 상세: 단계·확인 값·다른 점 표](docs/confluence/img/06-scenario-detail.png)
 
 골든 시나리오의 현황판. 행마다 마지막 결과와 실행 이력 점, 누르면 단계 필름스트립·확인한 값·"무엇이 · as-is · to-be" 표. as-is가 바뀌었으면 머리의 **as-is에서 다시 기록** 버튼으로 골든을 새로 뜬다(끝나면 자동 승인).
 비교는 단계마다 to-be 화면도 캡처하므로(`runs/<app>/<시각>/shots/`), 마지막 실행에 든 시나리오는 단계마다 as-is | to-be 를 나란히 본다: 필름 두 줄, 단계 목록 두 칸, 누르면 두 장을 나란히 크게. to-be 가 그 단계까지 가지 못했으면 'to-be 화면 없음' 자리가 보인다. 표 아래 **이 화면의 다른 점 모음**은 이 시나리오가 처음 연 화면을 지나는 시나리오들이 같은 실행에서 잡은 차이와 잡은 시나리오(이 시나리오도 잡은 줄은 붉게).
+
+### as-is 이상 동작
+
+![as-is 이상 동작: 기록 목록과 상세, 고객 결정 입력](docs/confluence/img/07-quirks.png)
+
+as-is가 이상하게 동작하는 곳의 기록(`quirks/<app>.json`)을 고객과 정하는 탭. 요약 칸과 결정 거르기, 목록 → 상세(무엇이 이상한가, 보통의 기대, 재현, 영향, 원인·근거, as-is 캡처 ↔ to-be 캡처)와 결정 입력(현행 유지 · 수정 · 보류). '수정' 건만 **판정에 반영**으로 판정 규칙이 되고, 결정은 소스 수정 작업 목록(.md)과 고객용 HTML로 내려받는다. 자세한 원칙은 아래 [as-is 이상 동작과 차이 규칙](#as-is-이상-동작과-차이-규칙).
 
 ### 실행
 
@@ -149,11 +159,11 @@ uv run east2west routes <소스 폴더> --out crawl/<app>/routes.json           
 ## 저장소 구성
 
 ```
-east2west/         패키지. pwtest/ (Playwright 검증, 통합 화면 hub.py, 원장 ledger.py, 결함 주입 mutation.py), runner.py·snapshot.py·jev.py (Jev 러너),
+east2west/         패키지. pwtest/ (Playwright 검증, 통합 화면 hub.py, 원장 ledger.py, 결함 주입 mutation.py, 차이 규칙 rules.py, as-is 이상 동작 quirks.py), runner.py·snapshot.py·jev.py (Jev 러너),
                    crawl.py·clicks.py (탐색, 누른 동작 기억), routes.py (라우트 대조), observe.py (비교 정규화)
 e2e/<app>/         Playwright 테스트                golden/<app>/   승인된 오라클 (골든, 스크린샷, 규칙, APPROVED.json)
 east2west.json     프로젝트 등록부: as-is/to-be 소스 위치·실행 주소 (east2west ui 첫 화면에서 추가·설정)
-quirks/<app>.json  as-is 이상 동작 기록 (.brief.json 짧은 글, .decisions.json 고객 결정 — 사람만). 골든 밖이라 승인 해시에 들지 않는다
+quirks/<app>.json  as-is 이상 동작 기록 (.brief.json 짧은 글, .decisions.json 고객 결정 — 사람만). 골든 밖이라 승인 해시에 들지 않는다. 데모: quirks/portal.json
 runs/<app>/        to-be 비교 실행 원장 (실행마다 JSON + JUnit·스크린샷 사본, mutations/ 결함 주입 결과)
 scenarios/         YAML 시나리오 (스모크, 데모)      examples/       YAML 전환 예제, 비교 실험 코드, crawl 픽스처
 demo-app/          데모 서버. 포털(메인 데모: as-is 소스 portal_asis/ 와 to-be 소스 portal_tobe/ 가 따로, 변형 8개는 portal_app.py <port> <변형>),

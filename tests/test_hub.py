@@ -175,7 +175,7 @@ def test_sig_sees_top_level_and_subfolder_changes(tmp_path, monkeypatch):
 
 
 def test_record_plan_reruns_pytest_record_and_needs_a_golden(tmp_path, monkeypatch):
-    # 승인 탭의 'as-is에서 다시 기록': 터미널의 pytest --record 와 같은 명령. 골든이 없는 앱은 init(탐색부터)이 맡는다
+    # 시나리오 탭의 'as-is에서 다시 기록': 터미널의 pytest --record 와 같은 명령. 골든이 없는 앱은 init(탐색부터)이 맡는다
     monkeypatch.setattr(ledger, "RUNS", tmp_path / "runs")
     g = tmp_path / "golden"; (g / "shop").mkdir(parents=True); (g / "shop" / "test_a.json").write_text("{}", encoding="utf-8")
     reg = tmp_path / "east2west.json"

@@ -43,7 +43,7 @@ def _origin(url: str) -> tuple[str, str, int | None]:
 
 def path_pairs(name_map: dict[str, str]) -> list[tuple[str, str]]:
     """이름 매핑 중 주소 항목: 키가 '/'로 시작하면 as-is 주소 → to-be 주소다 (전환하며 주소 체계가 바뀐 화면, /sys/UserList/index.do → /sys/user-list).
-    {이름} 조각은 주소 한 단계와 맞고 값은 to-be 쪽 같은 이름 자리로 옮긴다 (/orders/{id} → /order/{id}). 오라클 폴더 안의 파일이라 사람이 승인한다."""
+    {이름} 조각은 주소 한 단계와 맞고 값은 to-be 쪽 같은 이름 자리로 옮긴다 (/orders/{id} → /order/{id}). 오라클 폴더 안의 파일이라 승인 해시에 든다 (자동 승인)."""
     return [(a, b) for a, b in name_map.items() if isinstance(a, str) and a.startswith("/") and isinstance(b, str) and b.startswith("/")]
 
 
